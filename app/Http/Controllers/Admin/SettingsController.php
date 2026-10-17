@@ -368,43 +368,122 @@ class SettingsController extends Controller
         $tab = $request->input('tab', 'general');
         $inputs = $request->except(['_token', 'tab', 'adm_action']);
 
-        // Branding File Uploads & Reset Handling
+        // Branding File Uploads & Reset Handling (with automatic previous file deletion)
         $brandingDir = public_path('uploads/branding');
         if (!file_exists($brandingDir)) {
             @mkdir($brandingDir, 0755, true);
         }
 
+        // Helper function to safely delete previous media from local storage and Cloudinary
+        $deleteOldBrandingFile = function (?string $oldPath) {
+            if (empty($oldPath)) {
+                return;
+            }
+
+            // 1. Delete from Cloudinary if hosted there
+            if (\Illuminate\Support\Str::startsWith($oldPath, 'https://res.cloudinary.com/')) {
+                try {
+                    \App\Services\CloudinaryService::delete($oldPath);
+                } catch (\Throwable $e) {
+                    \Illuminate\Support\Facades\Log::warning('[SettingsController] Cloudinary delete failed: ' . $e->getMessage());
+                }
+                return;
+            }
+
+            // 2. Delete local storage file if exists
+            try {
+                $parsed = parse_url($oldPath, PHP_URL_PATH);
+                $cleanRelative = $parsed ? ltrim($parsed, '/') : ltrim($oldPath, '/');
+
+                if (preg_match('#uploads/branding/[^/]+$#', $cleanRelative, $matches)) {
+                    $fileOnDisk = public_path($matches[0]);
+                    if (file_exists($fileOnDisk) && is_file($fileOnDisk)) {
+                        @unlink($fileOnDisk);
+                    }
+                } elseif (file_exists(public_path($cleanRelative)) && is_file(public_path($cleanRelative))) {
+                    @unlink(public_path($cleanRelative));
+                }
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('[SettingsController] Local file delete failed: ' . $e->getMessage());
+            }
+        };
+
+        // Helper function to upload branding file (Cloudinary if available with WebP, or local with WebP)
+        $uploadBrandingFile = function ($file, string $prefix, ?string $oldPath) use ($deleteOldBrandingFile, $brandingDir) {
+            // Delete previously uploaded file first from storage
+            $deleteOldBrandingFile($oldPath);
+
+            // 1. Try Cloudinary if configured
+            if (\App\Services\CloudinaryService::isConfigured()) {
+                $cloudUrl = \App\Services\CloudinaryService::upload($file, 'branding');
+                if ($cloudUrl) {
+                    return $cloudUrl;
+                }
+            }
+
+            // 2. Fallback to local storage (auto WebP conversion if possible)
+            $ext = strtolower($file->getClientOriginalExtension() ?: 'png');
+            $filename = $prefix . '_' . time() . '.' . $ext;
+            $destination = $brandingDir . DIRECTORY_SEPARATOR . $filename;
+            $file->move($brandingDir, $filename);
+
+            // Try auto-converting local file to WebP if supported (for JPG/PNG) to save disk space
+            if (in_array($ext, ['png', 'jpg', 'jpeg']) && function_exists('imagewebp') && file_exists($destination)) {
+                try {
+                    $webpFilename = $prefix . '_' . time() . '.webp';
+                    $webpDest = $brandingDir . DIRECTORY_SEPARATOR . $webpFilename;
+                    $data = file_get_contents($destination);
+                    $im = @imagecreatefromstring($data);
+                    if ($im) {
+                        imagealphablending($im, true);
+                        imagesavealpha($im, true);
+                        if (imagewebp($im, $webpDest, 90)) {
+                            imagedestroy($im);
+                            @unlink($destination); // delete non-webp version
+                            return 'uploads/branding/' . $webpFilename;
+                        }
+                        imagedestroy($im);
+                    }
+                } catch (\Throwable $e) {
+                    // fallback to original file
+                }
+            }
+
+            return 'uploads/branding/' . $filename;
+        };
+
+        $oldPrimaryLogo = Setting::get('adm_site_logo');
+        $oldDarkLogo = Setting::get('adm_site_logo_dark');
+        $oldFavicon = Setting::get('adm_site_favicon');
+
         // 1. Primary Site Logo Upload
         if ($request->hasFile('adm_site_logo_file')) {
-            $file = $request->file('adm_site_logo_file');
-            $ext = strtolower($file->getClientOriginalExtension() ?: 'png');
-            $filename = 'logo_' . time() . '.' . $ext;
-            $file->move($brandingDir, $filename);
-            $inputs['adm_site_logo'] = 'uploads/branding/' . $filename;
+            $inputs['adm_site_logo'] = $uploadBrandingFile($request->file('adm_site_logo_file'), 'logo', $oldPrimaryLogo);
         } elseif ($request->input('adm_remove_site_logo') === '1') {
+            $deleteOldBrandingFile($oldPrimaryLogo);
             $inputs['adm_site_logo'] = '';
+        } elseif ($request->filled('adm_site_logo') && $request->input('adm_site_logo') !== $oldPrimaryLogo) {
+            $deleteOldBrandingFile($oldPrimaryLogo);
         }
 
         // 2. Dark / Footer Logo Upload
         if ($request->hasFile('adm_site_logo_dark_file')) {
-            $file = $request->file('adm_site_logo_dark_file');
-            $ext = strtolower($file->getClientOriginalExtension() ?: 'png');
-            $filename = 'logo_dark_' . time() . '.' . $ext;
-            $file->move($brandingDir, $filename);
-            $inputs['adm_site_logo_dark'] = 'uploads/branding/' . $filename;
+            $inputs['adm_site_logo_dark'] = $uploadBrandingFile($request->file('adm_site_logo_dark_file'), 'logo_dark', $oldDarkLogo);
         } elseif ($request->input('adm_remove_site_logo_dark') === '1') {
+            $deleteOldBrandingFile($oldDarkLogo);
             $inputs['adm_site_logo_dark'] = '';
+        } elseif ($request->filled('adm_site_logo_dark') && $request->input('adm_site_logo_dark') !== $oldDarkLogo) {
+            $deleteOldBrandingFile($oldDarkLogo);
         }
 
         // 3. Browser Favicon Upload
         if ($request->hasFile('adm_site_favicon_file')) {
-            $file = $request->file('adm_site_favicon_file');
-            $ext = strtolower($file->getClientOriginalExtension() ?: 'png');
-            $filename = 'favicon_' . time() . '.' . $ext;
-            $file->move($brandingDir, $filename);
-            $inputs['adm_site_favicon'] = 'uploads/branding/' . $filename;
+            $inputs['adm_site_favicon'] = $uploadBrandingFile($request->file('adm_site_favicon_file'), 'favicon', $oldFavicon);
         } elseif ($request->input('adm_remove_site_favicon') === '1') {
+            $deleteOldBrandingFile($oldFavicon);
             $inputs['adm_site_favicon'] = '';
+        } elseif ($request->filled('adm_site_favicon') && $request->input('adm_site_favicon') !== $oldFavicon) {
+            $deleteOldBrandingFile($oldFavicon);
         }
 
         unset($inputs['adm_remove_site_logo'], $inputs['adm_remove_site_logo_dark'], $inputs['adm_remove_site_favicon']);

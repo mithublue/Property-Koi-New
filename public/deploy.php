@@ -28,20 +28,22 @@ if (!file_exists($baseDir . '/artisan')) {
 
 chdir($baseDir);
 
-// Detect PHP 8.3 CLI binary on cPanel / HostTier
+// Find available PHP 8.3 / PHP 8 binaries
+$findPhp = runCommand('which ea-php83 2>/dev/null || which php83 2>/dev/null || which php8.3 2>/dev/null || ls /usr/local/bin/ea-php* 2>/dev/null || ls /opt/cpanel/ea-php*/root/usr/bin/php 2>/dev/null || which php');
+$phpCandidates = array_filter(array_map('trim', explode("\n", (string)$findPhp)));
 $phpBin = 'php';
-foreach ([
-    '/usr/local/bin/ea-php83',
-    '/opt/cpanel/ea-php83/root/usr/bin/php',
-    '/usr/bin/ea-php83',
-    '/usr/local/bin/php83',
-    '/usr/bin/php83',
-    'php83',
-    'php8.3',
-] as $candidate) {
-    if (@file_exists($candidate) && @is_executable($candidate)) {
+foreach ($phpCandidates as $candidate) {
+    if (strpos($candidate, '83') !== false || strpos($candidate, '8.3') !== false) {
         $phpBin = $candidate;
         break;
+    }
+}
+if ($phpBin === 'php' && !empty($phpCandidates[0])) {
+    foreach ($phpCandidates as $candidate) {
+        if (strpos($candidate, '8') !== false) {
+            $phpBin = $candidate;
+            break;
+        }
     }
 }
 

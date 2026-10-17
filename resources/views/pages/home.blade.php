@@ -4,22 +4,24 @@
 <div class="space-y-12 md:space-y-16 pb-12">
 
     <!-- Hero Section -->
-    <section class="relative bg-gradient-to-b from-emerald-900 via-slate-900 to-slate-950 text-white pt-12 md:pt-20 pb-16 md:pb-24 px-4 sm:px-6 lg:px-8 overflow-hidden">
+    <section class="relative bg-slate-950 text-white pt-10 sm:pt-16 md:pt-20 pb-14 sm:pb-20 md:pb-24 px-4 sm:px-6 lg:px-8 overflow-hidden"
+             style="background-color: #042f2e; background-image: linear-gradient(180deg, #064e3b 0%, #0f172a 55%, #020617 100%);">
         <!-- Background subtle glow -->
-        <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(16,185,129,0.15),transparent_50%)]"></div>
+        <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(16,185,129,0.18),transparent_50%)] pointer-events-none"></div>
 
-        <div class="max-w-5xl mx-auto text-center relative z-10 space-y-5">
-            <span class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs md:text-sm font-semibold tracking-wide">
+        <div class="max-w-5xl mx-auto text-center relative z-10 space-y-4 sm:space-y-5">
+            <span class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-xs md:text-sm font-bold tracking-wide shadow-xs">
                 <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                 ১০০% সরাসরি মালিক ও ভেরিফাইড প্রপার্টি
             </span>
 
-            <h1 class="text-3xl sm:text-5xl md:text-6xl font-black tracking-tight leading-tight md:leading-tight">
+            <h1 class="text-3xl sm:text-5xl md:text-6xl font-black tracking-tight leading-tight md:leading-tight text-white">
                 ঢাকা ও আফতাবনগরের <br class="hidden sm:inline">
-                <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-300">সরাসরি প্রপার্টি</span> মার্কেটপ্লেস
+                <span class="text-emerald-400 font-black inline-block"
+                      style="background: linear-gradient(90deg, #34d399, #2dd4bf); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">সরাসরি প্রপার্টি</span> মার্কেটপ্লেস
             </h1>
 
-            <p class="max-w-2xl mx-auto text-sm sm:text-base md:text-lg text-slate-300 leading-relaxed font-normal">
+            <p class="max-w-2xl mx-auto text-sm sm:text-base md:text-lg text-slate-200 leading-relaxed font-medium">
                 কোনো মধ্যস্বত্বভোগী ছাড়া সরাসরি প্রকৃত মালিক ও ভেরিফাইড এজেন্টের সাথে আলোচনা করে জমি, ফ্ল্যাট বা দোকান কিনুন ও বিক্রি করুন।
             </p>
 
@@ -201,7 +203,8 @@
 
     <!-- Direct Buyer Demand CTA Banner -->
     <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="bg-gradient-to-r from-emerald-600 via-teal-700 to-slate-900 rounded-3xl p-6 sm:p-10 text-white flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl">
+        <div class="rounded-3xl p-6 sm:p-10 text-white flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl"
+             style="background-color: #047857; background-image: linear-gradient(135deg, #059669 0%, #0f766e 50%, #0f172a 100%);">
             <div class="space-y-2 text-center md:text-left">
                 <span class="px-3 py-1 rounded-full bg-white/20 text-white text-xs font-bold uppercase tracking-wider inline-block">
                     ডিমান্ড ম্যাচিং ইঞ্জিন

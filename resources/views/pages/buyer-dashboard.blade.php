@@ -34,7 +34,8 @@
         <!-- ==========================================
              TOP PROFILE & WELCOME HEADER CARD
              ========================================== -->
-        <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-emerald-950 text-white rounded-3xl p-6 sm:p-8 shadow-xl relative overflow-hidden">
+        <div class="text-white rounded-3xl p-6 sm:p-8 shadow-xl relative overflow-hidden"
+             style="background-color: #0f172a; background-image: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #064e3b 100%);">
             <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
             <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative z-10">

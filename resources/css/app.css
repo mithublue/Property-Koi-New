@@ -20,6 +20,17 @@ body {
     -moz-osx-font-smoothing: grayscale;
 }
 
+/* Cross-browser gradient fix: override Tailwind v4 'in oklab' which causes Safari/iOS WebKit to reject linear-gradient */
+.bg-gradient-to-t { --tw-gradient-position: to top !important; }
+.bg-gradient-to-tr { --tw-gradient-position: to top right !important; }
+.bg-gradient-to-r { --tw-gradient-position: to right !important; }
+.bg-gradient-to-br { --tw-gradient-position: to bottom right !important; }
+.bg-gradient-to-b { --tw-gradient-position: to bottom !important; }
+.bg-gradient-to-bl { --tw-gradient-position: to bottom left !important; }
+.bg-gradient-to-l { --tw-gradient-position: to left !important; }
+.bg-gradient-to-tl { --tw-gradient-position: to top left !important; }
+
+
 /* Card hover animation */
 .adm-property-card {
     transition: transform 0.2s ease, box-shadow 0.2s ease;

@@ -10,7 +10,8 @@
 
     <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         <!-- Top Role Mode Banner Card -->
-        <div class="@if((isset($is_agent_user) && $is_agent_user) || (isset($is_owner_user) && $is_owner_user)) bg-gradient-to-r from-emerald-950 via-slate-900 to-slate-900 border border-emerald-500/30 @else bg-slate-900 @endif text-white rounded-3xl p-6 sm:p-8 text-center space-y-3 shadow-xl">
+        <div class="@if((isset($is_agent_user) && $is_agent_user) || (isset($is_owner_user) && $is_owner_user)) bg-gradient-to-r from-emerald-950 via-slate-900 to-slate-900 border border-emerald-500/30 @else bg-slate-900 @endif text-white rounded-3xl p-6 sm:p-8 text-center space-y-3 shadow-xl"
+             style="background-color: #0f172a;">
             @if(isset($is_agent_user) && $is_agent_user)
                 <div class="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-400 text-slate-950 font-extrabold text-[11px] rounded-full uppercase shadow-sm mb-1">
                     🤝 ডিরেক্ট এজেন্ট মোড (Direct Agent Mode)

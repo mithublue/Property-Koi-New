@@ -7,7 +7,8 @@
      x-data="{ showPolicyModal: false }">
 
     <!-- Profile Header Card -->
-    <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white p-6 md:p-8 rounded-3xl shadow-xl flex flex-col md:flex-row items-center justify-between gap-6">
+    <div class="text-white p-6 md:p-8 rounded-3xl shadow-xl flex flex-col md:flex-row items-center justify-between gap-6"
+         style="background-color: #0f172a; background-image: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);">
         <div class="flex items-center gap-4 text-center md:text-left">
             <div class="w-16 h-16 rounded-2xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center font-bold text-2xl flex-shrink-0">
                 {{ substr($user->name, 0, 1) }}

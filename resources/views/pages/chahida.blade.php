@@ -181,7 +181,8 @@
      }">
 
     <!-- Header Section -->
-    <div class="bg-gradient-to-r from-emerald-900 via-teal-900 to-slate-900 text-white rounded-3xl p-6 sm:p-10 shadow-xl text-center space-y-3 relative overflow-hidden">
+    <div class="rounded-3xl p-6 sm:p-10 text-white shadow-xl text-center space-y-3 relative overflow-hidden"
+         style="background-color: #064e3b; background-image: linear-gradient(135deg, #064e3b 0%, #134e4a 50%, #0f172a 100%);">
         <div class="absolute -right-10 -bottom-10 w-52 h-52 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none"></div>
         <div class="absolute -left-10 -top-10 w-44 h-44 bg-teal-500/15 rounded-full blur-2xl pointer-events-none"></div>
 

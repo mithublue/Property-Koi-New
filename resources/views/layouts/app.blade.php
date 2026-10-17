@@ -214,7 +214,7 @@
     <!-- Top Navigation Header -->
     <header id="site-header" class="site-header sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-xs">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-16 md:h-18">
+            <div class="flex items-center justify-between h-16 md:h-20">
 
                 <!-- Left / Mobile Hamburger -->
                 <div class="flex items-center md:hidden">
@@ -228,13 +228,13 @@
                 </div>
 
                 <!-- Brand Logo (Centered on mobile, Left on desktop) -->
-                <div class="site-branding flex items-center justify-center flex-1 md:flex-initial">
+                <div class="site-branding flex items-center justify-center flex-1 md:flex-initial py-1">
                     <a href="{{ route('home') }}" class="inline-flex items-center gap-2.5 group text-decoration-none">
                         @if($siteLogoUrl)
-                            <img src="{{ $siteLogoUrl }}" alt="{{ $siteName }}" class="h-9 md:h-11 w-auto max-w-[210px] object-contain group-hover:scale-105 transition-transform">
+                            <img src="{{ $siteLogoUrl }}" alt="{{ $siteName }}" class="h-10 sm:h-12 md:h-14 lg:h-16 w-auto max-w-[240px] md:max-w-[280px] lg:max-w-[320px] object-contain group-hover:scale-105 transition-transform">
                         @else
-                            <div class="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-gradient-to-tr from-emerald-600 via-teal-600 to-emerald-500 flex items-center justify-center text-white shadow-md shadow-emerald-500/20 group-hover:scale-105 transition-transform">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                            <div class="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-tr from-emerald-600 via-teal-600 to-emerald-500 flex items-center justify-center text-white shadow-md shadow-emerald-500/20 group-hover:scale-105 transition-transform">
+                                <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
                             </div>
                             <div class="text-left">
                                 <span class="text-xl md:text-2xl font-black text-slate-900 tracking-tight leading-none group-hover:text-emerald-600 transition-colors">{{ $siteName }}</span>

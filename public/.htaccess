@@ -5,6 +5,10 @@
 
     RewriteEngine On
 
+    # Block access to hidden files/folders like .git
+    RewriteRule ^\.git - [F,L]
+    RewriteRule ^\.env - [F,L]
+
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]

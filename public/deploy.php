@@ -28,14 +28,31 @@ if (!file_exists($baseDir . '/artisan')) {
 
 chdir($baseDir);
 
+// Detect PHP 8.3 CLI binary on cPanel / HostTier
+$phpBin = 'php';
+foreach ([
+    '/usr/local/bin/ea-php83',
+    '/opt/cpanel/ea-php83/root/usr/bin/php',
+    '/usr/bin/ea-php83',
+    '/usr/local/bin/php83',
+    '/usr/bin/php83',
+    'php83',
+    'php8.3',
+] as $candidate) {
+    if (@file_exists($candidate) && @is_executable($candidate)) {
+        $phpBin = $candidate;
+        break;
+    }
+}
+
 // 1. Git pull
 $gitPull = runCommand('git pull origin main');
 
 // 2. Clear cache
-$cacheClear = runCommand('php artisan optimize:clear');
+$cacheClear = runCommand($phpBin . ' artisan optimize:clear');
 
 // 3. Migrate if needed
-$migration = runCommand('php artisan migrate --force');
+$migration = runCommand($phpBin . ' artisan migrate --force');
 
 // রেসপন্স প্রদান
 header('Content-Type: application/json');

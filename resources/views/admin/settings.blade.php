@@ -2852,6 +2852,20 @@ function admFcmSettings() {
                     if (badge && (badge.textContent.includes('0টি') || badge.textContent.includes('০টি'))) {
                         badge.textContent = '📱 ১টি ডিভাইস সংযুক্ত';
                     }
+                    if (typeof window.admShowInAppToast === 'function') {
+                        window.admShowInAppToast('🔔 টেস্ট পুশ নোটিফিকেশন!', self.testFcmMsg, window.location.href);
+                    }
+                    if (Notification.permission === 'granted') {
+                        try {
+                            const iconUrl = (window.admVars && window.admVars.baseUrl)
+                                ? window.admVars.baseUrl.replace(/\/+$/, '') + '/assets/icons/icon-192x192.png'
+                                : '/assets/icons/icon-192x192.png';
+                            new Notification('🔔 টেস্ট পুশ নোটিফিকেশন!', {
+                                body: self.testFcmMsg,
+                                icon: iconUrl
+                            });
+                        } catch (e) {}
+                    }
                 }
             })
             .catch(function() {

@@ -23,26 +23,29 @@
         ? window.admVars.vapidKey
         : 'BJcfKVomEe-5fyPcnaLttqggMH-kzlwXR-XJ823qehOdwW6elZu3rUEq2jn54Hq7iKQ7ZfPnvIZVArzLaulxYSY';
 
+    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    const localPrefix = isLocalhost ? '/projects/real-estate/laravel-site/public' : '';
+
     function getSwPath() {
         if (window.admVars && window.admVars.swUrl) return window.admVars.swUrl;
-        return window.location.origin + '/projects/real-estate/laravel-site/public/firebase-messaging-sw.js';
+        return window.location.origin + localPrefix + '/firebase-messaging-sw.js';
     }
 
     function getRegisterUrl() {
         if (window.admVars && window.admVars.registerTokenUrl) return window.admVars.registerTokenUrl;
-        return window.location.origin + '/projects/real-estate/laravel-site/public/api/fcm/register-token';
+        return window.location.origin + localPrefix + '/api/fcm/register-token';
     }
 
     function getScope() {
         if (window.admVars && window.admVars.scope) return window.admVars.scope;
-        return window.location.origin + '/projects/real-estate/laravel-site/public/';
+        return window.location.origin + localPrefix + '/';
     }
 
     function getIconUrl() {
         if (window.admVars && window.admVars.baseUrl) {
             return window.admVars.baseUrl.replace(/\/+$/, '') + '/assets/icons/icon-192x192.png';
         }
-        return window.location.origin + '/projects/real-estate/laravel-site/public/assets/icons/icon-192x192.png';
+        return window.location.origin + localPrefix + '/assets/icons/icon-192x192.png';
     }
 
     function loadScript(src) {
@@ -235,16 +238,30 @@
         }
     }
 
+    window.admShowInAppToast = showInAppToast;
+
+    async function getActiveRegistration() {
+        const SW_PATH = getSwPath();
+        const SW_SCOPE = getScope();
+        let registration = await navigator.serviceWorker.getRegistration(SW_SCOPE);
+        if (!registration) {
+            registration = await navigator.serviceWorker.register(SW_PATH, { scope: SW_SCOPE });
+            console.log('[FCM] ServiceWorker registered with scope:', SW_SCOPE);
+        }
+        try {
+            registration.update().catch(() => {});
+        } catch (e) {}
+
+        try {
+            return await navigator.serviceWorker.ready;
+        } catch (e) {
+            return registration;
+        }
+    }
+
     async function initFCM() {
         try {
-            const SW_PATH = getSwPath();
-            const SW_SCOPE = getScope();
-
-            let registration = await navigator.serviceWorker.getRegistration(SW_SCOPE);
-            if (!registration) {
-                registration = await navigator.serviceWorker.register(SW_PATH, { scope: SW_SCOPE });
-                console.log('[FCM] ServiceWorker registered with scope:', SW_SCOPE);
-            }
+            const registration = await getActiveRegistration();
 
             await loadScript('https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js');
             await loadScript('https://www.gstatic.com/firebasejs/10.13.2/firebase-messaging-compat.js');
@@ -256,7 +273,7 @@
             const messaging = window.firebase.messaging();
 
             // Foreground message listener: show both native browser notification and in-app toast
-            messaging.onMessage(function(payload) {
+            messaging.onMessage(async function(payload) {
                 console.log('[FCM] Foreground message received:', payload);
                 const title = payload.notification?.title || payload.data?.title || 'Property Koi';
                 const body  = payload.notification?.body  || payload.data?.body  || '';
@@ -268,8 +285,9 @@
                 if (Notification.permission === 'granted') {
                     try {
                         const iconUrl = getIconUrl();
-                        if (registration && registration.showNotification) {
-                            registration.showNotification(title, {
+                        const activeReg = await getActiveRegistration();
+                        if (activeReg && activeReg.showNotification) {
+                            activeReg.showNotification(title, {
                                 body: body,
                                 icon: iconUrl,
                                 badge: iconUrl,
@@ -332,12 +350,7 @@
                 window.firebase.initializeApp(firebaseConfig);
             }
 
-            const SW_PATH = getSwPath();
-            const SW_SCOPE = getScope();
-            let registration = await navigator.serviceWorker.getRegistration(SW_SCOPE);
-            if (!registration) {
-                registration = await navigator.serviceWorker.register(SW_PATH, { scope: SW_SCOPE });
-            }
+            const registration = await getActiveRegistration();
             const messaging = window.firebase.messaging();
             const token = await messaging.getToken({
                 vapidKey: VAPID_KEY,
@@ -364,12 +377,7 @@
                     window.firebase.initializeApp(firebaseConfig);
                 }
 
-                const SW_PATH = getSwPath();
-                const SW_SCOPE = getScope();
-                let registration = await navigator.serviceWorker.getRegistration(SW_SCOPE);
-                if (!registration) {
-                    registration = await navigator.serviceWorker.register(SW_PATH, { scope: SW_SCOPE });
-                }
+                const registration = await getActiveRegistration();
                 const messaging = window.firebase.messaging();
                 const token = await messaging.getToken({
                     vapidKey: VAPID_KEY,

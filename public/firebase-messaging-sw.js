@@ -29,14 +29,17 @@ messaging.onBackgroundMessage(function(payload) {
         || '';
 
     const origin = self.location.origin;
+    const isLocalhost = origin.includes('localhost') || origin.includes('127.0.0.1');
+    const basePath = isLocalhost ? '/projects/real-estate/laravel-site/public' : '';
+
     const icon = (payload.notification && payload.notification.icon)
         || (payload.data && payload.data.icon)
-        || (origin + '/projects/real-estate/laravel-site/public/assets/icons/icon-192x192.png');
+        || (origin + basePath + '/assets/icons/icon-192x192.png');
 
-    const defaultTarget = origin + '/projects/real-estate/laravel-site/public/admin/properties';
-    const targetUrl = (payload.data && payload.data.url) 
+    const defaultTarget = (payload.data && payload.data.url) 
         || (payload.fcmOptions && payload.fcmOptions.link) 
-        || defaultTarget;
+        || (origin + basePath + '/');
+    const targetUrl = defaultTarget;
 
     const options = {
         body: body,
@@ -57,7 +60,9 @@ messaging.onBackgroundMessage(function(payload) {
 self.addEventListener('notificationclick', function(event) {
     event.notification.close();
     const origin = self.location.origin;
-    const defaultTarget = origin + '/projects/real-estate/laravel-site/public/admin/properties';
+    const isLocalhost = origin.includes('localhost') || origin.includes('127.0.0.1');
+    const basePath = isLocalhost ? '/projects/real-estate/laravel-site/public' : '';
+    const defaultTarget = origin + basePath + '/';
     const targetUrl = (event.notification.data && event.notification.data.url) 
         ? event.notification.data.url 
         : defaultTarget;

@@ -111,6 +111,11 @@ class FcmService
                     'title' => $title,
                     'body' => $body,
                 ],
+                'data' => [
+                    'title' => (string) $title,
+                    'body'  => (string) $body,
+                    'url'   => (string) ($clickUrl ?: url('/')),
+                ],
                 'webpush' => [
                     'notification' => [
                         'title' => $title,

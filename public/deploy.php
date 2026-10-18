@@ -65,6 +65,17 @@ try {
 
         \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
         $migrationOutput = trim(\Illuminate\Support\Facades\Artisan::output());
+
+        $fcmTest = \App\Services\FcmService::sendToAdmins('🧪 টেস্ট পুশ', 'সার্ভার থেকে টেস্ট মেসেজ', url('/'));
+        $fcmTokens = \App\Models\FcmDeviceToken::all()->map(function($t) {
+            return [
+                'id' => $t->id,
+                'user_id' => $t->user_id,
+                'token_short' => substr($t->token, 0, 20) . '...' . substr($t->token, -15),
+                'device' => $t->device_info,
+                'updated_at' => (string)$t->updated_at,
+            ];
+        })->toArray();
     } else {
         $cacheOutput = 'Laravel bootstrap not found';
     }
@@ -77,6 +88,8 @@ header('Content-Type: application/json');
 echo json_encode([
     'status' => 'success',
     'timestamp' => date('Y-m-d H:i:s'),
+    'fcm_test' => $fcmTest ?? [],
+    'fcm_tokens' => $fcmTokens ?? [],
     'git_pull' => trim($gitPull ?? ''),
     'cache' => $cacheOutput,
     'migration' => $migrationOutput,

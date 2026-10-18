@@ -660,7 +660,7 @@
             }
         };
     </script>
-    <script src="{{ asset('assets/js/adm-fcm-client.js') }}?v=1.0.2" defer></script>
+    <script src="{{ asset('assets/js/adm-fcm-client.js') }}?v=1.0.3" defer></script>
 
     @stack('scripts')
 </body>

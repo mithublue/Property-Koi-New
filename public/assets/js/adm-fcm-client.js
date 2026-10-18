@@ -255,7 +255,7 @@
 
             const messaging = window.firebase.messaging();
 
-            // Foreground message listener: show floating in-app toast only
+            // Foreground message listener: show both native browser notification and in-app toast
             messaging.onMessage(function(payload) {
                 console.log('[FCM] Foreground message received:', payload);
                 const title = payload.notification?.title || payload.data?.title || 'Property Koi';
@@ -263,6 +263,33 @@
                 const url   = payload.data?.url || payload.fcmOptions?.link || '';
 
                 showInAppToast(title, body, url);
+
+                // Display native OS/browser push notification banner
+                if (Notification.permission === 'granted') {
+                    try {
+                        const iconUrl = getIconUrl();
+                        if (registration && registration.showNotification) {
+                            registration.showNotification(title, {
+                                body: body,
+                                icon: iconUrl,
+                                badge: iconUrl,
+                                data: { url: url }
+                            });
+                        } else {
+                            const n = new Notification(title, {
+                                body: body,
+                                icon: iconUrl,
+                                data: { url: url }
+                            });
+                            n.onclick = function() {
+                                window.focus();
+                                if (url) window.location.href = url;
+                            };
+                        }
+                    } catch (e) {
+                        console.warn('[FCM] Native notification notice:', e);
+                    }
+                }
             });
 
             // If permission is already granted, verify/sync token

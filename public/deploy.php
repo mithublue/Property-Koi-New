@@ -65,7 +65,6 @@ try {
 
         \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
         $migrationOutput = trim(\Illuminate\Support\Facades\Artisan::output());
-        $fcmTokens = \App\Models\FcmDeviceToken::select('id', 'user_id', 'device_info', 'created_at', 'updated_at')->get()->toArray();
     } else {
         $cacheOutput = 'Laravel bootstrap not found';
     }
@@ -78,7 +77,6 @@ header('Content-Type: application/json');
 echo json_encode([
     'status' => 'success',
     'timestamp' => date('Y-m-d H:i:s'),
-    'fcm_tokens' => $fcmTokens ?? [],
     'git_pull' => trim($gitPull ?? ''),
     'cache' => $cacheOutput,
     'migration' => $migrationOutput,

@@ -344,9 +344,36 @@ class TelegramService
                 $demand->notify_channels = array_values($channels);
                 $demand->save();
 
+                // Propagate telegram_chat_id to other demands by this buyer
+                if (!empty($demand->buyer_phone)) {
+                    BuyerDemand::where('buyer_phone', $demand->buyer_phone)
+                        ->where(function($q) {
+                            $q->whereNull('telegram_chat_id')->orWhere('telegram_chat_id', '');
+                        })
+                        ->update([
+                            'telegram_chat_id' => (string) $chatId,
+                            'telegram_username' => $fromUser ?: null,
+                        ]);
+                }
+                if (!empty($demand->buyer_email)) {
+                    BuyerDemand::where('buyer_email', $demand->buyer_email)
+                        ->where(function($q) {
+                            $q->whereNull('telegram_chat_id')->orWhere('telegram_chat_id', '');
+                        })
+                        ->update([
+                            'telegram_chat_id' => (string) $chatId,
+                            'telegram_username' => $fromUser ?: null,
+                        ]);
+                }
+
                 // Send immediate welcome & confirmation for this demand
                 $matchesList = BuyerDemandMatchService::findMatchingPropertiesForRequirement($demand);
                 self::sendDemandConfirmation($chatId, $demand, $matchesList);
+
+                // If matches exist, also send property match alert with cards
+                if (!empty($matchesList)) {
+                    self::sendPropertyMatch($chatId, $demand, $matchesList);
+                }
 
                 return [
                     'handled'   => true,
@@ -376,6 +403,24 @@ class TelegramService
             $adminUser = strtolower(ltrim(trim((string)\App\Models\Setting::get('adm_telegram_admin_chat_id')), '@'));
             if (!empty($adminUser) && ($adminUser === $fromUser)) {
                 \App\Models\Setting::set('adm_telegram_admin_chat_id', (string) $chatId);
+            }
+
+            // Auto-bind pending demands matching this username
+            if (!empty($fromUser)) {
+                $pendingDemands = BuyerDemand::where('telegram_username', $fromUser)
+                    ->where(function($q) {
+                        $q->whereNull('telegram_chat_id')->orWhere('telegram_chat_id', '');
+                    })->get();
+                foreach ($pendingDemands as $pDemand) {
+                    $pDemand->update([
+                        'telegram_chat_id' => (string) $chatId,
+                    ]);
+                    $matchesList = BuyerDemandMatchService::findMatchingPropertiesForRequirement($pDemand);
+                    self::sendDemandConfirmation($chatId, $pDemand, $matchesList);
+                    if (!empty($matchesList)) {
+                        self::sendPropertyMatch($chatId, $pDemand, $matchesList);
+                    }
+                }
             }
 
             $reply = "👋 আসসালামু আলাইকুম <b>{$firstName}</b>!\n";

@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\AgentController as AdminAgentController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\DocsController as AdminDocsController;
+use App\Http\Controllers\Admin\DemandController as AdminDemandController;
 use App\Http\Controllers\Admin\LeadController as AdminLeadController;
 use App\Http\Controllers\Admin\MediaController as AdminMediaController;
 use App\Http\Controllers\Admin\PropertyController as AdminPropertyController;
@@ -224,6 +225,12 @@ Route::prefix('admin')->name('admin.')->middleware('admin.access')->group(functi
     Route::post('/leads/{lead}/stage', [AdminLeadController::class, 'updateStage'])->name('leads.stage');
     Route::post('/leads/{lead}/note', [AdminLeadController::class, 'addNote'])->name('leads.note');
     Route::get('/leads/{lead}/owner-wa', [AdminLeadController::class, 'getOwnerWhatsappUrl'])->name('leads.owner-wa');
+
+    // 5.1 Buyer Demands (Chahida) & Submitter Management
+    Route::get('/demands', [AdminDemandController::class, 'index'])->name('demands.index');
+    Route::post('/demands/{demand}/status', [AdminDemandController::class, 'updateStatus'])->name('demands.status');
+    Route::delete('/demands/{demand}', [AdminDemandController::class, 'destroy'])->name('demands.destroy');
+    Route::post('/demands/{demand}/telegram-alert', [AdminDemandController::class, 'sendTelegramAlert'])->name('demands.telegram-alert');
 
     // 6. Site Visits & Slot Scheduler
     Route::get('/visits', [AdminVisitController::class, 'index'])->name('visits.index');

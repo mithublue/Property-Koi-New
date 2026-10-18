@@ -79,6 +79,7 @@
                         ['route' => 'admin.verifications.index', 'icon' => '✅', 'label' => '৪-দফা ভেরিফিকেশন'],
                         ['route' => 'admin.agents.index', 'icon' => '👥', 'label' => 'এজেন্ট ও মালিক পোর্টাল'],
                         ['route' => 'admin.leads.index', 'icon' => '🎯', 'label' => 'লিড ও সিআরএম পাইপলাইন'],
+                        ['route' => 'admin.demands.index', 'icon' => '📋', 'label' => 'প্রপার্টি চাহিদা ও রিকোয়ারমেন্ট'],
                         ['route' => 'admin.visits.index', 'icon' => '📅', 'label' => 'সাইট ভিজিট ও শিডিউলার'],
                         ['route' => 'admin.revenue.index', 'icon' => '💰', 'label' => 'রেভিনিউ ও ০.৫% কমিশন'],
                         ['route' => 'admin.documentation', 'icon' => '📖', 'label' => 'সিস্টেম ডকস ও রুলস'],

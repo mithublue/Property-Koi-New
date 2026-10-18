@@ -837,25 +837,30 @@
                     </label>
                 </div>
 
-                <!-- Telegram Connect Info & Action (No Chat ID field needed) -->
+                <!-- Telegram Connect Info & Action -->
                 <div x-show="hasTelegramChannel()" class="p-4 sm:p-5 rounded-2xl bg-sky-50/90 border border-sky-200 space-y-3 mt-3 shadow-xs" style="display: none;">
                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                         <div class="space-y-1">
                             <span class="text-xs font-black text-sky-950 flex items-center gap-1.5">
-                                <span>✈️</span> টেলিগ্রামের সাথে কানেক্ট করুন
+                                <span>✈️</span> আপনার টেলিগ্রাম ইউজারনেম বা চ্যাট আইডি দিন
                             </span>
                             <p class="text-[11px] text-sky-800 leading-relaxed m-0">
-                                কোনো চ্যাট আইডি বা কোড লাগবে না! নিচের বাটনে ক্লিক করে বটে যুক্ত হোন, অথবা ফর্ম সাবমিট করার পর পরবর্তী পেজে সরাসরি ১-ক্লিক সংযোগ পেয়ে যাবেন।
+                                আপনার Telegram Username (যেমন: <code>@your_username</code>) বা Chat ID লিখুন। অথবা ফর্ম সাবমিট করার পর পরবর্তী পেজে ১-ক্লিকেই সংযোগ করতে পারবেন।
                             </p>
                         </div>
                         <a href="https://t.me/{{ $botUsername }}?start=chahida" target="_blank" rel="noopener"
                            style="background-color: #0284c7 !important; background: linear-gradient(135deg, #0284c7 0%, #1d4ed8 100%) !important; color: #ffffff !important;"
-                           class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold shadow hover:opacity-95 transition shrink-0 cursor-pointer">
+                           class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-xs font-bold shadow hover:opacity-95 transition shrink-0 cursor-pointer">
                             <svg class="w-4 h-4 shrink-0" style="fill: #ffffff !important;" viewBox="0 0 24 24">
                                 <path fill="#ffffff" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.75-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/>
                             </svg>
-                            <span style="color: #ffffff !important;">টেলিগ্রামের সাথে কানেক্ট করুন</span> &rarr;
+                            <span style="color: #ffffff !important;">বট ওপেন করুন (@{{ $botUsername }})</span>
                         </a>
+                    </div>
+                    <div>
+                        <input type="text" name="telegram_chat_id" value="{{ old('telegram_chat_id') }}"
+                               placeholder="যেমন: @your_username অথবা 6891457989 (ঐচ্ছিক)"
+                               class="w-full px-3.5 py-2 rounded-xl border border-sky-300 bg-white text-xs focus:ring-2 focus:ring-sky-500 font-mono">
                     </div>
                 </div>
             </div>

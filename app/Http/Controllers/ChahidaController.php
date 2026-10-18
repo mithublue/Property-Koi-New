@@ -93,6 +93,25 @@ class ChahidaController extends Controller
             }
         }
 
+        // Auto-link with previous Telegram connection if user has submitted before with same phone or email
+        if (empty($teleChatId)) {
+            $prevConnected = BuyerDemand::whereNotNull('telegram_chat_id')
+                ->where('telegram_chat_id', '!=', '')
+                ->where(function ($q) use ($validated) {
+                    $q->where('buyer_phone', $validated['buyer_phone']);
+                    if (!empty($validated['buyer_email'])) {
+                        $q->orWhere('buyer_email', $validated['buyer_email']);
+                    }
+                })
+                ->latest()
+                ->first();
+
+            if ($prevConnected) {
+                $teleChatId = $prevConnected->telegram_chat_id;
+                $teleUsername = $prevConnected->telegram_username;
+            }
+        }
+
         $demand = BuyerDemand::create([
             'buyer_name'        => $validated['buyer_name'],
             'buyer_phone'       => $validated['buyer_phone'],
@@ -120,13 +139,14 @@ class ChahidaController extends Controller
         // Run instant match
         $matches = BuyerDemandMatchService::findMatchingPropertiesForRequirement($demand);
         $matchNotice = '';
+
+        // Always send official demand receipt confirmation (Email & Telegram if connected)
+        BuyerDemandMatchService::sendDemandReceivedConfirmation($demand, $matches);
+
         if (!empty($matches)) {
             BuyerDemandMatchService::dispatchDemandNotifications($demand, $matches);
             $matchCount = count($matches);
             $matchNotice = " আমরা ইতিমধ্যে আপনার চাহিদার সাথে মেলে এমন {$matchCount}টি প্রপার্টি খুঁজে পেয়েছি এবং আপনাকে নোটিফিকেশন পাঠিয়েছি!";
-        } else {
-            // Send instant confirmation email & Telegram message to buyer
-            BuyerDemandMatchService::sendDemandReceivedConfirmation($demand);
         }
 
         // Instant confirmation push notification to buyer

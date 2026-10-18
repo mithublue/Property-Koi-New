@@ -24,7 +24,10 @@
         : 'BJcfKVomEe-5fyPcnaLttqggMH-kzlwXR-XJ823qehOdwW6elZu3rUEq2jn54Hq7iKQ7ZfPnvIZVArzLaulxYSY';
 
     const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-    const localPrefix = isLocalhost ? '/projects/real-estate/laravel-site/public' : '';
+    let localPrefix = isLocalhost ? '/projects/real-estate/laravel-site/public' : '';
+    if (!isLocalhost && window.location.pathname.startsWith('/public')) {
+        localPrefix = '/public';
+    }
 
     function getSwPath() {
         if (window.admVars && window.admVars.swUrl) return window.admVars.swUrl;

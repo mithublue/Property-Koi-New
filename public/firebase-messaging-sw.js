@@ -30,7 +30,10 @@ messaging.onBackgroundMessage(function(payload) {
 
     const origin = self.location.origin;
     const isLocalhost = origin.includes('localhost') || origin.includes('127.0.0.1');
-    const basePath = isLocalhost ? '/projects/real-estate/laravel-site/public' : '';
+    let basePath = isLocalhost ? '/projects/real-estate/laravel-site/public' : '';
+    if (!isLocalhost && self.location.pathname.startsWith('/public')) {
+        basePath = '/public';
+    }
 
     const icon = (payload.notification && payload.notification.icon)
         || (payload.data && payload.data.icon)
@@ -59,9 +62,11 @@ messaging.onBackgroundMessage(function(payload) {
 // Notification Click Handler: Focus existing tab or open target page
 self.addEventListener('notificationclick', function(event) {
     event.notification.close();
-    const origin = self.location.origin;
     const isLocalhost = origin.includes('localhost') || origin.includes('127.0.0.1');
-    const basePath = isLocalhost ? '/projects/real-estate/laravel-site/public' : '';
+    let basePath = isLocalhost ? '/projects/real-estate/laravel-site/public' : '';
+    if (!isLocalhost && self.location.pathname.startsWith('/public')) {
+        basePath = '/public';
+    }
     const defaultTarget = origin + basePath + '/';
     const targetUrl = (event.notification.data && event.notification.data.url) 
         ? event.notification.data.url 

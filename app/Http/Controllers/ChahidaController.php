@@ -129,6 +129,21 @@ class ChahidaController extends Controller
             BuyerDemandMatchService::sendDemandReceivedConfirmation($demand);
         }
 
+        // Instant confirmation push notification to buyer
+        if (in_array('push', $channels, true)) {
+            $buyerTitle = '📋 আপনার চাহিদা রিকোয়েস্ট সফলভাবে জমা হয়েছে!';
+            $buyerBody  = "রিকোয়ারমেন্ট কোড: #{$demand->requirement_code}। আপনার পছন্দের প্রপার্টি পাওয়া মাত্রই আপনাকে অ্যালার্ট পাঠানো হবে।";
+            $buyerUrl   = route('chahida.show', $demand->requirement_code);
+            if (!empty($demand->user_id)) {
+                $userTokens = \App\Models\FcmDeviceToken::where('user_id', $demand->user_id)->pluck('token');
+                foreach ($userTokens as $t) {
+                    \App\Services\FcmService::sendToToken($t, $buyerTitle, $buyerBody, $buyerUrl);
+                }
+            } else {
+                \App\Services\FcmService::broadcastPush($buyerTitle, $buyerBody, $buyerUrl);
+            }
+        }
+
         // Push notification & Telegram alert for new buyer requirement to Admin
         \App\Services\FcmService::notifyEvent(
             'adm_fcm_notify_lead_submit',
@@ -139,7 +154,8 @@ class ChahidaController extends Controller
         \App\Services\TelegramService::sendAdminAlert("📋 <b>নতুন কাস্টমার রিকোয়ারমেন্ট!</b>\nনাম: {$validated['buyer_name']} ({$validated['buyer_phone']})\nটাইপ: {$validated['property_type']}\nকোড: #{$demand->requirement_code}");
 
         return redirect()->route('chahida.show', $demand->requirement_code)
-            ->with('success', "আপনার চাহিদা সফলভাবে সংরক্ষিত হয়েছে (কোড: {$demand->requirement_code})।{$matchNotice}");
+            ->with('success', "আপনার চাহিদা সফলভাবে সংরক্ষিত হয়েছে (কোড: {$demand->requirement_code})।{$matchNotice}")
+            ->with('just_submitted', true);
     }
 
     public function show(string $code): View

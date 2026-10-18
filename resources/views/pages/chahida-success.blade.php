@@ -189,4 +189,86 @@
     @endif
 
 </div>
+
+@if(session('just_submitted') || session('success'))
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        function playChime() {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(587.33, ctx.currentTime);
+                osc.frequency.setValueAtTime(880, ctx.currentTime + 0.1);
+                gain.gain.setValueAtTime(0.25, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.4);
+            } catch (e) {}
+        }
+
+        function triggerNativeNotification(title, body, url) {
+            if ('Notification' in window && Notification.permission === 'granted') {
+                try {
+                    const iconUrl = (window.admVars && window.admVars.baseUrl)
+                        ? window.admVars.baseUrl.replace(/\/+$/, '') + '/assets/icons/icon-192x192.png'
+                        : '/assets/icons/icon-192x192.png';
+                    
+                    if (navigator.serviceWorker && navigator.serviceWorker.ready) {
+                        navigator.serviceWorker.ready.then(function(reg) {
+                            if (reg && reg.showNotification) {
+                                reg.showNotification(title, {
+                                    body: body,
+                                    icon: iconUrl,
+                                    badge: iconUrl,
+                                    data: { url: url }
+                                });
+                            } else {
+                                new Notification(title, { body: body, icon: iconUrl, data: { url: url } });
+                            }
+                        }).catch(function() {
+                            new Notification(title, { body: body, icon: iconUrl, data: { url: url } });
+                        });
+                    } else {
+                        new Notification(title, { body: body, icon: iconUrl, data: { url: url } });
+                    }
+                } catch (e) {}
+            }
+        }
+
+        // Notification 1: Demand Submission Confirmation
+        setTimeout(function() {
+            playChime();
+            const title1 = '📋 আপনার চাহিদা রিকোয়েস্ট জমা হয়েছে!';
+            const body1 = 'রিকোয়ারমেন্ট কোড: #{{ $demand->requirement_code }}। চাহিদাটি সফলভাবে সিস্টেমে সংরক্ষিত হয়েছে।';
+            const url1 = window.location.href;
+
+            if (typeof window.admShowInAppToast === 'function') {
+                window.admShowInAppToast(title1, body1, url1);
+            }
+            triggerNativeNotification(title1, body1, url1);
+        }, 500);
+
+        // Notification 2: Property Match Alert (if matches found)
+        @if(!empty($matches) && count($matches) > 0)
+        setTimeout(function() {
+            playChime();
+            const matchCount = {{ count($matches) }};
+            const firstPropTitle = @json($matches[0]['property']->title ?? '');
+            const title2 = '🎯 ' + matchCount + 'টি নতুন প্রপার্টি ম্যাচ অ্যালার্ট!';
+            const body2 = 'আপনার চাহিদার সাথে মিলে এমন ' + matchCount + 'টি প্রপার্টি পাওয়া গেছে।' + (firstPropTitle ? ' প্রথমটি: ' + firstPropTitle : '');
+            const url2 = @json(url('/property/' . ($matches[0]['property']->slug ?? '')));
+
+            if (typeof window.admShowInAppToast === 'function') {
+                window.admShowInAppToast(title2, body2, url2);
+            }
+            triggerNativeNotification(title2, body2, url2);
+        }, 2400);
+        @endif
+    });
+</script>
+@endif
 @endsection

@@ -1,3 +1,4 @@
+@if(!request()->routeIs('login', 'register', 'login-register') && !request()->is('appcenter*') && !request()->is('login*'))
 @php
     $rawWa = \App\Models\Setting::get('adm_admin_whatsapp_number', \App\Models\Setting::get('admin_whatsapp_number', '01672646242'));
     $cleanWa = preg_replace('/[^0-9]/', '', (string)$rawWa);
@@ -561,3 +562,4 @@ function pkLiveChatWidget() {
     };
 }
 </script>
+@endif

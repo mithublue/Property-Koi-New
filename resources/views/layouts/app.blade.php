@@ -498,8 +498,10 @@
     </div>
     @endif
 
-    <!-- WhatsApp Floating Live Chat Widget -->
-    <x-whatsapp-live-chat :property="$property ?? null" />
+    <!-- WhatsApp Floating Live Chat Widget (Hidden on Login & Registration Pages) -->
+    @if(!request()->routeIs('login', 'register', 'login-register') && !request()->is('appcenter*') && !request()->is('login*'))
+        <x-whatsapp-live-chat :property="$property ?? null" />
+    @endif
 
     <!-- Mobile-First Fixed Bottom Navigation Bar -->
     <nav class="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200 md:hidden py-1.5 px-2">

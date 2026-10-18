@@ -48,7 +48,9 @@ if ($phpBin === 'php' && !empty($phpCandidates[0])) {
 }
 
 // 1. Git pull
+$gitStatusBefore = runCommand('git status --short');
 $gitPull = runCommand('git pull origin main');
+$currentCommit = runCommand('git log -1 --oneline');
 
 // 2. Clear cache & optimize directly via Laravel (runs under Web PHP 8.3)
 $cacheOutput = '';
@@ -77,7 +79,9 @@ header('Content-Type: application/json');
 echo json_encode([
     'status' => 'success',
     'timestamp' => date('Y-m-d H:i:s'),
+    'git_status_before' => trim($gitStatusBefore ?? ''),
     'git_pull' => trim($gitPull ?? ''),
+    'current_commit' => trim($currentCommit ?? ''),
     'cache' => $cacheOutput,
     'migration' => $migrationOutput ?? '',
 ], JSON_PRETTY_PRINT);

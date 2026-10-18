@@ -127,8 +127,8 @@ function admSettingsRoot() {
                 @click="setTab('access')"
                 :class="activeTab === 'access' ? 'bg-emerald-600 text-white shadow-xs' : 'bg-white hover:bg-slate-100 text-slate-700 border border-slate-200'"
                 class="adm-tab-pill px-4 py-2.5 rounded-xl font-bold text-xs whitespace-nowrap flex items-center gap-2 cursor-pointer">
-            <span>🔀</span>
-            <span>রিডাইরেকশন ও পলিসি</span>
+            <span>🔑</span>
+            <span>এক্সেস কন্ট্রোল ও গুগল লগইন</span>
         </button>
         <button type="button"
                 @click="setTab('messages')"
@@ -1655,6 +1655,158 @@ function admSettingsRoot() {
                                 class="px-4 py-2.5 bg-white hover:bg-purple-100 text-purple-700 border border-purple-300 rounded-xl font-bold text-xs shadow-2xs transition inline-flex items-center gap-1.5 cursor-pointer">
                             <span>+ আরেকটি রোল রুল যোগ করুন</span>
                         </button>
+                    </div>
+                </div>
+
+                <!-- ══════════════════════════════════════════════════════════════════════════ -->
+                <!-- 5.4 GOOGLE OAUTH 2.0 LOGIN & AUTHENTICATION CARD -->
+                <!-- ══════════════════════════════════════════════════════════════════════════ -->
+                <div class="p-6 bg-gradient-to-br from-white via-slate-50 to-blue-50/30 rounded-3xl border border-slate-200 shadow-sm space-y-6">
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 bg-white border border-slate-200 rounded-2xl flex items-center justify-center shadow-xs shrink-0">
+                                <svg class="w-6 h-6" viewBox="0 0 24 24">
+                                    <path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.6l3.1-3.1C17.3 1.8 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.4 9 5 12 5z"/>
+                                    <path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.8z"/>
+                                    <path fill="#FBBC05" d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.3s.2-1.6.4-2.3L1.9 7.3C.7 9.7 0 12.3 0 15s.7 5.3 1.9 7.7l3.7-2.9z"/>
+                                    <path fill="#34A853" d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2-6.4-4.8L1.9 16.4C3.7 20.4 7.5 23 12 23z"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <h2 class="text-base sm:text-lg font-black text-slate-900 m-0">গুগল সাইন-ইন ও অথেনটিকেশন (Google OAuth 2.0 Login)</h2>
+                                    @if(!empty($google_client_id) && !empty($google_client_secret) && $google_login_enabled)
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-800 border border-emerald-300">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse"></span>
+                                            সক্রিয় (Active)
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-100 text-amber-800 border border-amber-300">
+                                            অসম্পূর্ণ (Setup Required)
+                                        </span>
+                                    @endif
+                                </div>
+                                <p class="text-xs text-slate-500 m-0 mt-0.5">
+                                    ব্যবহারকারীরা যেন ১-ক্লিকে তাদের Gmail / Google অ্যাকাউন্ট দিয়ে লগইন ও রেজিস্ট্রেশন করতে পারে তার কনফিগারেশন।
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Toggle Switch -->
+                        <label class="relative inline-flex items-center cursor-pointer select-none shrink-0">
+                            <input type="checkbox" name="adm_google_login_enabled" value="yes" class="sr-only peer" {{ $google_login_enabled ? 'checked' : '' }}>
+                            <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                            <span class="ms-2.5 text-xs font-bold text-slate-700">গুগল সাইন-ইন বাটন চালু রাখুন</span>
+                        </label>
+                    </div>
+
+                    <!-- Credentials Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <!-- Client ID -->
+                        <div>
+                            <label class="block font-bold text-slate-800 uppercase mb-1 text-xs">
+                                Google Client ID <span class="text-rose-500">*</span>
+                            </label>
+                            <input type="text"
+                                   name="adm_google_client_id"
+                                   value="{{ $google_client_id }}"
+                                   placeholder="যেমন: 1234567890-abcdefg...apps.googleusercontent.com"
+                                   class="w-full border rounded-xl px-3.5 py-2.5 bg-white font-mono text-xs text-slate-900 border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <p class="text-[11px] text-slate-500 mt-1 m-0">Google Cloud Console-এর OAuth 2.0 Client IDs সেকশন থেকে কপি করে বসান।</p>
+                        </div>
+
+                        <!-- Client Secret -->
+                        <div x-data="{ showSecret: false }">
+                            <div class="flex items-center justify-between mb-1">
+                                <label class="block font-bold text-slate-800 uppercase text-xs">
+                                    Google Client Secret <span class="text-rose-500">*</span>
+                                </label>
+                                <button type="button" @click="showSecret = !showSecret" class="text-[11px] text-blue-600 hover:text-blue-800 font-bold cursor-pointer">
+                                    <span x-text="showSecret ? 'গোপন করুন' : 'দেখান'"></span>
+                                </button>
+                            </div>
+                            <div class="relative">
+                                <input :type="showSecret ? 'text' : 'password'"
+                                       name="adm_google_client_secret"
+                                       value="{{ $google_client_secret }}"
+                                       placeholder="যেমন: GOCSPX-xxxxxxxxxxxxxxxxx"
+                                       class="w-full border rounded-xl px-3.5 py-2.5 bg-white font-mono text-xs text-slate-900 border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 pr-10">
+                                <button type="button" @click="showSecret = !showSecret" class="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600 cursor-pointer">
+                                    <svg x-show="!showSecret" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                    <svg x-show="showSecret" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18"/></svg>
+                                </button>
+                            </div>
+                            <p class="text-[11px] text-slate-500 mt-1 m-0">গুগল থেকে প্রাপ্ত Client Secret এখানে নিরাপদে সংরক্ষণ করা থাকবে।</p>
+                        </div>
+                    </div>
+
+                    <!-- Authorized Redirect URI with 1-Click Copy -->
+                    <div class="p-4 bg-slate-900 rounded-2xl border border-slate-800 text-white space-y-2">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                            <div>
+                                <span class="text-xs font-black text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
+                                    <span>🔗</span> অনুমোদিত রিডাইরেক্ট ইউআরএল (Authorized Redirect URI)
+                                </span>
+                                <p class="text-[11px] text-slate-400 m-0 mt-0.5">
+                                    Google Cloud Console-এর Credentials এ এই ইউআরএল-টি হুবহু পেস্ট করতে হবে (ভুল হলে <code>redirect_uri_mismatch</code> এরর আসবে):
+                                </p>
+                            </div>
+                            <div x-data="{ copied: false }">
+                                <button type="button"
+                                        @click="navigator.clipboard.writeText('{{ $google_redirect_uri }}'); copied = true; setTimeout(() => copied = false, 2500)"
+                                        class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-xs cursor-pointer">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                                    <span x-text="copied ? '✓ লিংক কপি হয়েছে!' : 'URI কপি করুন'"></span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-2">
+                            <input type="text"
+                                   readonly
+                                   value="{{ $google_redirect_uri }}"
+                                   class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2 font-mono text-xs font-bold text-emerald-300 focus:outline-none select-all">
+                        </div>
+                    </div>
+
+                    <!-- Step-by-Step Setup Guide Accordion -->
+                    <div x-data="{ openGuide: false }" class="border border-slate-200 rounded-2xl bg-white overflow-hidden">
+                        <button type="button"
+                                @click="openGuide = !openGuide"
+                                class="w-full px-4 py-3 bg-slate-50 hover:bg-slate-100 flex items-center justify-between text-xs font-bold text-slate-800 transition cursor-pointer">
+                            <span class="flex items-center gap-2">
+                                <span>📘</span>
+                                <span>গুগল ক্লাউড কনসোল (Google Cloud Console) সেটআপ নির্দেশিকা (কিভাবে Client ID ও Secret পাবেন?)</span>
+                            </span>
+                            <span x-text="openGuide ? '▲ বন্ধ করুন' : '▼ বিস্তারিত দেখুন'" class="text-blue-600 font-semibold"></span>
+                        </button>
+
+                        <div x-show="openGuide" x-cloak class="p-5 text-xs text-slate-700 space-y-3 bg-white border-t border-slate-200 leading-relaxed">
+                            <ol class="list-decimal list-inside space-y-2 font-medium">
+                                <li>
+                                    প্রথমে ব্রাউজারে <a href="https://console.cloud.google.com" target="_blank" class="text-blue-600 underline font-bold">Google Cloud Console (console.cloud.google.com)</a> এ গিয়ে আপনার জিমেইল দিয়ে লগইন করুন এবং একটি নতুন প্রজেক্ট তৈরি করুন (বা পূর্বের প্রজেক্ট সিলেক্ট করুন)।
+                                </li>
+                                <li>
+                                    বামপাশের মেনু থেকে <strong>APIs & Services</strong> &rarr; <strong>OAuth consent screen</strong> এ যান। User Type হিসেবে <strong>External</strong> নির্বাচন করে অ্যাপের নাম (যেমন: PropertyKoi) ও সাপোর্ট ইমেইল দিয়ে Save & Continue দিয়ে সম্পন্ন করুন।
+                                </li>
+                                <li>
+                                    এরপর <strong>APIs & Services</strong> &rarr; <strong>Credentials</strong> এ ক্লিক করুন এবং ওপরের <strong>+ CREATE CREDENTIALS</strong> বাটনে ক্লিক করে <strong>OAuth client ID</strong> নির্বাচন করুন।
+                                </li>
+                                <li>
+                                    <strong>Application type</strong> ড্রপডাউনে <strong>Web application</strong> সিলেক্ট করুন।
+                                </li>
+                                <li>
+                                    <strong>Authorized redirect URIs</strong> সেকশনে <strong>+ ADD URI</strong> বাটনে ক্লিক করে ওপরের কপি করা লিংকটি (<code>{{ $google_redirect_uri }}</code>) পেস্ট করুন।
+                                </li>
+                                <li>
+                                    <strong>CREATE</strong> বাটনে ক্লিক করলেই আপনার <strong>Client ID</strong> এবং <strong>Client Secret</strong> পপআপে প্রদর্শিত হবে। সেগুলো কপি করে এই পেজের যথাস্থানে পেস্ট করে নিচের <strong>"সেটিংস সেভ করুন"</strong> বাটনে ক্লিক করুন।
+                                </li>
+                            </ol>
+                            <div class="p-3 bg-blue-50 border border-blue-200 rounded-xl text-blue-900 text-[11px] font-medium flex items-start gap-2">
+                                <span class="text-sm">💡</span>
+                                <span><strong>টিপস:</strong> আপনি চাইলে সরাসরি প্রজেক্টের <code>.env</code> ফাইলে <code>GOOGLE_CLIENT_ID=your_id</code> এবং <code>GOOGLE_CLIENT_SECRET=your_secret</code> লিখেও কাজ চালাতে পারেন। তবে এডমিন প্যানেলের এই অপশনে সেভ করলে ডাটাবেজে সংরক্ষিত থাকবে এবং সাইট রিস্টার্ট বা .env এডিট ছাড়াই তাৎক্ষণিক কার্যকর হবে!</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
 

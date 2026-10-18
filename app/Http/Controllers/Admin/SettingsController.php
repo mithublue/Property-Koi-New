@@ -217,6 +217,12 @@ class SettingsController extends Controller
             ];
         }
 
+        // Google OAuth 2.0 Credentials
+        $google_client_id = Setting::get('adm_google_client_id', env('GOOGLE_CLIENT_ID', ''));
+        $google_client_secret = Setting::get('adm_google_client_secret', env('GOOGLE_CLIENT_SECRET', ''));
+        $google_login_enabled = Setting::get('adm_google_login_enabled', 'yes') === 'yes';
+        $google_redirect_uri = url('/auth/google/callback');
+
         // 6. Messages Tab
         $template_definitions = MessageTemplateService::getDefinitions();
         $saved_templates = [];
@@ -326,6 +332,10 @@ class SettingsController extends Controller
             'safety_tips',
             'pages_list',
             'saved_rules',
+            'google_client_id',
+            'google_client_secret',
+            'google_login_enabled',
+            'google_redirect_uri',
             'template_definitions',
             'saved_templates',
             'seo_default_og_image',
@@ -521,6 +531,9 @@ class SettingsController extends Controller
             'facebook' => [
                 'adm_fb_autopost_enabled' => 'no',
             ],
+            'access' => [
+                'adm_google_login_enabled' => 'no',
+            ],
         ];
 
         if (isset($checkboxesByTab[$tab])) {
@@ -546,6 +559,14 @@ class SettingsController extends Controller
         }
         if (isset($inputs['adm_fb_autopost_enabled'])) {
             $inputs['fb_autopost_enabled'] = $inputs['adm_fb_autopost_enabled'];
+        }
+
+        // Sanitize Google OAuth credentials
+        if (isset($inputs['adm_google_client_id'])) {
+            $inputs['adm_google_client_id'] = trim($inputs['adm_google_client_id']);
+        }
+        if (isset($inputs['adm_google_client_secret'])) {
+            $inputs['adm_google_client_secret'] = trim($inputs['adm_google_client_secret']);
         }
 
         foreach ($inputs as $key => $value) {

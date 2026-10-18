@@ -62,6 +62,26 @@ class AppServiceProvider extends ServiceProvider
                         ]);
                     }
                 }
+
+                // Dynamic Google OAuth credentials from database settings
+                $googleLoginEnabled = \App\Models\Setting::get('adm_google_login_enabled', 'yes');
+                if ($googleLoginEnabled !== 'no') {
+                    $googleClientId = \App\Models\Setting::get('adm_google_client_id') ?: env('GOOGLE_CLIENT_ID');
+                    $googleClientSecret = \App\Models\Setting::get('adm_google_client_secret') ?: env('GOOGLE_CLIENT_SECRET');
+
+                    if (!empty($googleClientId) && !empty($googleClientSecret)) {
+                        config([
+                            'services.google.client_id'     => trim($googleClientId),
+                            'services.google.client_secret' => trim($googleClientSecret),
+                            'services.google.redirect'      => url('/auth/google/callback'),
+                        ]);
+                    }
+                } else {
+                    config([
+                        'services.google.client_id'     => null,
+                        'services.google.client_secret' => null,
+                    ]);
+                }
             }
         } catch (\Throwable $e) {
             // Silently fall back during migrations or if settings table is inaccessible

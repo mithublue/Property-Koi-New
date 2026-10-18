@@ -224,7 +224,7 @@ class AuthController extends Controller
             if (app()->environment('local')) {
                 return view('pages.google-mock');
             }
-            return redirect()->route('login')->with('error', 'গুগল লগইন বর্তমানে কনফিগার করা হয়নি। অ্যাডমিন সেটিংসে GOOGLE_CLIENT_ID ও SECRET যুক্ত করুন।');
+            return redirect()->route('login');
         }
 
         return Socialite::driver('google')->redirect();

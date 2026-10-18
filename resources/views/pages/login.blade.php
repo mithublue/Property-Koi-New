@@ -16,6 +16,7 @@
             <p class="text-xs text-slate-500" x-text="tab === 'login' ? 'ক্রেতা ড্যাশবোর্ড বা প্রপার্টি ম্যানেজ করতে লগইন করুন' : 'রেজিস্ট্রেশনের পর আপনার ইমেইলে অ্যাক্টিভেশন লিঙ্ক পাঠানো হবে'"></p>
         </div>
 
+        @if(!empty(config('services.google.client_id')) && !empty(config('services.google.client_secret')))
         <!-- Google / Gmail One-Click Auth Button -->
         <div>
             <a href="{{ route('auth.google') }}"
@@ -38,6 +39,7 @@
                 </div>
             </div>
         </div>
+        @endif
 
         <!-- Tab Toggle Buttons -->
         <div class="flex items-center p-1.5 bg-slate-100 rounded-2xl border border-slate-200 text-xs font-bold">
@@ -68,7 +70,7 @@
             </div>
         @endif
 
-        @if($errors->any())
+        @if(isset($errors) && $errors->any())
             <div class="bg-rose-50 border border-rose-200 text-rose-800 p-3.5 rounded-2xl text-xs space-y-1">
                 @foreach($errors->all() as $error)
                     <div>⚠️ {{ $error }}</div>

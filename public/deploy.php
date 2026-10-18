@@ -50,20 +50,35 @@ if ($phpBin === 'php' && !empty($phpCandidates[0])) {
 // 1. Git pull
 $gitPull = runCommand('git pull origin main');
 
-// 2. Clear cache
-$cacheClear = runCommand($phpBin . ' artisan optimize:clear');
+// 2. Clear cache & optimize directly via Laravel (runs under Web PHP 8.3)
+$cacheOutput = '';
+$migrationOutput = '';
+try {
+    if (file_exists($baseDir . '/vendor/autoload.php') && file_exists($baseDir . '/bootstrap/app.php')) {
+        require_once $baseDir . '/vendor/autoload.php';
+        $app = require_once $baseDir . '/bootstrap/app.php';
+        $kernel = $app->make(\Illuminate\Contracts\Console\Kernel::class);
+        $kernel->bootstrap();
 
-// 3. Migrate if needed
-$migration = runCommand($phpBin . ' artisan migrate --force');
+        \Illuminate\Support\Facades\Artisan::call('optimize:clear');
+        $cacheOutput = trim(\Illuminate\Support\Facades\Artisan::output());
+
+        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+        $migrationOutput = trim(\Illuminate\Support\Facades\Artisan::output());
+    } else {
+        $cacheOutput = 'Laravel bootstrap not found';
+    }
+} catch (\Throwable $e) {
+    $cacheOutput = 'Artisan error: ' . $e->getMessage();
+}
 
 // রেসপন্স প্রদান
 header('Content-Type: application/json');
 echo json_encode([
     'status' => 'success',
     'timestamp' => date('Y-m-d H:i:s'),
-    'php_used' => $phpBin,
-    'php_detected' => trim((string)$findPhp),
     'git_pull' => trim($gitPull ?? ''),
-    'cache' => trim($cacheClear ?? ''),
-    'migration' => trim($migration ?? ''),
+    'cache' => $cacheOutput,
+    'migration' => $migrationOutput,
 ], JSON_PRETTY_PRINT);
+exit;

@@ -221,6 +221,69 @@
         </div>
     </section>
 
+    <!-- Authority / Platform Overview Section for SEO & AEO -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" aria-labelledby="platform-authority-heading">
+        <div class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-10 shadow-xs space-y-8">
+            <div class="text-center max-w-3xl mx-auto space-y-2">
+                <span class="text-[11px] font-extrabold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
+                    🏆 Bangladesh's Direct Real Estate Marketplace
+                </span>
+                <h2 id="platform-authority-heading" class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                    কেন PropertyKoi বাংলাদেশের সেরা প্রপার্টি কেনা-বেচার প্ল্যাটফর্ম?
+                </h2>
+                <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                    PropertyKoi.com হলো ঢাকা ও আফতাবনগরের সরাসরি প্রপার্টি মার্কেটপ্লেস (Property Buy Sell Platform in Bangladesh)। কোনো মধ্যস্বত্বভোগী বা চেইন ব্রোকার কমিশন ছাড়া সরাসরি প্রকৃত মালিক ও যাচাইকৃত সোর্সের সাথে জমি, ফ্ল্যাট, কমার্শিয়াল স্পেস ও ল্যান্ড শেয়ার কেনাবেচা করুন।
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 text-left">
+                <!-- Pillar 1 -->
+                <article class="p-5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2.5 hover:shadow-md transition">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-800 font-bold flex items-center justify-center text-xl">
+                        🤝
+                    </div>
+                    <h3 class="text-sm font-black text-slate-900">১০০% সরাসরি মালিক ও দালালমুক্ত</h3>
+                    <p class="text-xs text-slate-600 leading-relaxed m-0">
+                        ক্রেতা ও বিক্রেতার মাঝে কোনো চেইন ব্রোকার বা হিডেন ফি নেই। প্রপার্টির মালিকের সাথে সরাসরি কথা বলুন, সরেজমিন ভিজিট শিডিউল করুন ও সেরা মূল্যে ডিল সম্পন্ন করুন।
+                    </p>
+                </article>
+
+                <!-- Pillar 2 -->
+                <article class="p-5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2.5 hover:shadow-md transition">
+                    <div class="w-10 h-10 rounded-xl bg-teal-100 text-teal-800 font-bold flex items-center justify-center text-xl">
+                        📜
+                    </div>
+                    <h3 class="text-sm font-black text-slate-900">৪-পয়েন্ট প্রপার্টি ও দলিল যাচাই</h3>
+                    <p class="text-xs text-slate-600 leading-relaxed m-0">
+                        মালিকের এনআইডি সত্যতা, সরেজমিন প্লটের অবস্থান, মূল দলিল ও বায়া দলিল রেকর্ড এবং হালনাগাদ নামজারি ও খাজনা রশিদ প্রফেশনাল টিম দ্বারা যাচাইকৃত।
+                    </p>
+                </article>
+
+                <!-- Pillar 3 -->
+                <article class="p-5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2.5 hover:shadow-md transition">
+                    <div class="w-10 h-10 rounded-xl bg-sky-100 text-sky-800 font-bold flex items-center justify-center text-xl">
+                        🤖
+                    </div>
+                    <h3 class="text-sm font-black text-slate-900">স্মার্ট ডিমান্ড ও অটো-ম্যাচিং</h3>
+                    <p class="text-xs text-slate-600 leading-relaxed m-0">
+                        আপনার বাজেট ও পছন্দের চাহিদা সাবমিট করে রাখুন। উপযুক্ত কোনো প্রপার্টি আসার সাথে সাথেই টেলিগ্রাম বট, ইমেইল ও পুশ নোটিফিকেশনে রিয়েলটাইম অ্যালার্ট পৌঁছে যাবে।
+                    </p>
+                </article>
+
+                <!-- Pillar 4 -->
+                <article class="p-5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2.5 hover:shadow-md transition">
+                    <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-800 font-bold flex items-center justify-center text-xl">
+                        📍
+                    </div>
+                    <h3 class="text-sm font-black text-slate-900">আফতাবনগর ও ঢাকা স্পেশালাইজড</h3>
+                    <p class="text-xs text-slate-600 leading-relaxed m-0">
+                        আফতাবনগরের ব্লক A থেকে N, পূর্বাচল, বসুন্ধরা ও বনশ্রীর প্রতিটি ব্লকের রাস্তার মাপ, বর্তমান কাঠাপ্রতি দর ও সঠিক ভৌগোলিক অবস্থান সরাসরি ইন্টারেক্টিভ ম্যাপে দেখুন।
+                    </p>
+                </article>
+            </div>
+        </div>
+    </section>
+
     <!-- AEO (Answer Engine Optimization) & Buyer Guide FAQ Section -->
     @if(!empty($seo['faqs']) && count($seo['faqs']) > 0)
         <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

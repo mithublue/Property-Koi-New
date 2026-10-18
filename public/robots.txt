@@ -1,14 +1,43 @@
-# Property Koi AI Answer Engine Optimization (AEO) & Search Engine Crawlers
+# ==============================================================================
+# PropertyKoi.com - Search Engine & AI Answer Engine Optimization (AEO/GEO)
+# ==============================================================================
+
+# Search Engine & General Crawlers
 User-agent: Googlebot
 Allow: /
+Disallow: /backend/
+Disallow: /appcenter/
+Disallow: /buyer-dashboard/
+Disallow: /api/
 
+User-agent: Bingbot
+Allow: /
+Disallow: /backend/
+Disallow: /appcenter/
+Disallow: /buyer-dashboard/
+Disallow: /api/
+
+User-agent: Applebot
+User-agent: Applebot-Extended
+Allow: /
+Disallow: /backend/
+Disallow: /appcenter/
+Disallow: /buyer-dashboard/
+
+# AI Search & Large Language Model Crawlers (AEO / GEO)
 User-agent: Google-Extended
+Allow: /
+
+User-agent: GoogleOther
 Allow: /
 
 User-agent: GPTBot
 Allow: /
 
 User-agent: ChatGPT-User
+Allow: /
+
+User-agent: OAI-SearchBot
 Allow: /
 
 User-agent: PerplexityBot
@@ -20,14 +49,21 @@ Allow: /
 User-agent: anthropic-ai
 Allow: /
 
-User-agent: Applebot-Extended
+User-agent: CCBot
 Allow: /
 
-User-agent: Bingbot
+User-agent: meta-externalagent
 Allow: /
 
+# Global Catch-All
 User-agent: *
 Allow: /
+Disallow: /backend/
+Disallow: /appcenter/
+Disallow: /buyer-dashboard/
+Disallow: /api/
+Disallow: /*.json$
 
+# Sitemaps
 Sitemap: https://propertykoi.com/sitemap.xml
 Sitemap: https://propertykoi.com/property-sitemap.xml

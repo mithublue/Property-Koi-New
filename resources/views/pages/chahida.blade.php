@@ -931,5 +931,43 @@
         </form>
     </div>
 
+    <!-- AEO & Buyer Demand Guide FAQ Section -->
+    @if(!empty($seo['faqs']) && count($seo['faqs']) > 0)
+        <section class="bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 shadow-xl space-y-5" aria-labelledby="chahida-faq-heading">
+            <div class="border-b border-slate-100 pb-4">
+                <span class="text-[11px] font-extrabold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
+                    🤖 AEO Buyer Demand Guide & FAQs
+                </span>
+                <h2 id="chahida-faq-heading" class="text-xl sm:text-2xl font-black text-slate-900 mt-2">
+                    প্রপার্টি চাহিদা ও অটো-ম্যাচিং সংক্রান্ত সাধারণ জিজ্ঞাসা (FAQ)
+                </h2>
+                <p class="text-xs text-slate-600 mt-1">
+                    কীভাবে চাহিদা সাবমিট করবেন, ম্যাচিং অ্যালার্ট পাবেন এবং নিরাপদভাবে লেনদেন করবেন তার নির্দেশিকা।
+                </p>
+            </div>
+
+            <div class="space-y-3" x-data="{ chahidaFaq: 0 }">
+                @foreach($seo['faqs'] as $idx => $faq)
+                    <div class="border border-slate-200 rounded-2xl overflow-hidden transition-all"
+                         :class="chahidaFaq === {{ $idx }} ? 'bg-emerald-50/30 border-emerald-300' : 'bg-slate-50/60'">
+                        <button type="button"
+                                @click="chahidaFaq = chahidaFaq === {{ $idx }} ? null : {{ $idx }}"
+                                class="w-full flex items-center justify-between gap-4 px-5 py-4 text-left font-extrabold text-sm text-slate-900 cursor-pointer">
+                            <span class="flex items-center gap-2.5">
+                                <span class="w-6 h-6 rounded-lg bg-emerald-600 text-white text-xs flex items-center justify-center shrink-0">?</span>
+                                <span>{{ $faq['question'] ?? ($faq['q'] ?? '') }}</span>
+                            </span>
+                            <span class="text-slate-400 font-bold text-lg transition-transform"
+                                  :class="chahidaFaq === {{ $idx }} ? 'rotate-180 text-emerald-600' : ''">⌄</span>
+                        </button>
+                        <div x-show="chahidaFaq === {{ $idx }}" x-cloak class="px-5 pb-4 pt-1 text-xs sm:text-sm text-slate-600 leading-relaxed border-t border-slate-100">
+                            {{ $faq['answer'] ?? ($faq['a'] ?? '') }}
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </section>
+    @endif
+
 </div>
 @endsection

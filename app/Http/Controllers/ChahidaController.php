@@ -14,8 +14,11 @@ class ChahidaController extends Controller
     public function index(): View
     {
         $botUsername = TelegramService::getBotUsername();
+        $seo = \App\Services\SeoService::getOgMeta('chahida');
+
         return view('pages.chahida', [
             'botUsername' => $botUsername,
+            'seo'         => $seo,
         ]);
     }
 

@@ -201,48 +201,112 @@ class SeoService
         return match ($page) {
             'land-search' => [
                 [
-                    'question' => 'আফতাবনগরে আবাসিক ও কমার্শিয়াল প্লটের বর্তমান দর কেমন?',
-                    'answer'   => 'আফতাবনগরের ব্লক A থেকে N পর্যন্ত লোকেশন, রাস্তার প্রশস্ততা (২০ ফুট থেকে ৬০+ ফুট), কর্নার প্লট এবং লেকভিউ অবস্থানের ওপর ভিত্তি করে জমির মূল্য নির্ধারিত হয়। PropertyKoi-তে সরাসরি মালিকের প্রদত্ত সর্বশেষ ভেরিফাইড মূল্য তালিকা ফিল্টার করে দেখতে পারেন।',
+                    'question' => 'আফতাবনগরে আবাসিক ও কমার্শিয়াল প্লটের বর্তমান কাঠাপ্রতি দর কেমন?',
+                    'answer'   => 'আফতাবনগরের ব্লক A থেকে N পর্যন্ত লোকেশন, রাস্তার প্রশস্ততা (২০ ফুট থেকে ৬০+ ফুট), কর্নার প্লট এবং লেকভিউ অবস্থানের ওপর ভিত্তি করে জমির মূল্য প্রতি কাঠা সাধারণত ৬০ লাখ থেকে ১.৫ কোটি+ টাকা পর্যন্ত হয়ে থাকে। PropertyKoi-তে সরাসরি মালিকের প্রদত্ত সর্বশেষ ভেরিফাইড মূল্য তালিকা ফিল্টার করে দেখতে পারেন।',
                 ],
                 [
-                    'question' => 'জমি কেনার আগে কোন কোন কাগজপত্র যাচাই করা জরুরি?',
-                    'answer'   => 'জমি ক্রয়ের পূর্বে মূল দলিল, বায়া দলিল, সিএস/এসএ/আরএস/মহানগর জরিপ খতিয়ান, ইস্টার্ন হাউজিং বরাদ্দপত্র ও ছাড়পত্র, হালনাগাদ নামজারি (Mutation), ডিসিআর এবং সর্বশেষ খাজনা রশিদ যাচাই করা আবশ্যক।',
+                    'question' => 'জমি কেনার আগে কোন কোন কাগজপত্র ও দলিল যাচাই করা জরুরি?',
+                    'answer'   => 'জমি ক্রয়ের পূর্বে মূল রেজিস্ট্রি দলিল, বায়া দলিল (Chain of Title), সিএস/এসএ/আরএস/মহানগর জরিপ খতিয়ান, ইস্টার্ন হাউজিং বরাদ্দপত্র ও ছাড়পত্র, হালনাগাদ নামজারি (Mutation), ডিসিআর এবং সর্বশেষ ভূমি উন্নয়ন কর (খাজনা) রশিদ যাচাই করা আবশ্যক।',
                 ],
                 [
-                    'question' => 'PropertyKoi-তে জমি কিনলে কি কোনো চেইন ব্রোকার কমিশন দিতে হয়?',
-                    'answer'   => 'না। আমাদের প্ল্যাটফর্মে কোনো চেইন ব্রোকার বা দালাল চক্রের স্থান নেই। আপনি সরাসরি যাচাইকৃত মালিক বা অথরাইজড সোর্সের সাথে স্বচ্ছভাবে সাইট ভিজিট ও ডিল সম্পন্ন করতে পারবেন।',
+                    'question' => 'PropertyKoi-তে জমি কিনলে কি কোনো দালাল বা চেইন ব্রোকার কমিশন দিতে হয়?',
+                    'answer'   => 'না। আমাদের প্ল্যাটফর্মে কোনো চেইন ব্রোকার বা হিডেন কমিশন নেই। আপনি সরাসরি যাচাইকৃত মালিক বা অথরাইজড সোর্সের সাথে স্বচ্ছভাবে সাইট ভিজিট, কাগজপত্র যাচাই ও দরদাম সম্পন্ন করতে পারবেন।',
+                ],
+                [
+                    'question' => 'How to buy residential or commercial land in Aftabnagar, Dhaka directly from owners?',
+                    'answer'   => 'On PropertyKoi.com, browse verified plot listings by block (A to N), road width (20ft to 60ft), and katha size. Schedule a direct site visit or contact the verified seller with zero broker interference.',
                 ],
             ],
             'flat-search' => [
                 [
-                    'question' => 'আফতাবনগরে রেডি ফ্ল্যাট এবং নির্মাণাধীন ফ্ল্যাটের মধ্যে কোনটি সুবিধাজনক?',
-                    'answer'   => 'তাৎক্ষণিক বসবাস বা ভাড়ার আয়ের জন্য ১০০% রেডি ফ্ল্যাট সেরা। অন্যদিকে কিস্তি সুবিধা ও তুলনামূলক কম মূল্যে বিনিয়োগের জন্য চলমান (Under Construction) ফ্ল্যাট প্রজেক্টগুলো বেশ সাশ্রয়ী।',
+                    'question' => 'আফতাবনগরে রেডি ফ্ল্যাট এবং নির্মাণাধীন ফ্ল্যাটের মধ্যে কোনটি কেনা ভালো?',
+                    'answer'   => 'তাৎক্ষণিক বসবাস বা ভাড়ার আয়ের জন্য ১০০% রেডি ফ্ল্যাট সেরা। অন্যদিকে কিস্তি সুবিধা ও তুলনামূলক কম মূল্যে ভবিষ্যতের জন্য নিশ্চিত বিনিয়োগের জন্য চলমান (Under Construction) ফ্ল্যাট প্রজেক্টগুলো সাশ্রয়ী।',
                 ],
                 [
                     'question' => 'ফ্ল্যাট কেনার সময় ইউটিলিটি ও কার পার্কিং চার্জ কি মূল্যের অন্তর্ভুক্ত থাকে?',
-                    'answer'   => 'প্রতিটি ফ্ল্যাট লিস্টিংয়ের স্পেসিফিকেশন টেবিলে মূল্যের পাশাপাশি গ্যারেজ/পার্কিং মূল্য, ইউটিলিটি চার্জ এবং ডাউন পেমেন্টের তথ্য স্পষ্টভাবে উল্লেখ থাকে।',
+                    'answer'   => 'PropertyKoi-এর প্রতিটি ফ্ল্যাট লিস্টিংয়ের স্পেসিফিকেশন টেবিলে মোট মূল্যের পাশাপাশি গ্যারেজ/পার্কিং মূল্য, ইউটিলিটি চার্জ এবং ডাউন পেমেন্টের পরিমাণ স্পষ্টভাবে উল্লেখ থাকে।',
+                ],
+                [
+                    'question' => 'ব্যাংক লোন সুবিধা সম্বলিত ফ্ল্যাট কীভাবে খুঁজে পাব?',
+                    'answer'   => 'PropertyKoi-তে তালিকাভুক্ত বেশিরভাগ রেডি ফ্ল্যাটেই অনুমোদিত প্ল্যান ও রাজউক ছাড়পত্র থাকায় ব্যাংক বা আর্থিক প্রতিষ্ঠান থেকে হোম লোন সুবিধা পাওয়া সহজ। ফিল্টারে ব্যাংক লোন উপযোগী ফ্ল্যাটগুলো সহজেই দেখে নিতে পারেন।',
+                ],
+                [
+                    'question' => 'What is the average price of a 3-bedroom ready flat in Aftabnagar, Dhaka?',
+                    'answer'   => 'Ready 3-bedroom flats in Aftabnagar (1200 to 1800 sq ft) typically range from 75 Lakh to 1.6 Crore BDT depending on block location, building road width, lift, and generator amenities.',
                 ],
             ],
             'commercial-search' => [
                 [
-                    'question' => 'আফতাবনগরে দোকান বা অফিস স্পেসে বিনিয়োগের সুবিধা কী?',
-                    'answer'   => 'দ্রুত বর্ধনশীল আবাসিক এলাকা হওয়ায় আফতাবনগর মেইন রোড ও এভিনিউ রোডগুলোর মার্কেট, শোরুম এবং অফিস স্পেসে উচ্চ রেন্টাল ইল্ড (ভাড়া আয়) এবং দ্রুত ক্যাপিটাল অ্যাপ্রিসিয়েশন পাওয়া যায়।',
+                    'question' => 'আফতাবনগরে দোকান বা অফিস স্পেসে বিনিয়োগের সুবিধা ও ভাড়া আয় (Rental Yield) কেমন?',
+                    'answer'   => 'দ্রুত বর্ধনশীল প্রিমিয়াম আবাসিক এলাকা হওয়ায় আফতাবনগর মেইন রোড, জহুরুল ইসলাম এভিনিউ এবং সংযোগ সড়কগুলোর মার্কেট ও বাণিজ্যিক ভবনে দোকান ও অফিস স্পেসে উচ্চ মাসিক ভাড়া আয় ও দ্রুত মূলধনী বৃদ্ধি (Capital Appreciation) পাওয়া যায়।',
+                ],
+                [
+                    'question' => 'কমার্শিয়াল প্রপার্টি কেনার পূর্বে কোন অনুমোদনগুলো দেখা প্রয়োজন?',
+                    'answer'   => 'বাণিজ্যিক স্পেস ক্রয়ের পূর্বে রাজউক অনুমোদিত কমার্শিয়াল প্ল্যান, ফায়ার সেফটি সার্টিফিকেট, পরিবেশ ছাড়পত্র এবং ভবনের অকুপেন্সি সার্টিফিকেট যাচাই করা জরুরি।',
                 ],
             ],
             'land-share-search' => [
                 [
-                    'question' => 'ল্যান্ড শেয়ার প্রজেক্টে ফ্ল্যাট নির্মাণের খরচ সাধারণ ফ্ল্যাটের চেয়ে কতটা কম?',
-                    'answer'   => 'যৌথভাবে জমি ক্রয় করে নির্মাণ খরচ কিস্তিতে পরিশোধ করার ফলে বাজারমূল্যের চেয়ে প্রায় ২৫% থেকে ৩৫% কম খরচে নিজের পছন্দের ফ্ল্যাটের মালিক হওয়া সম্ভব।',
+                    'question' => 'যৌথ ল্যান্ড শেয়ারিং প্রকল্পে ফ্ল্যাট নির্মাণের খরচ সাধারণ ফ্ল্যাটের চেয়ে কতটা কম?',
+                    'answer'   => 'যৌথভাবে জমি ক্রয় করে ডেভলপার প্রফিট ছাড়াই নিজস্ব খরচে ফ্ল্যাট নির্মাণ করার ফলে বাজারমূল্যের চেয়ে প্রায় ২৫% থেকে ৩৫% কম খরচে নিজস্ব ফ্ল্যাটের মালিক হওয়া সম্ভব।',
+                ],
+                [
+                    'question' => 'ল্যান্ড শেয়ার প্রকল্পে বিনিয়োগ করার সঠিক নিয়ম কী?',
+                    'answer'   => 'সবার আগে জমির খতিয়ান ও মালিকানা হিস্যা অনুযায়ী যৌথ দলিল রেজিস্ট্রি এবং নামজারি সম্পন্ন করতে হবে। এরপর যৌথ একাউন্টের মাধ্যমে কিস্তিতে নির্মাণ কাজ পরিচালনা করা হয়।',
+                ],
+            ],
+            'chahida' => [
+                [
+                    'question' => 'PropertyKoi-তে ক্রেতারা কীভাবে তাদের প্রপার্টি রিকোয়ারমেন্ট বা চাহিদা জমা দিতে পারেন?',
+                    'answer'   => 'PropertyKoi-এর "চাহিদা জানান (Chahida)" পেজে গিয়ে আপনার পছন্দের এলাকা (যেমন আফতাবনগর), প্রপার্টির ধরন (জমি, ফ্ল্যাট বা দোকান), বাজেট ও সাইজ লিখে সহজেই সাবমিট করতে পারেন। এতে কোনো রেজিস্ট্রেশন ফি প্রয়োজন হয় না।',
+                ],
+                [
+                    'question' => 'স্বয়ংক্রিয় এআই ডিমান্ড ম্যাচিং ইঞ্জিন কীভাবে কাজ করে?',
+                    'answer'   => 'আমাদের স্মার্ট ম্যাচিং ইঞ্জিন নতুন কোনো জমি বা ফ্ল্যাট লিস্টিং আসামাত্রই ক্রেতাদের পূর্বের চাহিদার সাথে বাজেট (±১৫%), ব্লক, রাস্তার মাপ ইত্যাদি ক্রস-ম্যাচ করে তাৎক্ষণিকভাবে উপযুক্ত লিস্টিং খুঁজে বের করে।',
+                ],
+                [
+                    'question' => 'টেলিগ্রাম, ইমেইল ও পুশ নোটিফিকেশনে প্রপার্টি ম্যাচিং অ্যালার্ট কীভাবে পাওয়া যায়?',
+                    'answer'   => 'চাহিদা সাবমিটের সময় টেলিগ্রাম এবং ইমেইল অপশন সিলেক্ট করলে উপযুক্ত প্রপার্টি আসার সাথে সাথেই আপনার টেলিগ্রাম বট চ্যাটে এবং ইনবক্সে ছবি ও বিস্তারিত লিংকসহ স্বয়ংক্রিয় নোটিফিকেশন পৌঁছে যায়।',
+                ],
+                [
+                    'question' => 'একজন ক্রেতা সর্বোচ্চ কয়টি চাহিদা সাবমিট করতে পারেন?',
+                    'answer'   => 'প্ল্যাটফর্মের স্বচ্ছতা ও সুষ্ঠু ব্যবস্থাপনার স্বার্থে একজন ব্যবহারকারী সর্বোচ্চ ৩টি সক্রিয় চাহিদা জমা রাখতে পারেন। নতুন চাহিদা দিতে হলে বায়ার ড্যাশবোর্ড থেকে পূর্বের যেকোনো একটি চাহিদা মুছে ফেলা যায়।',
+                ],
+            ],
+            'sell-property' => [
+                [
+                    'question' => 'PropertyKoi-তে জমি বা ফ্ল্যাট বিক্রির বিজ্ঞাপন কীভাবে ফ্রিতে পোস্ট করব?',
+                    'answer'   => '"প্রপার্টি বিক্রি করুন" পেজে গিয়ে প্রপার্টির ধরন, ব্লক, রোড, সাইজ, ছবি এবং আপনার যোগাযোগের নম্বর দিয়ে ১-ক্লিকেই লিস্টিং জমা দিতে পারেন। এটি সম্পূর্ণ বিনামূল্যে।',
+                ],
+                [
+                    'question' => 'বিজ্ঞাপন পোস্ট করার পর কত দ্রুত ক্রেতা পাওয়া যায়?',
+                    'answer'   => 'আপনার বিজ্ঞাপন অনুমোদিত হওয়ার সাথে সাথে আমাদের ডাটাবেজে থাকা শত শত সক্রিয় ক্রেতার চাহিদার সাথে ম্যাচ হয়ে স্বয়ংক্রিয়ভাবে পুশ ও টেলিগ্রাম অ্যালার্ট চলে যায়, ফলে দ্রুত প্রকৃত ক্রেতা পাওয়া সম্ভব হয়।',
+                ],
+                [
+                    'question' => 'মালিকের গোপনীয়তা ও তথ্য কি সুরক্ষিত থাকে?',
+                    'answer'   => 'হ্যাঁ। আপনি চাইলে প্রপার্টির প্লট বা হোল্ডিং নম্বর গোপন রাখতে পারেন এবং শুধুমাত্র অ্যাডমিন অনুমোদিত যাচাইকৃত ক্রেতাদের সাথে কথা বলতে পারেন।',
                 ],
             ],
             default => [
                 [
-                    'question' => 'PropertyKoi.com কীভাবে ক্রেতা ও বিক্রেতাদের সহায়তা করে?',
-                    'answer'   => 'PropertyKoi হলো ঢাকা ও আফতাবনগরের একটি ডিরেক্ট রিয়েল এস্টেট মার্কেটপ্লেস, যেখানে ৪-পয়েন্ট ভেরিফিকেশনের মাধ্যমে যাচাইকৃত জমি, ফ্ল্যাট, কমার্শিয়াল স্পেস ও ল্যান্ড শেয়ার সরাসরি মালিক বা সোর্সের মাধ্যমে কেনা-বেচা করা যায়।',
+                    'question' => 'PropertyKoi.com কী এবং এটি কীভাবে বাংলাদেশের একটি বিশ্বস্ত প্রপার্টি প্ল্যাটফর্ম (Property Buy & Sell Platform in Bangladesh)?',
+                    'answer'   => 'PropertyKoi হলো ঢাকা ও আফতাবনগরের সরাসরি রিয়েল এস্টেট কেনা-বেচার আধুনিক মার্কেটপ্লেস (Property Buy Sell Platform in Bangladesh)। এখানে কোনো চেইন ব্রোকার বা দালাল ছাড়া ১০০% ভেরিফাইড জমি, রেডি ফ্ল্যাট, দোকান ও ল্যান্ড শেয়ার সরাসরি মালিক বা অথরাইজড সোর্সের সাথে কেনাবেচা করা যায়।',
                 ],
                 [
-                    'question' => 'পছন্দের প্রপার্টি না পেলে অটোমেটিক নোটিফিকেশন পাওয়ার উপায় কী?',
-                    'answer'   => 'আমাদের "চাহিদা জানান (Chahida)" পেজে আপনার বাজেট, পছন্দের ব্লক ও প্রপার্টির ধরন সাবমিট করে রাখলে নতুন প্রপার্টি যুক্ত হওয়া মাত্রই টেলিগ্রাম, ইমেইল ও পুশ নোটিফিকেশনে তাৎক্ষণিক অ্যালার্ট পাবেন।',
+                    'question' => 'কোনো দালাল ছাড়া সরাসরি মালিকের সাথে জমি বা ফ্ল্যাট কেনার প্রক্রিয়া কী?',
+                    'answer'   => 'PropertyKoi-তে প্রতিটি লিস্টিংয়ের পাশে "সাইট ভিজিট শিডিউল করুন" অথবা "সরাসরি যোগাযোগ" বাটন রয়েছে। এখানে ক্লিক করে আপনি মধ্যস্বত্বভোগী ছাড়া সরাসরি মালিক বা প্রধান প্রতিনিধির সাথে কথা বলে সরেজমিন প্রপার্টি দেখতে পারবেন।',
+                ],
+                [
+                    'question' => 'PropertyKoi-এর ৪-পয়েন্ট ভেরিফিকেশন (4-Point Verification) কী?',
+                    'answer'   => 'আমাদের টিম প্রতিটি প্রপার্টির (১) মালিকের সত্যতা ও জাতীয় পরিচয়পত্র, (২) সরেজমিন অবস্থান ও রাস্তার প্রশস্ততা, (৩) মূল দলিল ও বায়া দলিল রেকর্ড এবং (৪) হালনাগাদ নামজারি ও খাজনা রশিদ যাচাই করে "Verified" ব্যাজ প্রদান করে।',
+                ],
+                [
+                    'question' => 'How does PropertyKoi compare with traditional real estate classified websites in Bangladesh?',
+                    'answer'   => 'Unlike unverified classifieds full of fake agent chains, PropertyKoi focuses on direct-owner listings, 4-point title verification, and automated buyer-demand notifications via Telegram & Email, ensuring 100% transparent and broker-free transactions.',
+                ],
+                [
+                    'question' => 'পছন্দের প্রপার্টি খুঁজে না পেলে করণীয় কী?',
+                    'answer'   => 'আমাদের "চাহিদা জানান (Chahida)" পেজে আপনার কাঙ্ক্ষিত বাজেট ও এলাকা সাবমিট করে রাখুন। নতুন কোনো প্রপার্টি তালিকাভুক্ত হওয়ামাত্রই আমাদের সিস্টেম আপনাকে স্বয়ংক্রিয়ভাবে নোটিফিকেশন পাঠাবে।',
                 ],
             ],
         };
@@ -254,8 +318,8 @@ class SeoService
     public static function getOgMeta(string $page = '', ?Property $property = null): array
     {
         $siteName = self::getSiteName();
-        $siteDesc = 'আফতাবনগর, পূর্বাচল ও ঢাকায় সরাসরি মালিক ও ভেরিফাইড জমি, ফ্ল্যাট, কমার্শিয়াল স্পেস এবং ল্যান্ড শেয়ার মার্কেটপ্লেস। কোনো চেইন ব্রোকার ছাড়া ১০০% যাচাইকৃত প্রপার্টি কিনুন বা বিক্রি করুন।';
-        $defaultKeywords = 'আফতাবনগর জমি বিক্রয়, আফতাবনগর ফ্ল্যাট, Aftabnagar land for sale, Aftabnagar flat price, রেডি ফ্ল্যাট ঢাকা, কমার্শিয়াল দোকান আফতাবনগর, ল্যান্ড শেয়ার প্রজেক্ট, PropertyKoi, প্রপার্টি কই, বসুন্ধরা জমি, পূর্বাচল প্লট';
+        $siteDesc = 'PropertyKoi.com হলো বাংলাদেশের শীর্ষস্থানীয় প্রপার্টি কেনা-বেচার প্ল্যাটফর্ম (Property Buy & Sell Platform in Bangladesh)। কোনো দালাল বা চেইন ব্রোকার ছাড়া ঢাকা ও আফতাবনগরের ভেরিফাইড আবাসিক প্লট, জমি, রেডি ফ্ল্যাট, কমার্শিয়াল স্পেস ও ল্যান্ড শেয়ার সরাসরি মালিকের সাথে কেনাবেচা করুন।';
+        $defaultKeywords = 'property buy sell platform in bangladesh, real estate marketplace bangladesh, buy sell plot flat dhaka, aftabnagar plot for sale, ready flat in aftabnagar, direct owner property bangladesh, জমি ফ্ল্যাট কেনাবেচা ঢাকা, আফতাবনগর জমি বিক্রয়, রেডি ফ্ল্যাট ঢাকা, প্রপার্টি কই, PropertyKoi';
 
         if ($property) {
             $typeLabel = $property->type_label;
@@ -310,71 +374,71 @@ class SeoService
 
         $meta = match ($page) {
             'land-search' => [
-                'title'       => "আফতাবনগর ও ঢাকায় জমি ও প্লট খুঁজুন | Land & Plots for Sale - {$siteName}",
-                'description' => 'আফতাবনগর, পূর্বাচল ও ঢাকার সেরা লোকেশনে আবাসিক ও বাণিজ্যিক প্লট। ২০ থেকে ৬০ ফুট রাস্তা, লেকভিউ ও কর্নার প্লট সরাসরি মালিকের কাছ থেকে কিনুন।',
-                'keywords'    => 'আফতাবনগর জমি বিক্রয়, আফতাবনগর প্লট দাম, কর্নার প্লট আফতাবনগর, লেকভিউ প্লট, Aftabnagar land for sale, residential plot Dhaka, Purbachal plot, Bashundhara plot, PropertyKoi',
+                'title'       => "Plots & Land for Sale in Aftabnagar, Dhaka | জমি ও প্লট বিক্রয় — {$siteName}",
+                'description' => 'ঢাকা ও আফতাবনগরের সেরা লোকেশনে সরাসরি মালিকের ভেরিফাইড আবাসিক ও বাণিজ্যিক প্লট। ২০ থেকে ৬০ ফুট রাস্তা, কর্নার ও লেকভিউ প্লট কিনুন ১০০% যাচাইকৃত নামজারি ও দলিলসহ। কোনো ব্রোকার কমিশন নেই।',
+                'keywords'    => 'aftabnagar plot for sale, buy land in aftabnagar dhaka, residential plot for sale dhaka, aftabnagar katha price, direct owner plot aftabnagar, আফতাবনগর জমি বিক্রয়, প্লট কেনাবেচা ঢাকা, PropertyKoi',
                 'image'       => self::getCustomOrAssetImage('adm_seo_land_og_image', 'og-land.jpg'),
                 'url'         => route('properties.land'),
                 'type'        => 'website',
             ],
             'flat-search' => [
-                'title'       => "রেডি ও নির্মাণাধীন ফ্ল্যাট ও অ্যাপার্টমেন্ট | Flats & Apartments for Sale - {$siteName}",
-                'description' => 'আফতাবনগর ও ঢাকায় ১০০% রেডি এবং নির্মাণাধীন আধুনিক ফ্ল্যাট ও ডুপ্লেক্স। লিফট, জেনারেটর, কার পার্কিং সুবিধাসহ সরাসরি ভেরিফাইড লিস্টিং।',
-                'keywords'    => 'আফতাবনগর রেডি ফ্ল্যাট, ফ্ল্যাট বিক্রয় ঢাকা, ৩ বেডরুম ফ্ল্যাট আফতাবনগর, ready flat in Aftabnagar, apartment for sale Dhaka, PropertyKoi flat',
+                'title'       => "Ready Flats & Apartments for Sale in Aftabnagar, Dhaka | ফ্ল্যাট বিক্রয় — {$siteName}",
+                'description' => 'আফতাবনগর ও ঢাকায় ১০০% রেডি এবং নির্মাণাধীন আধুনিক ৩/৪ বেডরুমের ফ্ল্যাট ও অ্যাপার্টমেন্ট। লিফট, জেনারেটর ও কার পার্কিংসহ সরাসরি ভেরিফাইড মালিক ও নির্মাতাদের লিস্টিং। ব্রোকারমুক্ত সাশ্রয়ী ডিল।',
+                'keywords'    => 'ready flat in aftabnagar, apartment for sale in aftabnagar dhaka, 3 bed flat aftabnagar, luxury flat dhaka, direct owner flat sale, রেডি ফ্ল্যাট আফতাবনগর, ফ্ল্যাট বিক্রয় ঢাকা, PropertyKoi',
                 'image'       => self::getCustomOrAssetImage('adm_seo_flat_og_image', 'og-flat.jpg'),
                 'url'         => route('properties.flat'),
                 'type'        => 'website',
             ],
             'commercial-search' => [
-                'title'       => "দোকান ও বাণিজ্যিক স্পেস বিক্রয় | Commercial Shops & Offices - {$siteName}",
-                'description' => 'আফতাবনগর ও ঢাকার প্রাইম মার্কেটে দোকান, শোরুম, অফিস স্পেস ও ওপেন ফ্লোর বিক্রয়। নিশ্চিত ভাড়া বা উচ্চ মুনাফাযুক্ত বাণিজ্যিক বিনিয়োগের সেরা সুযোগ।',
-                'keywords'    => 'আফতাবনগর দোকান বিক্রয়, কমার্শিয়াল স্পেস ঢাকা, অফিস স্পেস বিক্রয় আফতাবনগর, commercial shop for sale Aftabnagar, showroom space Dhaka, PropertyKoi',
+                'title'       => "Commercial Space & Shops for Sale in Dhaka | দোকান ও বাণিজ্যিক স্পেস — {$siteName}",
+                'description' => 'আফতাবনগর ও ঢাকার প্রধান সড়কে দোকান, শোরুম, অফিস স্পেস ও ওপেন ফ্লোর বিক্রয়। উচ্চ ভাড়া আয় ও নিশ্চিত মূলধনী বৃদ্ধির বাণিজ্যিক বিনিয়োগের সেরা ভেরিফাইড লিস্টিং।',
+                'keywords'    => 'commercial space for sale dhaka, shop for sale in aftabnagar, showroom space aftabnagar, office space for sale dhaka, দোকান বিক্রয় আফতাবনগর, বাণিজ্যিক স্পেস ঢাকা, PropertyKoi',
                 'image'       => self::getCustomOrAssetImage('adm_seo_commercial_og_image', 'og-commercial.jpg'),
                 'url'         => route('properties.commercial'),
                 'type'        => 'website',
             ],
             'land-share-search' => [
-                'title'       => "যৌথ ল্যান্ড শেয়ার প্রকল্পসমূহ | Land Share Projects - {$siteName}",
-                'description' => 'যৌথ অর্থায়নে সাশ্রয়ী মূল্যে নিজের ফ্ল্যাট গড়ার নির্ভরযোগ্য মাধ্যম। আফতাবনগরে ট্রাস্টেড ও ভেরিফাইড ল্যান্ড শেয়ার প্রজেক্ট সরাসরি যাচাই করুন।',
-                'keywords'    => 'ল্যান্ড শেয়ার আফতাবনগর, যৌথ জমির শেয়ার ঢাকা, কম খরচে ফ্ল্যাট শেয়ার, Aftabnagar land share project, flat share Dhaka, PropertyKoi',
+                'title'       => "Land Share Projects in Aftabnagar, Dhaka | যৌথ ল্যান্ড শেয়ার প্রকল্প — {$siteName}",
+                'description' => 'যৌথভাবে জমি কিনে সাশ্রয়ী খরচে আধুনিক ফ্ল্যাট নির্মাণের ভেরিফাইড ল্যান্ড শেয়ার প্রজেক্ট। বাজারদরের চেয়ে ৩০-৩৫% কম খরচে নিজস্ব ফ্ল্যাটের মালিক হোন।',
+                'keywords'    => 'land share flat in aftabnagar, land share project dhaka, affordable flat share bangladesh, ল্যান্ড শেয়ার প্রজেক্ট ঢাকা, PropertyKoi',
                 'image'       => self::getCustomOrAssetImage('adm_seo_commercial_og_image', 'og-commercial.jpg'),
                 'url'         => route('properties.share'),
                 'type'        => 'website',
             ],
             'all-search' => [
-                'title'       => "সকল ভেরিফাইড প্রপার্টি লিস্টিং | জমি, ফ্ল্যাট ও কমার্শিয়াল - {$siteName}",
-                'description' => 'আফতাবনগর, বসুন্ধরা, পূর্বাচল ও বনশ্রীর সকল যাচাইকৃত জমি, রেডি ফ্ল্যাট, দোকান এবং ল্যান্ড শেয়ার প্রপার্টি এক জায়গায় খুঁজুন ও তুলনা করুন।',
+                'title'       => "Verified Properties for Sale in Dhaka | সকল প্রপার্টি লিস্টিং — {$siteName}",
+                'description' => 'আফতাবনগর, বসুন্ধরা, পূর্বাচল ও ঢাকার সকল যাচাইকৃত জমি, রেডি ফ্ল্যাট, দোকান এবং ল্যান্ড শেয়ার প্রপার্টি এক জায়গায় খুঁজুন ও তুলনা করুন। ১০০% দালালমুক্ত।',
                 'keywords'    => $defaultKeywords,
                 'image'       => self::getCustomOrAssetImage('adm_seo_default_og_image', 'og-default.jpg'),
                 'url'         => route('properties.index'),
                 'type'        => 'website',
             ],
             'map-view' => [
-                'title'       => "আফতাবনগর ইন্টারেক্টিভ ম্যাপ ভিউ | Map View - {$siteName}",
-                'description' => 'ম্যাপে সরাসরি প্রতিটি ব্লক, রোড ও প্লটের সঠিক অবস্থান, রাস্তার প্রশস্ততা ও মূল্য যাচাই করুন।',
+                'title'       => "Aftabnagar Plot & Flat Interactive Map View | ম্যাপ ভিউ — {$siteName}",
+                'description' => 'ম্যাপে সরাসরি প্রতিটি ব্লক, রোড ও প্লটের সঠিক ভৌগোলিক অবস্থান, রাস্তার প্রশস্ততা ও কাঠাপ্রতি মূল্য যাচাই করুন।',
                 'keywords'    => 'আফতাবনগর ম্যাপ, প্রপার্টি ম্যাপ ভিউ, Aftabnagar block map, plot location map Dhaka, PropertyKoi map',
                 'image'       => self::getCustomOrAssetImage('adm_seo_land_og_image', 'og-land.jpg'),
                 'url'         => route('map.view'),
                 'type'        => 'website',
             ],
             'sell-property' => [
-                'title'       => "আপনার প্রপার্টি বা দোকান সরাসরি বিক্রি করুন | Post Property Free - {$siteName}",
-                'description' => 'কোনো মধ্যস্বত্বভোগী ছাড়া সরাসরি প্রকৃত ক্রেতাদের কাছে আপনার জমি, ফ্ল্যাট বা দোকান পৌঁছান। সম্পূর্ণ ফ্রি লিস্টিং।',
-                'keywords'    => 'প্রপার্টি বিক্রি করুন, জমি বিক্রির বিজ্ঞাপন, ফ্ল্যাট বিক্রি আফতাবনগর, sell property Dhaka, post free property ad Bangladesh, PropertyKoi',
+                'title'       => "Post Free Property Ad in Bangladesh | প্রপার্টি বিক্রির ফ্রি বিজ্ঞাপন দিন — {$siteName}",
+                'description' => 'আপনার জমি, ফ্ল্যাট বা দোকান বিক্রির বিজ্ঞাপন সম্পূর্ণ ফ্রিতে পোস্ট করুন। কোনো ব্রোকার কমিশন বা মধ্যস্বত্বভোগী ছাড়া সরাসরি হাজারো প্রকৃত ক্রেতার সাথে যোগাযোগ করুন।',
+                'keywords'    => 'post free property ad bangladesh, sell property online dhaka, free real estate listing bangladesh, post flat land ad, প্রপার্টি বিক্রির বিজ্ঞাপন, জমি বিক্রি, ফ্ল্যাট বিক্রি, PropertyKoi',
                 'image'       => self::getCustomOrAssetImage('adm_seo_sell_og_image', 'og-sell.jpg'),
                 'url'         => route('property.create'),
                 'type'        => 'website',
             ],
             'chahida' => [
-                'title'       => "আপনার প্রপার্টি চাহিদা জানান | প্রপার্টি কই - {$siteName}",
-                'description' => 'আপনার বাজেট ও পছন্দ অনুযায়ী কাঙ্ক্ষিত জমি বা ফ্ল্যাটের চাহিদা দিন। উপযুক্ত ডিল পেলেই তাৎক্ষণিক ও দৈনিক ক্রন শিডিউলে নোটিফিকেশন পাবেন।',
-                'keywords'    => 'প্রপার্টি চাহিদা, জমি কিনতে চাই আফতাবনগর, ফ্ল্যাট রিকোয়ারমেন্ট ঢাকা, buyer property requirement Dhaka, PropertyKoi chahida',
+                'title'       => "Submit Property Requirements & Buyer Demand | প্রপার্টি চাহিদা জানান — {$siteName}",
+                'description' => 'ঢাকা ও আফতাবনগরে পছন্দের জমি বা ফ্ল্যাট খুঁজছেন? আপনার বাজেট ও পছন্দের চাহিদা সাবমিট করুন। আমাদের এআই ইঞ্জিন স্বয়ংক্রিয়ভাবে সরাসরি মালিকের প্রপার্টি ম্যাচ করে তাৎক্ষণিক টেলিগ্রাম ও ইমেইল অ্যালার্ট পাঠাবে।',
+                'keywords'    => 'buyer property requirement dhaka, property demand submission bangladesh, plot flat buyer alert, aftabnagar property wanted, প্রপার্টি চাহিদা ঢাকা, জমি কিনতে চাই, PropertyKoi chahida',
                 'image'       => self::getCustomOrAssetImage('adm_seo_chahida_og_image', 'og-chahida.jpg'),
                 'url'         => route('chahida.index'),
                 'type'        => 'website',
             ],
             'compare' => [
-                'title'       => "প্রপার্টি তুলনা ম্যাট্রিক্স | Compare Properties - {$siteName}",
+                'title'       => "প্রপার্টি তুলনা ম্যাট্রিক্স | Compare Properties — {$siteName}",
                 'description' => 'একাধিক জমি, ফ্ল্যাট বা কমার্শিয়াল স্পেসের মূল্য, আকার, রাস্তা ও সুযোগ-সুবিধা পাশাপাশি তুলনা করে সেরা সিদ্ধান্ত নিন।',
                 'keywords'    => 'প্রপার্টি তুলনা, জমি ও ফ্ল্যাট কম্পেয়ার, compare properties Dhaka, Aftabnagar plot comparison, PropertyKoi',
                 'image'       => self::getCustomOrAssetImage('adm_seo_flat_og_image', 'og-flat.jpg'),
@@ -382,7 +446,7 @@ class SeoService
                 'type'        => 'website',
             ],
             'shortlist' => [
-                'title'       => "আমার পছন্দের প্রপার্টি শর্টলিস্ট | Saved Properties - {$siteName}",
+                'title'       => "আমার পছন্দের প্রপার্টি শর্টলিস্ট | Saved Properties — {$siteName}",
                 'description' => 'আপনার পছন্দের সেইভ করা জমি, ফ্ল্যাট ও কমার্শিয়াল প্রপার্টিসমূহ এক নজরে দেখুন ও তুলনা করুন।',
                 'keywords'    => 'শর্টলিস্ট প্রপার্টি, পছন্দের জমি ও ফ্ল্যাট, saved properties PropertyKoi',
                 'image'       => self::getCustomOrAssetImage('adm_seo_chahida_og_image', 'og-chahida.jpg'),
@@ -390,7 +454,7 @@ class SeoService
                 'type'        => 'website',
             ],
             default => [
-                'title'       => "{$siteName} | সরাসরি মালিক ও ভেরিফাইড প্রপার্টি মার্কেটপ্লেস — ঢাকা ও আফতাবনগর",
+                'title'       => "Property Buy & Sell Platform in Bangladesh — জমি ও ফ্ল্যাট কেনাবেচার মার্কেটপ্লেস | {$siteName}",
                 'description' => $siteDesc,
                 'keywords'    => $defaultKeywords,
                 'image'       => self::getCustomOrAssetImage('adm_seo_default_og_image', 'og-default.jpg'),
@@ -419,38 +483,81 @@ class SeoService
 
         $graph = [
             [
-                '@type'           => 'WebSite',
-                '@id'             => $siteUrl . '#website',
-                'url'             => $siteUrl,
-                'name'            => $siteName,
-                'inLanguage'      => 'bn-BD',
-                'potentialAction' => [
+                '@type'                  => 'WebSite',
+                '@id'                    => $siteUrl . '#website',
+                'url'                    => $siteUrl,
+                'name'                   => $siteName,
+                'alternateName'          => ['Property Koi', 'PropertyKoi', 'PropertyKoi.com', 'প্রপার্টি কই', 'Property Buy Sell Platform Bangladesh'],
+                'description'            => 'PropertyKoi is Bangladesh\'s premier direct-owner property buy and sell platform and real estate marketplace for verified land, ready flats, land shares, and commercial spaces in Dhaka.',
+                'inLanguage'             => ['bn-BD', 'en-US'],
+                'potentialAction'        => [
                     '@type'       => 'SearchAction',
                     'target'      => route('properties.index') . '?search={search_term_string}',
                     'query-input' => 'required name=search_term_string',
                 ],
             ],
             [
-                '@type'       => 'RealEstateAgent',
-                '@id'         => $siteUrl . '#organization',
-                'name'        => $siteName,
-                'url'         => $siteUrl,
-                'logo'        => asset('assets/icons/icon-512x512.png'),
-                'image'       => self::getCustomOrAssetImage('adm_seo_default_og_image', 'og-default.jpg'),
-                'description' => $desc ?: 'আফতাবনগর ও ঢাকার রিয়েল এস্টেট প্রপার্টি কেনা-বেচার বিশ্বস্ত ডিরেক্ট মার্কেটপ্লেস।',
-                'telephone'   => Setting::get('adm_admin_whatsapp_number', Setting::get('support_phone', '+8801672646242')),
-                'address'     => [
+                '@type'                   => 'RealEstateAgent',
+                '@id'                     => $siteUrl . '#organization',
+                'name'                    => $siteName,
+                'alternateName'           => ['Property Koi', 'PropertyKoi', 'PropertyKoi.com'],
+                'url'                     => $siteUrl,
+                'logo'                    => asset('assets/icons/icon-512x512.png'),
+                'image'                   => self::getCustomOrAssetImage('adm_seo_default_og_image', 'og-default.jpg'),
+                'description'             => $desc ?: 'PropertyKoi.com হলো বাংলাদেশের বিশ্বস্ত প্রপার্টি কেনা-বেচার প্ল্যাটফর্ম (Property Buy Sell Platform in Bangladesh)।',
+                'disambiguatingDescription' => 'PropertyKoi is a direct real estate buy and sell platform in Bangladesh specializing in verified land, flats, and commercial properties in Dhaka.',
+                'slogan'                  => 'সরাসরি প্রপার্টি মার্কেটপ্লেস — ১০০% দালালমুক্ত ও ভেরিফাইড',
+                'telephone'               => Setting::get('adm_admin_whatsapp_number', Setting::get('support_phone', '+8801672646242')),
+                'knowsAbout'              => [
+                    'Real Estate in Bangladesh',
+                    'Property Buy and Sell Platform',
+                    'Plots and Land for Sale in Dhaka',
+                    'Aftabnagar Plots and Flats',
+                    'Ready Apartments for Sale in Dhaka',
+                    'Commercial Space for Sale in Dhaka',
+                    'Land Share Projects in Bangladesh',
+                    'Property Title Verification and Legal Due Diligence',
+                ],
+                'hasOfferCatalog'         => [
+                    '@type'            => 'OfferCatalog',
+                    'name'             => 'PropertyKoi Real Estate Categories',
+                    'itemListElement'  => [
+                        [
+                            '@type' => 'OfferCatalog',
+                            'name'  => 'Residential Land & Plots for Sale',
+                            'url'   => route('properties.land'),
+                        ],
+                        [
+                            '@type' => 'OfferCatalog',
+                            'name'  => 'Ready & Ongoing Flats and Apartments for Sale',
+                            'url'   => route('properties.flat'),
+                        ],
+                        [
+                            '@type' => 'OfferCatalog',
+                            'name'  => 'Commercial Space & Shops for Sale',
+                            'url'   => route('properties.commercial'),
+                        ],
+                        [
+                            '@type' => 'OfferCatalog',
+                            'name'  => 'Land Share Projects',
+                            'url'   => route('properties.share'),
+                        ],
+                    ],
+                ],
+                'address'                 => [
                     '@type'           => 'PostalAddress',
+                    'streetAddress'   => 'Main Road, Block A',
                     'addressLocality' => 'Aftabnagar, Badda',
                     'addressRegion'   => 'Dhaka',
                     'postalCode'      => '1212',
                     'addressCountry'  => 'BD',
                 ],
-                'areaServed'  => [
+                'areaServed'              => [
                     ['@type' => 'AdministrativeArea', 'name' => 'Aftabnagar, Dhaka'],
                     ['@type' => 'AdministrativeArea', 'name' => 'Bashundhara R/A, Dhaka'],
                     ['@type' => 'AdministrativeArea', 'name' => 'Purbachal, Dhaka'],
                     ['@type' => 'AdministrativeArea', 'name' => 'Banasree, Dhaka'],
+                    ['@type' => 'Country', 'name' => 'Bangladesh'],
                 ],
             ],
         ];
@@ -597,11 +704,21 @@ class SeoService
                     'dateModified' => $prop->updated_at ? $prop->updated_at->toIso8601String() : now()->toIso8601String(),
                     'mainEntity'   => $itemOffered,
                     'offers'       => [
-                        '@type'         => 'Offer',
-                        'price'         => $prop->raw_price > 0 ? $prop->raw_price : null,
-                        'priceCurrency' => 'BDT',
-                        'availability'  => $prop->status === 'sold' ? 'https://schema.org/SoldOut' : 'https://schema.org/InStock',
-                        'url'           => $url,
+                        '@type'            => 'Offer',
+                        'price'            => $prop->raw_price > 0 ? $prop->raw_price : null,
+                        'priceCurrency'    => 'BDT',
+                        'availability'     => $prop->status === 'sold' ? 'https://schema.org/SoldOut' : 'https://schema.org/InStock',
+                        'url'              => $url,
+                        'businessFunction' => 'https://schema.org/SellAction',
+                        'seller'           => [
+                            '@type' => 'Organization',
+                            'name'  => 'PropertyKoi',
+                            'url'   => url('/'),
+                        ],
+                    ],
+                    'speakable'    => [
+                        '@type'       => 'SpeakableSpecification',
+                        'cssSelector' => ['h1', '.property-summary-text', '.property-specs-card'],
                     ],
                 ],
                 [

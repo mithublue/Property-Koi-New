@@ -9,11 +9,23 @@ return new class extends Migration
 {
     public function up(): void
     {
-        DB::statement('ALTER TABLE property_media MODIFY property_id BIGINT UNSIGNED NULL');
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement('ALTER TABLE property_media MODIFY property_id BIGINT UNSIGNED NULL');
+        } else {
+            Schema::table('property_media', function (Blueprint $table) {
+                $table->unsignedBigInteger('property_id')->nullable()->change();
+            });
+        }
     }
 
     public function down(): void
     {
-        DB::statement('ALTER TABLE property_media MODIFY property_id BIGINT UNSIGNED NOT NULL');
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement('ALTER TABLE property_media MODIFY property_id BIGINT UNSIGNED NOT NULL');
+        } else {
+            Schema::table('property_media', function (Blueprint $table) {
+                $table->unsignedBigInteger('property_id')->nullable(false)->change();
+            });
+        }
     }
 };

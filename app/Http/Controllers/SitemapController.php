@@ -14,14 +14,20 @@ class SitemapController extends Controller
             ->limit(5000)
             ->get();
 
+        $latestUpdate = ($properties->first() && $properties->first()->updated_at)
+            ? $properties->first()->updated_at->toAtomString()
+            : now()->toAtomString();
+
         $staticPages = [
-            ['url' => url('/'), 'priority' => '1.0', 'freq' => 'daily'],
-            ['url' => url('/land-search'), 'priority' => '0.9', 'freq' => 'daily'],
-            ['url' => url('/flat-search'), 'priority' => '0.9', 'freq' => 'daily'],
-            ['url' => url('/land-share-search'), 'priority' => '0.9', 'freq' => 'daily'],
-            ['url' => url('/commercial-search'), 'priority' => '0.9', 'freq' => 'daily'],
-            ['url' => url('/chahida'), 'priority' => '0.9', 'freq' => 'daily'],
-            ['url' => url('/sell-property'), 'priority' => '0.8', 'freq' => 'weekly'],
+            ['url' => url('/'), 'priority' => '1.0', 'freq' => 'daily', 'lastmod' => $latestUpdate],
+            ['url' => url('/properties'), 'priority' => '0.9', 'freq' => 'daily', 'lastmod' => $latestUpdate],
+            ['url' => url('/land-search'), 'priority' => '0.9', 'freq' => 'daily', 'lastmod' => $latestUpdate],
+            ['url' => url('/flat-search'), 'priority' => '0.9', 'freq' => 'daily', 'lastmod' => $latestUpdate],
+            ['url' => url('/land-share-search'), 'priority' => '0.9', 'freq' => 'daily', 'lastmod' => $latestUpdate],
+            ['url' => url('/commercial-search'), 'priority' => '0.9', 'freq' => 'daily', 'lastmod' => $latestUpdate],
+            ['url' => url('/chahida'), 'priority' => '0.9', 'freq' => 'daily', 'lastmod' => $latestUpdate],
+            ['url' => url('/sell-property'), 'priority' => '0.8', 'freq' => 'weekly', 'lastmod' => $latestUpdate],
+            ['url' => url('/map-view'), 'priority' => '0.7', 'freq' => 'weekly', 'lastmod' => $latestUpdate],
         ];
 
         $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
@@ -30,16 +36,19 @@ class SitemapController extends Controller
         foreach ($staticPages as $sp) {
             $xml .= "  <url>\n";
             $xml .= "    <loc>" . htmlspecialchars($sp['url'], ENT_XML1, 'UTF-8') . "</loc>\n";
+            $xml .= "    <lastmod>{$sp['lastmod']}</lastmod>\n";
             $xml .= "    <changefreq>{$sp['freq']}</changefreq>\n";
             $xml .= "    <priority>{$sp['priority']}</priority>\n";
             $xml .= "  </url>\n";
         }
 
         foreach ($properties as $prop) {
-            $propUrl = url('/property/' . $prop->slug);
+            $slugOrId = $prop->slug ?: $prop->id;
+            $propUrl = url('/property/' . $slugOrId);
+            $propLastMod = $prop->updated_at ? $prop->updated_at->toAtomString() : now()->toAtomString();
             $xml .= "  <url>\n";
             $xml .= "    <loc>" . htmlspecialchars($propUrl, ENT_XML1, 'UTF-8') . "</loc>\n";
-            $xml .= "    <lastmod>" . $prop->updated_at->toAtomString() . "</lastmod>\n";
+            $xml .= "    <lastmod>" . $propLastMod . "</lastmod>\n";
             $xml .= "    <changefreq>daily</changefreq>\n";
             $xml .= "    <priority>" . ($prop->is_featured ? '0.9' : '0.8') . "</priority>\n";
 

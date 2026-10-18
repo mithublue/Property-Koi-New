@@ -162,7 +162,7 @@ class SellPropertyAndProfileTest extends TestCase
             'role' => 'admin',
         ]);
 
-        $response = $this->actingAs($admin)->get('/admin/settings');
+        $response = $this->actingAs($admin)->get(route('admin.settings.index'));
         $response->assertStatus(200);
         $response->assertSee('adm_developer_mode');
     }

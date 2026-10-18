@@ -9,9 +9,14 @@
     RewriteRule ^\.git - [F,L]
     RewriteRule ^\.env - [F,L]
 
-    # Redirect direct requests containing /public to clean URL (e.g. /public/chahida -> /chahida)
+    # 1. 301 Redirect direct /public or /public/ to root /
     RewriteCond %{REQUEST_METHOD} !POST
-    RewriteCond %{THE_REQUEST} ^[A-Z]{3,}\s/+(?:public/(.*)|public(\?.*)?)\sHTTP [NC]
+    RewriteCond %{THE_REQUEST} ^[A-Z]{3,}\s/+public/?(?:\?.*)?\sHTTP [NC]
+    RewriteRule ^ https://%{HTTP_HOST}/ [R=301,L,NE]
+
+    # 2. 301 Redirect /public/something to /something
+    RewriteCond %{REQUEST_METHOD} !POST
+    RewriteCond %{THE_REQUEST} ^[A-Z]{3,}\s/+public/(.+?)(?:\?.*)?\sHTTP [NC]
     RewriteRule ^ https://%{HTTP_HOST}/%1 [R=301,L,NE,QSA]
 
     # Handle Authorization Header

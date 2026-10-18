@@ -5,12 +5,17 @@
     RewriteRule ^\.git - [F,L]
     RewriteRule ^\.env - [F,L]
 
-    # 1. 301 Redirect any direct browser request containing /public to clean URL
+    # 1. 301 Redirect direct /public or /public/ to root /
     RewriteCond %{REQUEST_METHOD} !POST
-    RewriteCond %{THE_REQUEST} ^[A-Z]{3,}\s/+(?:public/(.*)|public(\?.*)?)\sHTTP [NC]
+    RewriteCond %{THE_REQUEST} ^[A-Z]{3,}\s/+public/?(?:\?.*)?\sHTTP [NC]
+    RewriteRule ^ https://%{HTTP_HOST}/ [R=301,L,NE]
+
+    # 2. 301 Redirect /public/something to /something
+    RewriteCond %{REQUEST_METHOD} !POST
+    RewriteCond %{THE_REQUEST} ^[A-Z]{3,}\s/+public/(.+?)(?:\?.*)?\sHTTP [NC]
     RewriteRule ^ https://%{HTTP_HOST}/%1 [R=301,L,NE,QSA]
 
-    # 2. Internally route all requests into public folder
+    # 3. Internally route all requests into public folder
     RewriteCond %{REQUEST_URI} !^/public/
     RewriteRule ^(.*)$ public/$1 [L]
 </IfModule>

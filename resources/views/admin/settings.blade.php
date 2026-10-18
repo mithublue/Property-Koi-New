@@ -477,6 +477,27 @@ function admSettingsRoot() {
                     </label>
                 </div>
 
+                <!-- Max Demands per User Card -->
+                <div class="p-6 bg-slate-50 rounded-2xl border border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div class="space-y-1 max-w-xl">
+                        <div class="flex items-center gap-2">
+                            <span class="text-xl">📋</span>
+                            <h2 class="text-base font-extrabold text-slate-900 m-0">চাহিদা সাবমিশন সর্বোচ্চ লিমিট (Max Demands per User)</h2>
+                        </div>
+                        <p class="text-xs text-slate-600 leading-relaxed m-0">
+                            একজন ব্যবহারকারী বা ক্রেতা সর্বোচ্চ কয়টি চাহিদা (Buyer Demand) সাবমিট করতে পারবেন। লগইন করা ইউজারের ক্ষেত্রে আইডি দিয়ে এবং লগআউট থাকা ইউজারদের ক্ষেত্রে ফোন/হোয়াটসঅ্যাপ, ইমেইল বা টেলিগ্রাম দিয়ে স্বয়ংক্রিয়ভাবে শনাক্ত করা হবে। নির্ধারিত সীমার অতিরিক্ত চাহিদা দিতে চাইলে পুরাতন কোনো চাহিদা ডিলিট করতে হবে।
+                        </p>
+                    </div>
+
+                    <div class="shrink-0 w-full sm:w-44">
+                        <div class="flex items-center gap-2">
+                            <input type="number" name="adm_max_demands_per_user" min="1" max="100" value="{{ $max_demands_per_user ?? 3 }}"
+                                   class="w-full border rounded-xl px-3.5 py-2.5 bg-white font-black text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 text-center shadow-sm">
+                            <span class="text-xs font-bold text-slate-500 shrink-0">টি</span>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Additional System Diagnostics -->
                 <div class="p-6 bg-slate-900 text-white rounded-2xl space-y-3 text-xs font-mono">
                     <div class="font-bold text-emerald-400 uppercase tracking-wider text-[11px]">সার্ভার এনভায়রনমেন্ট ডায়াগনস্টিকস:</div>

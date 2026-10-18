@@ -209,7 +209,52 @@
         </div>
     </div>
 
-    @if ($errors->any())
+    @if (session('success'))
+        <div class="p-4 rounded-2xl bg-emerald-50 border border-emerald-300 text-emerald-900 text-xs font-bold flex items-center gap-2">
+            <span>✅</span>
+            <span>{{ session('success') }}</span>
+        </div>
+    @endif
+
+    @if (session('info'))
+        <div class="p-4 rounded-2xl bg-sky-50 border border-sky-300 text-sky-900 text-xs font-bold flex items-center gap-2">
+            <span>ℹ️</span>
+            <span>{{ session('info') }}</span>
+        </div>
+    @endif
+
+    @if (session('demand_limit_reached'))
+        <div class="p-6 rounded-3xl bg-amber-50 border-2 border-amber-400 text-amber-950 shadow-md space-y-3">
+            <div class="flex items-start gap-3.5">
+                <div class="w-10 h-10 rounded-2xl bg-amber-200 text-amber-800 flex items-center justify-center text-xl shrink-0">
+                    ⚠️
+                </div>
+                <div class="space-y-1.5 flex-1">
+                    <h3 class="text-base font-black text-amber-950">
+                        চাহিদা সাবমিশনের সর্বোচ্চ সীমা ({{ session('max_demands_limit', 3) }}টি) পূর্ণ হয়েছে!
+                    </h3>
+                    <p class="text-xs text-amber-900 leading-relaxed font-medium">
+                        আপনি ইতিমধ্যে সর্বোচ্চ <strong>{{ session('max_demands_limit', 3) }}টি</strong> চাহিদা সাবমিট করেছেন। নতুন চাহিদা জমা দিতে হলে পূর্বে জমা দেওয়া যেকোনো একটি চাহিদা মুছে ফেলতে হবে।
+                    </p>
+                    <div class="pt-2 flex flex-wrap gap-2.5">
+                        @auth
+                            <a href="{{ route('buyer.dashboard') }}" class="inline-flex items-center gap-1.5 px-4 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white font-black text-xs rounded-xl shadow transition">
+                                <span>📋 বায়ার ড্যাশবোর্ড থেকে চাহিদা মুছুন</span>
+                                <span>&rarr;</span>
+                            </a>
+                        @else
+                            <a href="{{ route('login') }}" class="inline-flex items-center gap-1.5 px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-black text-xs rounded-xl shadow transition">
+                                <span>🔐 লগইন করে আগের চাহিদা মুছুন</span>
+                                <span>&rarr;</span>
+                            </a>
+                        @endauth
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    @if ($errors->any() && !session('demand_limit_reached'))
         <div class="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs">
             <ul class="list-disc list-inside space-y-1">
                 @foreach ($errors->all() as $error)

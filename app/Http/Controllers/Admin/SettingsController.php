@@ -43,6 +43,7 @@ class SettingsController extends Controller
         $enable_wa_auth = Setting::get('adm_enable_whatsapp_auth', 'yes') === 'yes';
         $auto_approve_visits = Setting::get('adm_auto_approve_visits', 'no') === 'yes';
         $show_owner_identity = Setting::get('adm_show_owner_identity', 'no') === 'yes';
+        $max_demands_per_user = (int) Setting::get('adm_max_demands_per_user', 3);
 
         // 2. Media Tab
         $watermark_enabled = Setting::get('adm_watermark_enabled', 'yes') === 'yes';
@@ -369,7 +370,8 @@ class SettingsController extends Controller
             'site_email',
             'site_phone',
             'site_footer_about',
-            'site_copyright'
+            'site_copyright',
+            'max_demands_per_user'
         ));
     }
 
@@ -567,6 +569,11 @@ class SettingsController extends Controller
         }
         if (isset($inputs['adm_google_client_secret'])) {
             $inputs['adm_google_client_secret'] = trim($inputs['adm_google_client_secret']);
+        }
+
+        // Sanitize demand submissions limit
+        if (isset($inputs['adm_max_demands_per_user'])) {
+            $inputs['adm_max_demands_per_user'] = max(1, min(100, (int) $inputs['adm_max_demands_per_user']));
         }
 
         foreach ($inputs as $key => $value) {

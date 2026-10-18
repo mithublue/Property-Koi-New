@@ -173,7 +173,7 @@
                     :class="activeTab === 'demands' ? 'bg-white text-emerald-800 shadow-sm' : 'text-slate-600 hover:text-slate-900'"
                     class="flex-1 py-3 px-3 rounded-xl transition text-center flex items-center justify-center gap-1.5 cursor-pointer">
                 <span>🎯</span>
-                <span>আমার চাহিদা (<span x-text="demandsList.length"></span>)</span>
+                <span>আমার চাহিদা (<span x-text="demandsList.length"></span>/<span x-text="maxDemandsLimit"></span>)</span>
             </button>
             <button type="button" @click="activeTab = 'interactions'"
                     :class="activeTab === 'interactions' ? 'bg-white text-emerald-800 shadow-sm' : 'text-slate-600 hover:text-slate-900'"
@@ -344,7 +344,7 @@
                 </div>
 
                 <div class="flex flex-wrap items-center gap-2.5 shrink-0">
-                    <button type="button" @click="demandModalOpen = true"
+                    <button type="button" @click="if (demandsList.length >= maxDemandsLimit) { alert('আপনি ইতিমধ্যে সর্বোচ্চ ' + maxDemandsLimit + 'টি চাহিদা সাবমিট করেছেন। নতুন চাহিদা জমা দিতে হলে তালিকা থেকে যেকোনো একটি পুরনো চাহিদা মুছে ফেলুন।'); } else { demandModalOpen = true; }"
                             class="px-5 py-3 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-extrabold text-xs rounded-xl shadow-md transition flex items-center gap-2 cursor-pointer">
                         <span class="text-base leading-none">＋</span>
                         <span>নতুন চাহিদা যোগ করুন</span>
@@ -355,6 +355,12 @@
                         <span x-show="runningCron">যাচাই হচ্ছে... ⏳</span>
                     </button>
                 </div>
+            </div>
+
+            <!-- Quota Notice if Limit Reached -->
+            <div x-show="demandsList.length >= maxDemandsLimit" class="p-4 rounded-2xl bg-amber-50 border border-amber-300 text-amber-950 text-xs font-semibold flex items-center gap-3">
+                <span class="text-xl">⚠️</span>
+                <span>আপনি সর্বোচ্চ নির্ধারিত সীমা (<strong x-text="maxDemandsLimit"></strong>টি) চাহিদা সাবমিট করেছেন। নতুন চাহিদা যোগ করতে হলে নিচের তালিকা থেকে যেকোনো একটি পুরনো চাহিদা ডিলিট করুন।</span>
             </div>
 
             <!-- List of Demands -->

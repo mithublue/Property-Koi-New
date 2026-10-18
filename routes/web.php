@@ -73,6 +73,7 @@ Route::get('/chahida', [ChahidaController::class, 'index'])->name('chahida.index
 Route::post('/chahida', [ChahidaController::class, 'store'])->name('chahida.store');
 Route::get('/chahida/{code}', [ChahidaController::class, 'show'])->name('chahida.show');
 Route::get('/chahida/unsubscribe/{token}', [ChahidaController::class, 'unsubscribe'])->name('demand.unsubscribe');
+Route::match(['get', 'post'], '/chahida/unsubscribe/{token}/delete', [ChahidaController::class, 'deleteByToken'])->name('demand.delete-by-token');
 
 // Telegram 1-Click Connect & Deep Linking
 Route::get('/telegram/connect/{code}', [TelegramController::class, 'connect'])->name('telegram.connect');

@@ -11,6 +11,7 @@ window.admBuyerDashboard = function() {
             interactionsList: @json($interactions),
             myPropertiesList: @json($myProperties),
             demandsList: @json($demands),
+            maxDemandsLimit: {{ $max_demands_limit ?? 3 }},
 
             demandModalOpen: false,
             savingDemand: false,
@@ -431,6 +432,10 @@ window.admBuyerDashboard = function() {
 
             submitDemandModal() {
                 var self = this;
+                if (self.demandsList && self.demandsList.length >= self.maxDemandsLimit) {
+                    alert('আপনি ইতিমধ্যে সর্বোচ্চ ' + self.maxDemandsLimit + 'টি চাহিদা সাবমিট করেছেন। নতুন চাহিদা জমা দিতে হলে তালিকা থেকে যেকোনো একটি পুরনো চাহিদা মুছে ফেলুন।');
+                    return;
+                }
                 self.savingDemand = true;
 
                 fetch("{{ route('buyer.dashboard.demand.store') }}", {

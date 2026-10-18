@@ -333,7 +333,9 @@ class BuyerDashboardController extends Controller
             'my_properties' => count($myProperties),
         ];
 
-        return view('pages.buyer-dashboard', compact('profile', 'favorites', 'demands', 'interactions', 'myProperties', 'stats', 'user'));
+        $max_demands_limit = (int) \App\Models\Setting::get('adm_max_demands_per_user', 3);
+
+        return view('pages.buyer-dashboard', compact('profile', 'favorites', 'demands', 'interactions', 'myProperties', 'stats', 'user', 'max_demands_limit'));
     }
 
     public function toggleFavorite(Request $request)
@@ -506,11 +508,27 @@ class BuyerDashboardController extends Controller
             }
         }
 
+        $submitPhone = $request->buyer_phone ?: ($user->whatsapp_number ?: $user->phone);
+        $submitEmail = $request->buyer_email ?: $user->email;
+
+        // Enforce maximum demand submissions limit
+        $maxDemands = (int) \App\Models\Setting::get('adm_max_demands_per_user', 3);
+        $existingCount = BuyerDemand::countDemandsForSubmitter($user->id, $submitPhone, $submitEmail, $teleChatId, $teleUsername);
+
+        if ($existingCount >= $maxDemands) {
+            return response()->json([
+                'success'       => false,
+                'message'       => "আপনি ইতিমধ্যে সর্বোচ্চ {$maxDemands}টি চাহিদা সাবমিট করেছেন। নতুন চাহিদা যোগ করতে হলে আপনার তালিকা থেকে যেকোনো একটি পুরনো চাহিদা মুছে ফেলুন।",
+                'limit_reached' => true,
+                'max_limit'     => $maxDemands,
+            ], 422);
+        }
+
         $demand = BuyerDemand::create([
             'user_id'           => $user->id,
             'buyer_name'        => $request->buyer_name ?: $user->name,
-            'buyer_phone'       => $request->buyer_phone ?: ($user->whatsapp_number ?: $user->phone),
-            'buyer_email'       => $request->buyer_email ?: $user->email,
+            'buyer_phone'       => $submitPhone,
+            'buyer_email'       => $submitEmail,
             'property_type'     => $request->property_type ?: 'land',
             'preferred_areas'   => $request->preferred_areas ?: ['Aftabnagar'],
             'min_budget'        => $request->min_budget ?: null,

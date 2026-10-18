@@ -112,6 +112,23 @@ class ChahidaController extends Controller
             }
         }
 
+        // Enforce maximum demand submissions limit per user / guest submitter
+        $maxDemands = (int) \App\Models\Setting::get('adm_max_demands_per_user', 3);
+        $userId = auth()->id();
+        $buyerPhone = $validated['buyer_phone'];
+        $buyerEmail = $validated['buyer_email'] ?? null;
+
+        $existingCount = BuyerDemand::countDemandsForSubmitter($userId, $buyerPhone, $buyerEmail, $teleChatId, $teleUsername);
+
+        if ($existingCount >= $maxDemands) {
+            $msg = "আপনি ইতিমধ্যে সর্বোচ্চ {$maxDemands}টি চাহিদা সাবমিট করেছেন। নতুন চাহিদা জমা দিতে হলে পূর্বে জমা দেওয়া কোনো একটি চাহিদা মুছে ফেলতে হবে।";
+            return back()->withInput()->withErrors([
+                'buyer_phone' => $msg,
+            ])->with('demand_limit_reached', true)
+              ->with('max_demands_limit', $maxDemands)
+              ->with('existing_demands_count', $existingCount);
+        }
+
         $demand = BuyerDemand::create([
             'buyer_name'        => $validated['buyer_name'],
             'buyer_phone'       => $validated['buyer_phone'],
@@ -200,5 +217,19 @@ class ChahidaController extends Controller
         return view('pages.unsubscribe', [
             'demand' => $demand,
         ]);
+    }
+
+    public function deleteByToken(string $token)
+    {
+        $demand = BuyerDemand::where('unsubscribe_token', $token)->first();
+        if ($demand) {
+            $code = $demand->requirement_code;
+            $demand->delete();
+            return redirect()->route('chahida.index')
+                ->with('success', "আপনার চাহিদা (#{$code}) সফলভাবে মুছে ফেলা হয়েছে! এখন আপনি নতুন চাহিদা জমা দিতে পারবেন।");
+        }
+
+        return redirect()->route('chahida.index')
+            ->with('info', 'চাহিদা খুঁজে পাওয়া যায়নি অথবা ইতিমধ্যে মুছে ফেলা হয়েছে।');
     }
 }

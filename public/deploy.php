@@ -55,12 +55,34 @@ $currentCommit = runCommand('git log -1 --oneline');
 // 2. Clear cache & optimize directly via Laravel (runs under Web PHP 8.3)
 $cacheOutput = '';
 $migrationOutput = '';
+$settingsUpdated = [];
 try {
     if (file_exists($baseDir . '/vendor/autoload.php') && file_exists($baseDir . '/bootstrap/app.php')) {
         require_once $baseDir . '/vendor/autoload.php';
         $app = require_once $baseDir . '/bootstrap/app.php';
         $kernel = $app->make(\Illuminate\Contracts\Console\Kernel::class);
         $kernel->bootstrap();
+
+        // Check if settings payload provided
+        $postSettings = $_POST['settings'] ?? null;
+        if (empty($postSettings)) {
+            $rawJson = @file_get_contents('php://input');
+            if (!empty($rawJson)) {
+                $decoded = json_decode($rawJson, true);
+                if (!empty($decoded['settings']) && is_array($decoded['settings'])) {
+                    $postSettings = $decoded['settings'];
+                }
+            }
+        }
+
+        if (!empty($postSettings) && is_array($postSettings)) {
+            foreach ($postSettings as $sKey => $sVal) {
+                if (str_starts_with($sKey, 'adm_') || in_array($sKey, ['google_sheet_url', 'admin_whatsapp_number'])) {
+                    \App\Models\Setting::set($sKey, (string)$sVal);
+                    $settingsUpdated[] = $sKey;
+                }
+            }
+        }
 
         \Illuminate\Support\Facades\Artisan::call('optimize:clear');
         $cacheOutput = trim(\Illuminate\Support\Facades\Artisan::output());
@@ -84,5 +106,6 @@ echo json_encode([
     'current_commit' => trim($currentCommit ?? ''),
     'cache' => $cacheOutput,
     'migration' => $migrationOutput ?? '',
+    'settings_updated' => $settingsUpdated,
 ], JSON_PRETTY_PRINT);
 exit;

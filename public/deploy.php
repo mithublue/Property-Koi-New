@@ -65,6 +65,8 @@ try {
 
         \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
         $migrationOutput = trim(\Illuminate\Support\Facades\Artisan::output());
+        $latestDemand = \App\Models\BuyerDemand::latest()->first();
+        $notifs = $latestDemand ? \App\Models\DemandNotification::where('buyer_demand_id', $latestDemand->id)->get() : [];
     } else {
         $cacheOutput = 'Laravel bootstrap not found';
     }
@@ -80,5 +82,7 @@ echo json_encode([
     'git_pull' => trim($gitPull ?? ''),
     'cache' => $cacheOutput,
     'migration' => $migrationOutput ?? '',
+    'latest_demand' => $latestDemand,
+    'notifs' => $notifs,
 ], JSON_PRETTY_PRINT);
 exit;

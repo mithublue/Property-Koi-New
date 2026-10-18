@@ -605,7 +605,7 @@
                                         </template>
 
                                         <!-- Delete Demand -->
-                                        <form :action="'/admin/demands/' + demand.id" method="POST" onsubmit="return confirm('আপনি কি নিশ্চিতভাবে এই চাহিদাটি মুছে ফেলতে চান?');" class="inline">
+                                        <form :action="'/backend/demands/' + demand.id" method="POST" onsubmit="return confirm('আপনি কি নিশ্চিতভাবে এই চাহিদাটি মুছে ফেলতে চান?');" class="inline">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold rounded-lg text-xs transition border border-rose-200 cursor-pointer">
@@ -658,7 +658,7 @@ function demandManager() {
         },
 
         updateStatus(demandId, status) {
-            fetch(`/admin/demands/${demandId}/status`, {
+            fetch(`/backend/demands/${demandId}/status`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -682,13 +682,13 @@ function demandManager() {
         },
 
         sendTelegramAlert(demandId) {
-            fetch(`/admin/demands/${demandId}/telegram-alert`, {
+            fetch(`/backend/demands/${demandId}/telegram-alert`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': '{{ csrf_token() }}',
                     'Accept': 'application/json'
-                }
+                },
             })
             .then(r => r.json())
             .then(data => {

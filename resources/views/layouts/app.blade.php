@@ -309,12 +309,20 @@
                             <span>বায়ার ড্যাশবোর্ড</span>
                         </a>
                     @else
-                        <a href="{{ route('login') }}" class="px-3 py-2 rounded-xl text-sm font-semibold text-slate-700 hover:text-emerald-600 transition">
-                            লগইন
-                        </a>
-                        <a href="{{ route('register') }}" class="px-3 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-800 hover:bg-slate-200 transition">
-                            রেজিস্ট্রেশন
-                        </a>
+                        <!-- Unified Auth Capsule Button (One sleek button for Login & Register) -->
+                        <div class="inline-flex items-center p-1 bg-slate-100 hover:bg-slate-200/70 rounded-2xl border border-slate-200 text-xs font-bold transition shadow-2xs">
+                            <a href="{{ route('login') }}"
+                               class="px-3 py-1.5 rounded-xl transition flex items-center gap-1 {{ request()->routeIs('login') && request('tab') !== 'register' && !request()->routeIs('register') ? 'bg-white text-emerald-700 shadow-xs' : 'text-slate-700 hover:text-slate-900 hover:bg-white/70' }}"
+                               title="অ্যাকাউন্টে প্রবেশ করুন">
+                                <span>লগইন</span>
+                            </a>
+                            <span class="w-px h-3.5 bg-slate-300 mx-0.5 select-none"></span>
+                            <a href="{{ route('register') }}"
+                               class="px-3 py-1.5 rounded-xl transition flex items-center gap-1 {{ request()->routeIs('register') || request('tab') === 'register' ? 'bg-white text-emerald-700 shadow-xs' : 'text-slate-700 hover:text-slate-900 hover:bg-white/70' }}"
+                               title="নতুন অ্যাকাউন্ট তৈরি করুন">
+                                <span>রেজিস্ট্রেশন</span>
+                            </a>
+                        </div>
                     @endauth
 
                     <a href="{{ route('property.create') }}"
@@ -394,9 +402,14 @@
                     </form>
                 </div>
             @else
-                <a href="{{ route('login') }}" class="block px-4 py-3 rounded-xl text-base font-semibold text-slate-800 bg-slate-50">
-                    লগইন / নতুন রেজিস্ট্রেশন
-                </a>
+                <div class="grid grid-cols-2 gap-1.5 p-1 bg-slate-100 rounded-2xl border border-slate-200 text-xs font-bold">
+                    <a href="{{ route('login') }}" class="py-2.5 text-center rounded-xl transition {{ request()->routeIs('login') && request('tab') !== 'register' && !request()->routeIs('register') ? 'bg-white text-emerald-700 shadow-xs' : 'text-slate-700 hover:bg-white' }}">
+                        লগইন (Sign In)
+                    </a>
+                    <a href="{{ route('register') }}" class="py-2.5 text-center rounded-xl transition {{ request()->routeIs('register') || request('tab') === 'register' ? 'bg-white text-emerald-700 shadow-xs' : 'text-slate-700 hover:bg-white' }}">
+                        রেজিস্ট্রেশন (Register)
+                    </a>
+                </div>
             @endauth
             <a href="{{ route('property.create') }}" class="block px-4 py-3.5 rounded-xl text-base font-bold bg-emerald-600 text-white text-center shadow-md">
                 ফ্রি প্রপার্টি বিজ্ঞাপন দিন

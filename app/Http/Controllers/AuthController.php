@@ -20,7 +20,9 @@ class AuthController extends Controller
             return redirect(AccessControlService::getLoginRedirectUrl(Auth::user()));
         }
 
-        return view('pages.login');
+        $isRegisterTab = request('tab') === 'register';
+
+        return view('pages.login', ['isRegisterTab' => $isRegisterTab]);
     }
 
     public function showRegister()

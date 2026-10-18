@@ -170,7 +170,7 @@
                 </div>
 
                 <!-- Add Note Form -->
-                <form :action="'/admin/leads/' + currentLead?.id + '/note'" method="POST" class="space-y-2 pt-2 border-t border-slate-100">
+                <form :action="'/backend/leads/' + currentLead?.id + '/note'" method="POST" class="space-y-2 pt-2 border-t border-slate-100">
                     @csrf
                     <label class="block font-bold text-slate-800">নতুন ফলো-আপ নোট লিখুন</label>
                     <textarea name="note" rows="3" required placeholder="গ্রাহকের সাথে কি কথা হলো..." class="w-full p-2.5 border border-slate-300 rounded-xl"></textarea>

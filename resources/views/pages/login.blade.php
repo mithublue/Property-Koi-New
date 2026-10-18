@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="min-h-[75vh] flex items-center justify-center px-4 py-12"
-     x-data="{ tab: '{{ !empty($isRegisterTab) || old('is_register') ? 'register' : 'login' }}' }">
+     x-data="{ tab: '{{ request('tab') === 'register' || !empty($isRegisterTab) || old('is_register') ? 'register' : 'login' }}' }">
     <div class="max-w-md w-full bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-xl space-y-6">
 
         <!-- Logo & Header -->

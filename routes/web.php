@@ -90,14 +90,14 @@ Route::get('/shortlist', [PortalController::class, 'shortlist'])->name('shortlis
 Route::match(['get', 'post'], '/shortlist/data', [PortalController::class, 'shortlistData'])->name('shortlist.data');
 
 // ==========================================
-// 6. AUTHENTICATION, REGISTRATION & GOOGLE OAUTH
+// 6. AUTHENTICATION, REGISTRATION & GOOGLE OAUTH (SLUG: /appcenter)
 // ==========================================
-Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-Route::post('/login', [AuthController::class, 'login']);
-Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
-Route::post('/register', [AuthController::class, 'register']);
-Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-Route::get('/login-register', [AuthController::class, 'showLogin'])->name('login-register');
+Route::get('/appcenter', [AuthController::class, 'showLogin'])->name('login');
+Route::post('/appcenter', [AuthController::class, 'login']);
+Route::get('/appcenter/register', [AuthController::class, 'showRegister'])->name('register');
+Route::post('/appcenter/register', [AuthController::class, 'register']);
+Route::post('/appcenter/logout', [AuthController::class, 'logout'])->name('logout');
+Route::get('/appcenter/login-register', [AuthController::class, 'showLogin'])->name('login-register');
 
 // Email Activation Link & OTP verification
 Route::get('/email/verify/{token}', [AuthController::class, 'verifyEmail'])->name('auth.verify-email');
@@ -183,9 +183,9 @@ Route::get('/api/cron/sync-sheets', function (Request $request) {
 });
 
 // ==========================================
-// 10. ADMIN DASHBOARD & MANAGEMENT (PREFIX: admin)
+// 10. ADMIN DASHBOARD & MANAGEMENT (PREFIX: backend)
 // ==========================================
-Route::prefix('admin')->name('admin.')->middleware('admin.access')->group(function () {
+Route::prefix('backend')->name('admin.')->middleware('admin.access')->group(function () {
     // 1. Dashboard
     Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
 

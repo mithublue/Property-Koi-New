@@ -208,7 +208,7 @@ class SettingsController extends Controller
         }
         if (empty($saved_rules) || !is_array($saved_rules)) {
             $saved_rules = [
-                ['role' => 'administrator', 'type' => 'custom_url', 'page_id' => '', 'custom_url' => url('/admin')],
+                ['role' => 'administrator', 'type' => 'custom_url', 'page_id' => '', 'custom_url' => url('/backend')],
                 ['role' => 'adm_agent',     'type' => 'page',       'page_id' => '2', 'custom_url' => ''],
                 ['role' => 'adm_owner',     'type' => 'page',       'page_id' => '2', 'custom_url' => ''],
                 ['role' => 'adm_buyer',     'type' => 'page',       'page_id' => '3', 'custom_url' => ''],

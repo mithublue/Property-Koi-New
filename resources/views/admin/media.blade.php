@@ -538,7 +538,7 @@ function admMediaManager() {
         },
 
         saveEdit() {
-            fetch('/admin/media/' + this.editForm.id + '/update', {
+            fetch('/backend/media/' + this.editForm.id + '/update', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -564,7 +564,7 @@ function admMediaManager() {
                 return;
             }
 
-            fetch('/admin/media/' + id, {
+            fetch('/backend/media/' + id, {
                 method: 'DELETE',
                 headers: {
                     'X-CSRF-TOKEN': '{{ csrf_token() }}',

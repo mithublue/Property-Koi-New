@@ -163,7 +163,7 @@
 
             <div class="p-5 space-y-5 flex-1 overflow-y-auto text-xs">
                 <!-- Rating and Penalty -->
-                <form :action="'/admin/agents/' + currentUser?.id + '/profile'" method="POST" class="space-y-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                <form :action="'/backend/agents/' + currentUser?.id + '/profile'" method="POST" class="space-y-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
                     @csrf
                     <div>
                         <label class="block font-semibold text-slate-700 mb-1">অ্যাডমিন নির্ধারিত রেটিং (1.0 - 5.0)</label>
@@ -188,7 +188,7 @@
                 </form>
 
                 <!-- CRM Notes Form -->
-                <form :action="'/admin/agents/' + currentUser?.id + '/note'" method="POST" class="space-y-2">
+                <form :action="'/backend/agents/' + currentUser?.id + '/note'" method="POST" class="space-y-2">
                     @csrf
                     <label class="block font-bold text-slate-800">অভ্যন্তরীণ অ্যাডমিন নোট যোগ করুন</label>
                     <textarea name="note" rows="3" required placeholder="এই এজেন্ট বা মালিক সম্পর্কে কোনো গুরুত্বপূর্ণ পর্যবেক্ষণ..." class="w-full p-2.5 border border-slate-300 rounded-xl"></textarea>

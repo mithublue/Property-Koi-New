@@ -22,6 +22,15 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Enforce clean root URL & HTTPS on production (strips /public/ and enforces https)
+        if (!app()->runningInConsole()) {
+            $host = request()->getHost();
+            if ($host !== 'localhost' && $host !== '127.0.0.1') {
+                \Illuminate\Support\Facades\URL::forceRootUrl('https://' . $host);
+                \Illuminate\Support\Facades\URL::forceScheme('https');
+            }
+        }
+
         // Fallback session to file if application is not yet installed
         if (!file_exists(storage_path('installed')) && env('APP_INSTALLED') !== true && env('APP_INSTALLED') !== 'true') {
             config(['session.driver' => 'file']);

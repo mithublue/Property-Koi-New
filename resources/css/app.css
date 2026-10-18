@@ -20,6 +20,10 @@ body {
     -moz-osx-font-smoothing: grayscale;
 }
 
+[x-cloak] {
+    display: none !important;
+}
+
 /* Cross-browser gradient fix: override Tailwind v4 'in oklab' which causes Safari/iOS WebKit to reject linear-gradient */
 .bg-gradient-to-t { --tw-gradient-position: to top !important; }
 .bg-gradient-to-tr { --tw-gradient-position: to top right !important; }

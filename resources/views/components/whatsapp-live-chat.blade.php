@@ -20,6 +20,9 @@
 
 <!-- Scoped CSS: Strict Right-Side Pinning & WhatsApp Theme -->
 <style>
+    [x-cloak] {
+        display: none !important;
+    }
     #pk-whatsapp-widget {
         position: fixed !important;
         right: 20px !important;
@@ -60,6 +63,7 @@
     <!-- 1. POPUP CHAT WINDOW (Opens Inside Site, Anchored to Right) -->
     <div x-show="isOpen"
          x-cloak
+         style="display: none;"
          x-transition:enter="transition ease-out duration-250"
          x-transition:enter-start="opacity-0 translate-y-6 scale-95"
          x-transition:enter-end="opacity-100 translate-y-0 scale-100"
@@ -388,7 +392,7 @@
             </span>
 
             <!-- Close Icon (When open) -->
-            <span x-show="isOpen" x-cloak class="text-2xl font-black leading-none">
+            <span x-show="isOpen" x-cloak style="display: none;" class="text-2xl font-black leading-none">
                 ✕
             </span>
         </button>

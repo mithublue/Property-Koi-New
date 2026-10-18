@@ -176,6 +176,9 @@
 
     <!-- Vite Assets (Tailwind CSS, Turbo, Alpine.js) -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <style>
+        [x-cloak] { display: none !important; }
+    </style>
     @stack('styles')
 </head>
 <body class="bg-slate-50 text-slate-900 font-sans antialiased min-h-screen flex flex-col pb-16 md:pb-0"

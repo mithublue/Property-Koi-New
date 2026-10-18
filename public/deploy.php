@@ -28,8 +28,8 @@ if (!file_exists($baseDir . '/artisan')) {
 
 chdir($baseDir);
 
-// Find available PHP 8.3 / PHP 8 binaries
-$findPhp = runCommand('which ea-php83 2>/dev/null || which php83 2>/dev/null || which php8.3 2>/dev/null || ls /usr/local/bin/ea-php* 2>/dev/null || ls /opt/cpanel/ea-php*/root/usr/bin/php 2>/dev/null || which php');
+// Find available PHP 8.3 / PHP 8 binaries (supporting CloudLinux alt-php and cPanel ea-php)
+$findPhp = runCommand('ls /opt/alt/php83/usr/bin/php 2>/dev/null || ls /opt/alt/php8*/usr/bin/php 2>/dev/null || which ea-php83 2>/dev/null || which php83 2>/dev/null || which php8.3 2>/dev/null || ls /usr/local/bin/ea-php* 2>/dev/null || ls /opt/cpanel/ea-php*/root/usr/bin/php 2>/dev/null || which php');
 $phpCandidates = array_filter(array_map('trim', explode("\n", (string)$findPhp)));
 $phpBin = 'php';
 foreach ($phpCandidates as $candidate) {

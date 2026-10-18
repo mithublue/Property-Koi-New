@@ -65,6 +65,7 @@ try {
 
         \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
         $migrationOutput = trim(\Illuminate\Support\Facades\Artisan::output());
+        $rootHtaccess = file_exists($baseDir . '/.htaccess') ? file_get_contents($baseDir . '/.htaccess') : 'not found';
     } else {
         $cacheOutput = 'Laravel bootstrap not found';
     }
@@ -80,5 +81,6 @@ echo json_encode([
     'git_pull' => trim($gitPull ?? ''),
     'cache' => $cacheOutput,
     'migration' => $migrationOutput ?? '',
+    'root_htaccess' => $rootHtaccess ?? '',
 ], JSON_PRETTY_PRINT);
 exit;

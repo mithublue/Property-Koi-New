@@ -1,11 +1,6 @@
 import * as Turbo from '@hotwired/turbo';
 import Alpine from 'alpinejs';
 
-// Disable Turbo snapshot cache for dynamic real-time property listings
-if (Turbo.config && Turbo.config.drive) {
-    Turbo.config.drive.cache.size = 0;
-}
-
 window.Turbo = Turbo;
 window.Alpine = Alpine;
 Alpine.start();

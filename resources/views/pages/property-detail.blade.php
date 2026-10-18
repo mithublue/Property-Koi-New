@@ -539,7 +539,8 @@
             <div class="bg-white rounded-3xl border border-slate-200 p-2 sm:p-3 overflow-hidden shadow-xs space-y-3">
                 <div class="aspect-16/10 rounded-2xl overflow-hidden bg-slate-100 relative group cursor-zoom-in"
                      @click="openLightbox(activeImage)">
-                    <img :src="activeImage"
+                    <img src="{{ $photoUrls[0] ?? $p->cover_url }}"
+                         :src="activeImage"
                          alt="{{ $p->title }}"
                          class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.02]">
 
@@ -1196,8 +1197,8 @@
                                 @click="toggleFav()"
                                 :class="isFav ? 'bg-rose-50 border-rose-300 text-rose-600' : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'"
                                 class="w-full py-2.5 px-3 rounded-xl border text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs">
-                            <span x-text="isFav ? '❤️' : '🤍'"></span>
-                            <span x-text="isFav ? 'শর্টলিস্টে আছে' : 'শর্টলিস্ট করুন'"></span>
+                            <span x-text="isFav ? '❤️' : '🤍'">{{ $isFavDb ? '❤️' : '🤍' }}</span>
+                            <span x-text="isFav ? 'শর্টলিস্টে আছে' : 'শর্টলিস্ট করুন'">{{ $isFavDb ? 'শর্টলিস্টে আছে' : 'শর্টলিস্ট করুন' }}</span>
                         </button>
                     </div>
 
@@ -1238,7 +1239,7 @@
                                 :class="isComp ? 'bg-teal-50 border-teal-300 text-teal-700' : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'"
                                 class="w-full py-2.5 px-3 rounded-xl border text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs">
                             <span>⚖️</span>
-                            <span x-text="isComp ? 'তুলনায় যুক্ত আছে' : 'তুলনা করুন'"></span>
+                            <span x-text="isComp ? 'তুলনায় যুক্ত আছে' : 'তুলনা করুন'">তুলনা করুন</span>
                         </button>
                     </div>
                 </div>

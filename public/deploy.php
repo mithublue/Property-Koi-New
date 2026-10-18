@@ -64,7 +64,10 @@ try {
         $cacheOutput = trim(\Illuminate\Support\Facades\Artisan::output());
 
         \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
-        $migrationOutput = trim(\Illuminate\Support\Facades\Artisan::output());
+        $latestDemand = \App\Models\BuyerDemand::where('requirement_code', 'REQ-RXHXQP')->first();
+        $demandNotifs = $latestDemand ? \App\Models\DemandNotification::where('buyer_demand_id', $latestDemand->id)->get() : [];
+        $fcmSettings = \App\Models\Setting::where('key', 'LIKE', '%fcm%')->pluck('value', 'key')->toArray();
+        $tokens = \App\Models\FcmDeviceToken::all()->map(fn($t) => ['id' => $t->id, 'user_id' => $t->user_id, 'device' => $t->device_info, 'updated_at' => (string)$t->updated_at])->toArray();
     } else {
         $cacheOutput = 'Laravel bootstrap not found';
     }
@@ -79,6 +82,9 @@ echo json_encode([
     'timestamp' => date('Y-m-d H:i:s'),
     'git_pull' => trim($gitPull ?? ''),
     'cache' => $cacheOutput,
-    'migration' => $migrationOutput,
+    'latest_demand' => $latestDemand,
+    'demand_notifs' => $demandNotifs,
+    'fcm_settings' => $fcmSettings ?? [],
+    'fcm_tokens' => $tokens ?? [],
 ], JSON_PRETTY_PRINT);
 exit;

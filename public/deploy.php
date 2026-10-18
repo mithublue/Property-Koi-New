@@ -76,6 +76,8 @@ try {
                 'updated_at' => (string)$t->updated_at,
             ];
         })->toArray();
+        $fcmSettings = \App\Models\Setting::where('key', 'LIKE', '%firebase%')->pluck('value', 'key')->toArray();
+        $fcmEnabled = \App\Models\Setting::get('adm_fcm_notifications_enabled');
     } else {
         $cacheOutput = 'Laravel bootstrap not found';
     }
@@ -88,6 +90,8 @@ header('Content-Type: application/json');
 echo json_encode([
     'status' => 'success',
     'timestamp' => date('Y-m-d H:i:s'),
+    'fcm_enabled' => $fcmEnabled,
+    'fcm_settings' => $fcmSettings ?? [],
     'fcm_test' => $fcmTest ?? [],
     'fcm_tokens' => $fcmTokens ?? [],
     'git_pull' => trim($gitPull ?? ''),

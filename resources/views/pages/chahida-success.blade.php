@@ -192,83 +192,129 @@
 
 @if(session('just_submitted') || session('success'))
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        function playChime() {
-            try {
-                const ctx = new (window.AudioContext || window.webkitAudioContext)();
-                const osc = ctx.createOscillator();
-                const gain = ctx.createGain();
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(587.33, ctx.currentTime);
-                osc.frequency.setValueAtTime(880, ctx.currentTime + 0.1);
-                gain.gain.setValueAtTime(0.25, ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
-                osc.connect(gain);
-                gain.connect(ctx.destination);
-                osc.start();
-                osc.stop(ctx.currentTime + 0.4);
-            } catch (e) {}
+(function() {
+    function playChime() {
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(587.33, ctx.currentTime);
+            osc.frequency.setValueAtTime(880, ctx.currentTime + 0.1);
+            gain.gain.setValueAtTime(0.25, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.4);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start();
+            osc.stop(ctx.currentTime + 0.4);
+        } catch (e) {}
+    }
+
+    function showSelfContainedToast(title, body, url) {
+        playChime();
+
+        if (!document.getElementById('adm-toast-keyframes')) {
+            const style = document.createElement('style');
+            style.id = 'adm-toast-keyframes';
+            style.innerHTML = `
+                @keyframes admToastSlideUp {
+                    from { opacity: 0; transform: translateY(20px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+            `;
+            document.head.appendChild(style);
         }
 
-        function triggerNativeNotification(title, body, url) {
-            if ('Notification' in window && Notification.permission === 'granted') {
-                try {
-                    const iconUrl = (window.admVars && window.admVars.baseUrl)
-                        ? window.admVars.baseUrl.replace(/\/+$/, '') + '/assets/icons/icon-192x192.png'
-                        : '/assets/icons/icon-192x192.png';
-                    
-                    if (navigator.serviceWorker && navigator.serviceWorker.ready) {
-                        navigator.serviceWorker.ready.then(function(reg) {
-                            if (reg && reg.showNotification) {
-                                reg.showNotification(title, {
-                                    body: body,
-                                    icon: iconUrl,
-                                    badge: iconUrl,
-                                    data: { url: url }
-                                });
-                            } else {
-                                new Notification(title, { body: body, icon: iconUrl, data: { url: url } });
-                            }
-                        }).catch(function() {
-                            new Notification(title, { body: body, icon: iconUrl, data: { url: url } });
-                        });
-                    } else {
-                        new Notification(title, { body: body, icon: iconUrl, data: { url: url } });
-                    }
-                } catch (e) {}
+        const toast = document.createElement('div');
+        toast.className = 'adm-fcm-toast';
+        toast.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:999999;background:#0f172a;color:#f8fafc;padding:14px 18px;border-radius:16px;box-shadow:0 12px 30px rgba(0,0,0,0.35);border:1px solid #10b981;max-width:360px;font-family:inherit;display:flex;align-items:flex-start;gap:12px;cursor:pointer;transition:all 0.3s ease;animation:admToastSlideUp 0.3s ease forwards;';
+
+        toast.innerHTML = `
+            <div style="width:36px;height:36px;border-radius:10px;background:#10b981;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">
+                🔔
+            </div>
+            <div style="flex:1;min-width:0;">
+                <div style="font-weight:700;font-size:13px;color:#fff;line-height:1.3;margin-bottom:2px;">` + title + `</div>
+                <div style="font-size:11px;color:#94a3b8;line-height:1.4;">` + body + `</div>
+            </div>
+            <button type="button" style="background:none;border:none;color:#64748b;font-size:18px;cursor:pointer;padding:0;line-height:1;" onclick="event.stopPropagation();this.closest('.adm-fcm-toast').remove();">&times;</button>
+        `;
+
+        toast.addEventListener('click', function() {
+            if (url) window.location.href = url;
+        });
+
+        document.body.appendChild(toast);
+
+        setTimeout(function() {
+            if (toast && toast.parentNode) {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(10px)';
+                setTimeout(function() { toast.remove(); }, 300);
+            }
+        }, 7000);
+    }
+
+    function triggerNativeNotification(title, body, url) {
+        if ('Notification' in window && Notification.permission === 'granted') {
+            const iconUrl = '{{ asset("assets/icons/icon-192x192.png") }}';
+            try {
+                const n = new Notification(title, {
+                    body: body,
+                    icon: iconUrl,
+                    data: { url: url }
+                });
+                n.onclick = function() {
+                    window.focus();
+                    if (url) window.location.href = url;
+                };
+            } catch (e) {
+                if (navigator.serviceWorker && navigator.serviceWorker.ready) {
+                    navigator.serviceWorker.ready.then(function(reg) {
+                        if (reg && reg.showNotification) {
+                            reg.showNotification(title, {
+                                body: body,
+                                icon: iconUrl,
+                                badge: iconUrl,
+                                data: { url: url }
+                            });
+                        }
+                    }).catch(function() {});
+                }
             }
         }
+    }
 
-        // Notification 1: Demand Submission Confirmation
+    function runNotifications() {
+        // Notification 1: Demand Submission Confirmation (Immediate)
         setTimeout(function() {
-            playChime();
             const title1 = '📋 আপনার চাহিদা রিকোয়েস্ট জমা হয়েছে!';
             const body1 = 'রিকোয়ারমেন্ট কোড: #{{ $demand->requirement_code }}। চাহিদাটি সফলভাবে সিস্টেমে সংরক্ষিত হয়েছে।';
             const url1 = window.location.href;
-
-            if (typeof window.admShowInAppToast === 'function') {
-                window.admShowInAppToast(title1, body1, url1);
-            }
+            showSelfContainedToast(title1, body1, url1);
             triggerNativeNotification(title1, body1, url1);
-        }, 500);
+        }, 400);
 
-        // Notification 2: Property Match Alert (if matches found)
+        // Notification 2: Property Match Alert (after 1.8 seconds)
         @if(!empty($matches) && count($matches) > 0)
         setTimeout(function() {
-            playChime();
             const matchCount = {{ count($matches) }};
             const firstPropTitle = @json($matches[0]['property']->title ?? '');
             const title2 = '🎯 ' + matchCount + 'টি নতুন প্রপার্টি ম্যাচ অ্যালার্ট!';
             const body2 = 'আপনার চাহিদার সাথে মিলে এমন ' + matchCount + 'টি প্রপার্টি পাওয়া গেছে।' + (firstPropTitle ? ' প্রথমটি: ' + firstPropTitle : '');
             const url2 = @json(url('/property/' . ($matches[0]['property']->slug ?? '')));
-
-            if (typeof window.admShowInAppToast === 'function') {
-                window.admShowInAppToast(title2, body2, url2);
-            }
+            showSelfContainedToast(title2, body2, url2);
             triggerNativeNotification(title2, body2, url2);
-        }, 2400);
+        }, 2200);
         @endif
-    });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', runNotifications);
+    } else {
+        runNotifications();
+    }
+})();
 </script>
 @endif
 @endsection

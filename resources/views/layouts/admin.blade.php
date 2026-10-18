@@ -205,15 +205,21 @@
         </template>
     </div>
 
+    @php
+        $appBaseUrl = url('/');
+        if (!str_contains($appBaseUrl, 'localhost') && !str_contains($appBaseUrl, '127.0.0.1')) {
+            $appBaseUrl = preg_replace('#/public/?$#', '', $appBaseUrl);
+        }
+    @endphp
     <script>
         window.showToast = function(message, type = 'success') {
             window.dispatchEvent(new CustomEvent('notify', { detail: { message, type } }));
         };
         window.admVars = {
-            baseUrl: "{{ url('/') }}",
-            swUrl: "{{ asset('firebase-messaging-sw.js') }}",
-            scope: "{{ url('/') }}/",
-            registerTokenUrl: "{{ route('fcm.register') }}",
+            baseUrl: "{{ $appBaseUrl }}",
+            swUrl: "{{ $appBaseUrl }}/firebase-messaging-sw.js",
+            scope: "{{ $appBaseUrl }}/",
+            registerTokenUrl: "{{ $appBaseUrl }}/api/fcm/register-token",
             csrfToken: "{{ csrf_token() }}",
             currentUserId: {{ auth()->id() ?? 0 }},
             isAdmin: {{ auth()->check() && auth()->user()->isAdmin() ? 'true' : 'false' }},
@@ -230,7 +236,7 @@
             }
         };
     </script>
-    <script src="{{ asset('assets/js/adm-fcm-client.js') }}?v=1.0.4" defer></script>
+    <script src="{{ asset('assets/js/adm-fcm-client.js') }}?v=1.0.5" defer></script>
 
     @stack('scripts')
 </body>

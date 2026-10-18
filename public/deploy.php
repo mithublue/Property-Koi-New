@@ -65,8 +65,6 @@ try {
 
         \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
         $migrationOutput = trim(\Illuminate\Support\Facades\Artisan::output());
-        $token8 = \App\Models\FcmDeviceToken::find(8);
-        $testRes = $token8 ? \App\Services\FcmService::sendToToken($token8->token, '🧪 সরাসরি পুশ টেস্ট', 'এটি লাইভ টোকেনে পাঠানো হচ্ছে', url('/')) : null;
     } else {
         $cacheOutput = 'Laravel bootstrap not found';
     }
@@ -82,6 +80,5 @@ echo json_encode([
     'git_pull' => trim($gitPull ?? ''),
     'cache' => $cacheOutput,
     'migration' => $migrationOutput ?? '',
-    'token8_push' => $testRes,
 ], JSON_PRETTY_PRINT);
 exit;

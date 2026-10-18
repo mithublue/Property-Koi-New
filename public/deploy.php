@@ -61,6 +61,8 @@ header('Content-Type: application/json');
 echo json_encode([
     'status' => 'success',
     'timestamp' => date('Y-m-d H:i:s'),
+    'php_used' => $phpBin,
+    'php_detected' => trim((string)$findPhp),
     'git_pull' => trim($gitPull ?? ''),
     'cache' => trim($cacheClear ?? ''),
     'migration' => trim($migration ?? ''),

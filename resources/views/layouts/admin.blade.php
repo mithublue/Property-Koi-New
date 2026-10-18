@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="turbo-cache-control" content="no-cache">
     @php
         $siteName = \App\Models\Setting::get('adm_site_name', config('app.name', 'PropertyKoi'));
         $siteFavicon = \App\Models\Setting::get('adm_site_favicon');

@@ -113,34 +113,39 @@ class SeoService
      */
     public static function buildPropertyKeywords(Property $p): string
     {
-        $area = $p->area ?: 'Aftabnagar';
-        $block = $p->block ?: 'A';
+        $area = $p->area ?: 'ঢাকা';
+        $block = $p->block ?: '';
         $typeBn = $p->type_label;
 
         $keywords = [
             $p->title,
             "{$area} {$typeBn} বিক্রয়",
-            "আফতাবনগর {$typeBn}",
-            "আফতাবনগর ব্লক {$block} {$typeBn}",
-            "Aftabnagar Block {$block} {$p->type} for sale",
+            "{$area} {$typeBn}",
             "{$area} property for sale",
             "direct owner property {$area}",
+            "{$typeBn} বিক্রয় ঢাকা",
             "ভেরিফাইড প্রপার্টি ঢাকা",
             "PropertyKoi",
             "প্রপার্টি কই",
         ];
 
+        if ($block) {
+            $keywords[] = "{$area} ব্লক {$block} {$typeBn}";
+            $keywords[] = "{$area} Block {$block} {$p->type} for sale";
+        }
+
         if ($p->type === 'land' && $p->land?->katha_size) {
-            $keywords[] = "{$p->land->katha_size} কাঠা জমি আফতাবনগর";
-            $keywords[] = "Aftabnagar {$p->land->katha_size} katha plot";
+            $keywords[] = "{$p->land->katha_size} কাঠা জমি {$area}";
+            $keywords[] = "{$area} {$p->land->katha_size} katha plot";
         } elseif ($p->type === 'flat' && $p->flat?->flat_size_sqft) {
             $keywords[] = "{$p->flat->flat_size_sqft} sqft flat in {$area}";
-            $keywords[] = "রেডি ফ্ল্যাট আফতাবনগর";
+            $keywords[] = "রেডি ফ্ল্যাট {$area}";
+            $keywords[] = "ready flat for sale in {$area}";
         } elseif ($p->type === 'commercial') {
-            $keywords[] = "আফতাবনগর দোকান ও কমার্শিয়াল স্পেস";
+            $keywords[] = "{$area} দোকান ও কমার্শিয়াল স্পেস";
             $keywords[] = "commercial shop for sale in {$area}";
         } elseif ($p->type === 'land_share') {
-            $keywords[] = "ল্যান্ড শেয়ার প্রজেক্ট আফতাবনগর";
+            $keywords[] = "ল্যান্ড শেয়ার প্রজেক্ট {$area}";
             $keywords[] = "land share flat in {$area}";
         }
 
@@ -152,7 +157,7 @@ class SeoService
      */
     public static function getPropertyFaqs(Property $p): array
     {
-        $area = $p->area ?: 'আফতাবনগর';
+        $area = $p->area ?: 'ঢাকা';
         $block = $p->block ? ('ব্লক ' . $p->block) : 'প্রাইম জোন';
         $road = $p->road_width_ft ? ($p->road_width_ft . ' ফুট প্রশস্ত রাস্তা') : 'প্রশস্ত পাকা রাস্তা';
         $facing = $p->facing ? ($p->facing . ' মুখী') : 'আদর্শ মুখী';
@@ -290,7 +295,7 @@ class SeoService
             default => [
                 [
                     'question' => 'PropertyKoi.com কী এবং এটি কীভাবে বাংলাদেশের একটি বিশ্বস্ত প্রপার্টি প্ল্যাটফর্ম (Property Buy & Sell Platform in Bangladesh)?',
-                    'answer'   => 'PropertyKoi হলো ঢাকা ও আফতাবনগরের সরাসরি রিয়েল এস্টেট কেনা-বেচার আধুনিক মার্কেটপ্লেস (Property Buy Sell Platform in Bangladesh)। এখানে কোনো চেইন ব্রোকার বা দালাল ছাড়া ১০০% ভেরিফাইড জমি, রেডি ফ্ল্যাট, দোকান ও ল্যান্ড শেয়ার সরাসরি মালিক বা অথরাইজড সোর্সের সাথে কেনাবেচা করা যায়।',
+                    'answer'   => 'PropertyKoi হলো ঢাকা, বসুন্ধরা, গুলশান, বনশ্রী ও আফতাবনগরসহ যেকোনো এলাকার সরাসরি রিয়েল এস্টেট কেনা-বেচার আধুনিক মার্কেটপ্লেস (Property Buy Sell Platform in Bangladesh)। এখানে কোনো চেইন ব্রোকার বা দালাল ছাড়া ১০০% ভেরিফাইড জমি, রেডি ফ্ল্যাট, দোকান ও ল্যান্ড শেয়ার সরাসরি মালিক বা অথরাইজড সোর্সের সাথে কেনাবেচা করা যায়।',
                 ],
                 [
                     'question' => 'কোনো দালাল ছাড়া সরাসরি মালিকের সাথে জমি বা ফ্ল্যাট কেনার প্রক্রিয়া কী?',
@@ -318,12 +323,12 @@ class SeoService
     public static function getOgMeta(string $page = '', ?Property $property = null): array
     {
         $siteName = self::getSiteName();
-        $siteDesc = 'PropertyKoi.com হলো বাংলাদেশের শীর্ষস্থানীয় প্রপার্টি কেনা-বেচার প্ল্যাটফর্ম (Property Buy & Sell Platform in Bangladesh)। কোনো দালাল বা চেইন ব্রোকার ছাড়া ঢাকা ও আফতাবনগরের ভেরিফাইড আবাসিক প্লট, জমি, রেডি ফ্ল্যাট, কমার্শিয়াল স্পেস ও ল্যান্ড শেয়ার সরাসরি মালিকের সাথে কেনাবেচা করুন।';
-        $defaultKeywords = 'property buy sell platform in bangladesh, real estate marketplace bangladesh, buy sell plot flat dhaka, aftabnagar plot for sale, ready flat in aftabnagar, direct owner property bangladesh, জমি ফ্ল্যাট কেনাবেচা ঢাকা, আফতাবনগর জমি বিক্রয়, রেডি ফ্ল্যাট ঢাকা, প্রপার্টি কই, PropertyKoi';
+        $siteDesc = 'PropertyKoi.com হলো বাংলাদেশের শীর্ষস্থানীয় প্রপার্টি কেনা-বেচার প্ল্যাটফর্ম (Property Buy & Sell Platform in Bangladesh)। কোনো দালাল বা চেইন ব্রোকার ছাড়া ঢাকা, বসুন্ধরা, গুলশান, বনশ্রী ও আফতাবনগরের ভেরিফাইড আবাসিক প্লট, জমি, রেডি ফ্ল্যাট, কমার্শিয়াল স্পেস ও ল্যান্ড শেয়ার সরাসরি মালিকের সাথে কেনাবেচা করুন।';
+        $defaultKeywords = 'property buy sell platform in bangladesh, real estate marketplace bangladesh, buy sell plot flat dhaka, bashundhara flat for sale, gulshan property for sale, aftabnagar plot for sale, ready flat in dhaka, direct owner property bangladesh, জমি ফ্ল্যাট কেনাবেচা ঢাকা, বসুন্ধরা ফ্ল্যাট, আফতাবনগর জমি বিক্রয়, রেডি ফ্ল্যাট ঢাকা, প্রপার্টি কই, PropertyKoi';
 
         if ($property) {
             $typeLabel = $property->type_label;
-            $loc = ($property->area ?: 'আফতাবনগর') . ($property->block ? ' • ব্লক ' . $property->block : '');
+            $loc = ($property->area ?: 'ঢাকা') . ($property->block ? ' • ব্লক ' . $property->block : '');
             $title = "{$property->title} | {$typeLabel} - {$loc} | {$siteName}";
             $desc = self::buildPropertyDescription($property);
             $keywords = self::buildPropertyKeywords($property);
@@ -374,17 +379,17 @@ class SeoService
 
         $meta = match ($page) {
             'land-search' => [
-                'title'       => "Plots & Land for Sale in Aftabnagar, Dhaka | জমি ও প্লট বিক্রয় — {$siteName}",
-                'description' => 'ঢাকা ও আফতাবনগরের সেরা লোকেশনে সরাসরি মালিকের ভেরিফাইড আবাসিক ও বাণিজ্যিক প্লট। ২০ থেকে ৬০ ফুট রাস্তা, কর্নার ও লেকভিউ প্লট কিনুন ১০০% যাচাইকৃত নামজারি ও দলিলসহ। কোনো ব্রোকার কমিশন নেই।',
-                'keywords'    => 'aftabnagar plot for sale, buy land in aftabnagar dhaka, residential plot for sale dhaka, aftabnagar katha price, direct owner plot aftabnagar, আফতাবনগর জমি বিক্রয়, প্লট কেনাবেচা ঢাকা, PropertyKoi',
+                'title'       => "Plots & Land for Sale in Dhaka & Aftabnagar | জমি ও প্লট বিক্রয় — {$siteName}",
+                'description' => 'ঢাকা, বসুন্ধরা, আফতাবনগর ও সংলগ্ন এলাকার সরাসরি মালিকের ভেরিফাইড আবাসিক ও বাণিজ্যিক প্লট। ২০ থেকে ৬০ ফুট রাস্তা, কর্নার ও লেকভিউ প্লট কিনুন ১০০% যাচাইকৃত নামজারি ও দলিলসহ। কোনো ব্রোকার কমিশন নেই।',
+                'keywords'    => 'plots for sale in dhaka, aftabnagar plot for sale, buy land in bashundhara, buy land in aftabnagar dhaka, residential plot for sale dhaka, aftabnagar katha price, direct owner plot, আফতাবনগর জমি বিক্রয়, বসুন্ধরা জমি, প্লট কেনাবেচা ঢাকা, PropertyKoi',
                 'image'       => self::getCustomOrAssetImage('adm_seo_land_og_image', 'og-land.jpg'),
                 'url'         => route('properties.land'),
                 'type'        => 'website',
             ],
             'flat-search' => [
-                'title'       => "Ready Flats & Apartments for Sale in Aftabnagar, Dhaka | ফ্ল্যাট বিক্রয় — {$siteName}",
-                'description' => 'আফতাবনগর ও ঢাকায় ১০০% রেডি এবং নির্মাণাধীন আধুনিক ৩/৪ বেডরুমের ফ্ল্যাট ও অ্যাপার্টমেন্ট। লিফট, জেনারেটর ও কার পার্কিংসহ সরাসরি ভেরিফাইড মালিক ও নির্মাতাদের লিস্টিং। ব্রোকারমুক্ত সাশ্রয়ী ডিল।',
-                'keywords'    => 'ready flat in aftabnagar, apartment for sale in aftabnagar dhaka, 3 bed flat aftabnagar, luxury flat dhaka, direct owner flat sale, রেডি ফ্ল্যাট আফতাবনগর, ফ্ল্যাট বিক্রয় ঢাকা, PropertyKoi',
+                'title'       => "Ready Flats & Apartments for Sale in Dhaka | ফ্ল্যাট বিক্রয় — {$siteName}",
+                'description' => 'ঢাকা, বসুন্ধরা, গুলশান, আফতাবনগর ও বনশ্রীতে ১০০% রেডি এবং নির্মাণাধীন আধুনিক ৩/৪ বেডরুমের ফ্ল্যাট ও অ্যাপার্টমেন্ট। লিফট, জেনারেটর ও কার পার্কিংসহ সরাসরি ভেরিফাইড মালিক ও নির্মাতাদের লিস্টিং। ব্রোকারমুক্ত সাশ্রয়ী ডিল।',
+                'keywords'    => 'ready flat in dhaka, flat in bashundhara, flat for sale in gulshan, apartment for sale in aftabnagar dhaka, 3 bed flat dhaka, luxury flat dhaka, direct owner flat sale, রেডি ফ্ল্যাট ঢাকা, বসুন্ধরা ফ্ল্যাট, গুলশান ফ্ল্যাট, ফ্ল্যাট বিক্রয় ঢাকা, PropertyKoi',
                 'image'       => self::getCustomOrAssetImage('adm_seo_flat_og_image', 'og-flat.jpg'),
                 'url'         => route('properties.flat'),
                 'type'        => 'website',
@@ -512,6 +517,8 @@ class SeoService
                     'Real Estate in Bangladesh',
                     'Property Buy and Sell Platform',
                     'Plots and Land for Sale in Dhaka',
+                    'Bashundhara R/A Plots and Flats',
+                    'Gulshan Apartments and Real Estate',
                     'Aftabnagar Plots and Flats',
                     'Ready Apartments for Sale in Dhaka',
                     'Commercial Space for Sale in Dhaka',
@@ -553,10 +560,13 @@ class SeoService
                     'addressCountry'  => 'BD',
                 ],
                 'areaServed'              => [
-                    ['@type' => 'AdministrativeArea', 'name' => 'Aftabnagar, Dhaka'],
+                    ['@type' => 'AdministrativeArea', 'name' => 'Dhaka, Bangladesh'],
                     ['@type' => 'AdministrativeArea', 'name' => 'Bashundhara R/A, Dhaka'],
-                    ['@type' => 'AdministrativeArea', 'name' => 'Purbachal, Dhaka'],
+                    ['@type' => 'AdministrativeArea', 'name' => 'Gulshan, Dhaka'],
+                    ['@type' => 'AdministrativeArea', 'name' => 'Aftabnagar, Dhaka'],
                     ['@type' => 'AdministrativeArea', 'name' => 'Banasree, Dhaka'],
+                    ['@type' => 'AdministrativeArea', 'name' => 'Purbachal, Dhaka'],
+                    ['@type' => 'AdministrativeArea', 'name' => 'Uttara, Dhaka'],
                     ['@type' => 'Country', 'name' => 'Bangladesh'],
                 ],
             ],
@@ -612,8 +622,8 @@ class SeoService
 
         $address = [
             '@type'           => 'PostalAddress',
-            'streetAddress'   => 'Block ' . ($prop->block ?: 'A') . ($prop->road_number ? ', Road ' . $prop->road_number : '') . ($prop->road_width_ft ? ' (' . $prop->road_width_ft . 'ft Road)' : ''),
-            'addressLocality' => $prop->area ?: 'Aftabnagar',
+            'streetAddress'   => ($prop->block ? 'Block ' . $prop->block : '') . ($prop->road_number ? ', Road ' . $prop->road_number : '') . ($prop->road_width_ft ? ' (' . $prop->road_width_ft . 'ft Road)' : ''),
+            'addressLocality' => $prop->area ?: 'Dhaka',
             'addressRegion'   => 'Dhaka',
             'postalCode'      => '1212',
             'addressCountry'  => 'BD',

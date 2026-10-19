@@ -25,8 +25,8 @@
         $seoData = array_merge($defaultSeo, is_array($seo ?? null) ? $seo : []);
 
         $seoTitle = $seoData['title'] ?? ($siteName . ' — ' . $siteTagline);
-        $seoDesc = $seoData['description'] ?? 'ঢাকা ও আফতাবনগরের সরাসরি জমি, ফ্ল্যাট ও কমার্শিয়াল প্রপার্টি মার্কেটপ্লেস। কোনো ব্রোকার ছাড়া সরাসরি মালিকের সাথে কথা বলুন।';
-        $seoKeywords = $seoData['keywords'] ?? 'আফতাবনগর জমি বিক্রয়, আফতাবনগর ফ্ল্যাট, Aftabnagar land for sale, Aftabnagar flat price, রেডি ফ্ল্যাট ঢাকা, কমার্শিয়াল দোকান আফতাবনগর, ল্যান্ড শেয়ার প্রজেক্ট, PropertyKoi, প্রপার্টি কই';
+        $seoDesc = $seoData['description'] ?? 'ঢাকা, বসুন্ধরা, গুলশান ও আফতাবনগরসহ প্রাইম লোকেশনের সরাসরি জমি, ফ্ল্যাট ও কমার্শিয়াল প্রপার্টি মার্কেটপ্লেস। কোনো ব্রোকার ছাড়া সরাসরি মালিকের সাথে কথা বলুন।';
+        $seoKeywords = $seoData['keywords'] ?? 'বসুন্ধরা ফ্ল্যাট, গুলশান প্রপার্টি, আফতাবনগর জমি বিক্রয়, বসুন্ধরা জমি, Bashundhara flat for sale, Gulshan flat price, Aftabnagar land, রেডি ফ্ল্যাট ঢাকা, কমার্শিয়াল দোকান, ল্যান্ড শেয়ার প্রজেক্ট, PropertyKoi, প্রপার্টি কই';
         $seoImage = \App\Services\SeoService::formatOgImageUrl($seoData['image'] ?? null, 'og-default.jpg');
         $seoImages = !empty($seoData['images']) && is_array($seoData['images'])
             ? array_map(fn($img) => \App\Services\SeoService::formatOgImageUrl($img, 'og-default.jpg'), $seoData['images'])

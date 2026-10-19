@@ -666,6 +666,11 @@ class PropertyController extends Controller
         );
         \App\Services\TelegramService::sendAdminAlert("🏡 <b>নতুন প্রপার্টি লিস্টিং সাবমিট!</b>\nশিরোনাম: {$property->title}\nকোড: #{$property->property_code}\nএলাকা: {$property->area}, ব্লক: {$property->block}");
 
+        // Auto ping IndexNow for instant search engine indexing if live
+        if ($property->status === 'live') {
+            SeoService::pingIndexNow($property);
+        }
+
         if ($request->expectsJson() || $request->ajax()) {
             return response()->json([
                 'success' => true,

@@ -16,7 +16,7 @@
             </span>
 
             <h1 class="text-3xl sm:text-5xl md:text-6xl font-black tracking-tight leading-tight md:leading-tight text-white">
-                ঢাকা ও আফতাবনগরের <br class="hidden sm:inline">
+                ঢাকা, বসুন্ধরা, গুলশান ও আফতাবনগরের <br class="hidden sm:inline">
                 <span class="text-emerald-400 font-black inline-block"
                       style="background: linear-gradient(90deg, #34d399, #2dd4bf); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">সরাসরি প্রপার্টি</span> মার্কেটপ্লেস
             </h1>
@@ -232,7 +232,7 @@
                     কেন PropertyKoi বাংলাদেশের সেরা প্রপার্টি কেনা-বেচার প্ল্যাটফর্ম?
                 </h2>
                 <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                    PropertyKoi.com হলো ঢাকা ও আফতাবনগরের সরাসরি প্রপার্টি মার্কেটপ্লেস (Property Buy Sell Platform in Bangladesh)। কোনো মধ্যস্বত্বভোগী বা চেইন ব্রোকার কমিশন ছাড়া সরাসরি প্রকৃত মালিক ও যাচাইকৃত সোর্সের সাথে জমি, ফ্ল্যাট, কমার্শিয়াল স্পেস ও ল্যান্ড শেয়ার কেনাবেচা করুন।
+                    PropertyKoi.com হলো ঢাকা, বসুন্ধরা, গুলশান ও আফতাবনগরসহ প্রাইম লোকেশনের সরাসরি প্রপার্টি মার্কেটপ্লেস (Property Buy Sell Platform in Bangladesh)। কোনো মধ্যস্বত্বভোগী বা চেইন ব্রোকার কমিশন ছাড়া সরাসরি প্রকৃত মালিক ও যাচাইকৃত সোর্সের সাথে জমি, ফ্ল্যাট, কমার্শিয়াল স্পেস ও ল্যান্ড শেয়ার কেনাবেচা করুন।
                 </p>
             </div>
 
@@ -275,9 +275,9 @@
                     <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-800 font-bold flex items-center justify-center text-xl">
                         📍
                     </div>
-                    <h3 class="text-sm font-black text-slate-900">আফতাবনগর ও ঢাকা স্পেশালাইজড</h3>
+                    <h3 class="text-sm font-black text-slate-900">ঢাকা ও প্রাইম লোকেশন স্পেশালাইজড</h3>
                     <p class="text-xs text-slate-600 leading-relaxed m-0">
-                        আফতাবনগরের ব্লক A থেকে N, পূর্বাচল, বসুন্ধরা ও বনশ্রীর প্রতিটি ব্লকের রাস্তার মাপ, বর্তমান কাঠাপ্রতি দর ও সঠিক ভৌগোলিক অবস্থান সরাসরি ইন্টারেক্টিভ ম্যাপে দেখুন।
+                        বসুন্ধরা, গুলশান, আফতাবনগর, বনশ্রী ও পূর্বাচলসহ প্রতিটি ব্লকের রাস্তার মাপ, বর্তমান কাঠাপ্রতি দর ও সঠিক ভৌগোলিক অবস্থান সরাসরি ইন্টারেক্টিভ ম্যাপে দেখুন।
                     </p>
                 </article>
             </div>

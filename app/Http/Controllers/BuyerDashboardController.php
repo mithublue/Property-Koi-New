@@ -333,7 +333,7 @@ class BuyerDashboardController extends Controller
         ];
 
         $max_demands_limit = ($user->isAdmin() || $user->role === 'agent')
-            ? 999
+            ? null
             : (int) \App\Models\Setting::get('adm_max_demands_per_user', 3);
 
         return view('pages.buyer-dashboard', compact('profile', 'favorites', 'demands', 'interactions', 'myProperties', 'stats', 'user', 'max_demands_limit'));

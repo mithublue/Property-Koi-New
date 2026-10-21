@@ -11,7 +11,7 @@ window.admBuyerDashboard = function() {
             interactionsList: @json($interactions),
             myPropertiesList: @json($myProperties),
             demandsList: @json($demands),
-            maxDemandsLimit: {{ $max_demands_limit ?? 3 }},
+            maxDemandsLimit: {{ isset($max_demands_limit) && $max_demands_limit ? (int)$max_demands_limit : 'null' }},
 
             demandModalOpen: false,
             savingDemand: false,
@@ -433,7 +433,7 @@ window.admBuyerDashboard = function() {
             submitDemandModal() {
                 var self = this;
                 var activeDemandsCount = (self.demandsList || []).filter(function(d) { return d.status === 'active'; }).length;
-                if (self.maxDemandsLimit !== 999 && activeDemandsCount >= self.maxDemandsLimit) {
+                if (self.maxDemandsLimit && activeDemandsCount >= self.maxDemandsLimit) {
                     alert('আপনি ইতিমধ্যে সর্বোচ্চ ' + self.maxDemandsLimit + 'টি সক্রিয় চাহিদা সাবমিট করেছেন। নতুন চাহিদা জমা দিতে হলে তালিকা থেকে যেকোনো একটি পুরনো চাহিদা মুছে ফেলুন বা বন্ধ করুন।');
                     return;
                 }

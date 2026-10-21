@@ -164,7 +164,27 @@
                         </span>
                     </div>
 
-                    <!-- TinyMCE Textarea Container -->
+                    <!-- Gutenberg Block / Widget Quick-Inserters Bar -->
+                    <div class="flex flex-wrap items-center gap-2 p-2.5 bg-slate-50 border border-slate-200/80 rounded-2xl">
+                        <span class="text-[11px] font-black text-slate-500 uppercase tracking-wider px-1">গুটেনবার্গ ব্লক:</span>
+                        <button type="button" onclick="insertEditorBlock('info')" class="px-2.5 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-bold border border-emerald-200 transition flex items-center gap-1.5 cursor-pointer shadow-2xs">
+                            <span>💡</span> <span>তথ্য কলআউট</span>
+                        </button>
+                        <button type="button" onclick="insertEditorBlock('warning')" class="px-2.5 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-bold border border-amber-200 transition flex items-center gap-1.5 cursor-pointer shadow-2xs">
+                            <span>⚠️</span> <span>সতর্কতা বক্স</span>
+                        </button>
+                        <button type="button" onclick="insertEditorBlock('calc')" class="px-2.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-2xs">
+                            <span>🧮</span> <span>ক্যালকুলেটর ব্যানার CTA</span>
+                        </button>
+                        <button type="button" onclick="insertEditorBlock('table')" class="px-2.5 py-1.5 rounded-xl bg-white hover:bg-slate-100 text-slate-800 text-xs font-bold border border-slate-200 transition flex items-center gap-1.5 cursor-pointer shadow-2xs">
+                            <span>📊</span> <span>রেট তুলনা টেবিল</span>
+                        </button>
+                        <button type="button" onclick="insertEditorBlock('quote')" class="px-2.5 py-1.5 rounded-xl bg-white hover:bg-slate-100 text-slate-800 text-xs font-bold border border-slate-200 transition flex items-center gap-1.5 cursor-pointer shadow-2xs">
+                            <span>💬</span> <span>বড় উক্তি (Pullquote)</span>
+                        </button>
+                    </div>
+
+                    <!-- Editor Textarea Container -->
                     <div>
                         <textarea id="guide-wysiwyg-editor"
                                   name="content"
@@ -460,6 +480,9 @@
 
         tinymce.init({
             selector: '#guide-wysiwyg-editor',
+            license_key: 'gpl',
+            promotion: false,
+            branding: false,
             base_url: '{{ asset("assets/vendor/tinymce") }}',
             suffix: '.min',
             min_height: 520,
@@ -699,6 +722,80 @@
             }
         }
     });
+
+    // Global Gutenberg / Medium Quick Block Inserter
+    window.insertEditorBlock = function(type) {
+        const editor = window.tinymce ? tinymce.get('guide-wysiwyg-editor') : null;
+        if (!editor) {
+            alert('এডিটর প্রস্তুত হচ্ছে, অনুগ্রহ করে এক সেকেন্ড অপেক্ষা করুন...');
+            return;
+        }
+
+        if (type === 'info') {
+            editor.insertContent(`
+                <div class="info-callout" style="background-color: #f0fdf4; border: 1px solid #bbf7d0; border-left: 5px solid #059669; padding: 1.25rem 1.5rem; border-radius: 0.75rem; margin: 1.75rem 0;">
+                    <h4 style="margin: 0 0 0.5rem 0; color: #065f46; font-size: 1.15rem; font-weight: bold;">💡 গুরুত্বপূর্ণ তথ্য / পরামর্শ</h4>
+                    <p style="margin: 0; color: #1e293b; line-height: 1.7;">এখানে আপনার গুরুত্বপূর্ণ আইনি বা বাজার সংক্রান্ত পরামর্শ লিখুন...</p>
+                </div>
+                <p></p>
+            `);
+        } else if (type === 'warning') {
+            editor.insertContent(`
+                <div class="warning-callout" style="background-color: #fffbeb; border: 1px solid #fde68a; border-left: 5px solid #d97706; padding: 1.25rem 1.5rem; border-radius: 0.75rem; margin: 1.75rem 0;">
+                    <h4 style="margin: 0 0 0.5rem 0; color: #92400e; font-size: 1.15rem; font-weight: bold;">⚠️ সতর্কতা ও আইনি ঝুঁকি</h4>
+                    <p style="margin: 0; color: #1e293b; line-height: 1.7;">যেকোনো জমি বা ফ্ল্যাট কেনার আগে এই সতর্কতামূলক দিকটি সরেজমিন যাচাই করুন...</p>
+                </div>
+                <p></p>
+            `);
+        } else if (type === 'calc') {
+            editor.insertContent(`
+                <div class="calc-cta-widget" style="background: linear-gradient(135deg, #0f172a 0%, #064e3b 100%); color: #ffffff; padding: 1.75rem; border-radius: 1rem; margin: 2rem 0; text-align: center;">
+                    <h3 style="color: #ffffff; margin: 0 0 0.5rem 0; font-size: 1.4rem; font-weight: 800;">জমি ও ফ্ল্যাট রেজিস্ট্রেশন খরচ হিসাব করতে চান?</h3>
+                    <p style="color: #94a3b8; margin: 0 0 1rem 0; font-size: 0.95rem;">২০২৬ সালের সরকারি স্ট্যাম্প শুল্ক, নিবন্ধন ফি ও উৎসে কর ১-ক্লিকে গণনা করুন।</p>
+                    <a href="/calculators/registration" style="display: inline-block; background-color: #059669; color: #ffffff !important; padding: 0.65rem 1.35rem; border-radius: 0.6rem; font-weight: bold; text-decoration: none; margin-top: 0.5rem;" target="_blank">রেজিস্ট্রেশন ক্যালকুলেটরে হিসাব দেখুন &rarr;</a>
+                </div>
+                <p></p>
+            `);
+        } else if (type === 'table') {
+            editor.insertContent(`
+                <table style="width: 100%; border-collapse: collapse; margin: 1.75em 0; border: 1px solid #cbd5e1;">
+                    <thead>
+                        <tr style="background-color: #f1f5f9;">
+                            <th style="padding: 10px 14px; font-weight: bold; border: 1px solid #cbd5e1; text-align: left;">এলাকা / সেক্টর</th>
+                            <th style="padding: 10px 14px; font-weight: bold; border: 1px solid #cbd5e1; text-align: left;">কাঠাপ্রতি জমির গড় দর (২০২৬)</th>
+                            <th style="padding: 10px 14px; font-weight: bold; border: 1px solid #cbd5e1; text-align: left;">রেডি ফ্ল্যাট দর (sqft)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="padding: 10px 14px; border: 1px solid #e2e8f0;"><strong>আফতাবনগর (ব্লক A, B, C)</strong></td>
+                            <td style="padding: 10px 14px; border: 1px solid #e2e8f0;">১.৩০ কোটি — ১.৭০ কোটি টাকা</td>
+                            <td style="padding: 10px 14px; border: 1px solid #e2e8f0;">৭,৫০০ — ৯,৫০০ টাকা</td>
+                        </tr>
+                        <tr style="background-color: #f8fafc;">
+                            <td style="padding: 10px 14px; border: 1px solid #e2e8f0;"><strong>বসুন্ধরা আ/এ (ব্লক A - D)</strong></td>
+                            <td style="padding: 10px 14px; border: 1px solid #e2e8f0;">১.৪০ কোটি — ২.২০ কোটি টাকা</td>
+                            <td style="padding: 10px 14px; border: 1px solid #e2e8f0;">৯,০০০ — ১৪,০০০ টাকা</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px 14px; border: 1px solid #e2e8f0;"><strong>বনশ্রী আ/এ</strong></td>
+                            <td style="padding: 10px 14px; border: 1px solid #e2e8f0;">৯৫ লাখ — ১.৪৫ কোটি টাকা</td>
+                            <td style="padding: 10px 14px; border: 1px solid #e2e8f0;">৬,৮০০ — ৮,৫০০ টাকা</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p></p>
+            `);
+        } else if (type === 'quote') {
+            editor.insertContent(`
+                <blockquote style="font-size: 1.25rem; font-style: italic; line-height: 1.6; border-left: 4px solid #059669; padding: 1.2rem 1.5rem; margin: 2rem 0; color: #047857; background-color: #f0fdf4; border-radius: 0 1rem 1rem 0;">
+                    "জমির মালিকানা নিশ্চিত করার মূল চাবিকাঠি হলো সর্বশেষ নামজারি খতিয়ান ও খাজনা পরিশোধের ডিসিআর সরেজমিন যাচাই করা।"
+                </blockquote>
+                <p></p>
+            `);
+        }
+        editor.focus();
+    };
 })();
 </script>
 @endpush

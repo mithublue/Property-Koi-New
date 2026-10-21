@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Guide;
 use App\Models\Property;
 use Illuminate\Http\Response;
 
@@ -12,6 +13,11 @@ class SitemapController extends Controller
         $properties = Property::where('status', 'live')
             ->orderBy('updated_at', 'desc')
             ->limit(5000)
+            ->get();
+
+        $guides = Guide::published()
+            ->orderBy('updated_at', 'desc')
+            ->limit(1000)
             ->get();
 
         $latestUpdate = ($properties->first() && $properties->first()->updated_at)
@@ -28,6 +34,11 @@ class SitemapController extends Controller
             ['url' => url('/chahida'), 'priority' => '0.9', 'freq' => 'daily', 'lastmod' => $latestUpdate],
             ['url' => url('/sell-property'), 'priority' => '0.8', 'freq' => 'weekly', 'lastmod' => $latestUpdate],
             ['url' => url('/map-view'), 'priority' => '0.7', 'freq' => 'weekly', 'lastmod' => $latestUpdate],
+            ['url' => url('/guides'), 'priority' => '0.9', 'freq' => 'daily', 'lastmod' => $latestUpdate],
+            ['url' => url('/calculators'), 'priority' => '0.9', 'freq' => 'weekly', 'lastmod' => $latestUpdate],
+            ['url' => url('/calculators/registration'), 'priority' => '0.9', 'freq' => 'weekly', 'lastmod' => $latestUpdate],
+            ['url' => url('/calculators/land-share-roi'), 'priority' => '0.9', 'freq' => 'weekly', 'lastmod' => $latestUpdate],
+            ['url' => url('/valuation'), 'priority' => '0.9', 'freq' => 'weekly', 'lastmod' => $latestUpdate],
         ];
 
         $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
@@ -39,6 +50,25 @@ class SitemapController extends Controller
             $xml .= "    <lastmod>{$sp['lastmod']}</lastmod>\n";
             $xml .= "    <changefreq>{$sp['freq']}</changefreq>\n";
             $xml .= "    <priority>{$sp['priority']}</priority>\n";
+            $xml .= "  </url>\n";
+        }
+
+        foreach ($guides as $guide) {
+            $guideUrl = route('guides.show', $guide->slug);
+            $guideLastMod = $guide->updated_at ? $guide->updated_at->toAtomString() : now()->toAtomString();
+            $xml .= "  <url>\n";
+            $xml .= "    <loc>" . htmlspecialchars($guideUrl, ENT_XML1, 'UTF-8') . "</loc>\n";
+            $xml .= "    <lastmod>" . $guideLastMod . "</lastmod>\n";
+            $xml .= "    <changefreq>weekly</changefreq>\n";
+            $xml .= "    <priority>" . ($guide->is_featured ? '0.9' : '0.8') . "</priority>\n";
+
+            if ($guide->cover_url) {
+                $xml .= "    <image:image>\n";
+                $xml .= "      <image:loc>" . htmlspecialchars($guide->cover_url, ENT_XML1, 'UTF-8') . "</image:loc>\n";
+                $xml .= "      <image:title>" . htmlspecialchars($guide->title, ENT_XML1, 'UTF-8') . "</image:title>\n";
+                $xml .= "    </image:image>\n";
+            }
+
             $xml .= "  </url>\n";
         }
 

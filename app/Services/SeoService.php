@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Guide;
 use App\Models\Property;
 use App\Models\Setting;
 use Illuminate\Support\Facades\Http;
@@ -292,6 +293,36 @@ class SeoService
                     'answer'   => 'হ্যাঁ। আপনি চাইলে প্রপার্টির প্লট বা হোল্ডিং নম্বর গোপন রাখতে পারেন এবং শুধুমাত্র অ্যাডমিন অনুমোদিত যাচাইকৃত ক্রেতাদের সাথে কথা বলতে পারেন।',
                 ],
             ],
+            'guides' => [
+                [
+                    'question' => 'প্রপার্টি গাইড ও নলেজ হাবে কী ধরনের তথ্য পাওয়া যায়?',
+                    'answer'   => 'জমির মূল দলিল, বায়া দলিল ও নামজারি খতিয়ান যাচাই, ফ্ল্যাট ক্রয়ে রাজউক নকশা অনুমোদন পরীক্ষা, জমি ও ফ্ল্যাটের বর্তমান বাজার দর, এবং ল্যান্ড শেয়ার বিনিয়োগ সংক্রান্ত নির্ভরযোগ্য সরকারি ও প্রফেশনাল গাইডলাইন পাওয়া যায়।',
+                ],
+                [
+                    'question' => 'গাইডগুলো কি বাংলাদেশের সর্বশেষ আইন ও নিয়মের সাথে সামঞ্জস্যপূর্ণ?',
+                    'answer'   => 'হ্যাঁ, আমাদের প্রতিটি গাইড ভূমি মন্ত্রণালয়, সাব-রেজিস্ট্রি অধিদপ্তর ও রাজউকের সর্বশেষ সরকারি বিধিমালা ও হালনাগাদ সার্কুলার অনুযায়ী আইন ও রিয়েল এস্টেট বিশেষজ্ঞদের দ্বারা নিয়মিত আপডেট করা হয়।',
+                ],
+            ],
+            'calculators' => [
+                [
+                    'question' => 'প্রপার্টি ক্যালকুলেটরের মাধ্যমে কী কী হিসাব করা যায়?',
+                    'answer'   => 'বাংলাদেশে জমি ও ফ্ল্যাট রেজিস্ট্রেশনের সরকারি খরচ (স্ট্যাম্প শুল্ক, নিবন্ধন ফি, স্থানীয় কর, উৎসে কর) এবং ল্যান্ড শেয়ার প্রকল্পে ফ্ল্যাট নির্মাণে সম্ভাব্য সাশ্রয় ও লাভ রিয়েলটাইমে হিসাব করা যায়।',
+                ],
+                [
+                    'question' => 'ক্যালকুলেটরের হিসাব কতটা নির্ভুল?',
+                    'answer'   => 'এটি ২০২৬ সালের অর্থ মন্ত্রণালয় ও জাতীয় রাজস্ব বোর্ডের (এনবিআর) সর্বশেষ এলাকাভিত্তিক করহার অনুযায়ী তৈরি। তবে মৌজা মূল্যের তারতম্যের কারণে বাস্তব ক্ষেত্রে সামান্য পার্থক্য হতে পারে।',
+                ],
+            ],
+            'valuation' => [
+                [
+                    'question' => 'স্মার্ট ভ্যালুয়েশন এস্টিমেটর কীভাবে প্রপার্টির মূল্য হিসাব করে?',
+                    'answer'   => 'এলাকা (আফতাবনগর, বসুন্ধরা, গুলশান ইত্যাদি), রাস্তার প্রশস্ততা (২০-৬০ ফুট), ফ্ল্যাটের ফ্লোর লেভেল, পার্কিং সুবিধা ও কর্নার/লেকভিউ অবস্থানের ওপর ভিত্তি করে আমাদের অ্যানালিটিক্স ইঞ্জিন বর্তমান ফেয়ার মার্কেট রেঞ্জ নির্ধারণ করে।',
+                ],
+                [
+                    'question' => 'এই মূল্যায়ন কি বিনামূল্যে ব্যবহার করা যায়?',
+                    'answer'   => 'হ্যাঁ, ক্রেতা ও বিক্রেতা উভয়েই সম্পূর্ণ বিনামূল্যে যেকোনো এলাকার প্রপার্টির আনুমানিক বাজারদর যাচাই করতে পারেন।',
+                ],
+            ],
             default => [
                 [
                     'question' => 'PropertyKoi.com কী এবং এটি কীভাবে বাংলাদেশের একটি বিশ্বস্ত প্রপার্টি প্ল্যাটফর্ম (Property Buy & Sell Platform in Bangladesh)?',
@@ -456,6 +487,46 @@ class SeoService
                 'keywords'    => 'শর্টলিস্ট প্রপার্টি, পছন্দের জমি ও ফ্ল্যাট, saved properties PropertyKoi',
                 'image'       => self::getCustomOrAssetImage('adm_seo_chahida_og_image', 'og-chahida.jpg'),
                 'url'         => route('shortlist'),
+                'type'        => 'website',
+            ],
+            'guides' => [
+                'title'       => "Real Estate Guides & Property Insights | প্রপার্টি গাইড ও নলেজ হাব — {$siteName}",
+                'description' => 'জমির দলিল যাচাই, নামজারি খতিয়ান, ফ্ল্যাট ক্রয়ে রাজউক অনুমোদন এবং ল্যান্ড শেয়ার প্রকল্পের নির্ভরযোগ্য আইনি ও প্র্যাকটিক্যাল গাইড।',
+                'keywords'    => 'real estate guides bangladesh, jomir dolil jachai, namjari khotian, rajuk plan approval, land share project guide, প্রপার্টি গাইড, PropertyKoi',
+                'image'       => self::getCustomOrAssetImage('adm_seo_default_og_image', 'og-default.jpg'),
+                'url'         => route('guides.index'),
+                'type'        => 'website',
+            ],
+            'calculators' => [
+                'title'       => "Property Calculators & ROI Tools | প্রপার্টি ক্যালকুলেটর — {$siteName}",
+                'description' => 'বাংলাদেশে জমি ও ফ্ল্যাট রেজিস্ট্রেশনের সরকারি খরচ ও কর হিসাব এবং ল্যান্ড শেয়ার প্রকল্পের সম্ভাব্য সাশ্রয় রিয়েলটাইমে গণনা করুন।',
+                'keywords'    => 'property registration cost calculator bangladesh, stamp duty calculator, land share roi calculator, ফ্ল্যাট রেজিস্ট্রেশন খরচ, প্রপার্টি ক্যালকুলেটর, PropertyKoi',
+                'image'       => self::getCustomOrAssetImage('adm_seo_default_og_image', 'og-default.jpg'),
+                'url'         => route('calculators.index'),
+                'type'        => 'website',
+            ],
+            'calculator-registration' => [
+                'title'       => "Property Registration Fee Calculator 2026 | জমি ও ফ্ল্যাট রেজিস্ট্রেশন খরচ ক্যালকুলেটর — {$siteName}",
+                'description' => 'স্ট্যাম্প ডিউটি, নিবন্ধন ফি, স্থানীয় সরকার কর ও উৎসে করসহ ২০২৬ সালের সর্বশেষ সরকারি নিয়মে রেজিস্ট্রেশন খরচের নিখুঁত হিসাব করুন।',
+                'keywords'    => 'registration fee calculator bangladesh 2026, stamp duty bangladesh, flat registration cost dhaka, জমির রেজিস্ট্রেশন খরচ, PropertyKoi',
+                'image'       => self::getCustomOrAssetImage('adm_seo_default_og_image', 'og-default.jpg'),
+                'url'         => route('calculators.registration'),
+                'type'        => 'website',
+            ],
+            'calculator-land-share' => [
+                'title'       => "Land Share ROI & Savings Calculator | ল্যান্ড শেয়ার সেভিংস ক্যালকুলেটর — {$siteName}",
+                'description' => 'রেডি ফ্ল্যাটের সাথে ল্যান্ড শেয়ার প্রকল্পের খরচ তুলনা করে কত লক্ষ টাকা সাশ্রয় ও লাভ হবে তা তাৎক্ষণিক হিসাব করুন।',
+                'keywords'    => 'land share roi calculator bangladesh, flat construction cost savings, ল্যান্ড শেয়ার লাভ হিসাব, PropertyKoi',
+                'image'       => self::getCustomOrAssetImage('adm_seo_default_og_image', 'og-default.jpg'),
+                'url'         => route('calculators.land-share'),
+                'type'        => 'website',
+            ],
+            'valuation' => [
+                'title'       => "Smart Property Valuation Estimator | প্রপার্টি মার্কেট ভ্যালু এস্টিমেটর — {$siteName}",
+                'description' => 'ঢাকা, বসুন্ধরা, গুলশান, বনশ্রী ও আফতাবনগরের জমি ও ফ্ল্যাটের বর্তমান আনুমানিক বাজারমূল্য, রাস্তার প্রশস্ততা ও ফ্লোর অনুযায়ী রিয়েলটাইমে যাচাই করুন।',
+                'keywords'    => 'property valuation bangladesh, dhaka flat price estimator, plot price aftabnagar bashundhara, জমির দাম যাচাই, PropertyKoi',
+                'image'       => self::getCustomOrAssetImage('adm_seo_default_og_image', 'og-default.jpg'),
+                'url'         => route('valuation.index'),
                 'type'        => 'website',
             ],
             default => [
@@ -761,6 +832,148 @@ class SeoService
                     'mainEntity' => $faqEntities,
                 ],
             ],
+        ];
+    }
+
+    /**
+     * Get Complete SEO, Open Graph, Twitter & AEO Metadata for a Guide article.
+     */
+    public static function getGuideMeta(Guide $guide): array
+    {
+        $siteName = self::getSiteName();
+        $title = $guide->seo_title ?: "{$guide->title} | প্রপার্টি গাইড — {$siteName}";
+        $desc = $guide->seo_description ?: ($guide->excerpt ?: Str::limit(strip_tags($guide->content), 160));
+        $keywords = $guide->seo_keywords ?: "{$guide->title}, {$guide->category_label}, real estate guide bangladesh, jomir dolil namjari, PropertyKoi";
+        $url = route('guides.show', $guide->slug);
+        $image = self::formatOgImageUrl($guide->cover_url, 'og-default.jpg');
+        $faqs = is_array($guide->faqs) ? $guide->faqs : [];
+
+        return [
+            'title'       => $title,
+            'description' => $desc,
+            'keywords'    => $keywords,
+            'image'       => $image,
+            'images'      => [$image],
+            'image_alt'   => $guide->title,
+            'url'         => $url,
+            'type'        => 'article',
+            'robots'      => 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1',
+            'faqs'        => $faqs,
+            'schema'      => self::getGuideSchema($guide, $url, $title, $desc, $image, $faqs),
+        ];
+    }
+
+    /**
+     * Build comprehensive Schema.org @graph for a single Guide (Article + BreadcrumbList + FAQPage).
+     */
+    public static function getGuideSchema(
+        Guide $guide,
+        string $url,
+        string $title,
+        string $desc,
+        string $image,
+        array $faqs = []
+    ): array {
+        $siteName = self::getSiteName();
+        $siteUrl = url('/');
+        $authorName = $guide->author_name ?: $siteName . ' Research Team';
+
+        $graph = [
+            [
+                '@type'         => 'WebSite',
+                '@id'           => $siteUrl . '#website',
+                'url'           => $siteUrl,
+                'name'          => $siteName,
+                'alternateName' => ['PropertyKoi', 'PropertyKoi.com', 'প্রপার্টি কই'],
+            ],
+            [
+                '@type'       => 'Organization',
+                '@id'         => $siteUrl . '#organization',
+                'name'        => $siteName,
+                'url'         => $siteUrl,
+                'logo'        => [
+                    '@type' => 'ImageObject',
+                    'url'   => self::getCustomOrAssetImage('adm_seo_default_og_image', 'logo.png'),
+                ],
+            ],
+            [
+                '@type'            => 'Article',
+                '@id'              => $url . '#article',
+                'isPartOf'         => ['@id' => $siteUrl . '#website'],
+                'headline'         => $title,
+                'description'      => $desc,
+                'mainEntityOfPage' => $url,
+                'image'            => [
+                    '@type' => 'ImageObject',
+                    'url'   => $image,
+                ],
+                'datePublished'    => $guide->created_at ? $guide->created_at->toIso8601String() : now()->toIso8601String(),
+                'dateModified'     => $guide->updated_at ? $guide->updated_at->toIso8601String() : now()->toIso8601String(),
+                'author'           => [
+                    '@type' => 'Person',
+                    'name'  => $authorName,
+                ],
+                'publisher'        => ['@id' => $siteUrl . '#organization'],
+                'inLanguage'       => 'bn-BD',
+                'articleSection'   => $guide->category_label,
+                'wordCount'        => str_word_count(strip_tags($guide->content)),
+                'speakable'        => [
+                    '@type'       => 'SpeakableSpecification',
+                    'cssSelector' => ['h1', '.guide-lead', '.guide-content-body'],
+                ],
+            ],
+            [
+                '@type'           => 'BreadcrumbList',
+                '@id'             => $url . '#breadcrumb',
+                'itemListElement' => [
+                    [
+                        '@type'    => 'ListItem',
+                        'position' => 1,
+                        'name'     => 'হোম',
+                        'item'     => $siteUrl,
+                    ],
+                    [
+                        '@type'    => 'ListItem',
+                        'position' => 2,
+                        'name'     => 'প্রপার্টি গাইডস',
+                        'item'     => route('guides.index'),
+                    ],
+                    [
+                        '@type'    => 'ListItem',
+                        'position' => 3,
+                        'name'     => $guide->title,
+                        'item'     => $url,
+                    ],
+                ],
+            ],
+        ];
+
+        if (!empty($faqs)) {
+            $faqEntities = [];
+            foreach ($faqs as $f) {
+                if (!empty($f['question']) && !empty($f['answer'])) {
+                    $faqEntities[] = [
+                        '@type'          => 'Question',
+                        'name'           => $f['question'],
+                        'acceptedAnswer' => [
+                            '@type' => 'Answer',
+                            'text'  => $f['answer'],
+                        ],
+                    ];
+                }
+            }
+            if (!empty($faqEntities)) {
+                $graph[] = [
+                    '@type'      => 'FAQPage',
+                    '@id'        => $url . '#faq',
+                    'mainEntity' => $faqEntities,
+                ];
+            }
+        }
+
+        return [
+            '@context' => 'https://schema.org',
+            '@graph'   => $graph,
         ];
     }
 

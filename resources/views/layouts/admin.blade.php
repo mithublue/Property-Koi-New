@@ -76,6 +76,7 @@
                     $navItems = [
                         ['route' => 'admin.dashboard', 'icon' => '📊', 'label' => 'ড্যাশবোর্ড ওভারভিউ'],
                         ['route' => 'admin.properties.index', 'icon' => '🏠', 'label' => 'প্রপার্টি মাস্টার ক্যাটালগ'],
+                        ['route' => 'admin.guides.index', 'icon' => '📚', 'label' => 'প্রপার্টি গাইডস ও আর্টিকেল'],
                         ['route' => 'admin.media.index', 'icon' => '🖼️', 'label' => 'মিডিয়া লাইব্রেরি (Cloudinary)'],
                         ['route' => 'admin.verifications.index', 'icon' => '✅', 'label' => '৪-দফা ভেরিফিকেশন'],
                         ['route' => 'admin.agents.index', 'icon' => '👥', 'label' => 'এজেন্ট ও মালিক পোর্টাল'],

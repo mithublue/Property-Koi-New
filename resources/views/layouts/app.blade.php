@@ -254,21 +254,83 @@
                        class="px-3.5 py-2 rounded-xl text-sm font-semibold transition-all {{ request()->routeIs('home') ? 'bg-emerald-50 text-emerald-600 font-bold' : 'text-slate-700 hover:text-emerald-600 hover:bg-slate-100' }}">
                         হোম
                     </a>
-                    <a href="{{ route('properties.land') }}"
-                       class="px-3.5 py-2 rounded-xl text-sm font-semibold transition-all {{ request()->routeIs('properties.land') ? 'bg-emerald-50 text-emerald-600 font-bold' : 'text-slate-700 hover:text-emerald-600 hover:bg-slate-100' }}">
-                        জমি ও প্লট
+
+                    <!-- Property Submenu Dropdown -->
+                    <div class="relative" x-data="{ open: false }" @click.outside="open = false" @mouseleave="open = false">
+                        <button type="button"
+                                @click="open = !open"
+                                @mouseover="open = true"
+                                class="px-3.5 py-2 rounded-xl text-sm font-semibold transition-all flex items-center gap-1.5 cursor-pointer {{ request()->routeIs('properties.*') ? 'bg-emerald-50 text-emerald-600 font-bold' : 'text-slate-700 hover:text-emerald-600 hover:bg-slate-100' }}"
+                                aria-expanded="open"
+                                aria-haspopup="true">
+                            <span>প্রপার্টি</span>
+                            <svg class="w-4 h-4 transition-transform duration-200" :class="open ? 'rotate-180 text-emerald-600' : 'text-slate-400'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                        </button>
+
+                        <div x-show="open"
+                             x-transition:enter="transition ease-out duration-150"
+                             x-transition:enter-start="opacity-0 translate-y-1 scale-95"
+                             x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                             x-transition:leave="transition ease-in duration-100"
+                             x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+                             x-transition:leave-end="opacity-0 translate-y-1 scale-95"
+                             class="absolute left-0 mt-1.5 w-60 bg-white rounded-2xl shadow-xl border border-slate-200/90 py-1.5 z-50 divide-y divide-slate-100"
+                             style="display: none;">
+                            <div class="p-1 space-y-0.5">
+                                <a href="{{ route('properties.land') }}"
+                                   class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition {{ request()->routeIs('properties.land') ? 'bg-emerald-50 text-emerald-700 font-bold' : 'text-slate-700 hover:bg-slate-50 hover:text-emerald-600' }}">
+                                    <span class="text-base">🏡</span>
+                                    <div>
+                                        <span class="block leading-tight">জমি ও প্লট</span>
+                                        <span class="text-[10px] text-slate-400 font-normal">আবাসিক ও বাণিজ্যিক প্লট</span>
+                                    </div>
+                                </a>
+                                <a href="{{ route('properties.flat') }}"
+                                   class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition {{ request()->routeIs('properties.flat') ? 'bg-emerald-50 text-emerald-700 font-bold' : 'text-slate-700 hover:bg-slate-50 hover:text-emerald-600' }}">
+                                    <span class="text-base">🏢</span>
+                                    <div>
+                                        <span class="block leading-tight">ফ্ল্যাট ও অ্যাপার্টমেন্ট</span>
+                                        <span class="text-[10px] text-slate-400 font-normal">রেডি ও নির্মাণাধীন ফ্ল্যাট</span>
+                                    </div>
+                                </a>
+                                <a href="{{ route('properties.share') }}"
+                                   class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition {{ request()->routeIs('properties.share') ? 'bg-emerald-50 text-emerald-700 font-bold' : 'text-slate-700 hover:bg-slate-50 hover:text-emerald-600' }}">
+                                    <span class="text-base">🤝</span>
+                                    <div>
+                                        <span class="block leading-tight">ল্যান্ড শেয়ার প্রকল্প</span>
+                                        <span class="text-[10px] text-slate-400 font-normal">সাশ্রয়ী যৌথ ফ্ল্যাট নির্মাণ</span>
+                                    </div>
+                                </a>
+                                <a href="{{ route('properties.commercial') }}"
+                                   class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition {{ request()->routeIs('properties.commercial') ? 'bg-emerald-50 text-emerald-700 font-bold' : 'text-slate-700 hover:bg-slate-50 hover:text-emerald-600' }}">
+                                    <span class="text-base">🏪</span>
+                                    <div>
+                                        <span class="block leading-tight">দোকান ও কমার্শিয়াল</span>
+                                        <span class="text-[10px] text-slate-400 font-normal">অফিস ও বাণিজ্যিক স্পেস</span>
+                                    </div>
+                                </a>
+                            </div>
+                            <div class="p-1 pt-1.5">
+                                <a href="{{ route('properties.index') }}"
+                                   class="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold text-emerald-700 hover:bg-emerald-50 transition">
+                                    <span>🔍 সকল প্রপার্টি ক্যাটালগ</span>
+                                    <span class="text-xs">&rarr;</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <a href="{{ route('guides.index') }}"
+                       class="px-3 py-2 rounded-xl text-sm font-semibold transition-all {{ request()->routeIs('guides.*') ? 'bg-emerald-50 text-emerald-600 font-bold' : 'text-slate-700 hover:text-emerald-600 hover:bg-slate-100' }}">
+                        গাইডস
                     </a>
-                    <a href="{{ route('properties.flat') }}"
-                       class="px-3.5 py-2 rounded-xl text-sm font-semibold transition-all {{ request()->routeIs('properties.flat') ? 'bg-emerald-50 text-emerald-600 font-bold' : 'text-slate-700 hover:text-emerald-600 hover:bg-slate-100' }}">
-                        ফ্ল্যাট
+                    <a href="{{ route('calculators.index') }}"
+                       class="px-3 py-2 rounded-xl text-sm font-semibold transition-all {{ request()->routeIs('calculators.*') ? 'bg-emerald-50 text-emerald-600 font-bold' : 'text-slate-700 hover:text-emerald-600 hover:bg-slate-100' }}">
+                        ক্যালকুলেটর
                     </a>
-                    <a href="{{ route('properties.share') }}"
-                       class="px-3.5 py-2 rounded-xl text-sm font-semibold transition-all {{ request()->routeIs('properties.share') ? 'bg-emerald-50 text-emerald-600 font-bold' : 'text-slate-700 hover:text-emerald-600 hover:bg-slate-100' }}">
-                        ল্যান্ড শেয়ার
-                    </a>
-                    <a href="{{ route('properties.commercial') }}"
-                       class="px-3.5 py-2 rounded-xl text-sm font-semibold transition-all {{ request()->routeIs('properties.commercial') ? 'bg-emerald-50 text-emerald-600 font-bold' : 'text-slate-700 hover:text-emerald-600 hover:bg-slate-100' }}">
-                        দোকান / স্পেস
+                    <a href="{{ route('valuation.index') }}"
+                       class="px-3 py-2 rounded-xl text-sm font-semibold transition-all {{ request()->routeIs('valuation.*') ? 'bg-emerald-50 text-emerald-600 font-bold' : 'text-slate-700 hover:text-emerald-600 hover:bg-slate-100' }}">
+                        ভ্যালুয়েশন
                     </a>
                     <a href="{{ route('map.view') }}"
                        class="px-3 py-2 rounded-xl text-sm font-semibold transition-all {{ request()->routeIs('map.view') ? 'bg-emerald-50 text-emerald-600 font-bold' : 'text-slate-700 hover:text-emerald-600 hover:bg-slate-100' }}">
@@ -358,17 +420,47 @@
             <a href="{{ route('home') }}" class="block px-4 py-3 rounded-xl text-base font-semibold {{ request()->routeIs('home') ? 'bg-emerald-50 text-emerald-600 font-bold' : 'text-slate-800 bg-slate-50' }}">
                 হোম
             </a>
-            <a href="{{ route('properties.land') }}" class="block px-4 py-3 rounded-xl text-base font-semibold {{ request()->routeIs('properties.land') ? 'bg-emerald-50 text-emerald-600 font-bold' : 'text-slate-800 bg-slate-50' }}">
-                জমি ও প্লট খুঁজুন
+            <!-- Mobile Properties Accordion Group -->
+            <div x-data="{ propOpen: {{ request()->routeIs('properties.*') ? 'true' : 'false' }} }" class="space-y-1">
+                <button type="button" @click="propOpen = !propOpen"
+                        class="w-full flex items-center justify-between px-4 py-3 rounded-xl text-base font-semibold transition cursor-pointer {{ request()->routeIs('properties.*') ? 'bg-emerald-50 text-emerald-600 font-bold' : 'text-slate-800 bg-slate-50' }}">
+                    <span class="flex items-center gap-2">
+                        <span>🏢</span>
+                        <span>প্রপার্টি</span>
+                    </span>
+                    <svg class="w-4 h-4 transition-transform duration-200" :class="propOpen ? 'rotate-180 text-emerald-600' : 'text-slate-400'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                </button>
+                <div x-show="propOpen" class="pl-3 pr-1 py-1.5 space-y-1 bg-slate-100/70 rounded-xl" style="display: none;">
+                    <a href="{{ route('properties.land') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-semibold transition {{ request()->routeIs('properties.land') ? 'text-emerald-700 font-bold bg-white shadow-2xs' : 'text-slate-700 hover:text-emerald-600' }}">
+                        <span>🏡</span>
+                        <span>জমি ও প্লট</span>
+                    </a>
+                    <a href="{{ route('properties.flat') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-semibold transition {{ request()->routeIs('properties.flat') ? 'text-emerald-700 font-bold bg-white shadow-2xs' : 'text-slate-700 hover:text-emerald-600' }}">
+                        <span>🏢</span>
+                        <span>ফ্ল্যাট ও অ্যাপার্টমেন্ট</span>
+                    </a>
+                    <a href="{{ route('properties.share') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-semibold transition {{ request()->routeIs('properties.share') ? 'text-emerald-700 font-bold bg-white shadow-2xs' : 'text-slate-700 hover:text-emerald-600' }}">
+                        <span>🤝</span>
+                        <span>ল্যান্ড শেয়ার প্রকল্প</span>
+                    </a>
+                    <a href="{{ route('properties.commercial') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-semibold transition {{ request()->routeIs('properties.commercial') ? 'text-emerald-700 font-bold bg-white shadow-2xs' : 'text-slate-700 hover:text-emerald-600' }}">
+                        <span>🏪</span>
+                        <span>দোকান ও কমার্শিয়াল</span>
+                    </a>
+                    <a href="{{ route('properties.index') }}" class="flex items-center justify-between px-3 py-2 rounded-lg text-xs font-bold text-emerald-700 hover:bg-emerald-50 border-t border-slate-200/60 mt-1 transition">
+                        <span>🔍 সকল প্রপার্টি ক্যাটালগ</span>
+                        <span>&rarr;</span>
+                    </a>
+                </div>
+            </div>
+            <a href="{{ route('guides.index') }}" class="block px-4 py-3 rounded-xl text-base font-semibold {{ request()->routeIs('guides.*') ? 'bg-emerald-50 text-emerald-600 font-bold' : 'text-slate-800 bg-slate-50' }}">
+                📚 প্রপার্টি গাইড ও নলেজ হাব
             </a>
-            <a href="{{ route('properties.flat') }}" class="block px-4 py-3 rounded-xl text-base font-semibold {{ request()->routeIs('properties.flat') ? 'bg-emerald-50 text-emerald-600 font-bold' : 'text-slate-800 bg-slate-50' }}">
-                ফ্ল্যাট ও অ্যাপার্টমেন্ট
+            <a href="{{ route('calculators.index') }}" class="block px-4 py-3 rounded-xl text-base font-semibold {{ request()->routeIs('calculators.*') ? 'bg-emerald-50 text-emerald-600 font-bold' : 'text-slate-800 bg-slate-50' }}">
+                🧮 রেজিস্ট্রেশন ও সাশ্রয় ক্যালকুলেটর
             </a>
-            <a href="{{ route('properties.share') }}" class="block px-4 py-3 rounded-xl text-base font-semibold {{ request()->routeIs('properties.share') ? 'bg-emerald-50 text-emerald-600 font-bold' : 'text-slate-800 bg-slate-50' }}">
-                ল্যান্ড শেয়ার প্রকল্প
-            </a>
-            <a href="{{ route('properties.commercial') }}" class="block px-4 py-3 rounded-xl text-base font-semibold {{ request()->routeIs('properties.commercial') ? 'bg-emerald-50 text-emerald-600 font-bold' : 'text-slate-800 bg-slate-50' }}">
-                দোকান ও কমার্শিয়াল
+            <a href="{{ route('valuation.index') }}" class="block px-4 py-3 rounded-xl text-base font-semibold {{ request()->routeIs('valuation.*') ? 'bg-emerald-50 text-emerald-600 font-bold' : 'text-slate-800 bg-slate-50' }}">
+                💡 স্মার্ট প্রপার্টি ভ্যালুয়েশন
             </a>
             <a href="{{ route('shortlist') }}" class="block px-4 py-3 rounded-xl text-base font-semibold {{ request()->routeIs('shortlist') ? 'bg-emerald-50 text-emerald-600 font-bold' : 'text-slate-800 bg-slate-50' }}">
                 ❤️ শর্টলিস্ট করা প্রপার্টি
@@ -579,16 +671,17 @@
                 </div>
 
                 <!-- Col 3 -->
-                <div class="lg:col-span-2 space-y-4">
+                <div class="lg:col-span-3 space-y-4">
                     <h4 class="text-xs sm:text-sm font-bold uppercase tracking-wider text-white m-0 pb-1">
-                        LEGAL AND POLICY
+                        GUIDES & TOOLS / গাইড ও ক্যালকুলেটর
                     </h4>
                     <ul class="space-y-2.5 text-xs sm:text-sm list-none p-0 m-0">
-                        <li><a href="#" class="text-slate-400 hover:text-emerald-400 transition-colors">Privacy Policy</a></li>
-                        <li><a href="#" class="text-slate-400 hover:text-emerald-400 transition-colors">Terms of Use</a></li>
-                        <li><a href="#" class="text-slate-400 hover:text-emerald-400 transition-colors">Cookie Policy</a></li>
-                        <li><a href="#" class="text-slate-400 hover:text-emerald-400 transition-colors">Listing Policy</a></li>
-                        <li><a href="#" class="text-slate-400 hover:text-emerald-400 transition-colors">FAQ (সাধারণ জিজ্ঞাসা)</a></li>
+                        <li><a href="{{ route('guides.index') }}" class="text-slate-400 hover:text-emerald-400 transition-colors flex items-center gap-2 group"><span class="text-emerald-500 text-xs transition-transform group-hover:translate-x-1">&rsaquo;</span><span>প্রপার্টি গাইড ও নলেজ হাব</span></a></li>
+                        <li><a href="{{ route('calculators.registration') }}" class="text-slate-400 hover:text-emerald-400 transition-colors flex items-center gap-2 group"><span class="text-emerald-500 text-xs transition-transform group-hover:translate-x-1">&rsaquo;</span><span>রেজিস্ট্রেশন ফি ক্যালকুলেটর</span></a></li>
+                        <li><a href="{{ route('calculators.land-share') }}" class="text-slate-400 hover:text-emerald-400 transition-colors flex items-center gap-2 group"><span class="text-emerald-500 text-xs transition-transform group-hover:translate-x-1">&rsaquo;</span><span>ল্যান্ড শেয়ার ROI ক্যালকুলেটর</span></a></li>
+                        <li><a href="{{ route('valuation.index') }}" class="text-slate-400 hover:text-emerald-400 transition-colors flex items-center gap-2 group"><span class="text-emerald-500 text-xs transition-transform group-hover:translate-x-1">&rsaquo;</span><span>স্মার্ট ভ্যালুয়েশন এস্টিমেটর</span></a></li>
+                        <li><a href="#" class="text-slate-400 hover:text-emerald-400 transition-colors flex items-center gap-2 group"><span class="text-emerald-500 text-xs transition-transform group-hover:translate-x-1">&rsaquo;</span><span>গোপনীয়তা নীতি (Privacy Policy)</span></a></li>
+                        <li><a href="#" class="text-slate-400 hover:text-emerald-400 transition-colors flex items-center gap-2 group"><span class="text-emerald-500 text-xs transition-transform group-hover:translate-x-1">&rsaquo;</span><span>ব্যবহারের শর্তাবলী (Terms)</span></a></li>
                     </ul>
                 </div>
 

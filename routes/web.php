@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\AgentController as AdminAgentController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\DocsController as AdminDocsController;
 use App\Http\Controllers\Admin\DemandController as AdminDemandController;
+use App\Http\Controllers\Admin\GuideController as AdminGuideController;
 use App\Http\Controllers\Admin\LeadController as AdminLeadController;
 use App\Http\Controllers\Admin\MediaController as AdminMediaController;
 use App\Http\Controllers\Admin\PropertyController as AdminPropertyController;
@@ -13,8 +14,10 @@ use App\Http\Controllers\Admin\VerificationController as AdminVerificationContro
 use App\Http\Controllers\Admin\VisitController as AdminVisitController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BuyerDashboardController;
+use App\Http\Controllers\CalculatorController;
 use App\Http\Controllers\ChahidaController;
 use App\Http\Controllers\CompareController;
+use App\Http\Controllers\GuideController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\InteractionController;
 use App\Http\Controllers\PortalController;
@@ -23,6 +26,7 @@ use App\Http\Controllers\PropertyController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\TelegramController;
 use App\Http\Controllers\UploadController;
+use App\Http\Controllers\ValuationController;
 use App\Services\BuyerDemandMatchService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -89,6 +93,19 @@ Route::match(['get', 'post'], '/compare/data', [CompareController::class, 'data'
 Route::get('/map-view', [PortalController::class, 'mapView'])->name('map.view');
 Route::get('/shortlist', [PortalController::class, 'shortlist'])->name('shortlist');
 Route::match(['get', 'post'], '/shortlist/data', [PortalController::class, 'shortlistData'])->name('shortlist.data');
+
+// ==========================================
+// 5.1 KNOWLEDGE HUB / GUIDES, CALCULATORS & VALUATION
+// ==========================================
+Route::get('/guides', [GuideController::class, 'index'])->name('guides.index');
+Route::get('/guides/{slug}', [GuideController::class, 'show'])->name('guides.show');
+
+Route::get('/calculators', [CalculatorController::class, 'index'])->name('calculators.index');
+Route::get('/calculators/registration', [CalculatorController::class, 'registration'])->name('calculators.registration');
+Route::get('/calculators/land-share-roi', [CalculatorController::class, 'landShareRoi'])->name('calculators.land-share');
+
+Route::get('/valuation', [ValuationController::class, 'index'])->name('valuation.index');
+Route::match(['get', 'post'], '/api/valuation/estimate', [ValuationController::class, 'estimate'])->name('valuation.estimate');
 
 // ==========================================
 // 6. AUTHENTICATION, REGISTRATION & GOOGLE OAUTH (SLUG: /appcenter)
@@ -201,6 +218,12 @@ Route::prefix('backend')->name('admin.')->middleware('admin.access')->group(func
     Route::match(['get', 'post'], '/properties/{property}/status', [AdminPropertyController::class, 'updateStatus'])->name('properties.status');
     Route::post('/properties/auto-assign', [AdminPropertyController::class, 'autoAssignInserters'])->name('properties.auto-assign');
     Route::post('/properties/{property}/fb-post', [AdminPropertyController::class, 'postToFacebook'])->name('properties.fb-post');
+
+    // 2.1 Property Guides & Articles Management
+    Route::resource('guides', AdminGuideController::class)->except(['show']);
+    Route::post('/guides/{guide}/toggle-published', [AdminGuideController::class, 'togglePublished'])->name('guides.toggle-published');
+    Route::post('/guides/upload-image', [AdminGuideController::class, 'uploadEditorImage'])->name('guides.upload-image');
+    Route::post('/guides/upload-thumbnail', [AdminGuideController::class, 'uploadThumbnail'])->name('guides.upload-thumbnail');
 
     // 3. Media Manager (Cloudinary)
     Route::get('/media', [AdminMediaController::class, 'index'])->name('media.index');

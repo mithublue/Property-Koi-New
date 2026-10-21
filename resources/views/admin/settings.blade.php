@@ -145,6 +145,13 @@ function admSettingsRoot() {
             <span>SEO ও AEO (AI সার্চ)</span>
         </button>
         <button type="button"
+                @click="setTab('calculators')"
+                :class="activeTab === 'calculators' ? 'bg-emerald-600 text-white shadow-xs' : 'bg-white hover:bg-slate-100 text-slate-700 border border-slate-200'"
+                class="adm-tab-pill px-4 py-2.5 rounded-xl font-bold text-xs whitespace-nowrap flex items-center gap-2 cursor-pointer">
+            <span>🧮</span>
+            <span>ক্যালকুলেটর ও ভ্যালুয়েশন রেটস</span>
+        </button>
+        <button type="button"
                 @click="setTab('facebook')"
                 :class="activeTab === 'facebook' ? 'bg-blue-600 text-white shadow-xs' : 'bg-white hover:bg-slate-100 text-slate-700 border border-slate-200'"
                 class="adm-tab-pill px-4 py-2.5 rounded-xl font-bold text-xs whitespace-nowrap flex items-center gap-2 cursor-pointer">
@@ -2217,6 +2224,226 @@ function admSettingsRoot() {
                     </div>
                 </div>
             </div><!-- /activeTab === 'seo' -->
+
+            <!-- ══════════════════════════════════════════════════════════════════════════ -->
+            <!-- TAB: CALCULATOR & VALUATION FACTORS (2026 GOVERNMENT RULES) -->
+            <!-- ══════════════════════════════════════════════════════════════════════════ -->
+            <div x-show="activeTab === 'calculators'" x-cloak class="space-y-6">
+                <!-- Hero Header -->
+                <div class="p-6 bg-gradient-to-r from-emerald-900 to-teal-950 text-white rounded-3xl shadow-lg flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                    <div>
+                        <div class="flex items-center gap-2 text-emerald-400 font-bold text-xs uppercase tracking-wider mb-1">
+                            <span>🧮</span> <span>Real Estate Calculators & Valuation Algorithm Rules</span>
+                        </div>
+                        <h2 class="text-xl sm:text-2xl font-black tracking-tight">ক্যালকুলেটর ও ভ্যালুয়েশন কন্ট্রোল প্যানেল</h2>
+                        <p class="text-xs text-slate-300 mt-1 max-w-2xl leading-relaxed">
+                            ভূমি মন্ত্রণালয়, সাব-রেজিস্ট্রি এবং জাতীয় রাজস্ব বোর্ডের (NBR) করহার পরিবর্তন হলে এখান থেকেই সম্পূর্ণ কোড স্পর্শ না করে রিয়েলটাইমে রেট ও ফর্মুলা আপডেট করা যাবে।
+                        </p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <a href="{{ route('calculators.registration') }}" target="_blank" class="px-3.5 py-2 bg-emerald-600/30 hover:bg-emerald-600 text-emerald-300 hover:text-white rounded-xl text-xs font-bold border border-emerald-500/40 transition">
+                            🌐 রেজিস্ট্রেশন টুল ↗
+                        </a>
+                        <a href="{{ route('valuation.index') }}" target="_blank" class="px-3.5 py-2 bg-teal-600/30 hover:bg-teal-600 text-teal-300 hover:text-white rounded-xl text-xs font-bold border border-teal-500/40 transition">
+                            🌐 ভ্যালুয়েশন টুল ↗
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 1. Govt Registration & Tax Rates Card -->
+                <div class="p-6 bg-white rounded-3xl border border-slate-200 shadow-xs space-y-6">
+                    <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                        <div>
+                            <h3 class="font-bold text-base text-slate-800 flex items-center gap-2">
+                                <span>📜</span> জমি ও ফ্ল্যাট রেজিস্ট্রেশন সরকারি করের হার (Govt Tax Rates)
+                            </h3>
+                            <p class="text-xs text-slate-500 mt-0.5">দলিল মূল্যের ওপর শতকরা (%) হার নির্ধারণ করুন</p>
+                        </div>
+                        <span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800">
+                            ২০২৬ বিধিমালা
+                        </span>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- Stamp Duty -->
+                        <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
+                            <label class="block text-xs font-bold text-slate-700">স্ট্যাম্প শুল্ক (Stamp Duty %)</label>
+                            <div class="relative">
+                                <input type="number"
+                                       step="0.05"
+                                       min="0"
+                                       max="15"
+                                       name="calc_stamp_duty_rate"
+                                       value="{{ \App\Models\Setting::get('calc_stamp_duty_rate', 1.5) }}"
+                                       class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm font-bold text-slate-900 bg-white focus:outline-hidden focus:border-emerald-500 pr-10">
+                                <span class="absolute right-3 top-2 text-xs font-bold text-slate-400">%</span>
+                            </div>
+                            <p class="text-[11px] text-slate-400">স্ট্যাম্প আইন অনুযায়ী সরকারি স্ট্যান্ডার্ড ১.৫০%</p>
+                        </div>
+
+                        <!-- Registration Fee -->
+                        <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
+                            <label class="block text-xs font-bold text-slate-700">নিবন্ধন ফি (Registration Fee %)</label>
+                            <div class="relative">
+                                <input type="number"
+                                       step="0.05"
+                                       min="0"
+                                       max="10"
+                                       name="calc_reg_fee_rate"
+                                       value="{{ \App\Models\Setting::get('calc_reg_fee_rate', 1.0) }}"
+                                       class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm font-bold text-slate-900 bg-white focus:outline-hidden focus:border-emerald-500 pr-10">
+                                <span class="absolute right-3 top-2 text-xs font-bold text-slate-400">%</span>
+                            </div>
+                            <p class="text-[11px] text-slate-400">সাব-রেজিস্ট্রি সরকারি স্ট্যান্ডার্ড ১.০০%</p>
+                        </div>
+
+                        <!-- Affidavit & Misc Fixed Fees -->
+                        <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
+                            <label class="block text-xs font-bold text-slate-700">হলফনামা স্ট্যাম্প (টাকায়)</label>
+                            <div class="relative">
+                                <input type="number"
+                                       step="50"
+                                       min="100"
+                                       name="calc_affidavit_fee"
+                                       value="{{ \App\Models\Setting::get('calc_affidavit_fee', 300) }}"
+                                       class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-sm font-bold text-slate-900 bg-white focus:outline-hidden focus:border-emerald-500 pr-10">
+                                <span class="absolute right-3 top-2 text-xs font-bold text-slate-400">৳</span>
+                            </div>
+                            <p class="text-[11px] text-slate-400">সরকারি হলফনামা স্ট্যাম্প ৩০০ টাকা</p>
+                        </div>
+                    </div>
+
+                    <!-- Local Govt Rates & AIT Rates -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+                        <!-- Local Govt Tax -->
+                        <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
+                            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
+                                <span>🏙️</span> স্থানীয় সরকার কর (Local Govt Tax %)
+                            </h4>
+                            <div class="grid grid-cols-3 gap-3 text-xs">
+                                <div>
+                                    <label class="block text-[11px] text-slate-600 mb-1">সিটি কর্পোরেশন</label>
+                                    <input type="number" step="0.1" name="calc_local_govt_dhaka" value="{{ \App\Models\Setting::get('calc_local_govt_dhaka', 2.0) }}" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs font-bold bg-white">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] text-slate-600 mb-1">পৌরসভা এলাকা</label>
+                                    <input type="number" step="0.1" name="calc_local_govt_pourashabha" value="{{ \App\Models\Setting::get('calc_local_govt_pourashabha', 3.0) }}" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs font-bold bg-white">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] text-slate-600 mb-1">ইউনিয়ন পরিষদ</label>
+                                    <input type="number" step="0.1" name="calc_local_govt_union" value="{{ \App\Models\Setting::get('calc_local_govt_union', 1.0) }}" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs font-bold bg-white">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- AIT Section 53H -->
+                        <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
+                            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
+                                <span>🏛️</span> উৎসে আয়কর AIT (আয়কর আইন ২০২৩ ধারা ৫৩এইচ %)
+                            </h4>
+                            <div class="grid grid-cols-4 gap-2 text-xs">
+                                <div>
+                                    <label class="block text-[10px] text-slate-600 mb-1">ঢাকা/চট্টগ্রাম</label>
+                                    <input type="number" step="0.1" name="calc_ait_dhaka" value="{{ \App\Models\Setting::get('calc_ait_dhaka', 8.0) }}" class="w-full px-2 py-1.5 rounded-lg border border-slate-300 text-xs font-bold bg-white">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] text-slate-600 mb-1">অন্যান্য সিটি</label>
+                                    <input type="number" step="0.1" name="calc_ait_other_city" value="{{ \App\Models\Setting::get('calc_ait_other_city', 6.0) }}" class="w-full px-2 py-1.5 rounded-lg border border-slate-300 text-xs font-bold bg-white">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] text-slate-600 mb-1">পৌরসভা</label>
+                                    <input type="number" step="0.1" name="calc_ait_pourashabha" value="{{ \App\Models\Setting::get('calc_ait_pourashabha', 4.0) }}" class="w-full px-2 py-1.5 rounded-lg border border-slate-300 text-xs font-bold bg-white">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] text-slate-600 mb-1">ইউনিয়ন</label>
+                                    <input type="number" step="0.1" name="calc_ait_union" value="{{ \App\Models\Setting::get('calc_ait_union', 2.0) }}" class="w-full px-2 py-1.5 rounded-lg border border-slate-300 text-xs font-bold bg-white">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Land Share Defaults Card -->
+                <div class="p-6 bg-white rounded-3xl border border-slate-200 shadow-xs space-y-4">
+                    <h3 class="font-bold text-base text-slate-800 flex items-center gap-2">
+                        <span>🤝</span> ল্যান্ড শেয়ার ক্যালকুলেটর ডিফল্ট প্যারামিটার
+                    </h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">ডিফল্ট ফ্ল্যাট নির্মাণ খরচ (টাকায় প্রতি বর্গফুট)</label>
+                            <input type="number"
+                                   step="50"
+                                   name="calc_landshare_construction_rate"
+                                   value="{{ \App\Models\Setting::get('calc_landshare_construction_rate', 2800) }}"
+                                   class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm font-bold bg-white">
+                            <p class="text-[11px] text-slate-400 mt-1">ক্যালকুলেটরে ইউজার ওপেন করলে প্রাথমিক মান হিসেবে দেখাবে (যেমন: ২৮০০ ৳/sqft)</p>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">রেফারেন্স রেডি ফ্ল্যাট বাজারদর (টাকায় প্রতি বর্গফুট)</label>
+                            <input type="number"
+                                   step="100"
+                                   name="calc_landshare_market_rate"
+                                   value="{{ \App\Models\Setting::get('calc_landshare_market_rate', 7500) }}"
+                                   class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm font-bold bg-white">
+                            <p class="text-[11px] text-slate-400 mt-1">একই এলাকায় রেডি ফ্ল্যাটের গড় দর (যেমন: ৭৫০০ ৳/sqft)</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. Smart Valuation Benchmarks & JSON Customizer Card -->
+                <div class="p-6 bg-white rounded-3xl border border-slate-200 shadow-xs space-y-4" x-data="{
+                    jsonVal: {{ json_encode(\App\Models\Setting::get('adm_valuation_benchmarks_json', '')) }},
+                    resetTo2026Default() {
+                        if (confirm('আপনি কি এলাকাভিত্তিক ভ্যালুয়েশন রেটগুলো ২০২৬ সালের স্ট্যান্ডার্ড ডিফল্ট মানে রিসেট করতে চান?')) {
+                            this.jsonVal = '';
+                        }
+                    }
+                }">
+                    <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+                        <div>
+                            <h3 class="font-bold text-base text-slate-800 flex items-center gap-2">
+                                <span>💡</span> এলাকাভিত্তিক ভ্যালুয়েশন বেঞ্চমার্ক ও রেট ম্যাট্রিক্স (Area Benchmark JSON)
+                            </h3>
+                            <p class="text-xs text-slate-500 mt-0.5">আফতাবনগর, বসুন্ধরা, গুলশান, বনশ্রী ইত্যাদি এলাকার রেট কাস্টমাইজ করুন</p>
+                        </div>
+                        <button type="button" @click="resetTo2026Default()" class="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition">
+                            🔄 ডিফল্ট ২০২৬ মানে রিসেট
+                        </button>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">কাস্টম বেঞ্চমার্ক JSON (খালি রাখলে সিস্টেমের বিল্ট-ইন ২০২৬ রেট কার্যকর থাকবে)</label>
+                        <textarea name="adm_valuation_benchmarks_json"
+                                  x-model="jsonVal"
+                                  rows="8"
+                                  placeholder='খালি রাখুন অথবা কোনো নির্দিষ্ট এলাকার জন্য কাস্টম JSON দিন, যেমন: {"aftabnagar":{"land_min_katha":12000000,"land_max_katha":17000000}}'
+                                  class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs font-mono bg-slate-50 focus:bg-white focus:outline-hidden focus:border-emerald-500 leading-relaxed"></textarea>
+                        <p class="text-[11px] text-slate-400 mt-1">
+                            এখানে নির্দিষ্ট কোনো এলাকার কাঠাপ্রতি সর্বনিম্ন/সর্বোচ্চ দর পরিবর্তন করতে চাইলে শুধু সেই অবজেক্টের ওভাররাইড JSON দিলে স্বয়ংক্রিয়ভাবে কার্যকর হবে।
+                        </p>
+                    </div>
+                </div>
+
+                <!-- 4. External Data Source / Webhook Guidance Card -->
+                <div class="p-6 bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-3xl shadow-sm space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-base font-bold flex items-center gap-2 text-emerald-400">
+                            <span>🌐</span> এক্সটার্নাল ডাটা সোর্স ও এপিআই সিঙ্ক (External API / Google Sheet Sync)
+                        </h3>
+                        <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-white/10 text-emerald-300 border border-emerald-400/30">
+                            Webhook Ready
+                        </span>
+                    </div>
+                    <p class="text-xs text-slate-300 leading-relaxed">
+                        ভবিষ্যতে যদি কোনো সরকারি ভূমি অফিস ডাটাবেজ, আবাসন খাতের লাইভ প্রাইস ইনডেক্স বা কোনো গুগল শিট (Google Sheet) থেকে প্রতিদিন স্বয়ংক্রিয়ভাবে রেটগুলো আপডেট করতে চান, তবে আমাদের সিস্টেম এপিআই রেডি রয়েছে:
+                    </p>
+                    <div class="p-3.5 rounded-2xl bg-black/40 border border-slate-700 text-xs font-mono space-y-1">
+                        <div class="text-emerald-400 font-bold">API / Webhook Endpoint:</div>
+                        <div class="text-slate-200">POST {{ url('/api/cron/match-demands') }} (CRON Webhook)</div>
+                        <div class="text-slate-400 mt-1">Google Sheet এর মাধ্যমে প্রপার্টির পাশাপাশি লাইভ মৌজা দর বা রেট সরাসরি সিঙ্ক করার জন্য <strong>গুগল শিট সিঙ্ক</strong> ট্যাবের মাস্টার শিট কনফিগারেশন ব্যবহার করা যাবে।</div>
+                    </div>
+                </div>
+            </div><!-- /activeTab === 'calculators' -->
 
             <!-- ══════════════════════════════════════════════════════════════════════════ -->
             <!-- TAB 8: FACEBOOK AUTO-POST -->

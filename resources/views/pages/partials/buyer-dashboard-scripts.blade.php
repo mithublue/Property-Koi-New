@@ -432,8 +432,9 @@ window.admBuyerDashboard = function() {
 
             submitDemandModal() {
                 var self = this;
-                if (self.demandsList && self.demandsList.length >= self.maxDemandsLimit) {
-                    alert('আপনি ইতিমধ্যে সর্বোচ্চ ' + self.maxDemandsLimit + 'টি চাহিদা সাবমিট করেছেন। নতুন চাহিদা জমা দিতে হলে তালিকা থেকে যেকোনো একটি পুরনো চাহিদা মুছে ফেলুন।');
+                var activeDemandsCount = (self.demandsList || []).filter(function(d) { return d.status === 'active'; }).length;
+                if (self.maxDemandsLimit !== 999 && activeDemandsCount >= self.maxDemandsLimit) {
+                    alert('আপনি ইতিমধ্যে সর্বোচ্চ ' + self.maxDemandsLimit + 'টি সক্রিয় চাহিদা সাবমিট করেছেন। নতুন চাহিদা জমা দিতে হলে তালিকা থেকে যেকোনো একটি পুরনো চাহিদা মুছে ফেলুন বা বন্ধ করুন।');
                     return;
                 }
                 self.savingDemand = true;

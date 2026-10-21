@@ -91,15 +91,14 @@ class BuyerDashboardController extends Controller
         }
 
         // 3. Buyer Demands
-        $demandsRaw = BuyerDemand::where(function ($q) use ($user) {
-                $q->where('user_id', $user->id);
-                if ($user->phone) {
-                    $q->orWhere('buyer_phone', $user->phone);
-                }
-                if ($user->email) {
-                    $q->orWhere('buyer_email', $user->email);
-                }
+        // Auto-claim any unassigned/historical demands matching this user's email, phone, or telegram
+        BuyerDemand::queryForUser($user)
+            ->where(function ($q) use ($user) {
+                $q->whereNull('user_id')->orWhere('user_id', '!=', $user->id);
             })
+            ->update(['user_id' => $user->id]);
+
+        $demandsRaw = BuyerDemand::queryForUser($user)
             ->latest()
             ->get();
 
@@ -333,7 +332,9 @@ class BuyerDashboardController extends Controller
             'my_properties' => count($myProperties),
         ];
 
-        $max_demands_limit = (int) \App\Models\Setting::get('adm_max_demands_per_user', 3);
+        $max_demands_limit = ($user->isAdmin() || $user->role === 'agent')
+            ? 999
+            : (int) \App\Models\Setting::get('adm_max_demands_per_user', 3);
 
         return view('pages.buyer-dashboard', compact('profile', 'favorites', 'demands', 'interactions', 'myProperties', 'stats', 'user', 'max_demands_limit'));
     }
@@ -511,17 +512,20 @@ class BuyerDashboardController extends Controller
         $submitPhone = $request->buyer_phone ?: ($user->whatsapp_number ?: $user->phone);
         $submitEmail = $request->buyer_email ?: $user->email;
 
-        // Enforce maximum demand submissions limit
-        $maxDemands = (int) \App\Models\Setting::get('adm_max_demands_per_user', 3);
-        $existingCount = BuyerDemand::countDemandsForSubmitter($user->id, $submitPhone, $submitEmail, $teleChatId, $teleUsername);
+        // Enforce maximum demand submissions limit for regular buyers
+        $isStaff = $user->isAdmin() || $user->role === 'agent';
+        if (!$isStaff) {
+            $maxDemands = (int) \App\Models\Setting::get('adm_max_demands_per_user', 3);
+            $existingCount = BuyerDemand::countDemandsForSubmitter($user->id, $submitPhone, $submitEmail, $teleChatId, $teleUsername, onlyActive: true);
 
-        if ($existingCount >= $maxDemands) {
-            return response()->json([
-                'success'       => false,
-                'message'       => "আপনি ইতিমধ্যে সর্বোচ্চ {$maxDemands}টি চাহিদা সাবমিট করেছেন। নতুন চাহিদা যোগ করতে হলে আপনার তালিকা থেকে যেকোনো একটি পুরনো চাহিদা মুছে ফেলুন।",
-                'limit_reached' => true,
-                'max_limit'     => $maxDemands,
-            ], 422);
+            if ($existingCount >= $maxDemands) {
+                return response()->json([
+                    'success'       => false,
+                    'message'       => "আপনি ইতিমধ্যে সর্বোচ্চ {$maxDemands}টি সক্রিয় চাহিদা সাবমিট করেছেন। নতুন চাহিদা যোগ করতে হলে আপনার তালিকা থেকে যেকোনো একটি পুরনো চাহিদা মুছে ফেলুন বা বন্ধ করুন।",
+                    'limit_reached' => true,
+                    'max_limit'     => $maxDemands,
+                ], 422);
+            }
         }
 
         $demand = BuyerDemand::create([
@@ -569,24 +573,26 @@ class BuyerDashboardController extends Controller
         $demandId = (int) $request->demand_id;
         $status = $request->status === 'closed' ? 'closed' : 'active';
 
-        $demand = BuyerDemand::where('id', $demandId)
-            ->where(function ($q) use ($user) {
-                $q->where('user_id', $user->id);
-                if ($user->phone) {
-                    $q->orWhere('buyer_phone', $user->phone);
-                }
-                if ($user->email) {
-                    $q->orWhere('buyer_email', $user->email);
-                }
-            })
-            ->first();
-
-        if ($demand) {
-            $demand->update(['status' => $status]);
-            return response()->json(['success' => true, 'status' => $status]);
+        $demand = BuyerDemand::find($demandId);
+        if (!$demand) {
+            return response()->json(['success' => false, 'message' => 'চাহিদা খুঁজে পাওয়া যায়নি।'], 404);
         }
 
-        return response()->json(['success' => false, 'message' => 'চাহিদা খুঁজে পাওয়া যায়নি।'], 404);
+        $cleanUserPhone = $user->phone ? preg_replace('/[^0-9]/', '', $user->phone) : '';
+        $last10UserPhone = strlen($cleanUserPhone) >= 10 ? substr($cleanUserPhone, -10) : $cleanUserPhone;
+        $cleanDemandPhone = $demand->buyer_phone ? preg_replace('/[^0-9]/', '', $demand->buyer_phone) : '';
+        $last10DemandPhone = strlen($cleanDemandPhone) >= 10 ? substr($cleanDemandPhone, -10) : $cleanDemandPhone;
+
+        $isOwner = ($demand->user_id === $user->id)
+            || ($user->email && strtolower(trim((string)$demand->buyer_email)) === strtolower(trim((string)$user->email)))
+            || (!empty($last10UserPhone) && !empty($last10DemandPhone) && $last10UserPhone === $last10DemandPhone);
+
+        if (!$isOwner && !$user->isAdmin() && $user->role !== 'agent') {
+            return response()->json(['success' => false, 'message' => 'অনুমতি নেই।'], 403);
+        }
+
+        $demand->update(['status' => $status]);
+        return response()->json(['success' => true, 'status' => $status]);
     }
 
     public function deleteDemand(Request $request)
@@ -597,17 +603,27 @@ class BuyerDashboardController extends Controller
         }
 
         $demandId = (int) $request->demand_id;
-        BuyerDemand::where('id', $demandId)
-            ->where(function ($q) use ($user) {
-                $q->where('user_id', $user->id);
-                if ($user->phone) {
-                    $q->orWhere('buyer_phone', $user->phone);
-                }
-                if ($user->email) {
-                    $q->orWhere('buyer_email', $user->email);
-                }
-            })
-            ->delete();
+        $demand = BuyerDemand::find($demandId);
+
+        if (!$demand) {
+            return response()->json(['success' => true, 'message' => 'চাহিদা ইতিমধ্যে মুছে ফেলা হয়েছে।']);
+        }
+
+        $cleanUserPhone = $user->phone ? preg_replace('/[^0-9]/', '', $user->phone) : '';
+        $last10UserPhone = strlen($cleanUserPhone) >= 10 ? substr($cleanUserPhone, -10) : $cleanUserPhone;
+        $cleanDemandPhone = $demand->buyer_phone ? preg_replace('/[^0-9]/', '', $demand->buyer_phone) : '';
+        $last10DemandPhone = strlen($cleanDemandPhone) >= 10 ? substr($cleanDemandPhone, -10) : $cleanDemandPhone;
+
+        $isOwner = ($demand->user_id === $user->id)
+            || ($user->email && strtolower(trim((string)$demand->buyer_email)) === strtolower(trim((string)$user->email)))
+            || (!empty($last10UserPhone) && !empty($last10DemandPhone) && $last10UserPhone === $last10DemandPhone);
+
+        if (!$isOwner && !$user->isAdmin() && $user->role !== 'agent') {
+            return response()->json(['success' => false, 'message' => 'এই চাহিদা মুছে ফেলার অনুমতি নেই।'], 403);
+        }
+
+        $demand->notifications()->delete();
+        $demand->delete();
 
         return response()->json(['success' => true, 'message' => 'চাহিদা সফলভাবে মুছে ফেলা হয়েছে!']);
     }

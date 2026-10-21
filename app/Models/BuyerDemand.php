@@ -114,7 +114,7 @@ class BuyerDemand extends Model
             }
 
             if (!empty($cleanEmail) && filter_var($cleanEmail, FILTER_VALIDATE_EMAIL)) {
-                $q->orWhere('buyer_email', $cleanEmail);
+                $q->orWhereRaw('LOWER(buyer_email) = ?', [$cleanEmail]);
                 $hasCondition = true;
             }
 
@@ -135,10 +135,76 @@ class BuyerDemand extends Model
     }
 
     /**
-     * Count active/existing demands for this submitter.
+     * Query all demands belonging to an authenticated user across all identifier signals
+     * (user_id, profile phone, whatsapp, email, telegram).
      */
-    public static function countDemandsForSubmitter(?int $userId, ?string $phone, ?string $email, ?string $teleChatId = null, ?string $teleUsername = null): int
+    public static function queryForUser(User $user)
     {
-        return self::queryForSubmitter($userId, $phone, $email, $teleChatId, $teleUsername)->count();
+        $phones = array_filter(array_unique([
+            $user->phone,
+            $user->whatsapp_number,
+        ]));
+
+        $emails = array_filter(array_unique([
+            $user->email,
+        ]));
+
+        $teleChatId = $user->telegram_chat_id ?? null;
+        $teleUsername = $user->telegram_username ?? null;
+
+        return self::where(function ($q) use ($user, $phones, $emails, $teleChatId, $teleUsername) {
+            // 1. Direct user ID ownership
+            $q->orWhere('user_id', $user->id);
+
+            // 2. Phones with normalization & last-10-digits matching
+            foreach ($phones as $p) {
+                $clean = preg_replace('/[^0-9]/', '', (string) $p);
+                $last10 = (strlen($clean) >= 10) ? substr($clean, -10) : $clean;
+                $raw = trim((string) $p);
+
+                if (strlen($raw) >= 6) {
+                    $q->orWhere(function ($sq) use ($raw, $clean, $last10) {
+                        $sq->where('buyer_phone', $raw);
+                        if ($clean) {
+                            $sq->orWhere('buyer_phone', $clean);
+                        }
+                        if ($last10 && strlen($last10) >= 8) {
+                            $sq->orWhere('buyer_phone', 'LIKE', '%' . $last10);
+                        }
+                    });
+                }
+            }
+
+            // 3. Email (case-insensitive)
+            foreach ($emails as $em) {
+                $cleanEm = strtolower(trim((string) $em));
+                if (filter_var($cleanEm, FILTER_VALIDATE_EMAIL)) {
+                    $q->orWhereRaw('LOWER(buyer_email) = ?', [$cleanEm]);
+                }
+            }
+
+            // 4. Telegram
+            if (!empty($teleChatId)) {
+                $q->orWhere('telegram_chat_id', trim($teleChatId));
+            }
+            if (!empty($teleUsername) && strlen(trim($teleUsername)) >= 3) {
+                $q->orWhere('telegram_username', ltrim(trim($teleUsername), '@'));
+            }
+        });
+    }
+
+    /**
+     * Count active/existing demands for this submitter.
+     * By default, only counts active demands (status != 'closed').
+     */
+    public static function countDemandsForSubmitter(?int $userId, ?string $phone, ?string $email, ?string $teleChatId = null, ?string $teleUsername = null, bool $onlyActive = true): int
+    {
+        $q = self::queryForSubmitter($userId, $phone, $email, $teleChatId, $teleUsername);
+        if ($onlyActive) {
+            $q->where(function ($sq) {
+                $sq->whereNull('status')->orWhere('status', 'active');
+            });
+        }
+        return $q->count();
     }
 }

@@ -115,21 +115,26 @@ class ChahidaController extends Controller
             }
         }
 
-        // Enforce maximum demand submissions limit per user / guest submitter
-        $maxDemands = (int) \App\Models\Setting::get('adm_max_demands_per_user', 3);
-        $userId = auth()->id();
-        $buyerPhone = $validated['buyer_phone'];
-        $buyerEmail = $validated['buyer_email'] ?? null;
+        // Enforce maximum demand submissions limit per regular user / guest submitter
+        $user = auth()->user();
+        $isStaff = $user && ($user->isAdmin() || $user->role === 'agent');
 
-        $existingCount = BuyerDemand::countDemandsForSubmitter($userId, $buyerPhone, $buyerEmail, $teleChatId, $teleUsername);
+        if (!$isStaff) {
+            $maxDemands = (int) \App\Models\Setting::get('adm_max_demands_per_user', 3);
+            $userId = $user ? $user->id : null;
+            $buyerPhone = $validated['buyer_phone'];
+            $buyerEmail = $validated['buyer_email'] ?? null;
 
-        if ($existingCount >= $maxDemands) {
-            $msg = "আপনি ইতিমধ্যে সর্বোচ্চ {$maxDemands}টি চাহিদা সাবমিট করেছেন। নতুন চাহিদা জমা দিতে হলে পূর্বে জমা দেওয়া কোনো একটি চাহিদা মুছে ফেলতে হবে।";
-            return back()->withInput()->withErrors([
-                'buyer_phone' => $msg,
-            ])->with('demand_limit_reached', true)
-              ->with('max_demands_limit', $maxDemands)
-              ->with('existing_demands_count', $existingCount);
+            $existingCount = BuyerDemand::countDemandsForSubmitter($userId, $buyerPhone, $buyerEmail, $teleChatId, $teleUsername, onlyActive: true);
+
+            if ($existingCount >= $maxDemands) {
+                $msg = "আপনি ইতিমধ্যে সর্বোচ্চ {$maxDemands}টি সক্রিয় চাহিদা সাবমিট করেছেন। নতুন চাহিদা জমা দিতে হলে পূর্বে জমা দেওয়া কোনো একটি চাহিদা মুছে ফেলতে হবে বা ড্যাশবোর্ড থেকে সাময়িক বন্ধ করতে হবে।";
+                return back()->withInput()->withErrors([
+                    'buyer_phone' => $msg,
+                ])->with('demand_limit_reached', true)
+                  ->with('max_demands_limit', $maxDemands)
+                  ->with('existing_demands_count', $existingCount);
+            }
         }
 
         $demand = BuyerDemand::create([

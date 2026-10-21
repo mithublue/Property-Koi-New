@@ -184,7 +184,7 @@
                                         <span class="w-2 h-2 rounded-full bg-sky-500"></span>
                                         <span>কানেক্টেড</span>
                                         @if($sub['telegram_username'])
-                                            <span class="font-mono text-[10px] text-sky-600">(@{{ $sub['telegram_username'] }})</span>
+                                            <span class="font-mono text-[10px] text-sky-600">({{ '@' . $sub['telegram_username'] }})</span>
                                         @endif
                                     </span>
                                 @else

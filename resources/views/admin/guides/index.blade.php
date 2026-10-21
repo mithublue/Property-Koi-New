@@ -45,7 +45,7 @@
             @endif
         </form>
 
-        <a href="{{ route('admin.guides.create') }}" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-xs transition shrink-0">
+        <a href="{{ route('admin.guides.create') }}" data-turbo="false" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-xs transition shrink-0">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
             <span>নতুন গাইড লিখুন</span>
         </a>
@@ -83,7 +83,7 @@
                                                 </span>
                                             @endif
                                         </div>
-                                        <a href="{{ route('admin.guides.edit', $guide) }}" class="font-bold text-slate-900 hover:text-emerald-600 transition text-sm line-clamp-1">
+                                        <a href="{{ route('admin.guides.edit', $guide) }}" data-turbo="false" class="font-bold text-slate-900 hover:text-emerald-600 transition text-sm line-clamp-1">
                                             {{ $guide->title }}
                                         </a>
                                         <span class="text-[11px] text-slate-400 block truncate max-w-md">/guides/{{ $guide->slug }}</span>
@@ -111,7 +111,7 @@
                                     <a href="{{ route('guides.show', $guide->slug) }}" target="_blank" class="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition" title="লাইভ দেখুন">
                                         🌐
                                     </a>
-                                    <a href="{{ route('admin.guides.edit', $guide) }}" class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-emerald-50 hover:text-emerald-700 font-bold transition text-xs">
+                                    <a href="{{ route('admin.guides.edit', $guide) }}" data-turbo="false" class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-emerald-50 hover:text-emerald-700 font-bold transition text-xs">
                                         এডিট
                                     </a>
                                     <form action="{{ route('admin.guides.destroy', $guide) }}" method="POST" onsubmit="return confirm('আপনি কি নিশ্চিত যে এই গাইডটি মুছে ফেলতে চান?')" class="inline">

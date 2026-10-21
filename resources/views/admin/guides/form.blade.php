@@ -4,6 +4,7 @@
 
 @section('content')
 <div class="p-4 md:p-8 max-w-7xl mx-auto space-y-6"
+     data-turbo="false"
      x-data="{
          title: {{ json_encode(old('title', $guide->title ?? '')) }},
          slug: {{ json_encode(old('slug', $guide->slug ?? '')) }},
@@ -83,7 +84,7 @@
 
     <!-- Top Breadcrumb / Action Bar -->
     <div class="flex items-center justify-between pb-2">
-        <a href="{{ route('admin.guides.index') }}" class="inline-flex items-center gap-1.5 text-xs font-bold text-slate-600 hover:text-slate-900 transition">
+        <a href="{{ route('admin.guides.index') }}" data-turbo="false" class="inline-flex items-center gap-1.5 text-xs font-bold text-slate-600 hover:text-slate-900 transition">
             &larr; <span>সকল আর্টিকেলে ফিরে যান</span>
         </a>
         @if($guide->exists && $guide->slug)
@@ -427,241 +428,277 @@
     </form>
 
 </div>
+@endsection
 
-<!-- TinyMCE Rich Text Editor CDN -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2/tinymce.min.js" referrerpolicy="origin"></script>
+@push('scripts')
+<!-- TinyMCE Rich Text Editor (Local Asset with CDN Fallback) -->
+<script src="{{ asset('assets/vendor/tinymce/tinymce.min.js') }}"></script>
+<script>
+    if (typeof tinymce === 'undefined') {
+        const cdnScript = document.createElement('script');
+        cdnScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2/tinymce.min.js';
+        cdnScript.referrerPolicy = 'origin';
+        document.head.appendChild(cdnScript);
+    }
+</script>
 
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    if (typeof tinymce === 'undefined') {
-        console.error('TinyMCE failed to load from CDN');
-        return;
+(function() {
+    function initGuideEditor() {
+        const textarea = document.getElementById('guide-wysiwyg-editor');
+        if (!textarea) return;
+
+        if (typeof tinymce === 'undefined') {
+            setTimeout(initGuideEditor, 100);
+            return;
+        }
+
+        // Clean up previous instance if already initialized (Turbo SPA support)
+        if (tinymce.get('guide-wysiwyg-editor')) {
+            tinymce.get('guide-wysiwyg-editor').remove();
+        }
+
+        tinymce.init({
+            selector: '#guide-wysiwyg-editor',
+            base_url: '{{ asset("assets/vendor/tinymce") }}',
+            suffix: '.min',
+            min_height: 520,
+            autoresize_bottom_margin: 50,
+            menubar: 'file edit insert view format table tools',
+            plugins: [
+                'autoresize', 'link', 'image', 'media', 'table', 'lists', 'code',
+                'wordcount', 'quickbars', 'emoticons', 'charmap'
+            ],
+            toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | forecolor backcolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | table link image media insert_widget | removeformat code',
+            quickbars_selection_toolbar: 'bold italic underline | formatselect | blockquote quicklink',
+            quickbars_insert_toolbar: 'quickimage quicktable | hr insert_widget',
+            
+            // Retain pasted styles from Word, Google Docs, Medium, Web
+            paste_as_text: false,
+            paste_data_images: true,
+            paste_enable_default_filters: false,
+            paste_retain_style_properties: 'all',
+            valid_children: '+body[style]',
+            extended_valid_elements: 'span[*],div[*],table[*],tr[*],td[*],th[*],iframe[*],figure[*],figcaption[*],blockquote[*]',
+            content_style: `
+                body {
+                    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+                    font-size: 16px;
+                    line-height: 1.8;
+                    color: #1e293b;
+                    padding: 1.5rem;
+                    max-width: 850px;
+                    margin: 0 auto;
+                }
+                h1, h2, h3, h4 { font-weight: 800; color: #0f172a; margin-top: 1.5em; margin-bottom: 0.5em; }
+                h2 { font-size: 1.65rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.3em; }
+                h3 { font-size: 1.35rem; }
+                p { margin-bottom: 1.25em; }
+                table { width: 100%; border-collapse: collapse; margin: 1.5em 0; border: 1px solid #cbd5e1; }
+                th { background-color: #f1f5f9; padding: 10px 12px; font-weight: bold; border: 1px solid #cbd5e1; }
+                td { padding: 10px 12px; border: 1px solid #e2e8f0; }
+                tr:nth-child(even) td { background-color: #f8fafc; }
+                blockquote {
+                    border-left: 4px solid #059669;
+                    padding: 1rem 1.5rem;
+                    margin: 1.5em 0;
+                    background-color: #f0fdf4;
+                    font-style: italic;
+                    color: #065f46;
+                    border-radius: 0 1rem 1rem 0;
+                }
+                .info-callout {
+                    background-color: #f0fdf4;
+                    border: 1px solid #bbf7d0;
+                    border-left: 5px solid #059669;
+                    padding: 1rem 1.25rem;
+                    border-radius: 0.75rem;
+                    margin: 1.5rem 0;
+                }
+                .warning-callout {
+                    background-color: #fffbeb;
+                    border: 1px solid #fde68a;
+                    border-left: 5px solid #d97706;
+                    padding: 1rem 1.25rem;
+                    border-radius: 0.75rem;
+                    margin: 1.5rem 0;
+                }
+                .calc-cta-widget {
+                    background: linear-gradient(135deg, #0f172a 0%, #064e3b 100%);
+                    color: #ffffff;
+                    padding: 1.5rem;
+                    border-radius: 1rem;
+                    margin: 2rem 0;
+                    text-align: center;
+                }
+                .calc-cta-btn {
+                    display: inline-block;
+                    background-color: #059669;
+                    color: #ffffff !important;
+                    padding: 0.6rem 1.25rem;
+                    border-radius: 0.5rem;
+                    font-weight: bold;
+                    text-decoration: none;
+                    margin-top: 0.75rem;
+                }
+                img { max-width: 100%; height: auto; border-radius: 0.75rem; margin: 1rem 0; }
+            `,
+
+            // Automatic Image Upload to Cloudinary via backend endpoint
+            images_upload_handler: function (blobInfo, progress) {
+                return new Promise(function (resolve, reject) {
+                    const formData = new FormData();
+                    formData.append('file', blobInfo.blob(), blobInfo.filename());
+                    formData.append('_token', '{{ csrf_token() }}');
+
+                    const xhr = new XMLHttpRequest();
+                    xhr.open('POST', '{{ route('admin.guides.upload-image') }}');
+
+                    xhr.upload.onprogress = function (e) {
+                        progress(e.loaded / e.total * 100);
+                    };
+
+                    xhr.onload = function () {
+                        if (xhr.status < 200 || xhr.status >= 300) {
+                            reject('HTTP Error: ' + xhr.status);
+                            return;
+                        }
+                        const json = JSON.parse(xhr.responseText);
+                        if (!json || typeof json.location !== 'string') {
+                            reject('Invalid JSON: ' + xhr.responseText);
+                            return;
+                        }
+                        resolve(json.location);
+                    };
+
+                    xhr.onerror = function () {
+                        reject('Image upload failed due to network error.');
+                    };
+
+                    xhr.send(formData);
+                });
+            },
+
+            // Custom Medium / Gutenberg Widget Inserters Menu
+            setup: function (editor) {
+                editor.ui.registry.addMenuButton('insert_widget', {
+                    text: '🧩 উইজেট কম্পোনেন্ট',
+                    tooltip: 'Medium স্টাইল উইজেট ও কম্পোনেন্ট যুক্ত করুন',
+                    fetch: function (callback) {
+                        const items = [
+                            {
+                                type: 'menuitem',
+                                text: '💡 তথ্য কলআউট বক্স (Info Box)',
+                                onAction: function () {
+                                    editor.insertContent(`
+                                        <div class="info-callout">
+                                            <h4 style="margin: 0 0 0.5rem 0; color: #065f46; font-size: 1.1rem; font-weight: bold;">💡 গুরুত্বপূর্ণ তথ্য / পরামর্শ</h4>
+                                            <p style="margin: 0;">এখানে আপনার গুরুত্বপূর্ণ আইনি বা বাজার সংক্রান্ত তথ্য লিখুন...</p>
+                                        </div>
+                                    `);
+                                }
+                            },
+                            {
+                                type: 'menuitem',
+                                text: '⚠️ সতর্কতা ও ঝুঁকি বক্স (Warning Box)',
+                                onAction: function () {
+                                    editor.insertContent(`
+                                        <div class="warning-callout">
+                                            <h4 style="margin: 0 0 0.5rem 0; color: #92400e; font-size: 1.1rem; font-weight: bold;">⚠️ সতর্কতা ও আইনি ঝুঁকি</h4>
+                                            <p style="margin: 0;">যেকোনো জমি বা ফ্ল্যাট কেনার আগে এই সতর্কতামূলক দিকটি সরেজমিন যাচাই করুন...</p>
+                                        </div>
+                                    `);
+                                }
+                            },
+                            {
+                                type: 'menuitem',
+                                text: '🧮 ক্যালকুলেটর ব্যানার CTA (Calculator Widget)',
+                                onAction: function () {
+                                    editor.insertContent(`
+                                        <div class="calc-cta-widget">
+                                            <h3 style="color: #ffffff; margin: 0 0 0.5rem 0; font-size: 1.35rem; font-weight: 800;">জমি ও ফ্ল্যাট রেজিস্ট্রেশন খরচ হিসাব করতে চান?</h3>
+                                            <p style="color: #94a3b8; margin: 0 0 1rem 0; font-size: 0.95rem;">২০২৬ সালের সরকারি স্ট্যাম্প শুল্ক, নিবন্ধন ফি ও উৎসে কর ১-ক্লিকে গণনা করুন।</p>
+                                            <a href="/calculators/registration" class="calc-cta-btn" target="_blank">রেজিস্ট্রেশন ক্যালকুলেটরে হিসাব দেখুন &rarr;</a>
+                                        </div>
+                                    `);
+                                }
+                            },
+                            {
+                                type: 'menuitem',
+                                text: '📊 রেট তুলনা টেবিল (Comparison Table)',
+                                onAction: function () {
+                                    editor.insertContent(`
+                                        <table>
+                                            <thead>
+                                                <tr>
+                                                    <th>এলাকা / সেক্টর</th>
+                                                    <th>কাঠাপ্রতি জমির গড় দর (২০২৬)</th>
+                                                    <th>রেডি ফ্ল্যাট দর (sqft)</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td><strong>আফতাবনগর (ব্লক A, B, C)</strong></td>
+                                                    <td>১.৩০ কোটি — ১.৭০ কোটি টাকা</td>
+                                                    <td>৭,৫০০ — ৯,৫০০ টাকা</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>বসুন্ধরা আ/এ (ব্লক A - D)</strong></td>
+                                                    <td>১.৪০ কোটি — ২.২০ কোটি টাকা</td>
+                                                    <td>৯,০০০ — ১৪,০০০ টাকা</td>
+                                                </tr>
+                                                <tr>
+                                                    <td><strong>বনশ্রী আ/এ</strong></td>
+                                                    <td>৯৫ লাখ — ১.৪৫ কোটি টাকা</td>
+                                                    <td>৬,৮০০ — ৮,৫০০ টাকা</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    `);
+                                }
+                            },
+                            {
+                                type: 'menuitem',
+                                text: '💬 লার্জ পুলকোট (Medium Pullquote)',
+                                onAction: function () {
+                                    editor.insertContent(`
+                                        <blockquote style="font-size: 1.25rem; font-style: italic; line-height: 1.6; border-left: 4px solid #059669; padding-left: 1.5rem; margin: 2rem 0; color: #047857;">
+                                            "জমির মালিকানা নিশ্চিত করার মূল চাবিকাঠি হলো সর্বশেষ নামজারি খতিয়ান ও খাজনা পরিশোধের ডিসিআর যাচাই করা।"
+                                        </blockquote>
+                                    `);
+                                }
+                            }
+                        ];
+                        callback(items);
+                    }
+                });
+            }
+        });
     }
 
-    tinymce.init({
-        selector: '#guide-wysiwyg-editor',
-        min_height: 520,
-        autoresize_bottom_margin: 50,
-        menubar: 'file edit insert view format table tools',
-        plugins: [
-            'autoresize', 'link', 'image', 'media', 'table', 'lists', 'code',
-            'wordcount', 'quickbars', 'emoticons', 'charmap'
-        ],
-        toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | forecolor backcolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | table link image media insert_widget | removeformat code',
-        quickbars_selection_toolbar: 'bold italic underline | formatselect | blockquote quicklink',
-        quickbars_insert_toolbar: 'quickimage quicktable | hr insert_widget',
-        
-        // Retain pasted styles from Word, Google Docs, Medium, Web
-        paste_as_text: false,
-        paste_data_images: true,
-        paste_enable_default_filters: false,
-        paste_retain_style_properties: 'all',
-        valid_children: '+body[style]',
-        extended_valid_elements: 'span[*],div[*],table[*],tr[*],td[*],th[*],iframe[*],figure[*],figcaption[*],blockquote[*]',
-        content_style: `
-            body {
-                font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-                font-size: 16px;
-                line-height: 1.8;
-                color: #1e293b;
-                padding: 1.5rem;
-                max-width: 850px;
-                margin: 0 auto;
-            }
-            h1, h2, h3, h4 { font-weight: 800; color: #0f172a; margin-top: 1.5em; margin-bottom: 0.5em; }
-            h2 { font-size: 1.65rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.3em; }
-            h3 { font-size: 1.35rem; }
-            p { margin-bottom: 1.25em; }
-            table { width: 100%; border-collapse: collapse; margin: 1.5em 0; border: 1px solid #cbd5e1; }
-            th { background-color: #f1f5f9; padding: 10px 12px; font-weight: bold; border: 1px solid #cbd5e1; }
-            td { padding: 10px 12px; border: 1px solid #e2e8f0; }
-            tr:nth-child(even) td { background-color: #f8fafc; }
-            blockquote {
-                border-left: 4px solid #059669;
-                padding: 1rem 1.5rem;
-                margin: 1.5em 0;
-                background-color: #f0fdf4;
-                font-style: italic;
-                color: #065f46;
-                border-radius: 0 1rem 1rem 0;
-            }
-            .info-callout {
-                background-color: #f0fdf4;
-                border: 1px solid #bbf7d0;
-                border-left: 5px solid #059669;
-                padding: 1rem 1.25rem;
-                border-radius: 0.75rem;
-                margin: 1.5rem 0;
-            }
-            .warning-callout {
-                background-color: #fffbeb;
-                border: 1px solid #fde68a;
-                border-left: 5px solid #d97706;
-                padding: 1rem 1.25rem;
-                border-radius: 0.75rem;
-                margin: 1.5rem 0;
-            }
-            .calc-cta-widget {
-                background: linear-gradient(135deg, #0f172a 0%, #064e3b 100%);
-                color: #ffffff;
-                padding: 1.5rem;
-                border-radius: 1rem;
-                margin: 2rem 0;
-                text-align: center;
-            }
-            .calc-cta-btn {
-                display: inline-block;
-                background-color: #059669;
-                color: #ffffff !important;
-                padding: 0.6rem 1.25rem;
-                border-radius: 0.5rem;
-                font-weight: bold;
-                text-decoration: none;
-                margin-top: 0.75rem;
-            }
-            img { max-width: 100%; height: auto; border-radius: 0.75rem; margin: 1rem 0; }
-        `,
+    // Trigger on both regular DOM load and Hotwire Turbo navigation
+    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+        setTimeout(initGuideEditor, 50);
+    }
+    document.addEventListener('DOMContentLoaded', initGuideEditor);
+    document.addEventListener('turbo:load', initGuideEditor);
+    document.addEventListener('turbo:render', initGuideEditor);
 
-        // Automatic Image Upload to Cloudinary via backend endpoint
-        images_upload_handler: function (blobInfo, progress) {
-            return new Promise(function (resolve, reject) {
-                const formData = new FormData();
-                formData.append('file', blobInfo.blob(), blobInfo.filename());
-                formData.append('_token', '{{ csrf_token() }}');
-
-                const xhr = new XMLHttpRequest();
-                xhr.open('POST', '{{ route('admin.guides.upload-image') }}');
-
-                xhr.upload.onprogress = function (e) {
-                    progress(e.loaded / e.total * 100);
-                };
-
-                xhr.onload = function () {
-                    if (xhr.status < 200 || xhr.status >= 300) {
-                        reject('HTTP Error: ' + xhr.status);
-                        return;
-                    }
-                    const json = JSON.parse(xhr.responseText);
-                    if (!json || typeof json.location !== 'string') {
-                        reject('Invalid JSON: ' + xhr.responseText);
-                        return;
-                    }
-                    resolve(json.location);
-                };
-
-                xhr.onerror = function () {
-                    reject('Image upload failed due to network error.');
-                };
-
-                xhr.send(formData);
-            });
-        },
-
-        // Custom Medium / Gutenberg Widget Inserters Menu
-        setup: function (editor) {
-            editor.ui.registry.addMenuButton('insert_widget', {
-                text: '🧩 উইজেট কম্পোনেন্ট',
-                tooltip: 'Medium স্টাইল উইজেট ও কম্পোনেন্ট যুক্ত করুন',
-                fetch: function (callback) {
-                    const items = [
-                        {
-                            type: 'menuitem',
-                            text: '💡 তথ্য কলআউট বক্স (Info Box)',
-                            onAction: function () {
-                                editor.insertContent(`
-                                    <div class="info-callout">
-                                        <h4 style="margin: 0 0 0.5rem 0; color: #065f46; font-size: 1.1rem; font-weight: bold;">💡 গুরুত্বপূর্ণ তথ্য / পরামর্শ</h4>
-                                        <p style="margin: 0;">এখানে আপনার গুরুত্বপূর্ণ আইনি বা বাজার সংক্রান্ত তথ্য লিখুন...</p>
-                                    </div>
-                                `);
-                            }
-                        },
-                        {
-                            type: 'menuitem',
-                            text: '⚠️ সতর্কতা ও ঝুঁকি বক্স (Warning Box)',
-                            onAction: function () {
-                                editor.insertContent(`
-                                    <div class="warning-callout">
-                                        <h4 style="margin: 0 0 0.5rem 0; color: #92400e; font-size: 1.1rem; font-weight: bold;">⚠️ সতর্কতা ও আইনি ঝুঁকি</h4>
-                                        <p style="margin: 0;">যেকোনো জমি বা ফ্ল্যাট কেনার আগে এই সতর্কতামূলক দিকটি সরেজমিন যাচাই করুন...</p>
-                                    </div>
-                                `);
-                            }
-                        },
-                        {
-                            type: 'menuitem',
-                            text: '🧮 ক্যালকুলেটর ব্যানার CTA (Calculator Widget)',
-                            onAction: function () {
-                                editor.insertContent(`
-                                    <div class="calc-cta-widget">
-                                        <h3 style="color: #ffffff; margin: 0 0 0.5rem 0; font-size: 1.35rem; font-weight: 800;">জমি ও ফ্ল্যাট রেজিস্ট্রেশন খরচ হিসাব করতে চান?</h3>
-                                        <p style="color: #94a3b8; margin: 0 0 1rem 0; font-size: 0.95rem;">২০২৬ সালের সরকারি স্ট্যাম্প শুল্ক, নিবন্ধন ফি ও উৎসে কর ১-ক্লিকে গণনা করুন।</p>
-                                        <a href="/calculators/registration" class="calc-cta-btn" target="_blank">রেজিস্ট্রেশন ক্যালকুলেটরে হিসাব দেখুন &rarr;</a>
-                                    </div>
-                                `);
-                            }
-                        },
-                        {
-                            type: 'menuitem',
-                            text: '📊 রেট তুলনা টেবিল (Comparison Table)',
-                            onAction: function () {
-                                editor.insertContent(`
-                                    <table>
-                                        <thead>
-                                            <tr>
-                                                <th>এলাকা / সেক্টর</th>
-                                                <th>কাঠাপ্রতি জমির গড় দর (২০২৬)</th>
-                                                <th>রেডি ফ্ল্যাট দর (sqft)</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td><strong>আফতাবনগর (ব্লক A, B, C)</strong></td>
-                                                <td>১.৩০ কোটি — ১.৭০ কোটি টাকা</td>
-                                                <td>৭,৫০০ — ৯,৫০০ টাকা</td>
-                                            </tr>
-                                            <tr>
-                                                <td><strong>বসুন্ধরা আ/এ (ব্লক A - D)</strong></td>
-                                                <td>১.৪০ কোটি — ২.২০ কোটি টাকা</td>
-                                                <td>৯,০০০ — ১৪,০০০ টাকা</td>
-                                            </tr>
-                                            <tr>
-                                                <td><strong>বনশ্রী আ/এ</strong></td>
-                                                <td>৯৫ লাখ — ১.৪৫ কোটি টাকা</td>
-                                                <td>৬,৮০০ — ৮,৫০০ টাকা</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                `);
-                            }
-                        },
-                        {
-                            type: 'menuitem',
-                            text: '💬 লার্জ পুলকোট (Medium Pullquote)',
-                            onAction: function () {
-                                editor.insertContent(`
-                                    <blockquote style="font-size: 1.25rem; font-style: italic; line-height: 1.6; border-left: 4px solid #059669; padding-left: 1.5rem; margin: 2rem 0; color: #047857;">
-                                        "জমির মালিকানা নিশ্চিত করার মূল চাবিকাঠি হলো সর্বশেষ নামজারি খতিয়ান ও খাজনা পরিশোধের ডিসিআর যাচাই করা।"
-                                    </blockquote>
-                                `);
-                            }
-                        }
-                    ];
-                    callback(items);
-                }
-            });
+    // Clean up TinyMCE before Turbo caches the page
+    document.addEventListener('turbo:before-cache', function () {
+        if (window.tinymce && tinymce.get('guide-wysiwyg-editor')) {
+            tinymce.get('guide-wysiwyg-editor').remove();
         }
     });
 
     // Make sure TinyMCE syncs back to textarea before submit
-    const form = document.getElementById('guide-post-form');
-    if (form) {
-        form.addEventListener('submit', function () {
-            if (tinymce.get('guide-wysiwyg-editor')) {
+    document.addEventListener('submit', function (e) {
+        if (e.target && e.target.id === 'guide-post-form') {
+            if (window.tinymce && tinymce.get('guide-wysiwyg-editor')) {
                 tinymce.get('guide-wysiwyg-editor').save();
             }
-        });
-    }
-});
+        }
+    });
+})();
 </script>
-@endsection
+@endpush

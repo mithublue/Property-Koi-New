@@ -200,92 +200,262 @@
     <!-- Master Table -->
     <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
         <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse text-xs">
+            <table class="w-full text-left border-collapse text-xs min-w-[1100px]">
                 <thead>
-                    <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 uppercase font-bold tracking-wider">
+                    <tr class="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase text-[10px] tracking-wider font-extrabold">
                         <th class="p-3.5 w-10 text-center">
-                            <input type="checkbox" @change="toggleSelectAll($event)" class="rounded text-emerald-600">
+                            <input type="checkbox" @change="toggleSelectAll($event)" class="w-4 h-4 rounded accent-emerald-600 cursor-pointer">
                         </th>
-                        <th class="p-3.5">প্রপার্টি বিবরণ</th>
-                        <th class="p-3.5">লোকেশন</th>
-                        <th class="p-3.5">সাইজ ও মূল্য</th>
-                        <th class="p-3.5">ইনসার্টার / মালিক</th>
-                        <th class="p-3.5">স্ট্যাটাস</th>
-                        <th class="p-3.5 text-center">অ্যাকশন</th>
+                        <th class="p-3.5">কোড ও প্রপার্টি শিরোনাম</th>
+                        <th class="p-3.5">টাইপ ও অবস্থান</th>
+                        <th class="p-3.5">সাইজ ও রাস্তা</th>
+                        <th class="p-3.5">মূল্য (BDT)</th>
+                        <th class="p-3.5">ডাইরেক্ট সোর্স</th>
+                        <th class="p-3.5">হোয়াটসঅ্যাপ / যোগাযোগ</th>
+                        <th class="p-3.5">স্ট্যাটাস পরিবর্তন</th>
+                        <th class="p-3.5 text-right">অ্যাকশন</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
                     @forelse($properties as $property)
-                        <tr id="property-row-{{ $property->id }}" class="hover:bg-slate-50/70 transition">
+                        @php
+                            $primarySource = $property->directSources?->firstWhere('is_primary_source', true) ?? $property->directSources?->first();
+                            $isSheetSync = $primarySource && (
+                                str_contains((string)$primarySource->relationship_declaration, 'Google Sheets') ||
+                                str_contains((string)$primarySource->relationship_declaration, 'Sheets sync') ||
+                                str_contains((string)$primarySource->relationship_declaration, 'sheet') ||
+                                $primarySource->source_type === 'google_sheet'
+                            );
+
+                            $creator = $property->creator;
+                            $isUnassigned = empty($property->created_by_user_id) || !$creator;
+                            $inserterName = $creator ? ($creator->name ?: $creator->phone) : null;
+                            $sourcesCount = $property->directSources?->count() ?? 0;
+
+                            $contactName = $primarySource?->owner_name ?: ($creator?->name ?? 'মালিক / এজেন্ট');
+                            $rawContactPhone = $primarySource?->owner_phone ?: ($creator?->whatsapp_number ?: ($creator?->phone ?? ''));
+                            $cleanPhone = preg_replace('/[^0-9]/', '', (string)$rawContactPhone);
+                            if ($cleanPhone && str_starts_with($cleanPhone, '0')) {
+                                $cleanPhone = '88' . $cleanPhone;
+                            }
+
+                            $sourceTagText = $isSheetSync ? 'Google Sheets সিঙ্কের মাধ্যমে' : 'ওয়েবসাইট প্ল্যাটফর্মের মাধ্যমে';
+                            $locationStr = array_filter([
+                                $property->area,
+                                $property->sub_area ?: ($property->block ? 'ব্লক ' . $property->block : '')
+                            ]);
+                            $locJoined = implode(', ', $locationStr);
+                            $pricePart = ($property->raw_price > 0 || $property->price > 0) ? (' | মূল্য: ' . $property->formatted_price) : '';
+
+                            $listingMsg = \App\Services\MessageTemplateService::render('property_listing_notification', [
+                                '%name%'             => $contactName ?: 'স্যার',
+                                '%property_code%'    => $property->property_code,
+                                '%property_title%'   => $property->title,
+                                '%property_url%'     => route('property.show', $property->slug ?: $property->property_code),
+                                '%price%'            => $pricePart,
+                                '%location%'         => $locJoined ? (' | ' . $locJoined) : '',
+                                '%source_tag%'       => $sourceTagText,
+                                '%login_magic_link%' => $creator?->magic_token ? url('/auth/magic/' . $creator->magic_token) : url('/agent-portal'),
+                                '%phone%'            => $rawContactPhone ?? '',
+                            ]);
+
+                            $typeConfig = match($property->type) {
+                                'land' => ['label' => '🏞️ জমি', 'class' => 'bg-amber-100 text-amber-800 border-amber-300'],
+                                'land_share' => ['label' => '🤝 ল্যান্ড শেয়ার', 'class' => 'bg-purple-100 text-purple-800 border-purple-300'],
+                                'commercial' => ['label' => '🏬 কমার্শিয়াল', 'class' => 'bg-indigo-100 text-indigo-800 border-indigo-300'],
+                                default => ['label' => '🏢 ফ্ল্যাট', 'class' => 'bg-blue-100 text-blue-800 border-blue-300']
+                            };
+
+                            $sizeStr = null;
+                            if ($property->type === 'land' && $property->landDetail) {
+                                $sizeStr = $property->landDetail->katha_size . ' কাঠা';
+                            } elseif ($property->type === 'flat' && $property->flatDetail) {
+                                $sizeStr = $property->flatDetail->flat_size_sqft . ' sqft';
+                            } elseif ($property->type === 'commercial' && $property->commercialDetail) {
+                                $sizeStr = $property->commercialDetail->size_sqft . ' sqft';
+                            } elseif ($property->type === 'land_share' && $property->shareDetail) {
+                                $sizeStr = $property->shareDetail->land_size_katha . ' কাঠা';
+                            } elseif ($property->size) {
+                                $sizeStr = $property->size . ' ' . (in_array($property->type, ['land', 'land_share']) ? 'কাঠা' : 'sqft');
+                            }
+                        @endphp
+                        <tr id="property-row-{{ $property->id }}"
+                            :class="selectedIds.includes({{ $property->id }}) ? 'bg-emerald-50/60' : 'hover:bg-slate-50/80'"
+                            class="transition-colors">
+                            <!-- Checkbox -->
                             <td class="p-3.5 text-center">
-                                <input type="checkbox" value="{{ $property->id }}" x-model="selectedIds" class="rounded text-emerald-600">
+                                <input type="checkbox" value="{{ $property->id }}" x-model.number="selectedIds" class="w-4 h-4 rounded accent-emerald-600 cursor-pointer">
                             </td>
+
+                            <!-- Code & Title -->
                             <td class="p-3.5">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-12 h-12 rounded-xl bg-slate-100 border border-slate-200 overflow-hidden flex-shrink-0 flex items-center justify-center">
-                                        @if($property->media->isNotEmpty())
-                                            <img src="{{ asset($property->media->first()->file_path) }}" 
-                                                 alt="{{ $property->title }}" 
-                                                 onerror="this.onerror=null; this.src='https://placehold.co/100x100?text=No+Photo';"
-                                                 class="w-full h-full object-cover">
-                                        @else
-                                            <div class="w-full h-full flex items-center justify-center text-[10px] text-slate-400 font-semibold">ছবি নাই</div>
-                                        @endif
-                                    </div>
-                                    <div class="min-w-0">
-                                        <a href="{{ route('admin.properties.edit', $property) }}" class="font-bold text-slate-900 hover:text-emerald-600 line-clamp-1">
-                                            {{ $property->title }}
-                                        </a>
-                                        <div class="flex items-center gap-2 mt-0.5 text-[11px] text-slate-500">
-                                            <span class="font-mono bg-slate-100 px-1 rounded text-[10px]">#{{ $property->property_code }}</span>
-                                            <span class="font-semibold text-emerald-700">
-                                                {{ match($property->type) { 'land' => 'জমি', 'flat' => 'ফ্ল্যাট', 'commercial' => 'কমার্শিয়াল', 'land_share' => 'শেয়ার', default => $property->type } }}
-                                            </span>
-                                            @if($property->is_featured)
-                                                <span class="bg-amber-100 text-amber-800 font-bold px-1 rounded text-[9px]">FEATURED</span>
-                                            @endif
+                                <div class="flex items-center gap-2 mb-1 flex-wrap">
+                                    <span class="font-mono text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                                        {{ $property->property_code }}
+                                    </span>
+                                    @if($property->views_count > 0)
+                                        <span class="inline-flex items-center gap-1 text-[10px] font-bold text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded" title="মোট ভিউ সংখ্যা">
+                                            <span>👁️</span>
+                                            <span>{{ \App\Models\Property::toBnNumber($property->views_count) }}</span>
+                                        </span>
+                                    @endif
+                                    @if($property->is_featured)
+                                        <span class="bg-amber-100 text-amber-800 font-bold px-1.5 py-0.5 rounded text-[9px] border border-amber-300">FEATURED</span>
+                                    @endif
+                                </div>
+                                <a href="{{ route('admin.properties.edit', $property) }}" class="font-bold text-slate-900 text-sm leading-snug line-clamp-1 hover:text-emerald-600 transition" title="{{ $property->title }}">
+                                    {{ $property->title }}
+                                </a>
+                                <div class="text-[11px] text-slate-400 mt-0.5">
+                                    লিস্টিং: {{ $property->created_at ? $property->created_at->format('d M, Y') : 'N/A' }}
+                                </div>
+                            </td>
+
+                            <!-- Type & Location -->
+                            <td class="p-3.5">
+                                <div class="flex items-center gap-1.5 flex-wrap mb-1">
+                                    <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200">
+                                        {{ $property->area ?? 'Aftabnagar' }}
+                                    </span>
+                                    <span class="uppercase text-[10px] font-extrabold px-2 py-0.5 rounded border {{ $typeConfig['class'] }}">
+                                        {{ $typeConfig['label'] }}
+                                    </span>
+                                </div>
+                                <div class="text-xs font-semibold text-slate-700">
+                                    @php
+                                        $locParts = array_filter([
+                                            $property->sub_area,
+                                            $property->block ? ('ব্লক ' . $property->block) : null,
+                                            $property->sector ? ('সেক্টর ' . $property->sector) : null
+                                        ]);
+                                    @endphp
+                                    {{ !empty($locParts) ? implode(', ', $locParts) : ($property->location_name ?? 'লোকেশন তথ্য নেই') }}
+                                </div>
+                            </td>
+
+                            <!-- Size & Road -->
+                            <td class="p-3.5">
+                                <div class="text-xs font-bold text-slate-900">
+                                    @if($property->road_width_ft)
+                                        <span>{{ $property->road_width_ft }} ফুট রাস্তা</span>
+                                    @elseif($sizeStr)
+                                        <span>{{ $sizeStr }}</span>
+                                    @else
+                                        <span class="text-slate-400">তথ্য নেই</span>
+                                    @endif
+                                </div>
+                                <div class="text-[11px] text-slate-500 mt-0.5">
+                                    @if($property->plot_number)
+                                        <span>প্লট #{{ $property->plot_number }}</span>
+                                    @endif
+                                    @if($property->facing)
+                                        <span>{{ $property->plot_number ? ' • ' : '' }}{{ $property->facing }} মুখী</span>
+                                    @endif
+                                    @if(!$property->plot_number && !$property->facing && $sizeStr && $property->road_width_ft)
+                                        <span>{{ $sizeStr }}</span>
+                                    @endif
+                                </div>
+                            </td>
+
+                            <!-- Price -->
+                            <td class="p-3.5">
+                                <div class="font-black text-emerald-700 text-sm">
+                                    {{ $property->formatted_price }}
+                                </div>
+                                <div class="text-[10px] font-bold text-slate-400 mt-0.5">
+                                    {{ $property->is_negotiable ? 'আলোচনা সাপেক্ষ' : 'ফিক্সড প্রাইস' }}
+                                </div>
+                            </td>
+
+                            <!-- Direct Sources -->
+                            <td class="p-3.5">
+                                <div class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 font-bold text-[11px]">
+                                    <span>👤</span>
+                                    <span>{{ $sourcesCount > 0 ? $sourcesCount : 1 }} Direct Sources</span>
+                                </div>
+                                <div class="mt-1 flex flex-wrap gap-1 items-center">
+                                    @if($isSheetSync)
+                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-purple-50 text-purple-700 border border-purple-200 font-bold text-[10px]" title="Google Sheets বা Bulk Import থেকে সিঙ্ককৃত">
+                                            <span>📊</span> Sheets Sync
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-50 text-slate-600 border border-slate-200 font-medium text-[10px]" title="সরাসরি ওয়েবসাইটে তালিকাভুক্ত">
+                                            <span>👤</span> Direct Post
+                                        </span>
+                                    @endif
+
+                                    @if($isUnassigned)
+                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 border border-amber-200 font-bold text-[10px]" title="কোনো নির্দিষ্ট ম্যানুয়াল ইউজার/ইনসার্টার লিঙ্ক করা নেই">
+                                            <span>⚠️</span> Unassigned
+                                        </span>
+                                    @elseif($inserterName)
+                                        <span class="text-[10px] text-slate-500 font-semibold truncate max-w-[110px]" title="ইনসার্টার: {{ $inserterName }}">
+                                            by {{ $inserterName }}
+                                        </span>
+                                    @endif
+                                </div>
+                            </td>
+
+                            <!-- WhatsApp / Contact Action -->
+                            <td class="p-3.5">
+                                <div class="relative inline-block text-left" x-data="{ contactOpen: false }">
+                                    @if($cleanPhone)
+                                        <div>
+                                            <button type="button"
+                                                    @click="contactOpen = !contactOpen"
+                                                    class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 text-xs font-bold transition shadow-2xs cursor-pointer">
+                                                <span class="text-sm">💬</span>
+                                                <span class="truncate max-w-[95px] font-mono text-[11px]">{{ $rawContactPhone }}</span>
+                                                <span class="text-[9px] text-emerald-600">▼</span>
+                                            </button>
+                                            <div x-show="contactOpen"
+                                                 @click.outside="contactOpen = false"
+                                                 x-transition:enter="transition ease-out duration-100"
+                                                 x-transition:enter-start="transform opacity-0 scale-95"
+                                                 x-transition:enter-end="transform opacity-100 scale-100"
+                                                 x-transition:leave="transition ease-in duration-75"
+                                                 x-transition:leave-start="transform opacity-100 scale-100"
+                                                 x-transition:leave-end="transform opacity-0 scale-95"
+                                                 class="absolute left-0 mt-1.5 w-64 rounded-2xl bg-white shadow-xl border border-slate-200 py-2 z-50 divide-y divide-slate-100"
+                                                 style="display: none;">
+                                                <div class="px-3.5 py-2 bg-slate-50/70">
+                                                    <div class="text-[10px] uppercase tracking-wider font-extrabold text-slate-400">যোগাযোগের ব্যক্তি</div>
+                                                    <div class="text-xs font-bold text-slate-800 flex items-center justify-between mt-0.5">
+                                                        <span class="truncate max-w-[130px]">{{ $contactName ?: 'মালিক / এজেন্ট' }}</span>
+                                                        <span class="text-[10px] px-1.5 py-0.5 rounded font-extrabold {{ $isSheetSync ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-800' }}">
+                                                            {{ $isSheetSync ? 'Google Sheet' : 'ওয়েবসাইট লিস্টিং' }}
+                                                        </span>
+                                                    </div>
+                                                    <div class="text-[11px] font-mono text-slate-500 mt-0.5">{{ $rawContactPhone }}</div>
+                                                </div>
+                                                <div class="p-1.5 space-y-1">
+                                                    <a href="https://wa.me/{{ $cleanPhone }}" target="_blank" @click="contactOpen = false"
+                                                       class="w-full text-left px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 rounded-xl flex items-center gap-2 transition cursor-pointer">
+                                                        <span class="text-base">💬</span>
+                                                        <div>
+                                                            <div class="font-bold">কন্টাক্ট ওপেন করুন</div>
+                                                            <div class="text-[10px] text-slate-400">হোয়াটসঅ্যাপে সরাসরি চ্যাট খুলুন</div>
+                                                        </div>
+                                                    </a>
+                                                    <a href="https://wa.me/{{ $cleanPhone }}?text={{ urlencode($listingMsg) }}" target="_blank" @click="contactOpen = false"
+                                                       class="w-full text-left px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 rounded-xl flex items-center gap-2 transition cursor-pointer">
+                                                        <span class="text-base">📢</span>
+                                                        <div>
+                                                            <div class="font-bold text-emerald-700">তাকে এই প্রপার্টি লিস্টিং সম্পর্কে জানান</div>
+                                                            <div class="text-[10px] text-slate-400">প্ল্যাটফর্মে লিস্টিং সংক্রান্ত রেডি মেসেজ পাঠান</div>
+                                                        </div>
+                                                    </a>
+                                                </div>
+                                            </div>
                                         </div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="p-3.5">
-                                <div class="text-slate-800 font-semibold">{{ $property->area ?? 'আফতাবনগর' }}</div>
-                                <div class="text-[11px] text-slate-500">ব্লক: {{ $property->block ?? 'N/A' }} | রোড: {{ $property->road_number ?? 'N/A' }}</div>
-                            </td>
-                            <td class="p-3.5">
-                                <div class="font-bold text-slate-900">
-                                    @if($property->raw_price > 0)
-                                        ৳ {{ number_format($property->raw_price) }}
                                     @else
-                                        <span class="text-slate-400 font-medium">আলোচনা সাপেক্ষ</span>
-                                    @endif
-                                </div>
-                                <div class="text-[11px] text-slate-500">
-                                    @if($property->type === 'land' && $property->landDetail)
-                                        {{ $property->landDetail->katha_size }} কাঠা
-                                    @elseif($property->type === 'flat' && $property->flatDetail)
-                                        {{ $property->flatDetail->flat_size_sqft }} sqft
-                                    @elseif($property->type === 'commercial' && $property->commercialDetail)
-                                        {{ $property->commercialDetail->size_sqft }} sqft
-                                    @elseif($property->type === 'land_share' && $property->shareDetail)
-                                        {{ $property->shareDetail->land_size_katha }} কাঠা
-                                    @elseif($property->size)
-                                        {{ $property->size }}
-                                    @else
-                                        N/A
+                                        <span class="text-[11px] text-slate-400 italic">নম্বর নেই</span>
                                     @endif
                                 </div>
                             </td>
+
+                            <!-- Status Select Dropdown (Instant Inline Change) -->
                             <td class="p-3.5">
-                                @if($property->creator)
-                                    <div class="font-semibold text-slate-800">{{ $property->creator->name }}</div>
-                                    <div class="text-[11px] text-slate-500">{{ $property->creator->phone }}</div>
-                                @else
-                                    <span class="inline-block px-2 py-0.5 bg-rose-50 text-rose-700 rounded-full font-bold text-[10px]">অনির্ধারিত (Unassigned)</span>
-                                @endif
-                            </td>
-                            <td class="p-3.5">
-                                <!-- SPA Reactive Status Switcher (Exact WP Matching) -->
                                 <div class="relative inline-flex items-center">
                                     <select 
                                         :disabled="loadingStatuses[{{ $property->id }}]"
@@ -310,54 +480,48 @@
                                     </template>
                                 </div>
                             </td>
-                            <td class="p-3.5 text-center">
-                                <div class="flex items-center justify-center gap-1.5">
-                                    <!-- FB Share Button -->
-                                    <button @click="openFbModal({{ $property->toJson() }})" class="p-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg transition" title="ফেসবুকে পোস্ট করুন">
-                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+
+                            <!-- Actions -->
+                            <td class="p-3.5 text-right">
+                                <div class="flex items-center justify-end gap-1.5">
+                                    <!-- View Page -->
+                                    <a href="{{ route('property.show', $property->slug ?: $property->property_code) }}" target="_blank"
+                                       class="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition shadow-xs inline-flex items-center gap-1"
+                                       title="ফ্রন্টএন্ড পেজ দেখুন">
+                                        <span>পেজ ↗</span>
+                                    </a>
+
+                                    <!-- Facebook Post Button -->
+                                    <button type="button"
+                                            @click="openFbModal({{ $property->toJson() }})"
+                                            class="px-2.5 py-1.5 bg-blue-50 hover:bg-blue-600 text-blue-700 hover:text-white rounded-xl text-xs font-bold transition border border-blue-200 shadow-xs inline-flex items-center gap-1 cursor-pointer"
+                                            title="ফেসবুক পেজে পোস্ট করুন">
+                                        <span>📱 FB পোস্ট</span>
+                                        @if($property->fb_post_id)
+                                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" title="পোস্ট করা হয়েছে"></span>
+                                        @endif
                                     </button>
-                                    <!-- WhatsApp Notification to Inserter/Owner (MessageTemplateService) -->
-                                    @php
-                                        $inserterPhone = $property->directSources?->first()?->whatsapp_number ?? $property->creator?->whatsapp_number ?? $property->creator?->phone;
-                                        $cleanInserterPhone = preg_replace('/[^0-9]/', '', (string)$inserterPhone);
-                                        if ($cleanInserterPhone && str_starts_with($cleanInserterPhone, '0')) {
-                                            $cleanInserterPhone = '88' . $cleanInserterPhone;
-                                        }
-                                        $listingMsg = \App\Services\MessageTemplateService::render('property_listing_notification', [
-                                            '%name%'             => $property->creator?->name ?? 'সম্মানিত এজেন্ট/মালিক',
-                                            '%property_code%'    => $property->property_code,
-                                            '%property_title%'   => $property->title,
-                                            '%property_url%'     => route('property.show', $property->slug),
-                                            '%price%'            => $property->price ? (' | মূল্য: ' . number_format($property->price) . ' টাকা') : '',
-                                            '%location%'         => $property->location_name ? (' | ' . $property->location_name) : '',
-                                            '%source_tag%'       => $property->source === 'sheets' ? 'Google Sheets সিঙ্কের মাধ্যমে' : 'ওয়েবসাইট প্ল্যাটফর্মের মাধ্যমে',
-                                            '%login_magic_link%' => $property->creator?->magic_token ? url('/auth/magic/' . $property->creator->magic_token) : url('/agent-portal'),
-                                            '%phone%'            => $inserterPhone ?? '',
-                                        ]);
-                                    @endphp
-                                    @if($cleanInserterPhone)
-                                        <a href="https://wa.me/{{ $cleanInserterPhone }}?text={{ urlencode($listingMsg) }}" target="_blank" class="p-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-lg transition" title="ইনসার্টারকে হোয়াটসঅ্যাপ নিশ্চিতকরণ বার্তা পাঠান">
-                                            💬
-                                        </a>
-                                    @endif
-                                    <!-- Edit Link -->
-                                    <a href="{{ route('admin.properties.edit', $property) }}" class="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition" title="এডিট করুন">
-                                        ✏️
+
+                                    <!-- Edit Button -->
+                                    <a href="{{ route('admin.properties.edit', $property) }}"
+                                       class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition shadow-xs inline-flex items-center gap-1 cursor-pointer"
+                                       title="প্রপার্টি বিবরণ ও মিডিয়া এডিট করুন">
+                                        <span>✏️ এডিট</span>
                                     </a>
-                                    <!-- Public View -->
-                                    <a href="{{ route('property.show', $property->slug) }}" target="_blank" class="p-1.5 bg-teal-50 hover:bg-teal-100 text-teal-700 rounded-lg transition" title="লাইভ পেজ দেখুন">
-                                        👁️
-                                    </a>
+
                                     <!-- Delete Button (SPA) -->
-                                    <button type="button" @click="deleteProperty({{ $property->id }}, '{{ $property->property_code }}')" class="p-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-lg transition" title="ডিলিট">
-                                        🗑️
+                                    <button type="button"
+                                            @click="deleteProperty({{ $property->id }}, '{{ $property->property_code }}')"
+                                            class="px-2.5 py-1.5 bg-rose-50 hover:bg-rose-600 text-rose-600 hover:text-white rounded-xl text-xs font-bold transition border border-rose-200 shadow-xs inline-flex items-center gap-1 cursor-pointer"
+                                            title="প্রপার্টি মুছে ফেলুন">
+                                        <span>🗑️</span>
                                     </button>
                                 </div>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="p-12 text-center text-xs text-slate-400">
+                            <td colspan="9" class="p-12 text-center text-xs text-slate-400">
                                 কোনো প্রপার্টি খুঁজে পাওয়া যায়নি।
                             </td>
                         </tr>

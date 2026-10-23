@@ -185,6 +185,7 @@ class SellPropertyAndProfileTest extends TestCase
             'address_visibility' => json_encode(['block' => '', 'sector' => '', 'road_number' => '']),
             'other_features'     => json_encode([['label' => 'লিফট সুবিধা', 'checked' => true], ['label' => 'জেনারেটর', 'checked' => true]]),
             'description'        => 'টেস্ট ডেসক্রিপশন',
+            'owner_phone'        => '01711223344',
             'post_to_facebook'   => '0',
         ];
 
@@ -289,6 +290,7 @@ class SellPropertyAndProfileTest extends TestCase
             'plot_number'   => '21',
             'size'          => 5.0,
             'price_total'   => 12000000,
+            'owner_phone'   => '01711223344',
         ];
         $res = $this->postJson(route('property.store'), $payload);
         $res->assertStatus(200);
@@ -299,5 +301,22 @@ class SellPropertyAndProfileTest extends TestCase
         $this->assertTrue($saved->isAddressVisible('road_number'));
         $this->assertTrue($saved->isAddressVisible('plot_number'));
         $this->assertTrue($saved->isAddressVisible('road_width_ft'));
+    }
+
+    public function test_property_creation_fails_without_owner_phone()
+    {
+        $payload = [
+            'property_type' => 'land',
+            'title'         => 'ফোন নম্বর ছাড়া প্রপার্টি',
+            'area'          => 'Aftabnagar',
+            'block'         => 'A',
+            'size'          => 3.0,
+            'asking_price'  => 5000000,
+            // owner_phone is deliberately omitted
+        ];
+
+        $res = $this->postJson(route('property.store'), $payload);
+        $res->assertStatus(422);
+        $res->assertJsonValidationErrors(['owner_phone']);
     }
 }

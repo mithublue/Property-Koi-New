@@ -375,6 +375,10 @@ class PropertyController extends Controller
             $type = 'land';
         }
 
+        if (empty($request->input('owner_phone')) && auth()->check() && !empty(auth()->user()->phone)) {
+            $request->merge(['owner_phone' => auth()->user()->phone]);
+        }
+
         $validated = $request->validate([
             'title'              => 'required|string|max:255',
             'area'               => 'nullable|string|max:100',
@@ -391,12 +395,14 @@ class PropertyController extends Controller
             'fb_caption'         => 'nullable|string',
             'is_negotiable'      => 'nullable',
             'owner_name'         => 'nullable|string|max:191',
-            'owner_phone'        => 'nullable|string|max:50',
+            'owner_phone'        => 'required|string|max:50',
             'asking_price'       => 'nullable|numeric',
             'youtube_video_url'  => 'nullable|string|max:255',
             'google_map_pin_url' => 'nullable|string|max:255',
             'latitude'           => 'nullable|numeric',
             'longitude'          => 'nullable|numeric',
+        ], [
+            'owner_phone.required' => 'মালিকের ফোন নম্বর / WhatsApp প্রদান করা আবশ্যক।',
         ]);
 
         $area = $validated['area'] ?? 'Aftabnagar';

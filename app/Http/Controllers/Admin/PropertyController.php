@@ -233,6 +233,11 @@ class PropertyController extends Controller
 
     public function store(Request $request)
     {
+        $ownerPhone = $request->input('owner_phone') ?: ($request->input('source_phone') ?: $request->input('source_whatsapp'));
+        if (!empty($ownerPhone)) {
+            $request->merge(['owner_phone' => $ownerPhone]);
+        }
+
         $validated = $request->validate([
             'title'               => 'required|string|max:255',
             'type'                => 'required|in:land,flat,commercial,land_share',
@@ -251,6 +256,11 @@ class PropertyController extends Controller
             'description'         => 'nullable|string',
             'notes'               => 'nullable|string',
             'fb_caption'          => 'nullable|string',
+            'owner_name'          => 'nullable|string|max:255',
+            'owner_phone'         => 'required|string|max:50',
+            'source_type'         => 'nullable|string|max:50',
+        ], [
+            'owner_phone.required' => 'মালিকের ফোন নম্বর / WhatsApp প্রদান করা আবশ্যক।',
         ]);
 
         $code = 'AP-' . strtoupper(Str::random(6));

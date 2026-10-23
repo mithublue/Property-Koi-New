@@ -237,8 +237,8 @@
                             class="w-full border rounded-xl px-3 py-2.5 text-sm bg-white">
                     </div>
                     <div>
-                        <label class="block font-bold text-emerald-800 uppercase mb-1">মালিকের ফোন নম্বর <span class="text-slate-400 font-normal text-[10px]">(ঐচ্ছিক)</span></label>
-                        <input type="tel" x-model="formData.owner_phone" placeholder="০১৭১১-০০০০০"
+                        <label class="block font-bold text-emerald-800 uppercase mb-1">মালিকের ফোন নম্বর / WhatsApp *</label>
+                        <input type="tel" id="owner-phone-input" x-model="formData.owner_phone" required placeholder="০১৭১১-০০০০০"
                             class="w-full border border-emerald-300 rounded-xl px-3 py-2.5 text-sm bg-white focus:ring-emerald-500">
                         @if (isset($is_agent_user) && $is_agent_user)
                             <span class="text-[10px] text-emerald-600 font-bold mt-1 block">ℹ️ আপনি এজেন্ট হিসেবে পোস্ট করছেন: এখানে প্রপার্টির মূল মালিকের যোগাযোগের তথ্য প্রদান করুন।</span>
@@ -1791,6 +1791,16 @@
                             if (el) {
                                 el.scrollIntoView({ behavior: 'smooth', block: 'center' });
                                 if (el.focus) el.focus();
+                            }
+                            return;
+                        }
+
+                        if (!self.formData.owner_phone || !self.formData.owner_phone.trim()) {
+                            self.errorMessage = 'অনুগ্রহ করে মালিকের ফোন নম্বর / WhatsApp প্রদান করুন।';
+                            var phoneEl = document.getElementById('owner-phone-input') || document.getElementById('adm-form-error-banner');
+                            if (phoneEl) {
+                                phoneEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                if (phoneEl.focus) phoneEl.focus();
                             }
                             return;
                         }

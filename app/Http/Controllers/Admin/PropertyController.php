@@ -285,16 +285,28 @@ class PropertyController extends Controller
         // Details by type
         $this->saveTypeDetails($property, $request);
 
-        // Direct Sources
-        if ($request->filled('source_name')) {
+        // Direct Sources / Owner Contact Information
+        $ownerPhone = $request->input('owner_phone') ?: ($request->input('source_phone') ?: $request->input('source_whatsapp'));
+        $ownerName = $request->input('owner_name') ?: $request->input('source_name');
+        if (!empty($ownerPhone) || !empty($ownerName)) {
+            $sourceType = $request->input('source_type', 'direct_owner');
+            $relDecl = match($sourceType) {
+                'direct_owner', 'owner' => 'সরাসরি প্রপার্টির মালিক (Direct Owner)',
+                'direct_agent', 'agent' => 'এজেন্ট / মিডিয়া (Agent)',
+                'developer'             => 'ডেভেলপার (Developer)',
+                default                 => 'সরাসরি প্রপার্টির মালিক (Direct Owner)',
+            };
+
             PropertyDirectSource::create([
-                'property_id'       => $property->id,
-                'source_type'       => $request->input('source_type', 'owner'),
-                'contact_name'      => $request->input('source_name'),
-                'phone'             => $request->input('source_phone'),
-                'whatsapp_number'   => $request->input('source_whatsapp'),
-                'offered_price'     => $request->input('asking_price'),
-                'source_notes'      => $request->input('source_notes'),
+                'property_id'              => $property->id,
+                'source_user_id'           => $property->created_by_user_id ?: auth()->id(),
+                'source_type'              => $sourceType,
+                'relationship_declaration' => $relDecl,
+                'owner_name'               => $ownerName,
+                'owner_phone'              => $ownerPhone,
+                'asking_price'             => $request->input('asking_price'),
+                'is_primary_source'        => true,
+                'verification_status'      => 'verified',
             ]);
         }
 
@@ -334,6 +346,9 @@ class PropertyController extends Controller
             'description'         => 'nullable|string',
             'notes'               => 'nullable|string',
             'fb_caption'          => 'nullable|string',
+            'owner_name'          => 'nullable|string|max:255',
+            'owner_phone'         => 'nullable|string|max:50',
+            'source_type'         => 'nullable|string|max:50',
         ]);
 
         $prevStatus = $property->status;
@@ -352,6 +367,45 @@ class PropertyController extends Controller
         ]));
 
         $this->saveTypeDetails($property, $request);
+
+        // Direct Source / WhatsApp Contact Update
+        $ownerPhone = $request->input('owner_phone') ?: ($request->input('source_phone') ?: $request->input('source_whatsapp'));
+        $ownerName = $request->input('owner_name') ?: $request->input('source_name');
+        if (!empty($ownerPhone) || !empty($ownerName)) {
+            $primarySource = $property->directSources()->where('is_primary_source', true)->first()
+                ?? $property->directSources()->first();
+
+            $sourceType = $request->input('source_type', $primarySource?->source_type ?? 'direct_owner');
+            $relDecl = match($sourceType) {
+                'direct_owner', 'owner' => 'সরাসরি প্রপার্টির মালিক (Direct Owner)',
+                'direct_agent', 'agent' => 'এজেন্ট / মিডিয়া (Agent)',
+                'developer'             => 'ডেভেলপার (Developer)',
+                default                 => $primarySource?->relationship_declaration ?? 'সরাসরি প্রপার্টির মালিক (Direct Owner)',
+            };
+
+            if ($primarySource) {
+                $primarySource->update([
+                    'owner_name'               => $ownerName ?: $primarySource->owner_name,
+                    'owner_phone'              => $ownerPhone ?: $primarySource->owner_phone,
+                    'source_type'              => $sourceType,
+                    'relationship_declaration' => $relDecl,
+                    'asking_price'             => $request->input('asking_price', $primarySource->asking_price),
+                    'is_primary_source'        => true,
+                ]);
+            } else {
+                PropertyDirectSource::create([
+                    'property_id'              => $property->id,
+                    'source_user_id'           => $request->input('created_by_user_id') ?: auth()->id(),
+                    'source_type'              => $sourceType,
+                    'relationship_declaration' => $relDecl,
+                    'owner_name'               => $ownerName,
+                    'owner_phone'              => $ownerPhone,
+                    'asking_price'             => $request->input('asking_price'),
+                    'is_primary_source'        => true,
+                    'verification_status'      => 'verified',
+                ]);
+            }
+        }
 
         // Update verification
         $verification = $property->verification ?: new PropertyVerification(['property_id' => $property->id]);

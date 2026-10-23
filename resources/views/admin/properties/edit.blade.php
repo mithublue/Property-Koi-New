@@ -183,6 +183,53 @@
                     </label>
                 </div>
             </div>
+
+            <!-- Direct Owner / WhatsApp Contact Information -->
+            @php
+                $primarySource = $property->directSources?->firstWhere('is_primary_source', true) ?? $property->directSources?->first();
+                $initialOwnerName = old('owner_name', $primarySource?->owner_name ?? ($property->creator?->name ?? ''));
+                $initialOwnerPhone = old('owner_phone', $primarySource?->owner_phone ?? ($property->creator?->whatsapp_number ?? ($property->creator?->phone ?? '')));
+            @endphp
+            <div class="p-4 bg-emerald-50/60 border border-emerald-200/80 rounded-2xl space-y-3 mt-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <span class="text-base">💬</span>
+                        <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wide">
+                            সরাসরি মালিক / হোয়াটসঅ্যাপ যোগাযোগ তথ্য (Owner Phone & WhatsApp)
+                        </h4>
+                    </div>
+                    @if($primarySource && $primarySource->relationship_declaration)
+                        <span class="text-[10px] px-2 py-0.5 rounded font-bold bg-white text-emerald-800 border border-emerald-300">
+                            {{ $primarySource->relationship_declaration }}
+                        </span>
+                    @endif
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">মালিকের নাম (Owner Name)</label>
+                        <input type="text" name="owner_name" value="{{ $initialOwnerName }}" placeholder="প্রপার্টির মূল মালিকের নাম" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs bg-white font-bold text-slate-800 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">মালিকের ফোন নম্বর / WhatsApp *</label>
+                        <div class="relative">
+                            <input type="text" name="owner_phone" value="{{ $initialOwnerPhone }}" placeholder="যেমন: 01711223344" class="w-full pl-9 pr-3.5 py-2.5 border border-slate-300 rounded-xl text-xs bg-white font-mono font-bold text-emerald-700 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-emerald-600">💬</span>
+                        </div>
+                        <p class="text-[10px] text-slate-500 mt-1">ক্যাটালগ লিস্টের হোয়াটসঅ্যাপ বাটন ও নোটিফিকেশনে এই নম্বরটি ব্যবহৃত হয়।</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">সোর্স সম্পর্ক / ধরণ (Source Type)</label>
+                        <select name="source_type" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl text-xs bg-white font-semibold text-slate-700 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                            <option value="direct_owner" {{ ($primarySource?->source_type === 'direct_owner' || $primarySource?->source_type === 'owner') ? 'selected' : '' }}>সরাসরি প্রপার্টির মালিক (Direct Owner)</option>
+                            <option value="direct_agent" {{ ($primarySource?->source_type === 'direct_agent' || $primarySource?->source_type === 'agent') ? 'selected' : '' }}>এজেন্ট / মিডিয়া (Agent)</option>
+                            <option value="developer" {{ $primarySource?->source_type === 'developer' ? 'selected' : '' }}>ডেভেলপার (Developer)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Tab 2: Specs & Details -->
@@ -380,15 +427,37 @@
                 <h4 class="text-xs font-bold text-slate-700 mb-2">সরাসরি মালিক / সোর্স হিস্ট্রি</h4>
                 <div class="divide-y divide-slate-100 bg-slate-50 rounded-xl border border-slate-200 p-3">
                     @forelse($property->directSources as $src)
-                        <div class="py-2 flex items-center justify-between text-xs">
+                        @php
+                            $cleanSrcPhone = preg_replace('/[^0-9]/', '', (string)$src->owner_phone);
+                            if ($cleanSrcPhone && str_starts_with($cleanSrcPhone, '0')) {
+                                $cleanSrcPhone = '88' . $cleanSrcPhone;
+                            }
+                        @endphp
+                        <div class="py-2.5 flex items-center justify-between text-xs">
                             <div>
-                                <span class="font-bold text-slate-800">{{ $src->contact_name }}</span>
-                                <span class="text-[11px] text-slate-500">({{ $src->source_type }})</span>
-                                <div class="text-[11px] text-slate-500">📞 {{ $src->phone }} | WA: {{ $src->whatsapp_number ?? 'N/A' }}</div>
+                                <div class="flex items-center gap-2">
+                                    <span class="font-bold text-slate-800">{{ $src->owner_name ?: 'নাম নেই' }}</span>
+                                    <span class="text-[10px] px-1.5 py-0.5 rounded font-semibold bg-slate-200 text-slate-700">
+                                        {{ $src->relationship_declaration ?: $src->source_type }}
+                                    </span>
+                                    @if($src->is_primary_source)
+                                        <span class="text-[9px] px-1.5 py-0.5 rounded font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">PRIMARY</span>
+                                    @endif
+                                </div>
+                                <div class="text-[11px] text-slate-600 mt-1 flex items-center gap-3">
+                                    <span class="font-mono">📞 {{ $src->owner_phone ?: 'নম্বর নেই' }}</span>
+                                    @if($cleanSrcPhone)
+                                        <a href="https://wa.me/{{ $cleanSrcPhone }}" target="_blank" class="text-emerald-700 hover:text-emerald-900 font-bold flex items-center gap-1 transition">
+                                            <span>💬 WhatsApp</span>
+                                        </a>
+                                    @endif
+                                </div>
                             </div>
                             <div class="text-right">
-                                <div class="font-bold text-emerald-700">৳ {{ number_format($src->offered_price) }}</div>
-                                <div class="text-[10px] text-slate-400">{{ $src->created_at->format('d M, Y') }}</div>
+                                @if($src->asking_price > 0)
+                                    <div class="font-bold text-emerald-700">৳ {{ number_format($src->asking_price) }}</div>
+                                @endif
+                                <div class="text-[10px] text-slate-400">{{ $src->created_at ? $src->created_at->format('d M, Y') : '' }}</div>
                             </div>
                         </div>
                     @empty

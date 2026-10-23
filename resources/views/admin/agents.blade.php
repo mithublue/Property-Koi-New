@@ -223,7 +223,7 @@ function agentManager() {
 
         regenerateToken(userId) {
             if (!confirm('আপনি কি এই সদস্যের জন্য নতুন ম্যাজিক টোকেন জেনারেট করতে চান? পূর্বের লিঙ্কটি আর কাজ করবে না।')) return;
-            fetch(`{{ url('admin/agents') }}/${userId}/magic-token`, {
+            fetch(`{{ route('admin.agents.index') }}/${userId}/magic-token`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

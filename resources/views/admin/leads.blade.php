@@ -204,7 +204,7 @@ function leadManager() {
 
             this.loadingStages[leadId] = true;
             try {
-                const res = await fetch(`{{ url('admin/leads') }}/${leadId}/stage`, {
+                const res = await fetch(`{{ route('admin.leads.index') }}/${leadId}/stage`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -237,7 +237,7 @@ function leadManager() {
         },
 
         notifyOwner(leadId) {
-            fetch(`{{ url('admin/leads') }}/${leadId}/owner-wa`)
+            fetch(`{{ route('admin.leads.index') }}/${leadId}/owner-wa`)
                 .then(res => res.json())
                 .then(data => {
                     if (data.success && data.whatsapp_url) {

@@ -527,7 +527,7 @@ function propertyCatalog() {
             this.loadingStatuses[propertyId] = true;
 
             try {
-                const res = await fetch(`{{ url('admin/properties') }}/${propertyId}/status`, {
+                const res = await fetch(`{{ route('admin.properties.index') }}/${propertyId}/status`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -574,7 +574,7 @@ function propertyCatalog() {
             if (!confirm(`আপনি কি নিশ্চিত প্রপার্টি #${propertyCode} ডিলিট করতে চান?`)) return;
 
             try {
-                const res = await fetch(`{{ url('admin/properties') }}/${propertyId}`, {
+                const res = await fetch(`{{ route('admin.properties.index') }}/${propertyId}`, {
                     method: 'DELETE',
                     headers: {
                         'Accept': 'application/json',
@@ -707,7 +707,7 @@ function propertyCatalog() {
             if (!this.currentFbProperty) return;
             this.postingFb = true;
             try {
-                const res = await fetch(`{{ url('admin/properties') }}/${this.currentFbProperty.id}/fb-post`, {
+                const res = await fetch(`{{ route('admin.properties.index') }}/${this.currentFbProperty.id}/fb-post`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

@@ -297,3 +297,16 @@ Route::prefix('backend')->name('admin.')->middleware('admin.access')->group(func
     Route::post('/settings/wp-import/start', [\App\Http\Controllers\Admin\WpImportController::class, 'startImport'])->name('settings.wp-import.start');
     Route::get('/settings/wp-import/download-bridge', [\App\Http\Controllers\Admin\WpImportController::class, 'downloadBridge'])->name('settings.wp-import.download-bridge');
 });
+
+// Backward-compatibility alias for legacy /admin endpoints
+Route::prefix('admin')->middleware('admin.access')->group(function () {
+    Route::delete('/properties/{property}', [AdminPropertyController::class, 'destroy']);
+    Route::match(['get', 'post'], '/properties/{property}/status', [AdminPropertyController::class, 'updateStatus']);
+    Route::post('/properties/{property}/fb-post', [AdminPropertyController::class, 'postToFacebook']);
+    Route::post('/agents/{user}/magic-token', [AdminAgentController::class, 'regenerateMagicToken']);
+    Route::post('/leads/{lead}/stage', [AdminLeadController::class, 'updateStage']);
+    Route::get('/leads/{lead}/owner-wa', [AdminLeadController::class, 'getOwnerWhatsappUrl']);
+    Route::get('/{any?}', function () {
+        return redirect()->route('admin.dashboard');
+    })->where('any', '.*');
+});

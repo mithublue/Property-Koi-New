@@ -371,24 +371,18 @@ class SeoService
                 default => 'og-land.jpg',
             };
 
-            $images = [];
-            if ($property->relationLoaded('media') || $property->media()->exists()) {
-                foreach ($property->media as $m) {
-                    if ($m->media_type === 'photo' && !empty($m->file_path)) {
-                        $fmt = self::formatOgImageUrl($m->file_path, $defaultTypeAsset);
-                        if ($m->is_cover) {
-                            array_unshift($images, $fmt);
-                        } else {
-                            $images[] = $fmt;
-                        }
-                    }
-                }
+            // Resolve primary cover image for all OG and Social previews
+            $coverMedia = null;
+            if ($property->relationLoaded('media')) {
+                $coverMedia = $property->media->firstWhere('is_cover', true) ?? $property->media->first();
+            } elseif ($property->media()->exists()) {
+                $coverMedia = $property->media()->where('is_cover', true)->first() ?? $property->media()->first();
             }
-            if (empty($images)) {
-                $images[] = self::formatOgImageUrl($property->cover_url, $defaultTypeAsset);
-            }
-            $images = array_values(array_unique($images));
-            $primaryImage = $images[0];
+            $coverUrl = ($coverMedia && !empty($coverMedia->file_path))
+                ? $coverMedia->file_path
+                : $property->cover_url;
+            $primaryImage = self::formatOgImageUrl($coverUrl, $defaultTypeAsset);
+            $images = [$primaryImage];
             $faqs = self::getPropertyFaqs($property);
 
             return [

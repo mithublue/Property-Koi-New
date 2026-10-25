@@ -59,14 +59,12 @@
     <meta property="og:title" content="{{ $seoTitle }}">
     <meta property="og:description" content="{{ $seoDesc }}">
     <meta property="og:url" content="{{ $seoUrl }}">
-    @foreach(array_slice($seoImages, 0, 4) as $ogImgUrl)
-        <meta property="og:image" content="{{ $ogImgUrl }}">
-        <meta property="og:image:secure_url" content="{{ $ogImgUrl }}">
-        <meta property="og:image:width" content="1200">
-        <meta property="og:image:height" content="630">
-        <meta property="og:image:type" content="{{ str_ends_with(strtolower($ogImgUrl), '.png') ? 'image/png' : (str_ends_with(strtolower($ogImgUrl), '.webp') ? 'image/webp' : 'image/jpeg') }}">
-        <meta property="og:image:alt" content="{{ $seoImageAlt }}">
-    @endforeach
+    <meta property="og:image" content="{{ $seoImage }}">
+    <meta property="og:image:secure_url" content="{{ $seoImage }}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:type" content="{{ str_ends_with(strtolower($seoImage), '.png') ? 'image/png' : (str_ends_with(strtolower($seoImage), '.webp') ? 'image/webp' : 'image/jpeg') }}">
+    <meta property="og:image:alt" content="{{ $seoImageAlt }}">
 
     <!-- Twitter / X Card -->
     <meta name="twitter:card" content="summary_large_image">

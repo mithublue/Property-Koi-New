@@ -11,10 +11,15 @@ use App\Models\PropertyMedia;
 use App\Models\PropertyShareDetail;
 use App\Models\PropertyVerification;
 use App\Models\Setting;
+use App\Models\User;
+use App\Models\AgentProfile;
+use App\Services\GoogleSheetSyncService;
+use App\Services\MagicLoginService;
 use App\Services\SeoService;
 use App\Services\WatermarkService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -374,6 +379,7 @@ class PropertyController extends Controller
             'dev_mode'              => $dev_mode,
             'is_admin'              => $isAdmin,
             'is_vault_mode'         => $isVaultMode,
+            'assigned_agent'        => null,
             'available_areas'       => Property::getDistinctAreas(),
             'available_custom_keys' => Property::getDistinctCustomKeys(),
             'user_display_name'     => $user ? ($user->name ?: $user->username) : '',
@@ -386,6 +392,17 @@ class PropertyController extends Controller
         $type = $request->input('property_type', $request->input('type', 'land'));
         if (!in_array($type, ['land', 'flat', 'land_share', 'commercial'])) {
             $type = 'land';
+        }
+
+        $isAdmin = auth()->check() && (auth()->user()->isAdmin() || auth()->user()->role === 'admin');
+
+        if ($isAdmin) {
+            if (empty($request->input('owner_phone')) && !empty($request->input('agent_whatsapp'))) {
+                $request->merge(['owner_phone' => $request->input('agent_whatsapp')]);
+            }
+            if (empty($request->input('owner_name')) && !empty($request->input('agent_name'))) {
+                $request->merge(['owner_name' => $request->input('agent_name')]);
+            }
         }
 
         if (empty($request->input('owner_phone')) && auth()->check() && !empty(auth()->user()->phone)) {
@@ -476,6 +493,9 @@ class PropertyController extends Controller
         $isVault = ($request->input('destination') === 'vault' || $request->input('destination') === 'directory') && $isAdmin;
         $propertyStatus = $isVault ? 'draft' : 'live';
 
+        $assignedAgent = $this->resolveAgentForProperty($request, $isAdmin);
+        $creatorId = $assignedAgent ? $assignedAgent->id : auth()->id();
+
         $property = Property::create([
             'property_code'      => $code,
             'type'               => $type,
@@ -500,7 +520,7 @@ class PropertyController extends Controller
             'other_features'     => $otherFeatures,
             'custom_fields'      => $cleanCustomFields,
             'status'             => $propertyStatus,
-            'created_by_user_id' => auth()->id(),
+            'created_by_user_id' => $creatorId,
         ]);
 
         $askingPrice = (float) ($request->input('asking_price') ?: 0);
@@ -611,14 +631,14 @@ class PropertyController extends Controller
         }
 
         // Direct source record
-        $ownerName = $request->input('owner_name') ?: (auth()->user()?->name ?: 'প্রপার্টি মালিক');
-        $ownerPhone = $request->input('owner_phone') ?: (auth()->user()?->phone ?: '');
-        $sourceType = $request->input('source_type') ?: 'direct_owner';
-        $declaration = $request->input('relationship_declaration') ?: 'সরাসরি প্রপার্টির মালিক (Direct Owner)';
+        $ownerName = $request->input('owner_name') ?: ($assignedAgent?->name ?: (auth()->user()?->name ?: 'প্রপার্টি মালিক'));
+        $ownerPhone = $request->input('owner_phone') ?: ($assignedAgent?->whatsapp_number ?: ($assignedAgent?->phone ?: (auth()->user()?->phone ?: '')));
+        $sourceType = $assignedAgent ? 'direct_agent' : ($request->input('source_type') ?: 'direct_owner');
+        $declaration = $assignedAgent ? 'অনুমোদিত ডিরেক্ট এজেন্ট (Direct Agent)' : ($request->input('relationship_declaration') ?: 'সরাসরি প্রপার্টির মালিক (Direct Owner)');
 
         PropertyDirectSource::create([
             'property_id'              => $property->id,
-            'source_user_id'           => auth()->id() ?: (\App\Models\User::first()?->id),
+            'source_user_id'           => $assignedAgent ? $assignedAgent->id : (auth()->id() ?: (\App\Models\User::first()?->id)),
             'source_type'              => $sourceType,
             'relationship_declaration' => $declaration,
             'owner_name'               => $ownerName,
@@ -750,6 +770,20 @@ class PropertyController extends Controller
         $isAdmin = auth()->check() && (auth()->user()->isAdmin() || auth()->user()->role === 'admin');
         $isVaultMode = $property->status === 'draft' || $request->query('destination') === 'vault';
 
+        $assignedAgent = null;
+        if ($property->created_by_user_id) {
+            $creator = $property->creator;
+            if ($creator && in_array($creator->role, ['agent', 'owner'])) {
+                $assignedAgent = $creator;
+            }
+        }
+        if (!$assignedAgent) {
+            $sourceUser = $property->directSources->first()?->sourceUser;
+            if ($sourceUser && in_array($sourceUser->role, ['agent', 'owner'])) {
+                $assignedAgent = $sourceUser;
+            }
+        }
+
         return view('pages.sell-property', [
             'property'              => $property,
             'is_edit_mode'          => true,
@@ -760,6 +794,7 @@ class PropertyController extends Controller
             'dev_mode'              => false,
             'is_admin'              => $isAdmin,
             'is_vault_mode'         => $isVaultMode,
+            'assigned_agent'        => $assignedAgent,
             'available_areas'       => Property::getDistinctAreas(),
             'available_custom_keys' => Property::getDistinctCustomKeys(),
             'user_display_name'     => $property->directSources->first()?->owner_name ?: ($property->creator?->name ?: ''),
@@ -777,6 +812,15 @@ class PropertyController extends Controller
         $type = $request->input('property_type', $request->input('type', $property->type));
         if (!in_array($type, ['land', 'flat', 'land_share', 'commercial'])) {
             $type = $property->type;
+        }
+
+        if ($isAdmin) {
+            if (empty($request->input('owner_phone')) && !empty($request->input('agent_whatsapp'))) {
+                $request->merge(['owner_phone' => $request->input('agent_whatsapp')]);
+            }
+            if (empty($request->input('owner_name')) && !empty($request->input('agent_name'))) {
+                $request->merge(['owner_name' => $request->input('agent_name')]);
+            }
         }
 
         if (empty($request->input('owner_phone')) && auth()->check() && !empty(auth()->user()->phone)) {
@@ -866,7 +910,8 @@ class PropertyController extends Controller
             }
         }
 
-        $property->update([
+        $assignedAgent = $this->resolveAgentForProperty($request, $isAdmin);
+        $updatePayload = [
             'type'               => $type,
             'title'              => $validated['title'],
             'area'               => $area,
@@ -888,7 +933,11 @@ class PropertyController extends Controller
             'other_features'     => $otherFeatures,
             'custom_fields'      => $cleanCustomFields,
             'status'             => $status,
-        ]);
+        ];
+        if ($assignedAgent) {
+            $updatePayload['created_by_user_id'] = $assignedAgent->id;
+        }
+        $property->update($updatePayload);
 
         $askingPrice = (float) ($request->input('asking_price') ?: 0);
 
@@ -944,21 +993,26 @@ class PropertyController extends Controller
         }
 
         // Direct source update
-        $ownerName = $request->input('owner_name') ?: ($property->directSources->first()?->owner_name ?: 'প্রপার্টি মালিক');
-        $ownerPhone = $request->input('owner_phone') ?: ($property->directSources->first()?->owner_phone ?: '');
+        $ownerName = $request->input('owner_name') ?: ($property->directSources->first()?->owner_name ?: ($assignedAgent?->name ?: 'প্রপার্টি মালিক'));
+        $ownerPhone = $request->input('owner_phone') ?: ($property->directSources->first()?->owner_phone ?: ($assignedAgent?->whatsapp_number ?: ($assignedAgent?->phone ?: '')));
         $source = $property->directSources()->first();
         if ($source) {
-            $source->update([
+            $sourceData = [
                 'owner_name'   => $ownerName,
                 'owner_phone'  => $ownerPhone,
                 'asking_price' => $askingPrice,
-            ]);
+            ];
+            if ($assignedAgent) {
+                $sourceData['source_user_id'] = $assignedAgent->id;
+                $sourceData['source_type'] = 'direct_agent';
+            }
+            $source->update($sourceData);
         } else {
             PropertyDirectSource::create([
                 'property_id'              => $property->id,
-                'source_user_id'           => auth()->id() ?: (\App\Models\User::first()?->id),
-                'source_type'              => 'direct_owner',
-                'relationship_declaration' => 'সরাসরি প্রপার্টির মালিক (Direct Owner)',
+                'source_user_id'           => $assignedAgent ? $assignedAgent->id : (auth()->id() ?: (\App\Models\User::first()?->id)),
+                'source_type'              => $assignedAgent ? 'direct_agent' : 'direct_owner',
+                'relationship_declaration' => $assignedAgent ? 'অনুমোদিত ডিরেক্ট এজেন্ট (Direct Agent)' : 'সরাসরি প্রপার্টির মালিক (Direct Owner)',
                 'owner_name'               => $ownerName,
                 'owner_phone'              => $ownerPhone,
                 'asking_price'             => $askingPrice,
@@ -1036,5 +1090,94 @@ class PropertyController extends Controller
         $media->delete();
 
         return response()->json(['success' => true]);
+    }
+
+    protected function resolveAgentForProperty(Request $request, bool $isAdmin): ?User
+    {
+        if (!$isAdmin) {
+            return null;
+        }
+
+        $agentId = $request->input('agent_id');
+        $agentName = trim((string) $request->input('agent_name', ''));
+        $agentWhatsapp = trim((string) $request->input('agent_whatsapp', ''));
+
+        if (empty($agentId) && empty($agentName) && empty($agentWhatsapp)) {
+            return null;
+        }
+
+        // 1. By Agent ID if provided
+        if (!empty($agentId)) {
+            $user = User::where('id', $agentId)->whereIn('role', ['agent', 'owner'])->first();
+            if ($user) {
+                if (!empty($agentWhatsapp) && empty($user->whatsapp_number)) {
+                    $user->update(['whatsapp_number' => $agentWhatsapp]);
+                }
+                return $user;
+            }
+        }
+
+        $cleanPhone = GoogleSheetSyncService::toEnNumber($agentWhatsapp);
+        $cleanDigits = preg_replace('/[^0-9]/', '', $cleanPhone);
+
+        // 2. Search existing agent by phone / whatsapp
+        if (!empty($cleanDigits) && strlen($cleanDigits) >= 6) {
+            $last10 = substr($cleanDigits, -10);
+            $user = User::whereIn('role', ['agent', 'owner'])
+                ->where(function ($q) use ($cleanPhone, $cleanDigits, $last10) {
+                    $q->where('phone', $cleanPhone)
+                      ->orWhere('whatsapp_number', $cleanPhone)
+                      ->orWhere('phone', 'like', "%{$last10}")
+                      ->orWhere('whatsapp_number', 'like', "%{$last10}");
+                })
+                ->first();
+
+            if ($user) {
+                return $user;
+            }
+        }
+
+        // 3. Search existing agent by exact name
+        if (!empty($agentName)) {
+            $user = User::whereIn('role', ['agent', 'owner'])
+                ->where('name', $agentName)
+                ->first();
+
+            if ($user) {
+                if (!empty($cleanPhone) && empty($user->whatsapp_number)) {
+                    $user->update(['whatsapp_number' => $cleanPhone]);
+                }
+                return $user;
+            }
+        }
+
+        // 4. Create new Agent if name or whatsapp provided
+        $finalPhone = !empty($cleanPhone) ? $cleanPhone : ('01' . rand(100000000, 999999999));
+        $finalName = !empty($agentName) ? $agentName : ('এজেন্ট ' . substr($finalPhone, -4));
+
+        if (User::where('phone', $finalPhone)->exists()) {
+            return User::where('phone', $finalPhone)->first();
+        }
+
+        $newUser = User::create([
+            'name'            => $finalName,
+            'phone'           => $finalPhone,
+            'whatsapp_number' => !empty($cleanPhone) ? $cleanPhone : $finalPhone,
+            'email'           => 'agent_' . time() . '_' . Str::lower(Str::random(6)) . '@propertykoi.local',
+            'password'        => Hash::make(Str::random(16)),
+            'role'            => 'agent',
+            'is_verified'     => true,
+        ]);
+
+        MagicLoginService::getOrCreateToken($newUser);
+
+        AgentProfile::create([
+            'user_id'                  => $newUser->id,
+            'admin_fixed_rating'       => 5.0,
+            'is_verified_direct_agent' => true,
+            'verified_at'              => now(),
+        ]);
+
+        return $newUser;
     }
 }

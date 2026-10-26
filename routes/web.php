@@ -261,6 +261,7 @@ Route::prefix('backend')->name('admin.')->middleware('admin.access')->group(func
 
     // 4. Agents & Owners Directory
     Route::get('/agents', [AdminAgentController::class, 'index'])->name('agents.index');
+    Route::get('/agents/search', [AdminAgentController::class, 'search'])->name('agents.search');
     Route::post('/agents', [AdminAgentController::class, 'store'])->name('agents.store');
     Route::post('/agents/{user}/profile', [AdminAgentController::class, 'updateProfile'])->name('agents.profile');
     Route::post('/agents/{user}/note', [AdminAgentController::class, 'addNote'])->name('agents.note');

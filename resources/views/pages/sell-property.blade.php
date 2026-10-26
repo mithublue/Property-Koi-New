@@ -235,6 +235,98 @@
                     <button type="button" @click="errorMessage = ''" class="text-rose-500 hover:text-rose-700 font-extrabold text-sm cursor-pointer p-1">✕</button>
                 </div>
 
+                @if ($is_admin)
+                    <!-- Admin Only: Agent Assignment (Auto-suggestion & WhatsApp) -->
+                    <div class="bg-indigo-50/70 p-4 rounded-2xl border border-indigo-200/90 shadow-sm relative space-y-2">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <span class="inline-flex items-center gap-1 text-[11px] bg-indigo-600 text-white font-bold px-2.5 py-0.5 rounded-full tracking-wide">
+                                    🔒 শুধু অ্যাডমিন
+                                </span>
+                                <span class="font-bold text-indigo-950 text-xs">দায়িত্বপ্রাপ্ত এজেন্ট (Agent Assignment)</span>
+                            </div>
+                            <span x-show="selectedAgentId" x-cloak class="text-[11px] text-emerald-700 font-bold bg-emerald-100/90 px-2 py-0.5 rounded-full flex items-center gap-1">
+                                ✓ লিংকড এজেন্ট #<span x-text="selectedAgentId"></span>
+                                <button type="button" @click="clearAgent()" class="text-rose-600 hover:text-rose-800 ml-1.5 font-bold cursor-pointer">✕ মুছুন</button>
+                            </span>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 relative pt-1">
+                            <!-- Agent Name with AJAX Auto Suggestion -->
+                            <div class="relative" @click.outside="showAgentDropdown = false">
+                                <label class="block font-bold text-indigo-950 uppercase mb-1 text-xs">
+                                    এজেন্ট (Agent) <span class="text-indigo-400 font-normal text-[10px]">(সার্চ বা নতুন নাম লিখুন)</span>
+                                </label>
+                                <div class="relative">
+                                    <input type="text"
+                                        x-model="agentSearch"
+                                        @input.debounce.250ms="onAgentInput()"
+                                        @focus="if((agentSearch || '').trim().length > 0) showAgentDropdown = true"
+                                        placeholder="এজেন্টের নাম বা ফোন দিয়ে খুঁজুন..."
+                                        autocomplete="off"
+                                        class="w-full border border-indigo-200 rounded-xl px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
+
+                                    <div x-show="isSearchingAgent" x-cloak class="absolute right-3 top-3">
+                                        <svg class="animate-spin h-4 w-4 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+
+                                <!-- Dropdown suggestions -->
+                                <div x-show="showAgentDropdown && agentSuggestions.length > 0"
+                                    x-cloak
+                                    x-transition
+                                    class="absolute z-50 left-0 right-0 mt-1 bg-white border border-indigo-200 rounded-xl shadow-xl max-h-56 overflow-y-auto divide-y divide-slate-100">
+                                    <template x-for="agent in agentSuggestions" :key="agent.id">
+                                        <div @click="selectAgent(agent)"
+                                            class="p-2.5 hover:bg-indigo-50 cursor-pointer flex items-center justify-between text-left transition">
+                                            <div>
+                                                <div class="text-sm font-bold text-slate-800 flex items-center gap-1.5">
+                                                    <span x-text="agent.name"></span>
+                                                    <span class="text-[10px] px-1.5 py-0.2 rounded bg-slate-100 text-slate-600 font-semibold uppercase" x-text="agent.role"></span>
+                                                </div>
+                                                <div class="text-xs text-slate-500 flex items-center gap-2 mt-0.5">
+                                                    <span class="flex items-center gap-1 font-mono text-emerald-700">
+                                                        <span>💬</span>
+                                                        <span x-text="agent.whatsapp_number || agent.phone"></span>
+                                                    </span>
+                                                    <span x-show="agent.agency_name" class="text-indigo-600 font-medium" x-text="'• ' + agent.agency_name"></span>
+                                                </div>
+                                            </div>
+                                            <span class="text-xs text-indigo-700 font-bold bg-indigo-100 hover:bg-indigo-200 px-2.5 py-1 rounded-lg transition">
+                                                সিলেক্ট করুন
+                                            </span>
+                                        </div>
+                                    </template>
+                                </div>
+
+                                <div x-show="showAgentDropdown && agentSuggestions.length === 0 && !isSearchingAgent && (agentSearch || '').trim().length >= 2"
+                                    x-cloak
+                                    x-transition
+                                    class="absolute z-50 left-0 right-0 mt-1 bg-amber-50 border border-amber-300 rounded-xl shadow-lg p-3 text-xs text-amber-900">
+                                    💡 <strong>নতুন এজেন্ট:</strong> এই নামে কোনো রেজিস্টার্ড এজেন্ট পাওয়া যায়নি। পাশের ঘরে হোয়াটসঅ্যাপ নম্বর দিলে সাবমিট করার সাথে সাথে নতুন এজেন্ট তৈরি হবে।
+                                </div>
+                            </div>
+
+                            <!-- Agent WhatsApp Number -->
+                            <div>
+                                <label class="block font-bold text-indigo-950 uppercase mb-1 text-xs">
+                                    এজেন্টের হোয়াটসঅ্যাপ নম্বর (Agent WhatsApp Number)
+                                </label>
+                                <input type="tel"
+                                    x-model="agentWhatsapp"
+                                    placeholder="০১৭১১-০০০০০০"
+                                    class="w-full border border-indigo-200 rounded-xl px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 font-mono transition">
+                                <span class="text-[11px] text-slate-500 mt-1 block">
+                                    ℹ️ এজেন্ট সিলেক্ট করলে স্বয়ংক্রিয়ভাবে বসে যাবে, অথবা নতুন এজেন্টের নম্বর দিন।
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+
                 <!-- Owner Info -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50/80 p-4 rounded-2xl border border-slate-200">
                     <div>
@@ -1344,6 +1436,13 @@
                     updateUrl: '{{ isset($property) ? route("property.update", $property) : "" }}',
                     destination: '{{ isset($property) && $property->status === "draft" ? "vault" : (($is_vault_mode ?? false) ? "vault" : "publish") }}',
                     isAdmin: {{ ($is_admin ?? false) ? 'true' : 'false' }},
+                    agentSearch: @json(isset($assigned_agent) && $assigned_agent ? $assigned_agent->name : ''),
+                    agentWhatsapp: @json(isset($assigned_agent) && $assigned_agent ? ($assigned_agent->whatsapp_number ?: $assigned_agent->phone) : ''),
+                    selectedAgentId: @json(isset($assigned_agent) && $assigned_agent ? $assigned_agent->id : ''),
+                    agentSuggestions: [],
+                    isSearchingAgent: false,
+                    showAgentDropdown: false,
+                    agentSearchUrl: '{{ ($is_admin ?? false) ? route("admin.agents.search") : "" }}',
                     availableKeys: {!! json_encode($available_custom_keys ?? ['মৌজা', 'RS দাগ নম্বর', 'CS দাগ', 'SA দাগ', 'BS দাগ', 'খতিয়ান নম্বর', 'কাগজের অবস্থা', 'হস্তান্তর সময়সীমা', 'নিকটবর্তী ল্যান্ডমার্ক', 'বিদ্যুৎ সংযোগ', 'গ্যাস সংযোগ', 'পানির লাইন', 'রাস্তার প্রশস্ততা', 'বাউন্ডারি ওয়াল', 'মালিকানা ধরন', 'নোট / বিশেষ শর্ত'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!},
                     customFields: {!! json_encode(
                         isset($property) && is_array($property->custom_fields) && count($property->custom_fields) > 0
@@ -1985,6 +2084,13 @@
                             return;
                         }
 
+                        if (self.isAdmin && (!self.formData.owner_phone || !self.formData.owner_phone.trim()) && self.agentWhatsapp && self.agentWhatsapp.trim()) {
+                            self.formData.owner_phone = self.agentWhatsapp.trim();
+                        }
+                        if (self.isAdmin && (!self.formData.owner_name || !self.formData.owner_name.trim()) && self.agentSearch && self.agentSearch.trim()) {
+                            self.formData.owner_name = self.agentSearch.trim();
+                        }
+
                         if (!self.formData.owner_phone || !self.formData.owner_phone.trim()) {
                             self.errorMessage = 'অনুগ্রহ করে মালিকের ফোন নম্বর / WhatsApp প্রদান করুন।';
                             var phoneEl = document.getElementById('owner-phone-input') || document.getElementById('adm-form-error-banner');
@@ -2030,6 +2136,11 @@
                         data.append('longitude', self.formData.longitude || '');
                         data.append('other_features', JSON.stringify(self.formData.other_features || []));
                         data.append('destination', self.destination || 'publish');
+                        if (self.isAdmin) {
+                            data.append('agent_id', self.selectedAgentId || '');
+                            data.append('agent_name', self.agentSearch || '');
+                            data.append('agent_whatsapp', self.agentWhatsapp || '');
+                        }
 
                         var cleanCustomFields = [];
                         if (Array.isArray(self.customFields)) {
@@ -2183,6 +2294,57 @@
                                 banner.scrollIntoView({ behavior: 'smooth', block: 'center' });
                             }
                         });
+                    },
+
+                    onAgentInput: function () {
+                        this.selectedAgentId = '';
+                        this.searchAgents();
+                    },
+
+                    searchAgents: function () {
+                        var self = this;
+                        if (!self.agentSearchUrl) return;
+                        var q = (self.agentSearch || '').trim();
+                        if (q.length < 1) {
+                            self.agentSuggestions = [];
+                            self.showAgentDropdown = false;
+                            return;
+                        }
+                        self.isSearchingAgent = true;
+                        fetch(self.agentSearchUrl + '?q=' + encodeURIComponent(q), {
+                            headers: {
+                                'Accept': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        })
+                        .then(function (res) {
+                            if (!res.ok) throw new Error('Search failed');
+                            return res.json();
+                        })
+                        .then(function (data) {
+                            self.agentSuggestions = Array.isArray(data) ? data : [];
+                            self.showAgentDropdown = true;
+                            self.isSearchingAgent = false;
+                        })
+                        .catch(function (err) {
+                            console.error('Agent search error:', err);
+                            self.isSearchingAgent = false;
+                        });
+                    },
+
+                    selectAgent: function (agent) {
+                        this.selectedAgentId = agent.id;
+                        this.agentSearch = agent.name;
+                        this.agentWhatsapp = agent.whatsapp_number || agent.phone || '';
+                        this.showAgentDropdown = false;
+                    },
+
+                    clearAgent: function () {
+                        this.selectedAgentId = '';
+                        this.agentSearch = '';
+                        this.agentWhatsapp = '';
+                        this.agentSuggestions = [];
+                        this.showAgentDropdown = false;
                     }
                 };
             });

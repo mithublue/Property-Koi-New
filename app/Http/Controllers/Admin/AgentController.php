@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\AgentNote;
 use App\Models\AgentProfile;
 use App\Models\User;
+use App\Services\GoogleSheetSyncService;
 use App\Services\MagicLoginService;
 use App\Services\MessageTemplateService;
 use Illuminate\Http\Request;
@@ -53,6 +54,46 @@ class AgentController extends Controller
         ];
 
         return view('admin.agents', compact('users', 'stats', 'role'));
+    }
+
+    public function search(Request $request)
+    {
+        $q = trim((string) $request->query('q', ''));
+        if (strlen($q) < 1) {
+            return response()->json([]);
+        }
+
+        $cleanDigits = preg_replace('/[^0-9]/', '', GoogleSheetSyncService::toEnNumber($q));
+
+        $agents = User::with('agentProfile')
+            ->whereIn('role', ['agent', 'owner'])
+            ->where(function ($query) use ($q, $cleanDigits) {
+                $query->where('name', 'like', "%{$q}%")
+                    ->orWhere('phone', 'like', "%{$q}%")
+                    ->orWhere('whatsapp_number', 'like', "%{$q}%")
+                    ->orWhereHas('agentProfile', function ($p) use ($q) {
+                        $p->where('agency_name', 'like', "%{$q}%");
+                    });
+
+                if (!empty($cleanDigits) && strlen($cleanDigits) >= 3) {
+                    $query->orWhere('phone', 'like', "%{$cleanDigits}%")
+                          ->orWhere('whatsapp_number', 'like', "%{$cleanDigits}%");
+                }
+            })
+            ->limit(15)
+            ->get()
+            ->map(function ($user) {
+                return [
+                    'id'              => $user->id,
+                    'name'            => $user->name,
+                    'phone'           => $user->phone,
+                    'whatsapp_number' => $user->whatsapp_number ?: $user->phone,
+                    'role'            => $user->role,
+                    'agency_name'     => $user->agentProfile?->agency_name ?? '',
+                ];
+            });
+
+        return response()->json($agents);
     }
 
     public function updateProfile(Request $request, User $user)

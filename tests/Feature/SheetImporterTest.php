@@ -225,4 +225,164 @@ class SheetImporterTest extends TestCase
 
         $this->assertEquals(2, Property::count());
     }
+
+    public function test_agent_importer_via_google_sheet(): void
+    {
+        $csvData = "name,phone,whatsapp,role,agency,rating,notes\n" .
+                   "Rafiq Talukdar,01711223344,01711223344,agent,Trust Real Estate,4.9,আফতাবনগর অভিজ্ঞ ব্রোকার\n" .
+                   "Kamal Uddin,01811223344,01811223344,owner,Direct Owner,5.0,সরাসরি প্লট মালিক\n";
+
+        Http::fake([
+            '*docs.google.com*' => Http::response($csvData, 200, ['Content-Type' => 'text/csv']),
+        ]);
+
+        $mappings = [
+            'name'     => 'name',
+            'phone'    => 'phone',
+            'whatsapp' => 'whatsapp_number',
+            'role'     => 'role',
+            'agency'   => 'agency_name',
+            'rating'   => 'rating',
+            'notes'    => 'notes',
+        ];
+
+        // 1. First Import: Create Agents
+        $importResponse = $this->actingAs($this->admin)->postJson(route('admin.sheet-importer.import'), [
+            'entity_type'    => 'agent',
+            'sheet_url'      => 'https://docs.google.com/spreadsheets/d/agent-sheet/edit',
+            'mappings'       => $mappings,
+            'duplicate_mode' => 'skip',
+            'default_role'   => 'agent',
+            'default_rating' => 5.0,
+            'is_verified'    => 1,
+        ]);
+
+        $importResponse->assertStatus(200);
+        $importResponse->assertJson([
+            'success'   => true,
+            'processed' => 2,
+            'created'   => 2,
+            'updated'   => 0,
+            'skipped'   => 0,
+        ]);
+
+        $agentUser = User::where('phone', '01711223344')->first();
+        $this->assertNotNull($agentUser);
+        $this->assertEquals('Rafiq Talukdar', $agentUser->name);
+        $this->assertEquals('agent', $agentUser->role);
+        $this->assertEquals('Trust Real Estate', $agentUser->agentProfile?->agency_name);
+        $this->assertEquals(4.9, (float)$agentUser->agentProfile?->admin_fixed_rating);
+        $this->assertTrue((bool)$agentUser->agentProfile?->is_verified_direct_agent);
+
+        $ownerUser = User::where('phone', '01811223344')->first();
+        $this->assertNotNull($ownerUser);
+        $this->assertEquals('owner', $ownerUser->role);
+
+        // 2. Second Import: Skip duplicates
+        $skipResponse = $this->actingAs($this->admin)->postJson(route('admin.sheet-importer.import'), [
+            'entity_type'    => 'agent',
+            'sheet_url'      => 'https://docs.google.com/spreadsheets/d/agent-sheet/edit',
+            'mappings'       => $mappings,
+            'duplicate_mode' => 'skip',
+        ]);
+
+        $skipResponse->assertStatus(200);
+        $skipResponse->assertJson([
+            'success'   => true,
+            'processed' => 2,
+            'created'   => 0,
+            'updated'   => 0,
+            'skipped'   => 2,
+        ]);
+
+        // 3. Third Import: Update existing
+        $updateResponse = $this->actingAs($this->admin)->postJson(route('admin.sheet-importer.import'), [
+            'entity_type'    => 'agent',
+            'sheet_url'      => 'https://docs.google.com/spreadsheets/d/agent-sheet/edit',
+            'mappings'       => $mappings,
+            'duplicate_mode' => 'update',
+        ]);
+
+        $updateResponse->assertStatus(200);
+        $updateResponse->assertJson([
+            'success'   => true,
+            'processed' => 2,
+            'created'   => 0,
+            'updated'   => 2,
+            'skipped'   => 0,
+        ]);
+    }
+
+    public function test_buyer_importer_via_google_sheet(): void
+    {
+        $csvData = "name,phone,whatsapp,type,area,blocks,budget,timeline,notes\n" .
+                   "Tanvir Hasan,01911223344,01911223344,land,Aftabnagar,C/D,1.2 cr,জরুরি,৩ কাঠা দক্ষিণমুখী প্লট চাই\n" .
+                   "Nusrat Jahan,01611223344,01611223344,flat,Aftabnagar,B,85 lac,২ মাস,১৫০০ স্কয়ার ফিট ফ্ল্যাট চাই\n";
+
+        Http::fake([
+            '*docs.google.com*' => Http::response($csvData, 200, ['Content-Type' => 'text/csv']),
+        ]);
+
+        $mappings = [
+            'name'     => 'name',
+            'phone'    => 'phone',
+            'whatsapp' => 'whatsapp_number',
+            'type'     => 'preferred_type',
+            'area'     => 'preferred_areas',
+            'blocks'   => 'preferred_blocks',
+            'budget'   => 'budget_range',
+            'timeline' => 'purchase_timeline',
+            'notes'    => 'notes',
+        ];
+
+        // 1. First Import: Create Buyers & Auto Demands
+        $importResponse = $this->actingAs($this->admin)->postJson(route('admin.sheet-importer.import'), [
+            'entity_type'        => 'buyer',
+            'sheet_url'          => 'https://docs.google.com/spreadsheets/d/buyer-sheet/edit',
+            'mappings'           => $mappings,
+            'duplicate_mode'     => 'skip',
+            'default_type'       => 'land',
+            'default_area'       => 'Aftabnagar',
+            'auto_create_demand' => 1,
+        ]);
+
+        $importResponse->assertStatus(200);
+        $importResponse->assertJson([
+            'success'   => true,
+            'processed' => 2,
+            'created'   => 2,
+            'updated'   => 0,
+            'skipped'   => 0,
+        ]);
+
+        $buyerUser = User::where('phone', '01911223344')->first();
+        $this->assertNotNull($buyerUser);
+        $this->assertEquals('Tanvir Hasan', $buyerUser->name);
+        $this->assertEquals('buyer', $buyerUser->role);
+        $this->assertEquals('land', $buyerUser->preferred_type);
+
+        // Verify BuyerDemand was auto created
+        $demand = \App\Models\BuyerDemand::where('buyer_phone', '01911223344')->first();
+        $this->assertNotNull($demand);
+        $this->assertEquals('active', $demand->status);
+        $this->assertEquals('land', $demand->property_type);
+        $this->assertStringContainsString('৩ কাঠা', $demand->notes);
+
+        // 2. Second Import: Skip duplicates
+        $skipResponse = $this->actingAs($this->admin)->postJson(route('admin.sheet-importer.import'), [
+            'entity_type'    => 'buyer',
+            'sheet_url'      => 'https://docs.google.com/spreadsheets/d/buyer-sheet/edit',
+            'mappings'       => $mappings,
+            'duplicate_mode' => 'skip',
+        ]);
+
+        $skipResponse->assertStatus(200);
+        $skipResponse->assertJson([
+            'success'   => true,
+            'processed' => 2,
+            'created'   => 0,
+            'updated'   => 0,
+            'skipped'   => 2,
+        ]);
+    }
 }

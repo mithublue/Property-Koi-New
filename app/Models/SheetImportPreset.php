@@ -11,6 +11,7 @@ class SheetImportPreset extends Model
     use HasFactory;
 
     protected $fillable = [
+        'entity_type',
         'name',
         'description',
         'sample_sheet_url',

@@ -387,22 +387,17 @@
         <template x-if="activeTab === 'property'">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div class="space-y-1.5 bg-slate-50 p-3.5 rounded-xl border border-slate-200">
-                    <label class="block text-xs font-bold text-slate-800 uppercase">১. সংরক্ষণের গন্তব্য (Destination)</label>
-                    <div class="space-y-2 pt-1 text-xs">
-                        <label class="flex items-start gap-2 cursor-pointer">
-                            <input type="radio" name="destination" value="draft" x-model="destination" class="mt-0.5 text-emerald-600 focus:ring-emerald-500">
-                            <div>
-                                <span class="font-bold text-slate-900">🗄️ প্রাইভেট ভল্ট (ড্রাফট)</span>
-                                <div class="text-[11px] text-slate-500">ডাটাবেসে সুরক্ষিত থাকবে, প্রকাশ্যে আসবে না (সুপারিশকৃত)।</div>
-                            </div>
-                        </label>
-                        <label class="flex items-start gap-2 cursor-pointer">
-                            <input type="radio" name="destination" value="live" x-model="destination" class="mt-0.5 text-emerald-600 focus:ring-emerald-500">
-                            <div>
-                                <span class="font-bold text-emerald-700">🌐 সরাসরি পাবলিক ক্যাটালগ</span>
-                                <div class="text-[11px] text-slate-500">SEO ও AEO মেটাডাটা সহ সাইটে লাইভ লিস্টিং হয়ে যাবে।</div>
-                            </div>
-                        </label>
+                    <label class="block text-xs font-bold text-slate-800 uppercase">১. ডিফল্ট প্রপার্টি স্ট্যাটাস (Status)</label>
+                    <select x-model="defaultStatus" class="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-2 text-xs font-bold text-slate-900 focus:outline-none focus:border-emerald-500">
+                        <option value="draft">⚪ Draft (ড্রাফট / প্রাইভেট ভল্ট)</option>
+                        <option value="live">🟢 Live (সরাসরি পাবলিক ক্যাটালগ)</option>
+                        <option value="pending">🟡 Pending (পেন্ডিং যাচাই)</option>
+                        <option value="sold">⚫ Sold (বিক্রিত)</option>
+                        <option value="booked">🔵 Booked (বুকড)</option>
+                        <option value="archived">🔴 Archived (আর্কাইভ)</option>
+                    </select>
+                    <div class="text-[11px] text-slate-500">
+                        শিটে স্ট্যাটাস কলাম না থাকলে প্রপার্টি এই স্ট্যাটাসে সেভ হবে। (যেমন: ড্রাফট রাখলে ভল্টে যাবে, লাইভ রাখলে ক্যাটালগে যাবে)।
                     </div>
                 </div>
 
@@ -682,6 +677,7 @@ function sheetImporterApp() {
 
         // Property options
         destination: 'draft',
+        defaultStatus: 'draft',
         duplicateMode: 'skip',
         defaultType: 'land',
         defaultArea: 'Aftabnagar',
@@ -756,7 +752,8 @@ function sheetImporterApp() {
                 this.duplicateMode = preset.options.duplicate_mode || 'skip';
 
                 if (this.activeTab === 'property') {
-                    this.destination = preset.options.destination || 'draft';
+                    this.defaultStatus = preset.options.default_status || preset.options.destination || 'draft';
+                    this.destination = this.defaultStatus === 'live' ? 'live' : 'draft';
                     this.defaultType = preset.options.default_type || 'land';
                     this.defaultArea = preset.options.default_area || 'Aftabnagar';
                 } else if (this.activeTab === 'agent') {
@@ -958,7 +955,8 @@ function sheetImporterApp() {
                 };
 
                 if (this.activeTab === 'property') {
-                    options.destination = this.destination;
+                    options.destination = this.defaultStatus === 'live' ? 'live' : 'draft';
+                    options.default_status = this.defaultStatus;
                     options.default_type = this.defaultType;
                     options.default_area = this.defaultArea;
                 } else if (this.activeTab === 'agent') {
@@ -1059,7 +1057,8 @@ function sheetImporterApp() {
                 };
 
                 if (this.activeTab === 'property') {
-                    payload.destination = this.destination;
+                    payload.destination = this.defaultStatus === 'live' ? 'live' : 'draft';
+                    payload.default_status = this.defaultStatus;
                     payload.default_type = this.defaultType;
                     payload.default_area = this.defaultArea;
                 } else if (this.activeTab === 'agent') {

@@ -385,4 +385,53 @@ class SheetImporterTest extends TestCase
             'skipped'   => 2,
         ]);
     }
+
+    public function test_property_importer_maps_status_column_and_default_status(): void
+    {
+        $csvData = "road,plot number,katha,price,status\n" .
+                   "5,101,3,80 lac,live\n" .
+                   "6,102,5,1.5 cr,booked\n" .
+                   "7,103,4,90 lac,\n";
+
+        Http::fake([
+            '*docs.google.com*' => Http::response($csvData, 200, ['Content-Type' => 'text/csv']),
+        ]);
+
+        $mappings = [
+            'road'        => 'road_number',
+            'plot number' => 'plot_number',
+            'katha'       => 'size',
+            'price'       => 'asking_price',
+            'status'      => 'status',
+        ];
+
+        $importResponse = $this->actingAs($this->admin)->postJson(route('admin.sheet-importer.import'), [
+            'entity_type'    => 'property',
+            'sheet_url'      => 'https://docs.google.com/spreadsheets/d/property-status-sheet/edit',
+            'mappings'       => $mappings,
+            'duplicate_mode' => 'all',
+            'default_type'   => 'land',
+            'default_area'   => 'Aftabnagar',
+            'default_status' => 'pending',
+        ]);
+
+        $importResponse->assertStatus(200);
+        $importResponse->assertJson([
+            'success'   => true,
+            'processed' => 3,
+            'created'   => 3,
+        ]);
+
+        $p1 = Property::where('plot_number', '101')->first();
+        $this->assertNotNull($p1);
+        $this->assertEquals('live', $p1->status);
+
+        $p2 = Property::where('plot_number', '102')->first();
+        $this->assertNotNull($p2);
+        $this->assertEquals('booked', $p2->status);
+
+        $p3 = Property::where('plot_number', '103')->first();
+        $this->assertNotNull($p3);
+        $this->assertEquals('pending_verification', $p3->status); // uses default_status (normalized)
+    }
 }

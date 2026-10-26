@@ -139,6 +139,7 @@ class SheetImporterController extends Controller
         return [
             'প্রপার্টির মৌলিক তথ্য' => [
                 'title'           => 'প্রপার্টি শিরোনাম (Title - ফাঁকা থাকলে অটো-জেনারেট হবে)',
+                'status'          => 'প্রপার্টি স্ট্যাটাস (Status: draft, live, pending, sold, booked)',
                 'area'            => 'এলাকা / এরিয়া (Area - যেমন: Aftabnagar, Bashundhara)',
                 'sub_area'        => 'সাব-এরিয়া / ফেজ (Sub Area / Phase)',
                 'address'         => 'পূর্ণ ঠিকানা (Address)',
@@ -438,6 +439,9 @@ class SheetImporterController extends Controller
             'details'     => 'parse_extra',
             'time line'   => 'custom_field:হস্তান্তর সময়সীমা',
             'timeline'    => 'custom_field:হস্তান্তর সময়সীমা',
+            'status'      => 'status',
+            'স্ট্যাটাস'    => 'status',
+            'অবস্থা'       => 'status',
             'facing'      => 'facing',
             'title'       => 'title',
             'type'        => 'property_type',
@@ -546,7 +550,8 @@ class SheetImporterController extends Controller
         $request->validate([
             'sheet_url'      => 'required|string',
             'mappings'       => 'required|array',
-            'destination'    => 'required|in:draft,live',
+            'destination'    => 'nullable|string',
+            'default_status' => 'nullable|string',
             'duplicate_mode' => 'required|in:skip,update,all',
             'default_type'   => 'nullable|in:land,flat,commercial,land_share',
             'default_area'   => 'nullable|string',
@@ -558,6 +563,10 @@ class SheetImporterController extends Controller
         $duplicateMode = $request->input('duplicate_mode', 'skip');
         $defaultType   = $request->input('default_type', 'land');
         $defaultArea   = trim((string)$request->input('default_area', 'Aftabnagar')) ?: 'Aftabnagar';
+        $defaultStatus = trim((string)$request->input('default_status', '')) ?: ($destination === 'live' ? 'live' : 'draft');
+        if ($defaultStatus === 'pending') {
+            $defaultStatus = 'pending_verification';
+        }
 
         $fetched = GoogleSheetSyncService::fetchCsvContent($sheetUrl);
         if (!$fetched['success']) {
@@ -620,6 +629,7 @@ class SheetImporterController extends Controller
                     'owner_name'    => '',
                     'owner_phone'   => '',
                     'source_type'   => 'direct_owner',
+                    'status'        => $defaultStatus,
                     'custom_fields' => [],
                     'raw_extra'     => '',
                 ];
@@ -672,6 +682,21 @@ class SheetImporterController extends Controller
                         $data['custom_fields'][] = ['key' => 'ফেসবুক / মেসেঞ্জার লিংক', 'value' => $rawVal];
                     } elseif ($target === 'source_type') {
                         $data['source_type'] = str_contains(mb_strtolower($rawVal, 'UTF-8'), 'agent') ? 'direct_agent' : 'direct_owner';
+                    } elseif ($target === 'status') {
+                        $s = mb_strtolower(trim($rawVal), 'UTF-8');
+                        if (in_array($s, ['live', 'পাবলিক', 'active', 'available', 'লাইভ'])) {
+                            $data['status'] = 'live';
+                        } elseif (in_array($s, ['draft', 'ড্রাফট', 'vault', 'ভল্ট'])) {
+                            $data['status'] = 'draft';
+                        } elseif (in_array($s, ['pending', 'পেন্ডিং', 'verification', 'যাচাই', 'pending_verification'])) {
+                            $data['status'] = 'pending_verification';
+                        } elseif (in_array($s, ['sold', 'বিক্রিত', 'বিক্রি'])) {
+                            $data['status'] = 'sold';
+                        } elseif (in_array($s, ['booked', 'বুকড', 'বুকিং'])) {
+                            $data['status'] = 'booked';
+                        } else {
+                            $data['status'] = $defaultStatus;
+                        }
                     } elseif ($target === 'parse_extra') {
                         $data['raw_extra'] = $rawVal;
                         self::parseExtraIntoCustomFields($rawVal, $data);
@@ -729,7 +754,7 @@ class SheetImporterController extends Controller
                         'holding_number' => $data['holding_number'] ?: $existingProperty->holding_number,
                         'facing'         => $data['facing'] ?: $existingProperty->facing,
                         'description'    => $data['description'] ?: ($data['raw_extra'] ?: $existingProperty->description),
-                        'status'         => $destination,
+                        'status'         => $data['status'] ?: $defaultStatus,
                         'custom_fields'  => $mergedCustomFields,
                     ]);
 
@@ -757,7 +782,7 @@ class SheetImporterController extends Controller
                         'address_visibility' => ['block' => true, 'sector' => true, 'road_number' => true, 'road_width_ft' => true, 'plot_number' => true, 'holding_number' => true],
                         'facing'             => $data['facing'],
                         'description'        => $data['description'] ?: $data['raw_extra'],
-                        'status'             => $destination,
+                        'status'             => $data['status'] ?: $defaultStatus,
                         'custom_fields'      => $data['custom_fields'],
                         'created_by_user_id' => auth()->id(),
                     ]);

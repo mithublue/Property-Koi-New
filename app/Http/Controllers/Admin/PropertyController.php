@@ -236,15 +236,26 @@ class PropertyController extends Controller
 
     public function directory(Request $request)
     {
-        $query = Property::with(['media', 'creator', 'verification', 'directSources', 'landDetail', 'flatDetail', 'commercialDetail', 'shareDetail'])
-            ->where(function ($q) {
+        $query = Property::with(['media', 'creator', 'verification', 'directSources', 'landDetail', 'flatDetail', 'commercialDetail', 'shareDetail']);
+
+        $filterCode   = trim((string) ($request->input('property_code') ?: $request->input('search', '')));
+        $filterType   = trim((string) ($request->input('type') ?: ''));
+        $filterArea   = trim((string) ($request->input('area') ?: ''));
+        $filterStatus = trim((string) ($request->input('status') ?: ''));
+
+        if (!empty($filterStatus) && $filterStatus !== 'all') {
+            if ($filterStatus === 'pending') {
+                $query->whereIn('status', ['pending', 'pending_verification']);
+            } else {
+                $query->where('status', $filterStatus);
+            }
+        } else {
+            // Default directory scope: draft / non-live
+            $query->where(function ($q) {
                 $q->where('status', 'draft')
                   ->orWhere('status', '!=', 'live');
             });
-
-        $filterCode = trim((string) ($request->input('property_code') ?: $request->input('search', '')));
-        $filterType = trim((string) ($request->input('type') ?: ''));
-        $filterArea = trim((string) ($request->input('area') ?: ''));
+        }
 
         if ($request->filled('property_code')) {
             $query->where('property_code', 'like', "%{$filterCode}%");
@@ -283,13 +294,15 @@ class PropertyController extends Controller
             'total_private' => Property::where(fn($q) => $q->where('status', 'draft')->orWhere('status', '!=', 'live'))->count(),
             'draft'         => Property::where('status', 'draft')->count(),
             'pending'       => Property::whereIn('status', ['pending', 'pending_verification'])->count(),
+            'sold'          => Property::where('status', 'sold')->count(),
+            'booked'        => Property::where('status', 'booked')->count(),
             'plots'         => Property::where('type', 'land')->where('status', '!=', 'live')->count(),
             'flats'         => Property::where('type', 'flat')->where('status', '!=', 'live')->count(),
             'commercial'    => Property::where('type', 'commercial')->where('status', '!=', 'live')->count(),
             'share'         => Property::where('type', 'land_share')->where('status', '!=', 'live')->count(),
         ];
 
-        return view('admin.properties.directory', compact('properties', 'stats', 'filterCode', 'filterType', 'filterArea'));
+        return view('admin.properties.directory', compact('properties', 'stats', 'filterCode', 'filterType', 'filterArea', 'filterStatus'));
     }
 
     public function create(Request $request)
@@ -620,6 +633,26 @@ class PropertyController extends Controller
         return response()->json(['success' => false, 'error' => 'কোনো প্রপার্টি নির্বাচন করা হয়নি।']);
     }
 
+    public function bulkStatus(Request $request)
+    {
+        $ids = $request->input('ids', []);
+        $status = $request->validate([
+            'status' => 'required|in:live,pending,pending_verification,sold,booked,draft,archived,verified,rejected,negotiation'
+        ])['status'];
+
+        if ($status === 'pending') {
+            $status = 'pending_verification';
+        } elseif ($status === 'archived') {
+            $status = 'draft';
+        }
+
+        if (!empty($ids)) {
+            Property::whereIn('id', $ids)->update(['status' => $status]);
+            return response()->json(['success' => true, 'count' => count($ids), 'status' => $status]);
+        }
+        return response()->json(['success' => false, 'error' => 'কোনো প্রপার্টি নির্বাচন করা হয়নি।']);
+    }
+
     public function updateStatus(Request $request, Property $property)
     {
         if ($request->isMethod('GET')) {
@@ -629,6 +662,12 @@ class PropertyController extends Controller
         $status = $request->validate([
             'status' => 'required|in:live,pending,pending_verification,sold,booked,draft,archived,verified,rejected,negotiation'
         ])['status'];
+
+        if ($status === 'pending') {
+            $status = 'pending_verification';
+        } elseif ($status === 'archived') {
+            $status = 'draft';
+        }
 
         $property->update(['status' => $status]);
 

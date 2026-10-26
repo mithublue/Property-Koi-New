@@ -226,6 +226,7 @@ Route::prefix('backend')->name('admin.')->middleware('admin.access')->group(func
     Route::put('/properties/{property}', [AdminPropertyController::class, 'update'])->name('properties.update');
     Route::delete('/properties/{property}', [AdminPropertyController::class, 'destroy'])->name('properties.destroy');
     Route::post('/properties/bulk-delete', [AdminPropertyController::class, 'bulkDelete'])->name('properties.bulk-delete');
+    Route::post('/properties/bulk-status', [AdminPropertyController::class, 'bulkStatus'])->name('properties.bulk-status');
     Route::match(['get', 'post'], '/properties/{property}/status', [AdminPropertyController::class, 'updateStatus'])->name('properties.status');
     Route::post('/properties/{property}/publish-live', [AdminPropertyController::class, 'publishToLive'])->name('properties.publish-live');
     Route::post('/properties/{property}/unpublish', [AdminPropertyController::class, 'unpublishToDirectory'])->name('properties.unpublish');

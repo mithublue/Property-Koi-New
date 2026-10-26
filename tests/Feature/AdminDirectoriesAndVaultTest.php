@@ -244,4 +244,56 @@ class AdminDirectoriesAndVaultTest extends TestCase
         $this->assertEquals('মেরাদিয়া দক্ষিণ', $property->custom_fields[0]['value']);
         $this->assertEquals('৪৯২০', $property->custom_fields[1]['value']);
     }
+
+    public function test_bulk_delete_and_bulk_status_in_property_directory(): void
+    {
+        $p1 = Property::create([
+            'property_code' => 'PK-BLK01',
+            'title'         => 'প্লট ১',
+            'slug'          => 'plot-1-blk01',
+            'type'          => 'land',
+            'area'          => 'Aftabnagar',
+            'status'        => 'draft',
+            'created_by_user_id' => $this->admin->id,
+        ]);
+
+        $p2 = Property::create([
+            'property_code' => 'PK-BLK02',
+            'title'         => 'প্লট ২',
+            'slug'          => 'plot-2-blk02',
+            'type'          => 'land',
+            'area'          => 'Aftabnagar',
+            'status'        => 'draft',
+            'created_by_user_id' => $this->admin->id,
+        ]);
+
+        // 1. Bulk Status Change to 'sold'
+        $statusRes = $this->actingAs($this->admin)->postJson(route('admin.properties.bulk-status'), [
+            'ids'    => [$p1->id, $p2->id],
+            'status' => 'sold',
+        ]);
+        $statusRes->assertStatus(200);
+        $statusRes->assertJson(['success' => true, 'count' => 2, 'status' => 'sold']);
+
+        $p1->refresh();
+        $p2->refresh();
+        $this->assertEquals('sold', $p1->status);
+        $this->assertEquals('sold', $p2->status);
+
+        // 2. Filter directory by status = 'sold'
+        $dirRes = $this->actingAs($this->admin)->get(route('admin.properties.directory', ['status' => 'sold']));
+        $dirRes->assertStatus(200);
+        $dirRes->assertSee('PK-BLK01');
+        $dirRes->assertSee('PK-BLK02');
+
+        // 3. Bulk Delete
+        $delRes = $this->actingAs($this->admin)->postJson(route('admin.properties.bulk-delete'), [
+            'ids' => [$p1->id, $p2->id],
+        ]);
+        $delRes->assertStatus(200);
+        $delRes->assertJson(['success' => true, 'count' => 2]);
+
+        $this->assertDatabaseMissing('properties', ['id' => $p1->id]);
+        $this->assertDatabaseMissing('properties', ['id' => $p2->id]);
+    }
 }

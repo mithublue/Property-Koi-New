@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\MediaController as AdminMediaController;
 use App\Http\Controllers\Admin\PropertyController as AdminPropertyController;
 use App\Http\Controllers\Admin\RevenueController as AdminRevenueController;
 use App\Http\Controllers\Admin\SettingsController as AdminSettingsController;
+use App\Http\Controllers\Admin\SheetImporterController;
 use App\Http\Controllers\Admin\VerificationController as AdminVerificationController;
 use App\Http\Controllers\Admin\VisitController as AdminVisitController;
 use App\Http\Controllers\AuthController;
@@ -236,6 +237,13 @@ Route::prefix('backend')->name('admin.')->middleware('admin.access')->group(func
     Route::post('/guides/{guide}/toggle-published', [AdminGuideController::class, 'togglePublished'])->name('guides.toggle-published');
     Route::post('/guides/upload-image', [AdminGuideController::class, 'uploadEditorImage'])->name('guides.upload-image');
     Route::post('/guides/upload-thumbnail', [AdminGuideController::class, 'uploadThumbnail'])->name('guides.upload-thumbnail');
+
+    // 2.2 Google Sheet Bulk Importer & Mapping Presets
+    Route::get('/sheet-importer', [SheetImporterController::class, 'index'])->name('sheet-importer.index');
+    Route::post('/sheet-importer/fetch-headers', [SheetImporterController::class, 'fetchHeaders'])->name('sheet-importer.fetch-headers');
+    Route::post('/sheet-importer/presets', [SheetImporterController::class, 'storePreset'])->name('sheet-importer.presets.store');
+    Route::delete('/sheet-importer/presets/{preset}', [SheetImporterController::class, 'deletePreset'])->name('sheet-importer.presets.destroy');
+    Route::post('/sheet-importer/import', [SheetImporterController::class, 'import'])->name('sheet-importer.import');
 
     // 3. Media Manager (Cloudinary)
     Route::get('/media', [AdminMediaController::class, 'index'])->name('media.index');

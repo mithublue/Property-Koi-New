@@ -354,8 +354,8 @@ class SeoService
     public static function getOgMeta(string $page = '', ?Property $property = null): array
     {
         $siteName = self::getSiteName();
-        $siteDesc = 'PropertyKoi.com হলো বাংলাদেশের শীর্ষস্থানীয় প্রপার্টি কেনা-বেচার প্ল্যাটফর্ম (Property Buy & Sell Platform in Bangladesh)। স্বচ্ছ ও ভেরিফাইড প্রক্রিয়ায় ঢাকা, বসুন্ধরা, গুলশান, বনশ্রী ও আফতাবনগরের ভেরিফাইড আবাসিক প্লট, জমি, রেডি ফ্ল্যাট, কমার্শিয়াল স্পেস ও ল্যান্ড শেয়ার সরাসরি কেনাবেচা করুন।';
-        $defaultKeywords = 'property buy sell platform in bangladesh, real estate marketplace bangladesh, buy sell plot flat dhaka, bashundhara flat for sale, gulshan property for sale, aftabnagar plot for sale, ready flat in dhaka, direct owner property bangladesh, জমি ফ্ল্যাট কেনাবেচা ঢাকা, বসুন্ধরা ফ্ল্যাট, আফতাবনগর জমি বিক্রয়, রেডি ফ্ল্যাট ঢাকা, প্রপার্টি কই, PropertyKoi';
+        $siteDesc = 'PropertyKoi.com হলো বাংলাদেশের শীর্ষস্থানীয় প্রপার্টি কেনা-বেচার প্ল্যাটফর্ম (Property Buy & Sell Platform in Bangladesh)। স্বচ্ছ ও ভেরিফাইড প্রক্রিয়ায় ঢাকা, বসুন্ধরা, পূর্বাচল, গুলশান, উত্তরা, বনশ্রী ও আফতাবনগরসহ সারা দেশের ভেরিফাইড আবাসিক প্লট, জমি, রেডি ফ্ল্যাট, কমার্শিয়াল স্পেস ও ল্যান্ড শেয়ার সরাসরি কেনাবেচা করুন।';
+        $defaultKeywords = 'property buy sell platform in bangladesh, real estate marketplace bangladesh, buy sell plot flat dhaka, bashundhara flat for sale, purbachal plot for sale, gulshan property for sale, aftabnagar plot for sale, ready flat in dhaka, direct owner property bangladesh, জমি ফ্ল্যাট কেনাবেচা ঢাকা, বসুন্ধরা ফ্ল্যাট, পূর্বাচল প্লট, আফতাবনগর জমি বিক্রয়, রেডি ফ্ল্যাট ঢাকা, প্রপার্টি কই, PropertyKoi';
 
         if ($property) {
             $typeLabel = $property->type_label;
@@ -404,40 +404,40 @@ class SeoService
 
         $meta = match ($page) {
             'land-search' => [
-                'title'       => "Plots & Land for Sale in Dhaka & Aftabnagar | জমি ও প্লট বিক্রয় — {$siteName}",
-                'description' => 'ঢাকা, বসুন্ধরা, আফতাবনগর ও সংলগ্ন এলাকার ভেরিফাইড আবাসিক ও বাণিজ্যিক প্লট। ২০ থেকে ৬০ ফুট রাস্তা, কর্নার ও লেকভিউ প্লট কিনুন ১০০% যাচাইকৃত নামজারি ও দলিলসহ। নিরাপদ ও নির্ভরযোগ্য প্ল্যাটফর্ম।',
-                'keywords'    => 'plots for sale in dhaka, aftabnagar plot for sale, buy land in bashundhara, buy land in aftabnagar dhaka, residential plot for sale dhaka, aftabnagar katha price, direct owner plot, আফতাবনগর জমি বিক্রয়, বসুন্ধরা জমি, প্লট কেনাবেচা ঢাকা, PropertyKoi',
+                'title'       => "Plots & Land for Sale in Dhaka & Bangladesh | জমি ও প্লট বিক্রয় — {$siteName}",
+                'description' => 'ঢাকা, বসুন্ধরা, পূর্বাচল, উত্তরা, আফতাবনগরসহ সারা বাংলাদেশের ভেরিফাইড আবাসিক ও বাণিজ্যিক প্লট। ২০ থেকে ৬০ ফুট রাস্তা, কর্নার ও লেকভিউ প্লট কিনুন ১০০% যাচাইকৃত নামজারি ও দলিলসহ। নিরাপদ ও নির্ভরযোগ্য প্ল্যাটফর্ম।',
+                'keywords'    => 'plots for sale in dhaka, plots for sale in bangladesh, aftabnagar plot for sale, buy land in bashundhara, purbachal plot price, buy land in aftabnagar dhaka, residential plot for sale dhaka, aftabnagar katha price, direct owner plot, আফতাবনগর জমি বিক্রয়, বসুন্ধরা জমি, পূর্বাচল প্লট, প্লট কেনাবেচা ঢাকা, PropertyKoi',
                 'image'       => self::getCustomOrAssetImage('adm_seo_land_og_image', 'og-land.jpg'),
                 'url'         => route('properties.land'),
                 'type'        => 'website',
             ],
             'flat-search' => [
-                'title'       => "Ready Flats & Apartments for Sale in Dhaka | ফ্ল্যাট বিক্রয় — {$siteName}",
-                'description' => 'ঢাকা, বসুন্ধরা, গুলশান, আফতাবনগর ও বনশ্রীতে ১০০% রেডি এবং নির্মাণাধীন আধুনিক ৩/৪ বেডরুমের ফ্ল্যাট ও অ্যাপার্টমেন্ট। লিফট, জেনারেটর ও কার পার্কিংসহ ভেরিফাইড মালিক ও নির্মাতাদের লিস্টিং। স্বচ্ছ প্রক্রিয়ায় সেরা ডিল।',
-                'keywords'    => 'ready flat in dhaka, flat in bashundhara, flat for sale in gulshan, apartment for sale in aftabnagar dhaka, 3 bed flat dhaka, luxury flat dhaka, direct owner flat sale, রেডি ফ্ল্যাট ঢাকা, বসুন্ধরা ফ্ল্যাট, গুলশান ফ্ল্যাট, ফ্ল্যাট বিক্রয় ঢাকা, PropertyKoi',
+                'title'       => "Ready Flats & Apartments for Sale in Dhaka & Bangladesh | ফ্ল্যাট বিক্রয় — {$siteName}",
+                'description' => 'ঢাকা, বসুন্ধরা, গুলশান, বনানী, উত্তরা, ধানমন্ডি, বনশ্রী ও আফতাবনগরসহ প্রাইম লোকেশনে ১০০% রেডি এবং নির্মাণাধীন আধুনিক ৩/৪ বেডরুমের ফ্ল্যাট ও অ্যাপার্টমেন্ট। লিফট, জেনারেটর ও কার পার্কিংসহ ভেরিফাইড মালিক ও নির্মাতাদের লিস্টিং। স্বচ্ছ প্রক্রিয়ায় সেরা ডিল।',
+                'keywords'    => 'ready flat in dhaka, flat in bangladesh, flat in bashundhara, flat for sale in gulshan, flat in uttara, apartment for sale in aftabnagar dhaka, 3 bed flat dhaka, luxury flat dhaka, direct owner flat sale, রেডি ফ্ল্যাট ঢাকা, বসুন্ধরা ফ্ল্যাট, গুলশান ফ্ল্যাট, উত্তরা ফ্ল্যাট, ফ্ল্যাট বিক্রয় ঢাকা, PropertyKoi',
                 'image'       => self::getCustomOrAssetImage('adm_seo_flat_og_image', 'og-flat.jpg'),
                 'url'         => route('properties.flat'),
                 'type'        => 'website',
             ],
             'commercial-search' => [
-                'title'       => "Commercial Space & Shops for Sale in Dhaka | দোকান ও বাণিজ্যিক স্পেস — {$siteName}",
-                'description' => 'আফতাবনগর ও ঢাকার প্রধান সড়কে দোকান, শোরুম, অফিস স্পেস ও ওপেন ফ্লোর বিক্রয়। উচ্চ ভাড়া আয় ও নিশ্চিত মূলধনী বৃদ্ধির বাণিজ্যিক বিনিয়োগের সেরা ভেরিফাইড লিস্টিং।',
-                'keywords'    => 'commercial space for sale dhaka, shop for sale in aftabnagar, showroom space aftabnagar, office space for sale dhaka, দোকান বিক্রয় আফতাবনগর, বাণিজ্যিক স্পেস ঢাকা, PropertyKoi',
+                'title'       => "Commercial Space & Shops for Sale in Dhaka & Bangladesh | দোকান ও বাণিজ্যিক স্পেস — {$siteName}",
+                'description' => 'ঢাকা ও সারা দেশের প্রধান সড়কে দোকান, শোরুম, অফিস স্পেস ও ওপেন ফ্লোর বিক্রয়। উচ্চ ভাড়া আয় ও নিশ্চিত মূলধনী বৃদ্ধির বাণিজ্যিক বিনিয়োগের সেরা ভেরিফাইড লিস্টিং।',
+                'keywords'    => 'commercial space for sale dhaka, commercial space for sale bangladesh, shop for sale in aftabnagar, showroom space dhaka, office space for sale dhaka, দোকান বিক্রয়, বাণিজ্যিক স্পেস ঢাকা, PropertyKoi',
                 'image'       => self::getCustomOrAssetImage('adm_seo_commercial_og_image', 'og-commercial.jpg'),
                 'url'         => route('properties.commercial'),
                 'type'        => 'website',
             ],
             'land-share-search' => [
-                'title'       => "Land Share Projects in Aftabnagar, Dhaka | যৌথ ল্যান্ড শেয়ার প্রকল্প — {$siteName}",
-                'description' => 'যৌথভাবে জমি কিনে সাশ্রয়ী খরচে আধুনিক ফ্ল্যাট নির্মাণের ভেরিফাইড ল্যান্ড শেয়ার প্রজেক্ট। বাজারদরের চেয়ে ৩০-৩৫% কম খরচে নিজস্ব ফ্ল্যাটের মালিক হোন।',
-                'keywords'    => 'land share flat in aftabnagar, land share project dhaka, affordable flat share bangladesh, ল্যান্ড শেয়ার প্রজেক্ট ঢাকা, PropertyKoi',
+                'title'       => "Land Share Projects in Dhaka & Bangladesh | যৌথ ল্যান্ড শেয়ার প্রকল্প — {$siteName}",
+                'description' => 'ঢাকা, আফতাবনগর ও বিভিন্ন প্রাইম এলাকায় যৌথভাবে জমি কিনে সাশ্রয়ী খরচে আধুনিক ফ্ল্যাট নির্মাণের ভেরিফাইড ল্যান্ড শেয়ার প্রজেক্ট। বাজারদরের চেয়ে ৩০-৩৫% কম খরচে নিজস্ব ফ্ল্যাটের মালিক হোন।',
+                'keywords'    => 'land share flat in dhaka, land share flat in bangladesh, land share flat in aftabnagar, land share project dhaka, affordable flat share bangladesh, ল্যান্ড শেয়ার প্রজেক্ট ঢাকা, PropertyKoi',
                 'image'       => self::getCustomOrAssetImage('adm_seo_commercial_og_image', 'og-commercial.jpg'),
                 'url'         => route('properties.share'),
                 'type'        => 'website',
             ],
             'all-search' => [
-                'title'       => "Verified Properties for Sale in Dhaka | সকল প্রপার্টি লিস্টিং — {$siteName}",
-                'description' => 'আফতাবনগর, বসুন্ধরা, পূর্বাচল ও ঢাকার সকল যাচাইকৃত জমি, রেডি ফ্ল্যাট, দোকান এবং ল্যান্ড শেয়ার প্রপার্টি এক জায়গায় খুঁজুন ও তুলনা করুন। সম্পূর্ণ ভেরিফাইড ও নির্ভরযোগ্য।',
+                'title'       => "Verified Properties for Sale in Dhaka & Bangladesh | সকল প্রপার্টি লিস্টিং — {$siteName}",
+                'description' => 'ঢাকা, বসুন্ধরা, পূর্বাচল, উত্তরা, গুলশান, আফতাবনগর ও সারা দেশের সকল যাচাইকৃত জমি, রেডি ফ্ল্যাট, দোকান এবং ল্যান্ড শেয়ার প্রপার্টি এক জায়গায় খুঁজুন ও তুলনা করুন। সম্পূর্ণ ভেরিফাইড ও নির্ভরযোগ্য।',
                 'keywords'    => $defaultKeywords,
                 'image'       => self::getCustomOrAssetImage('adm_seo_default_og_image', 'og-default.jpg'),
                 'url'         => route('properties.index'),
@@ -1028,7 +1028,8 @@ class SeoService
     }
 
     /**
-     * Build dynamic SEO meta for property search pages, with hyper-focused Aftabnagar buyer targeting.
+     * Build dynamic SEO meta for property search pages across Dhaka & Bangladesh,
+     * with specialized buyer targeting when specific areas (like Aftabnagar, Bashundhara, Purbachal) are filtered.
      */
     public static function getSearchOgMeta(string $forcedType, array $filters = []): array
     {
@@ -1045,37 +1046,72 @@ class SeoService
             default => 'all-search',
         };
 
-        if (!$isAftab && empty($block)) {
+        if (empty($area) && empty($block)) {
             return self::getOgMeta($pageSlug);
         }
 
-        $blockText = !empty($block) ? "ব্লক {$block} (Block {$block})" : "ব্লক A-M";
-        $blockQuery = !empty($block) ? " Block {$block}" : "";
+        if ($isAftab || (!empty($block) && empty($area))) {
+            $blockText = !empty($block) ? "ব্লক {$block} (Block {$block})" : "ব্লক A-M";
+            $blockQuery = !empty($block) ? " Block {$block}" : "";
 
-        if ($forcedType === 'land') {
-            $title = "Aftabnagar{$blockQuery} Plots for Sale | আফতাবনগর {$blockText} জমি ও প্লট বিক্রয় ২০২৬ — {$siteName}";
-            $desc = "আফতাবনগর {$blockText}-এ সরাসরি যাচাইকৃত আবাসিক ও বাণিজ্যিক প্লট। ২০ থেকে ৬০ ফুট রাস্তা, কর্নার ও লেকভিউ প্লটের কাঠাপ্রতি বাজারদর ও লাইভ লিস্টিং দেখুন।";
-            $keywords = "aftabnagar plot for sale, aftabnagar block {$block} plot, buy land in aftabnagar, aftabnagar plot price per katha, আফতাবনগর জমি বিক্রয়, আফতাবনগর প্লট, PropertyKoi";
-            $image = self::getCustomOrAssetImage('adm_seo_land_og_image', 'og-land.jpg');
-            $url = route('properties.land', array_filter(['area' => 'Aftabnagar', 'block' => $block]));
-        } elseif ($forcedType === 'flat') {
-            $title = "Flats for Sale in Aftabnagar{$blockQuery} | আফতাবনগর {$blockText} ফ্ল্যাট বিক্রয় — {$siteName}";
-            $desc = "আফতাবনগর {$blockText}-এ ৩ ও ৪ বেডরুমের রেডি এবং নির্মাণাধীন আধুনিক ফ্ল্যাট ও অ্যাপার্টমেন্ট। সঠিক স্কয়ারফুট রেট ও ভেরিফাইড কাগজপত্রে কিনুন PropertyKoi-তে।";
-            $keywords = "flat for sale in aftabnagar, ready flat aftabnagar, apartment aftabnagar block {$block}, 3 bed flat aftabnagar, আফতাবনগর ফ্ল্যাট বিক্রয়, PropertyKoi";
-            $image = self::getCustomOrAssetImage('adm_seo_flat_og_image', 'og-flat.jpg');
-            $url = route('properties.flat', array_filter(['area' => 'Aftabnagar', 'block' => $block]));
-        } elseif ($forcedType === 'land_share') {
-            $title = "Land Share Projects in Aftabnagar{$blockQuery} | আফতাবনগর ল্যান্ড শেয়ার — {$siteName}";
-            $desc = "আফতাবনগর {$blockText}-এ সাশ্রয়ী খরচে আধুনিক ফ্ল্যাট নির্মাণের ভেরিফাইড যৌথ ল্যান্ড শেয়ার প্রকল্প। বাজারদরের চেয়ে ৩০-৩৫% কম খরচে নিজস্ব ফ্ল্যাট।";
-            $keywords = "land share aftabnagar, land share flat project aftabnagar block {$block}, affordable flat dhaka, আফতাবনগর ল্যান্ড শেয়ার, PropertyKoi";
-            $image = self::getCustomOrAssetImage('adm_seo_commercial_og_image', 'og-commercial.jpg');
-            $url = route('properties.share', array_filter(['area' => 'Aftabnagar', 'block' => $block]));
+            if ($forcedType === 'land') {
+                $title = "Aftabnagar{$blockQuery} Plots for Sale | আফতাবনগর {$blockText} জমি ও প্লট বিক্রয় ২০২৬ — {$siteName}";
+                $desc = "আফতাবনগর {$blockText}-এ সরাসরি যাচাইকৃত আবাসিক ও বাণিজ্যিক প্লট। ২০ থেকে ৬০ ফুট রাস্তা, কর্নার ও লেকভিউ প্লটের কাঠাপ্রতি বাজারদর ও লাইভ লিস্টিং দেখুন।";
+                $keywords = "aftabnagar plot for sale, aftabnagar block {$block} plot, buy land in aftabnagar, aftabnagar plot price per katha, আফতাবনগর জমি বিক্রয়, আফতাবনগর প্লট, PropertyKoi";
+                $image = self::getCustomOrAssetImage('adm_seo_land_og_image', 'og-land.jpg');
+                $url = route('properties.land', array_filter(['area' => 'Aftabnagar', 'block' => $block]));
+            } elseif ($forcedType === 'flat') {
+                $title = "Flats for Sale in Aftabnagar{$blockQuery} | আফতাবনগর {$blockText} ফ্ল্যাট বিক্রয় — {$siteName}";
+                $desc = "আফতাবনগর {$blockText}-এ ৩ ও ৪ বেডরুমের রেডি এবং নির্মাণাধীন আধুনিক ফ্ল্যাট ও অ্যাপার্টমেন্ট। সঠিক স্কয়ারফুট রেট ও ভেরিফাইড কাগজপত্রে কিনুন PropertyKoi-তে।";
+                $keywords = "flat for sale in aftabnagar, ready flat aftabnagar, apartment aftabnagar block {$block}, 3 bed flat aftabnagar, আফতাবনগর ফ্ল্যাট বিক্রয়, PropertyKoi";
+                $image = self::getCustomOrAssetImage('adm_seo_flat_og_image', 'og-flat.jpg');
+                $url = route('properties.flat', array_filter(['area' => 'Aftabnagar', 'block' => $block]));
+            } elseif ($forcedType === 'land_share') {
+                $title = "Land Share Projects in Aftabnagar{$blockQuery} | আফতাবনগর ল্যান্ড শেয়ার — {$siteName}";
+                $desc = "আফতাবনগর {$blockText}-এ সাশ্রয়ী খরচে আধুনিক ফ্ল্যাট নির্মাণের ভেরিফাইড যৌথ ল্যান্ড শেয়ার প্রকল্প। বাজারদরের চেয়ে ৩০-৩৫% কম খরচে নিজস্ব ফ্ল্যাট।";
+                $keywords = "land share aftabnagar, land share flat project aftabnagar block {$block}, affordable flat dhaka, আফতাবনগর ল্যান্ড শেয়ার, PropertyKoi";
+                $image = self::getCustomOrAssetImage('adm_seo_commercial_og_image', 'og-commercial.jpg');
+                $url = route('properties.share', array_filter(['area' => 'Aftabnagar', 'block' => $block]));
+            } else {
+                $title = "Properties for Sale in Aftabnagar{$blockQuery} | আফতাবনগর {$blockText} সকল প্রপার্টি — {$siteName}";
+                $desc = "আফতাবনগর {$blockText}-এর সকল যাচাইকৃত আবাসিক প্লট, রেডি ফ্ল্যাট, দোকান ও ল্যান্ড শেয়ার প্রপার্টি এক জায়গায় খুঁজুন ও তুলনা করুন।";
+                $keywords = "aftabnagar properties for sale, aftabnagar plot flat shop, aftabnagar real estate, আফতাবনগর প্রপার্টি, PropertyKoi";
+                $image = self::getCustomOrAssetImage('adm_seo_default_og_image', 'og-default.jpg');
+                $url = route('properties.index', array_filter(['area' => 'Aftabnagar', 'block' => $block]));
+            }
         } else {
-            $title = "Properties for Sale in Aftabnagar{$blockQuery} | আফতাবনগর {$blockText} সকল প্রপার্টি — {$siteName}";
-            $desc = "আফতাবনগর {$blockText}-এর সকল যাচাইকৃত আবাসিক প্লট, রেডি ফ্ল্যাট, দোকান ও ল্যান্ড শেয়ার প্রপার্টি এক জায়গায় খুঁজুন ও তুলনা করুন।";
-            $keywords = "aftabnagar properties for sale, aftabnagar plot flat shop, aftabnagar real estate, আফতাবনগর প্রপার্টি, PropertyKoi";
-            $image = self::getCustomOrAssetImage('adm_seo_default_og_image', 'og-default.jpg');
-            $url = route('properties.index', array_filter(['area' => 'Aftabnagar', 'block' => $block]));
+            $areaName = htmlspecialchars($area, ENT_QUOTES, 'UTF-8');
+            if ($forcedType === 'land') {
+                $title = "Plots & Land for Sale in {$areaName} | {$areaName}-এ জমি ও প্লট বিক্রয় — {$siteName}";
+                $desc = "{$areaName}-এ সরাসরি যাচাইকৃত আবাসিক ও বাণিজ্যিক প্লট। ২০ থেকে ৬০ ফুট রাস্তা, কর্নার প্লট ও হালনাগাদ কাগজপত্রসহ সেরা জমির লিস্টিং দেখুন PropertyKoi-তে।";
+                $keywords = "plots for sale in {$areaName}, buy land in {$areaName}, {$areaName} plot price, {$areaName} জমি বিক্রয়, PropertyKoi";
+                $image = self::getCustomOrAssetImage('adm_seo_land_og_image', 'og-land.jpg');
+                $url = route('properties.land', ['area' => $area]);
+            } elseif ($forcedType === 'flat') {
+                $title = "Flats & Apartments for Sale in {$areaName} | {$areaName}-এ ফ্ল্যাট বিক্রয় — {$siteName}";
+                $desc = "{$areaName}-এ ৩ ও ৪ বেডরুমের রেডি এবং নির্মাণাধীন আধুনিক ফ্ল্যাট ও অ্যাপার্টমেন্ট। সঠিক স্কয়ারফুট রেট ও ভেরিফাইড কাগজপত্রে কিনুন PropertyKoi-তে।";
+                $keywords = "flats for sale in {$areaName}, apartment in {$areaName}, ready flat {$areaName}, {$areaName} ফ্ল্যাট বিক্রয়, PropertyKoi";
+                $image = self::getCustomOrAssetImage('adm_seo_flat_og_image', 'og-flat.jpg');
+                $url = route('properties.flat', ['area' => $area]);
+            } elseif ($forcedType === 'land_share') {
+                $title = "Land Share Projects in {$areaName} | {$areaName} ল্যান্ড শেয়ার প্রকল্প — {$siteName}";
+                $desc = "{$areaName}-এ সাশ্রয়ী খরচে আধুনিক ফ্ল্যাট নির্মাণের ভেরিফাইড যৌথ ল্যান্ড শেয়ার প্রকল্প। বাজারদরের চেয়ে ৩০-৩৫% কম খরচে নিজস্ব ফ্ল্যাট।";
+                $keywords = "land share in {$areaName}, flat share project {$areaName}, affordable flat {$areaName}, {$areaName} ল্যান্ড শেয়ার, PropertyKoi";
+                $image = self::getCustomOrAssetImage('adm_seo_commercial_og_image', 'og-commercial.jpg');
+                $url = route('properties.share', ['area' => $area]);
+            } elseif ($forcedType === 'commercial') {
+                $title = "Commercial Space & Shops in {$areaName} | {$areaName}-এ দোকান ও কমার্শিয়াল স্পেস — {$siteName}";
+                $desc = "{$areaName}-এ দোকান, শোরুম, অফিস স্পেস ও ওপেন ফ্লোর বিক্রয়। নিশ্চিত ভাড়া আয় ও মূলধনী বৃদ্ধির সেরা ভেরিফাইড লিস্টিং।";
+                $keywords = "commercial space in {$areaName}, shop for sale in {$areaName}, {$areaName} বাণিজ্যিক স্পেস, PropertyKoi";
+                $image = self::getCustomOrAssetImage('adm_seo_commercial_og_image', 'og-commercial.jpg');
+                $url = route('properties.commercial', ['area' => $area]);
+            } else {
+                $title = "Properties for Sale in {$areaName} | {$areaName}-এর সকল প্রপার্টি — {$siteName}";
+                $desc = "{$areaName}-এর সকল যাচাইকৃত আবাসিক প্লট, রেডি ফ্ল্যাট, দোকান ও ল্যান্ড শেয়ার প্রপার্টি এক জায়গায় খুঁজুন ও তুলনা করুন PropertyKoi-তে।";
+                $keywords = "properties for sale in {$areaName}, real estate in {$areaName}, {$areaName} প্রপার্টি, PropertyKoi";
+                $image = self::getCustomOrAssetImage('adm_seo_default_og_image', 'og-default.jpg');
+                $url = route('properties.index', ['area' => $area]);
+            }
         }
 
         $faqs = self::getHubFaqs($pageSlug);

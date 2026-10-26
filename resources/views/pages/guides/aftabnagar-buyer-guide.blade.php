@@ -543,6 +543,54 @@
             </div>
         </section>
 
+        <!-- Explore Other Prime Locations in Dhaka & Bangladesh -->
+        <section class="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 shadow-xs space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <div>
+                    <h3 class="text-base sm:text-lg font-black text-slate-900 m-0">
+                        ঢাকা ডিভিশন ও সারা দেশের অন্যান্য জনপ্রিয় প্রপার্টি এলাকা
+                    </h3>
+                    <p class="text-xs text-slate-500 m-0">আফতাবনগরের পাশাপাশি বসুন্ধরা, পূর্বাচল ও ঢাকার অন্যান্য ভেরিফাইড প্রপার্টি দেখুন</p>
+                </div>
+                <a href="{{ route('properties.index') }}" class="text-xs font-bold text-emerald-700 hover:text-emerald-800 flex items-center gap-1">
+                    <span>সব লিস্টিং</span> <span>&rarr;</span>
+                </a>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 pt-2">
+                <a href="{{ route('properties.land', ['area' => 'Bashundhara']) }}" class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 hover:border-emerald-400 hover:bg-emerald-50/40 transition text-center group">
+                    <span class="text-lg block mb-1">🏢</span>
+                    <span class="text-xs font-black text-slate-900 group-hover:text-emerald-700 block">বসুন্ধরা আ/এ</span>
+                    <span class="text-[10px] text-slate-400 block mt-0.5">ব্লক A-P প্লট ও ফ্ল্যাট</span>
+                </a>
+                <a href="{{ route('properties.land', ['area' => 'Purbachal']) }}" class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 hover:border-emerald-400 hover:bg-emerald-50/40 transition text-center group">
+                    <span class="text-lg block mb-1">🌳</span>
+                    <span class="text-xs font-black text-slate-900 group-hover:text-emerald-700 block">পূর্বাচল নতুন শহর</span>
+                    <span class="text-[10px] text-slate-400 block mt-0.5">রাজউক সেক্টর প্লট</span>
+                </a>
+                <a href="{{ route('properties.flat', ['area' => 'Gulshan']) }}" class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 hover:border-emerald-400 hover:bg-emerald-50/40 transition text-center group">
+                    <span class="text-lg block mb-1">💎</span>
+                    <span class="text-xs font-black text-slate-900 group-hover:text-emerald-700 block">গুলশান ও বনানী</span>
+                    <span class="text-[10px] text-slate-400 block mt-0.5">লাক্সারি ফ্ল্যাট</span>
+                </a>
+                <a href="{{ route('properties.flat', ['area' => 'Uttara']) }}" class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 hover:border-emerald-400 hover:bg-emerald-50/40 transition text-center group">
+                    <span class="text-lg block mb-1">🚇</span>
+                    <span class="text-xs font-black text-slate-900 group-hover:text-emerald-700 block">উত্তরা ও মিরপুর</span>
+                    <span class="text-[10px] text-slate-400 block mt-0.5">মেট্রোরেল করিডোর</span>
+                </a>
+                <a href="{{ route('properties.flat', ['area' => 'Dhanmondi']) }}" class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 hover:border-emerald-400 hover:bg-emerald-50/40 transition text-center group">
+                    <span class="text-lg block mb-1">🏫</span>
+                    <span class="text-xs font-black text-slate-900 group-hover:text-emerald-700 block">ধানমন্ডি</span>
+                    <span class="text-[10px] text-slate-400 block mt-0.5">অভিজাত এলাকা</span>
+                </a>
+                <a href="{{ route('properties.land', ['area' => 'Savar']) }}" class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 hover:border-emerald-400 hover:bg-emerald-50/40 transition text-center group">
+                    <span class="text-lg block mb-1">🏭</span>
+                    <span class="text-xs font-black text-slate-900 group-hover:text-emerald-700 block">সাভার ও কেরানীগঞ্জ</span>
+                    <span class="text-[10px] text-slate-400 block mt-0.5">গ্রোথ ইনভেস্টমেন্ট</span>
+                </a>
+            </div>
+        </section>
+
     </div>
 </div>
 

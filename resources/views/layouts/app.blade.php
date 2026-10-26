@@ -25,8 +25,8 @@
         $seoData = array_merge($defaultSeo, is_array($seo ?? null) ? $seo : []);
 
         $seoTitle = $seoData['title'] ?? ($siteName . ' — ' . $siteTagline);
-        $seoDesc = $seoData['description'] ?? 'ঢাকা, বসুন্ধরা, গুলশান ও আফতাবনগরসহ প্রাইম লোকেশনের ভেরিফাইড জমি, ফ্ল্যাট ও কমার্শিয়াল প্রপার্টি মার্কেটপ্লেস। নিরাপদ ও স্বচ্ছ লেনদেনে সেরা প্রপার্টি খুঁজুন বা কিনুন।';
-        $seoKeywords = $seoData['keywords'] ?? 'বসুন্ধরা ফ্ল্যাট, গুলশান প্রপার্টি, আফতাবনগর জমি বিক্রয়, বসুন্ধরা জমি, Bashundhara flat for sale, Gulshan flat price, Aftabnagar land, রেডি ফ্ল্যাট ঢাকা, কমার্শিয়াল দোকান, ল্যান্ড শেয়ার প্রজেক্ট, PropertyKoi, প্রপার্টি কই';
+        $seoDesc = $seoData['description'] ?? 'ঢাকা, বসুন্ধরা, পূর্বাচল, গুলশান, উত্তরা ও আফতাবনগরসহ সারা বাংলাদেশের ভেরিফাইড জমি, ফ্ল্যাট ও কমার্শিয়াল প্রপার্টি মার্কেটপ্লেস। নিরাপদ ও স্বচ্ছ লেনদেনে সেরা প্রপার্টি খুঁজুন বা কিনুন।';
+        $seoKeywords = $seoData['keywords'] ?? 'property in bangladesh, dhaka real estate marketplace, বসুন্ধরা ফ্ল্যাট, পূর্বাচল প্লট, গুলশান প্রপার্টি, উত্তরা ফ্ল্যাট, আফতাবনগর জমি বিক্রয়, বসুন্ধরা জমি, Bashundhara flat, Purbachal land, ready flat dhaka, PropertyKoi, প্রপার্টি কই';
         $seoImage = \App\Services\SeoService::formatOgImageUrl($seoData['image'] ?? null, 'og-default.jpg');
         $seoImages = !empty($seoData['images']) && is_array($seoData['images'])
             ? array_map(fn($img) => \App\Services\SeoService::formatOgImageUrl($img, 'og-default.jpg'), $seoData['images'])

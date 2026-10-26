@@ -12,17 +12,17 @@
         <div class="max-w-5xl mx-auto text-center relative z-10 space-y-4 sm:space-y-5">
             <span class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-xs md:text-sm font-bold tracking-wide shadow-xs">
                 <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                ১০০% ভেরিফাইড ও নির্ভরযোগ্য প্রপার্টি মার্কেটপ্লেস
+                ১০০% ভেরিফাইড প্রপার্টি • ঢাকা ডিভিশন ও সারা বাংলাদেশ
             </span>
 
             <h1 class="text-3xl sm:text-5xl md:text-6xl font-black tracking-tight leading-tight md:leading-tight text-white">
-                ঢাকা, বসুন্ধরা, গুলশান ও আফতাবনগরের <br class="hidden sm:inline">
+                ঢাকা ও সারা দেশের <br class="hidden sm:inline">
                 <span class="text-emerald-400 font-black inline-block"
-                      style="background: linear-gradient(90deg, #34d399, #2dd4bf); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">সরাসরি প্রপার্টি</span> মার্কেটপ্লেস
+                      style="background: linear-gradient(90deg, #34d399, #2dd4bf); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">ভেরিফাইড প্রপার্টি</span> মার্কেটপ্লেস
             </h1>
 
             <p class="max-w-2xl mx-auto text-sm sm:text-base md:text-lg text-slate-200 leading-relaxed font-medium">
-                যাচাইকৃত কাগজপত্র, সঠিক বাজারমূল্য এবং সরাসরি আলোচনার মাধ্যমে সেরা জমি, ফ্ল্যাট বা দোকান খুঁজুন ও কিনুন।
+                বসুন্ধরা, পূর্বাচল, আফতাবনগর, উত্তরা ও গুলশানসহ ঢাকা ও বাংলাদেশের যেকোনো প্রাইম লোকেশনের যাচাইকৃত জমি, ফ্ল্যাট বা দোকান খুঁজুন এবং স্বচ্ছ লেনদেনে কিনুন।
             </p>
 
             <!-- Search Filter Box -->
@@ -221,12 +221,30 @@
         </div>
     </section>
 
-    <!-- Aftabnagar Buyer Hub & Price Index 2026 Focus Banner -->
-    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Featured Prime Property Hubs in Dhaka & Bangladesh (with Aftabnagar Spotlight) -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
+            <div>
+                <span class="text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200 uppercase tracking-wider">
+                    📍 ঢাকা ডিভিশন ও সারা দেশের প্রাইম হাব
+                </span>
+                <h2 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight mt-1.5 m-0">
+                    জনপ্রিয় রিয়েল এস্টেট এলাকা ও মার্কেট স্পটলাইট
+                </h2>
+                <p class="text-xs sm:text-sm text-slate-500 m-0">
+                    ঢাকা ও প্রধান বাণিজ্যিক শহরগুলোর ভেরিফাইড প্লট, রেডি ফ্ল্যাট ও স্পেশাল বায়ার গাইড
+                </p>
+            </div>
+            <a href="{{ route('properties.index') }}" class="text-xs font-bold text-emerald-700 hover:text-emerald-800 flex items-center gap-1">
+                <span>সব এলাকা দেখুন</span> <span>&rarr;</span>
+            </a>
+        </div>
+
+        <!-- Spotlight Card: Aftabnagar 2026 Price Index & Buyer Guide -->
         <div class="bg-gradient-to-r from-emerald-950 via-slate-900 to-teal-950 rounded-3xl p-6 sm:p-8 lg:p-10 text-white shadow-xl border border-emerald-500/30 flex flex-col lg:flex-row items-center justify-between gap-6 relative overflow-hidden">
             <div class="space-y-3 max-w-2xl relative z-10">
                 <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 font-extrabold text-xs border border-emerald-400/30">
-                    <span>📍</span> স্পেশাল ফোকাস: আফতাবনগর ২০২৬
+                    <span>🔥</span> হট ট্রেন্ডিং স্পটলাইট: আফতাবনগর ২০২৬
                 </span>
                 <h3 class="text-2xl sm:text-3xl font-black text-white tracking-tight m-0">
                     আফতাবনগর প্রপার্টি বায়ার গাইড ও কাঠাপ্রতি বাজারদর ২০২৬
@@ -252,6 +270,40 @@
                 </a>
             </div>
         </div>
+
+        <!-- Top Area Quick Filter Grid -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 pt-2">
+            <a href="{{ route('properties.land', ['area' => 'Bashundhara']) }}" class="p-4 rounded-2xl bg-white border border-slate-200/90 hover:border-emerald-400 hover:shadow-md transition text-center group">
+                <span class="text-xl block mb-1">🏢</span>
+                <span class="text-xs font-black text-slate-900 group-hover:text-emerald-700 block">বসুন্ধরা আ/এ</span>
+                <span class="text-[10px] text-slate-400 block mt-0.5">ব্লক A-P প্লট ও ফ্ল্যাট</span>
+            </a>
+            <a href="{{ route('properties.land', ['area' => 'Purbachal']) }}" class="p-4 rounded-2xl bg-white border border-slate-200/90 hover:border-emerald-400 hover:shadow-md transition text-center group">
+                <span class="text-xl block mb-1">🌳</span>
+                <span class="text-xs font-black text-slate-900 group-hover:text-emerald-700 block">পূর্বাচল নতুন শহর</span>
+                <span class="text-[10px] text-slate-400 block mt-0.5">রাজউক সেক্টর প্লট</span>
+            </a>
+            <a href="{{ route('properties.flat', ['area' => 'Gulshan']) }}" class="p-4 rounded-2xl bg-white border border-slate-200/90 hover:border-emerald-400 hover:shadow-md transition text-center group">
+                <span class="text-xl block mb-1">💎</span>
+                <span class="text-xs font-black text-slate-900 group-hover:text-emerald-700 block">গুলশান ও বনানী</span>
+                <span class="text-[10px] text-slate-400 block mt-0.5">লাক্সারি অ্যাপার্টমেন্ট</span>
+            </a>
+            <a href="{{ route('properties.flat', ['area' => 'Uttara']) }}" class="p-4 rounded-2xl bg-white border border-slate-200/90 hover:border-emerald-400 hover:shadow-md transition text-center group">
+                <span class="text-xl block mb-1">🚇</span>
+                <span class="text-xs font-black text-slate-900 group-hover:text-emerald-700 block">উত্তরা ও মিরপুর</span>
+                <span class="text-[10px] text-slate-400 block mt-0.5">মেট্রোরেল করিডোর</span>
+            </a>
+            <a href="{{ route('properties.flat', ['area' => 'Dhanmondi']) }}" class="p-4 rounded-2xl bg-white border border-slate-200/90 hover:border-emerald-400 hover:shadow-md transition text-center group">
+                <span class="text-xl block mb-1">🏫</span>
+                <span class="text-xs font-black text-slate-900 group-hover:text-emerald-700 block">ধানমন্ডি ও লালমাটিয়া</span>
+                <span class="text-[10px] text-slate-400 block mt-0.5">অভিজাত ফ্যামিলি জোন</span>
+            </a>
+            <a href="{{ route('properties.land', ['area' => 'Savar']) }}" class="p-4 rounded-2xl bg-white border border-slate-200/90 hover:border-emerald-400 hover:shadow-md transition text-center group">
+                <span class="text-xl block mb-1">🏭</span>
+                <span class="text-xs font-black text-slate-900 group-hover:text-emerald-700 block">সাভার ও কেরানীগঞ্জ</span>
+                <span class="text-[10px] text-slate-400 block mt-0.5">গ্রেটার ঢাকা ইনভেস্টমেন্ট</span>
+            </a>
+        </div>
     </section>
 
     <!-- Authority / Platform Overview Section for SEO & AEO -->
@@ -265,7 +317,7 @@
                     কেন PropertyKoi বাংলাদেশের সেরা প্রপার্টি কেনা-বেচার প্ল্যাটফর্ম?
                 </h2>
                 <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                    PropertyKoi.com হলো ঢাকা, বসুন্ধরা, গুলশান ও আফতাবনগরসহ প্রাইম লোকেশনের বিশ্বস্ত ও ভেরিফাইড প্রপার্টি মার্কেটপ্লেস (Property Buy Sell Platform in Bangladesh)। নির্ভরযোগ্য ও স্বচ্ছ প্রক্রিয়ায় প্রকৃত মালিক ও পেশাদার প্রতিনিধিদের সাথে জমি, ফ্ল্যাট, কমার্শিয়াল স্পেস ও ল্যান্ড শেয়ার কেনাবেচা করুন।
+                    PropertyKoi.com হলো ঢাকা, বসুন্ধরা, পূর্বাচল, গুলশান, উত্তরা ও আফতাবনগরসহ সারা বাংলাদেশের বিশ্বস্ত ও ভেরিফাইড প্রপার্টি মার্কেটপ্লেস (Property Buy Sell Platform in Bangladesh)। নির্ভরযোগ্য ও স্বচ্ছ প্রক্রিয়ায় প্রকৃত মালিক ও পেশাদার প্রতিনিধিদের সাথে জমি, ফ্ল্যাট, কমার্শিয়াল স্পেস ও ল্যান্ড শেয়ার কেনাবেচা করুন।
                 </p>
             </div>
 

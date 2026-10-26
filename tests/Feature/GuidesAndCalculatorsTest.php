@@ -208,6 +208,7 @@ class GuidesAndCalculatorsTest extends TestCase
 
     public function test_aftabnagar_search_seo_is_dynamically_generated()
     {
+        // 1. Aftabnagar with Block
         $response = $this->get('/land-search?area=Aftabnagar&block=A');
         $response->assertStatus(200);
         $response->assertSee('Aftabnagar Block A Plots for Sale');
@@ -215,5 +216,15 @@ class GuidesAndCalculatorsTest extends TestCase
         $content = $response->getContent();
         $this->assertStringNotContainsString('০% ব্রোকার ফি', $content);
         $this->assertStringNotContainsString('দালাল ছাড়া', $content);
+
+        // 2. Another prime area (e.g. Bashundhara)
+        $bashundharaRes = $this->get('/land-search?area=Bashundhara');
+        $bashundharaRes->assertStatus(200);
+        $bashundharaRes->assertSee('Plots &amp; Land for Sale in Bashundhara', false);
+
+        // 3. General search covers all of Dhaka & Bangladesh
+        $generalRes = $this->get('/land-search');
+        $generalRes->assertStatus(200);
+        $generalRes->assertSee('Plots &amp; Land for Sale in Dhaka &amp; Bangladesh', false);
     }
 }

@@ -35,6 +35,7 @@ class Property extends Model
         'longitude',
         'google_map_pin_url',
         'other_features',
+        'custom_fields',
         'fb_caption',
         'fb_post_id',
         'views_count',
@@ -44,6 +45,7 @@ class Property extends Model
     protected $casts = [
         'address_visibility' => 'array',
         'other_features' => 'array',
+        'custom_fields' => 'array',
         'is_featured' => 'boolean',
         'is_best_deal' => 'boolean',
         'is_negotiable' => 'boolean',
@@ -52,6 +54,15 @@ class Property extends Model
         'views_count' => 'integer',
         'last_verified_at' => 'datetime',
     ];
+
+    public function setCustomFieldsAttribute($value): void
+    {
+        if (is_array($value)) {
+            $this->attributes['custom_fields'] = json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        } else {
+            $this->attributes['custom_fields'] = $value;
+        }
+    }
 
     // Relationships
     public function land(): HasOne
@@ -249,5 +260,92 @@ class Property extends Model
             'archived' => 'bg-rose-100 text-rose-800 border-rose-300',
             default => 'bg-slate-100 text-slate-700 border-slate-200',
         };
+    }
+
+    public static function getDistinctAreas(): array
+    {
+        $presets = [
+            'Aftabnagar'      => 'আফতাবনগর (Aftabnagar)',
+            'Bashundhara R/A' => 'বসুন্ধরা আ/এ (Bashundhara)',
+            'Purbachal'       => 'পূর্বাচল (Purbachal)',
+            'Uttara'          => 'উত্তরা (Uttara)',
+            'Banasree'        => 'বনশ্রী (Banasree)',
+            'Badda'           => 'বাড্ডা (Badda)',
+            'Gulshan'         => 'গুলশান (Gulshan)',
+            'Dhanmondi'       => 'ধানমন্ডি (Dhanmondi)',
+            'Mirpur'          => 'মিরপুর (Mirpur)',
+            'Mohammadpur'     => 'মোহাম্মদপুর (Mohammadpur)',
+            'Uttarkhan'       => 'উত্তরখান (Uttarkhan)',
+            'Dakshinkhan'     => 'দক্ষিণখান (Dakshinkhan)',
+            'Dasherkandi'     => 'দাশেরকান্দি (Dasherkandi)',
+        ];
+
+        try {
+            $dbAreas = self::whereNotNull('area')
+                ->where('area', '!=', '')
+                ->distinct()
+                ->pluck('area');
+
+            foreach ($dbAreas as $a) {
+                $a = trim($a);
+                if (!empty($a) && !isset($presets[$a])) {
+                    $presets[$a] = $a;
+                }
+            }
+        } catch (\Throwable $e) {
+            // fallback
+        }
+
+        return $presets;
+    }
+
+    public static function getDistinctCustomKeys(): array
+    {
+        $presets = [
+            'মৌজা (Mouza)',
+            'RS দাগ নম্বর',
+            'CS দাগ নম্বর',
+            'SA দাগ নম্বর',
+            'BS দাগ নম্বর',
+            'খতিয়ান নম্বর',
+            'কাগজপত্রের অবস্থা',
+            'হস্তান্তর সময়সীমা',
+            'নিকটবর্তী ল্যান্ডমার্ক',
+            'রাস্তার অবস্থান ও চওড়া',
+            'বিদ্যুৎ সংযোগ',
+            'ওয়াইড ড্রেনেজ ব্যবস্থা',
+            'নিরাপদ আবাসিক পরিবেশ',
+            'গ্যাস সংযোগ',
+            'পানি সরবরাহ (WASA)',
+            'বাউন্ডারি ওয়াল',
+            'মাটি ভরাট স্ট্যাটাস',
+            'ফেসবুক / মেসেঞ্জার লিংক',
+        ];
+
+        try {
+            $records = self::whereNotNull('custom_fields')->pluck('custom_fields');
+            foreach ($records as $fields) {
+                if (is_string($fields)) {
+                    $fields = json_decode($fields, true);
+                }
+                if (is_array($fields)) {
+                    foreach ($fields as $item) {
+                        $key = '';
+                        if (is_array($item) && !empty($item['key'])) {
+                            $key = trim($item['key']);
+                        } elseif (is_string($item)) {
+                            $key = trim($item);
+                        }
+                        if (!empty($key) && !in_array($key, $presets, true)) {
+                            $presets[] = $key;
+                        }
+                    }
+                }
+            }
+        } catch (\Throwable $e) {
+            // fallback
+        }
+
+        return array_values(array_unique($presets));
     }
 }

@@ -46,8 +46,8 @@
                 <span>🗄️</span> প্রাইভেট ভল্ট
             </a>
 
-            <a href="{{ route('admin.properties.create') }}" class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition flex items-center gap-1.5 shadow-sm">
-                <span>➕</span> নতুন লিস্টিং
+            <a href="{{ route('property.create') }}" target="_blank" class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition flex items-center gap-1.5 shadow-sm" title="নতুন ট্যাবে ফর্ম খুলুন">
+                <span>➕</span> নতুন লিস্টিং ↗
             </a>
         </div>
     </div>

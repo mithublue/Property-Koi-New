@@ -254,12 +254,12 @@
                         <label class="block font-bold text-emerald-800 uppercase mb-1">এলাকা / এরিয়া (Area) *</label>
                         <select x-model="formData.area"
                             class="w-full border rounded-xl px-3 py-2.5 text-sm bg-white font-bold text-emerald-700">
-                            @foreach (['Aftabnagar' => 'আফতাবনগর (Aftabnagar)', 'Bashundhara R/A' => 'বসুন্ধরা আ/এ', 'Purbachal' => 'পূর্বাচল', 'Banasree' => 'বনশ্রী', 'Badda' => 'বাড্ডা', 'Gulshan' => 'গুলশান', 'Uttara' => 'উত্তরা', 'Dhanmondi' => 'ধানমন্ডি', 'Mirpur' => 'মিরপুর', 'Mohammadpur' => 'মোহাম্মদপুর'] as $aKey => $aLabel)
-                                <option value="{{ $aKey }}">{{ $aLabel }}</option>
+                            @foreach ($available_areas ?? ['Aftabnagar', 'Bashundhara R/A', 'Purbachal', 'Banasree', 'Badda', 'Gulshan', 'Uttara', 'Dhanmondi', 'Mirpur', 'Mohammadpur', 'Uttarkhan', 'Dakshinkhan'] as $aName)
+                                <option value="{{ $aName }}">{{ $aName }}</option>
                             @endforeach
-                            <option value="__other__">➕ অন্যান্য এলাকা (Other)</option>
+                            <option value="__other__">➕ নতুন এলাকা যোগ করুন (Add New Area)...</option>
                         </select>
-                        <input x-show="formData.area === '__other__'" type="text" x-model="formData.custom_area" placeholder="এলাকার নাম লিখুন..." class="mt-2 w-full border border-emerald-300 rounded-xl px-3 py-2 text-xs bg-white">
+                        <input x-show="formData.area === '__other__'" type="text" x-model="formData.custom_area" placeholder="নতুন এলাকার নাম লিখুন (যেমন: উত্তরখান, দক্ষিণখান, কেরানীগঞ্জ)..." class="mt-2 w-full border-2 border-emerald-400 rounded-xl px-3 py-2 text-xs bg-white focus:outline-none focus:border-emerald-600">
                     </div>
                     <div>
                         <label class="block font-bold text-slate-700 uppercase mb-1">প্রপার্টির ধরন</label>
@@ -1028,6 +1028,79 @@
                     </div>
                 </div>
 
+                <!-- কাস্টম তথ্য ও দলিল/কাগজপত্র বিবরণী (Repeatable 2-Field Group: Label/Key Dropdown + Value) -->
+                <div class="bg-gradient-to-br from-indigo-50/40 via-white to-slate-50 p-4 sm:p-5 rounded-2xl border border-indigo-200/80 shadow-xs space-y-3.5">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-indigo-100 pb-3">
+                        <div>
+                            <label class="block font-bold text-indigo-950 uppercase text-xs sm:text-sm m-0 flex items-center gap-1.5">
+                                <span class="text-base text-indigo-600">📋</span> কাস্টম তথ্য ও দলিল বিবরণী (মৌজা, দাগ, খতিয়ান ইত্যাদি)
+                            </label>
+                            <p class="text-[11px] text-slate-500 m-0 mt-0.5">
+                                যেকোনো নন-হাউজিং বা বিশেষ এলাকার তথ্য কী-ভ্যালু আকারে যুক্ত করুন। নতুন কোনো লেবেল তৈরি করলে তা ভবিষ্যতে ব্যবহারের জন্য ড্রপডাউনে থেকে যাবে।
+                            </p>
+                        </div>
+                        <button type="button" @click="addCustomField()"
+                            class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition shadow-xs cursor-pointer self-start sm:self-auto">
+                            <span>+ নতুন তথ্য ফিল্ড</span>
+                        </button>
+                    </div>
+
+                    <!-- Repeatable 2-Field Couple Rows -->
+                    <div class="space-y-2.5">
+                        <template x-for="(cf, idx) in customFields" :key="'cf_' + idx">
+                            <div class="bg-white p-2.5 sm:p-3 rounded-xl border border-slate-200/90 shadow-2xs hover:border-indigo-300 transition flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                                <!-- Field 1: Label / Key (Dropdown with +New option) -->
+                                <div class="w-full sm:w-2/5">
+                                    <div x-show="!cf.is_custom" class="relative">
+                                        <select x-model="cf.key" @change="onKeyChange(idx)"
+                                            class="w-full bg-slate-50 border border-slate-300 focus:border-indigo-500 rounded-lg px-2.5 py-2 text-xs font-semibold text-slate-800 focus:outline-none">
+                                            <template x-for="opt in availableKeys" :key="opt">
+                                                <option :value="opt" x-text="opt" :selected="cf.key === opt"></option>
+                                            </template>
+                                            <option value="__new__" class="font-bold text-indigo-600">➕ নতুন লেবেল তৈরি করুন...</option>
+                                        </select>
+                                    </div>
+                                    <!-- Inline text field when __new__ is selected -->
+                                    <div x-show="cf.is_custom" class="flex items-center gap-1">
+                                        <input type="text" x-model="cf.custom_label"
+                                            placeholder="লেবেলের নাম লিখুন..."
+                                            @keydown.enter.prevent="saveNewKey(idx)"
+                                            class="w-full bg-indigo-50/60 border-2 border-indigo-400 rounded-lg px-2.5 py-1.5 text-xs font-bold text-indigo-950 focus:outline-none">
+                                        <button type="button" @click="saveNewKey(idx)" title="লেবেল সেভ করুন"
+                                            class="px-2 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold shrink-0">
+                                            ✓
+                                        </button>
+                                        <button type="button" @click="cf.is_custom = false; cf.key = availableKeys[0] || 'মৌজা'" title="বাতিল"
+                                            class="px-2 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg text-xs font-bold shrink-0">
+                                            ✕
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Field 2: Value Text Field -->
+                                <div class="flex-1">
+                                    <input type="text" x-model="cf.value"
+                                        :placeholder="'এখানে ' + (cf.is_custom && cf.custom_label ? cf.custom_label : cf.key) + ' এর মান লিখুন...'"
+                                        class="w-full bg-white border border-slate-300 focus:border-indigo-500 rounded-lg px-3 py-2 text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none font-medium">
+                                </div>
+
+                                <!-- Remove Button -->
+                                <div class="shrink-0 flex items-center justify-end">
+                                    <button type="button" @click="removeCustomField(idx)" title="মুছে ফেলুন"
+                                        class="w-8 h-8 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 flex items-center justify-center text-xs font-bold transition cursor-pointer border border-rose-200/60">
+                                        ✕
+                                    </button>
+                                </div>
+                            </div>
+                        </template>
+
+                        <div x-show="!customFields || customFields.length === 0"
+                            class="text-center py-4 text-slate-400 text-xs border border-dashed border-indigo-200 rounded-xl bg-white">
+                            কোনো কাস্টম তথ্য ফিল্ড নেই। উপরের <strong>"+ নতুন তথ্য ফিল্ড"</strong> বাটনে ক্লিক করে তথ্য যোগ করুন।
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Description -->
                 <div>
                     <label class="block font-bold text-slate-700 uppercase mb-1">বিস্তারিত বর্ণনা (ঐচ্ছিক)</label>
@@ -1077,25 +1150,53 @@
                     <button type="button" @click="errorMessage = ''" class="text-rose-500 hover:text-rose-700 font-extrabold text-sm cursor-pointer p-1">✕</button>
                 </div>
 
-                <!-- Submit Button with Animation -->
-                <button type="submit" :disabled="isSubmitting"
-                    class="w-full py-4 bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-500/80 text-white font-extrabold text-sm rounded-2xl shadow-xl transition flex items-center justify-center gap-2 cursor-pointer disabled:cursor-not-allowed">
-                    <template x-if="isSubmitting">
-                        <span class="inline-flex items-center gap-2">
-                            <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                            <span>প্রপার্টি সাবমিট হচ্ছে, অনুগ্রহ করে অপেক্ষা করুন...</span>
-                        </span>
-                    </template>
-                    <template x-if="!isSubmitting">
-                        <span class="inline-flex items-center gap-2">
-                            <span>প্রপার্টি সাবমিট করুন</span>
-                            <span class="text-base">&rarr;</span>
-                        </span>
-                    </template>
-                </button>
+                @php
+                    $isAdminUser = auth()->check() && (auth()->user()->role === 'admin' || auth()->user()->is_admin || (method_exists(auth()->user(), 'isAdmin') && auth()->user()->isAdmin()));
+                @endphp
+
+                <!-- Submit Buttons (Admins see both Vault & Public Publish buttons) -->
+                @if ($isAdminUser)
+                    <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 p-4 sm:p-5 rounded-2xl border border-slate-700 shadow-md space-y-3">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-xs">
+                            <span class="flex items-center gap-1.5 font-bold text-amber-400">
+                                <span>🛡️ অ্যাডমিন অ্যাকশন কন্ট্রোল</span>
+                            </span>
+                            <span class="text-[11px] text-slate-300">ভল্টে ড্রাফট রাখবেন নাকি সরাসরি পাবলিক ক্যাটালগে লাইভ করবেন?</span>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                            <!-- Vault Button -->
+                            <button type="button" @click="submitProperty('vault')" :disabled="isSubmitting"
+                                class="w-full py-3.5 px-4 bg-slate-800/90 hover:bg-slate-700 disabled:opacity-60 text-white font-extrabold text-xs sm:text-sm rounded-xl shadow-md border border-slate-600 transition flex items-center justify-center gap-2 cursor-pointer">
+                                <span>🗄️ প্রপার্টি ভল্টে যোগ করুন (প্রাইভেট)</span>
+                            </button>
+                            <!-- Live Catalog Button -->
+                            <button type="button" @click="submitProperty('publish')" :disabled="isSubmitting"
+                                class="w-full py-3.5 px-4 bg-emerald-500 hover:bg-emerald-600 disabled:opacity-60 text-slate-950 font-extrabold text-xs sm:text-sm rounded-xl shadow-md transition flex items-center justify-center gap-2 cursor-pointer">
+                                <span>🚀 প্রপার্টি পাবলিশ করুন (পাবলিক)</span>
+                            </button>
+                        </div>
+                    </div>
+                @else
+                    <!-- Regular User Submit Button with Animation -->
+                    <button type="submit" :disabled="isSubmitting"
+                        class="w-full py-4 bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-500/80 text-white font-extrabold text-sm rounded-2xl shadow-xl transition flex items-center justify-center gap-2 cursor-pointer disabled:cursor-not-allowed">
+                        <template x-if="isSubmitting">
+                            <span class="inline-flex items-center gap-2">
+                                <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                <span>প্রপার্টি সাবমিট হচ্ছে, অনুগ্রহ করে অপেক্ষা করুন...</span>
+                            </span>
+                        </template>
+                        <template x-if="!isSubmitting">
+                            <span class="inline-flex items-center gap-2">
+                                <span>প্রপার্টি সাবমিট করুন</span>
+                                <span class="text-base">&rarr;</span>
+                            </span>
+                        </template>
+                    </button>
+                @endif
             </form>
         </div>
 
@@ -1120,8 +1221,12 @@
             <div class="flex flex-wrap items-center justify-center gap-3 pt-3">
                 <a :href="successRedirectUrl" x-show="successRedirectUrl"
                    class="inline-flex px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow">
-                    প্রপার্টি প্রিভিউ দেখুন &rarr;
+                    <span x-text="destination === 'vault' ? 'ভল্ট ডিরেক্টরিতে যান &rarr;' : 'প্রপার্টি প্রিভিউ দেখুন &rarr;'"></span>
                 </a>
+                <button type="button" @click="window.location.reload()"
+                    class="inline-flex px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow cursor-pointer">
+                    ➕ আরেকটি প্রপার্টি যোগ করুন
+                </button>
                 <a href="{{ auth()->check() ? route('buyer.dashboard') : route('home') }}"
                    class="inline-flex px-6 py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl shadow">
                     ড্যাশবোর্ডে যান &rarr;
@@ -1205,6 +1310,13 @@
                     coverIndex: 0,
                     isDevMode: @json($dev_mode ?? true),
                     errorMessage: '',
+                    destination: '{{ ($is_vault_mode ?? false) ? "vault" : "publish" }}',
+                    isAdmin: {{ ($is_admin ?? false) ? 'true' : 'false' }},
+                    availableKeys: {!! json_encode($available_custom_keys ?? ['মৌজা', 'RS দাগ নম্বর', 'CS দাগ', 'SA দাগ', 'BS দাগ', 'খতিয়ান নম্বর', 'কাগজের অবস্থা', 'হস্তান্তর সময়সীমা', 'নিকটবর্তী ল্যান্ডমার্ক', 'বিদ্যুৎ সংযোগ', 'গ্যাস সংযোগ', 'পানির লাইন', 'রাস্তার প্রশস্ততা', 'বাউন্ডারি ওয়াল', 'মালিকানা ধরন', 'নোট / বিশেষ শর্ত']) !!},
+                    customFields: [
+                        { key: 'মৌজা', value: '', is_custom: false, custom_label: '' },
+                        { key: 'RS দাগ নম্বর', value: '', is_custom: false, custom_label: '' }
+                    ],
 
                     formData: {
                         owner_name: @json($user_display_name ?: ''),
@@ -1307,6 +1419,45 @@
 
                     removeOtherFeature: function (index) {
                         this.formData.other_features.splice(index, 1);
+                    },
+
+                    addCustomField: function (defaultKey, defaultValue) {
+                        var key = defaultKey || (this.availableKeys.length > 0 ? this.availableKeys[0] : 'মৌজা');
+                        this.customFields.push({
+                            key: key,
+                            value: defaultValue || '',
+                            is_custom: false,
+                            custom_label: ''
+                        });
+                    },
+
+                    removeCustomField: function (index) {
+                        this.customFields.splice(index, 1);
+                    },
+
+                    onKeyChange: function (idx) {
+                        var item = this.customFields[idx];
+                        if (item.key === '__new__') {
+                            item.is_custom = true;
+                            item.custom_label = '';
+                        } else {
+                            item.is_custom = false;
+                        }
+                    },
+
+                    saveNewKey: function (idx) {
+                        var item = this.customFields[idx];
+                        var val = (item.custom_label || '').trim();
+                        if (val) {
+                            if (!this.availableKeys.includes(val)) {
+                                this.availableKeys.push(val);
+                            }
+                            item.key = val;
+                            item.is_custom = false;
+                        } else {
+                            item.key = this.availableKeys[0] || 'মৌজা';
+                            item.is_custom = false;
+                        }
                     },
 
                     handleGlobalPaste: function (e) {
@@ -1780,8 +1931,11 @@
                         this.coverIndex = index;
                     },
 
-                    submitProperty: function () {
+                    submitProperty: function (destinationOverride) {
                         var self = this;
+                        if (destinationOverride) {
+                            self.destination = destinationOverride;
+                        }
                         self.errorMessage = '';
                         if (self.isSubmitting) return;
 
@@ -1839,6 +1993,22 @@
                         data.append('latitude', self.formData.latitude || '');
                         data.append('longitude', self.formData.longitude || '');
                         data.append('other_features', JSON.stringify(self.formData.other_features || []));
+                        data.append('destination', self.destination || 'publish');
+
+                        var cleanCustomFields = [];
+                        if (Array.isArray(self.customFields)) {
+                            self.customFields.forEach(function (cf) {
+                                var k = (cf.is_custom && cf.custom_label) ? cf.custom_label.trim() : (cf.key === '__new__' ? (cf.custom_label || '').trim() : (cf.key || '').trim());
+                                var v = (cf.value || '').trim();
+                                if (k && k !== '__new__') {
+                                    cleanCustomFields.push({ key: k, value: v });
+                                    if (!self.availableKeys.includes(k)) {
+                                        self.availableKeys.push(k);
+                                    }
+                                }
+                            });
+                        }
+                        data.append('custom_fields', JSON.stringify(cleanCustomFields));
 
                         // Uploaded Images
                         self.images.forEach(function (imgObj) {

@@ -11,7 +11,7 @@
 @endsection
 
 @section('content')
-<div class="space-y-6" x-data="{ confirmingPublishId: null, confirmingPropertyTitle: '' }">
+<div class="space-y-6" x-data="{ confirmingPublishId: null, confirmingPropertyTitle: '', sheetModalOpen: false }">
 
     <!-- Hero / Information Notice -->
     <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 text-white rounded-3xl p-6 shadow-sm border border-slate-700/60 relative overflow-hidden">
@@ -31,9 +31,12 @@
                 </p>
             </div>
             <div class="flex flex-wrap items-center gap-2.5">
-                <a href="{{ route('admin.properties.create', ['destination' => 'directory']) }}" class="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold text-xs rounded-xl shadow-md transition transform active:scale-95">
-                    <span>➕</span> নতুন প্রাইভেট প্রপার্টি
+                <a href="{{ route('property.create', ['destination' => 'vault']) }}" target="_blank" class="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold text-xs rounded-xl shadow-md transition transform active:scale-95">
+                    <span>➕</span> নতুন প্রপার্টি (ভল্ট)
                 </a>
+                <button type="button" @click="sheetModalOpen = true" class="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-xl shadow-md transition">
+                    <span>📥</span> গুগল শিট বাল্ক ইমপোর্ট
+                </button>
                 <a href="{{ route('admin.properties.index') }}" class="inline-flex items-center gap-2 px-4 py-2.5 bg-slate-800/80 hover:bg-slate-700 text-white font-semibold text-xs rounded-xl border border-slate-600/60 transition">
                     <span>🏠</span> লাইভ ক্যাটালগ
                 </a>
@@ -272,7 +275,7 @@
                                     <p class="text-xs text-slate-500">
                                         আপনি নতুন প্রপার্টি তৈরি করার সময় "প্রাইভেট ডিরেক্টরিতে সংরক্ষণ" নির্বাচন করতে পারেন অথবা লাইভ প্রপার্টিকে আনপাবলিশ করে এখানে রাখতে পারেন।
                                     </p>
-                                    <a href="{{ route('admin.properties.create', ['destination' => 'directory']) }}" class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-sm transition">
+                                    <a href="{{ route('property.create', ['destination' => 'vault']) }}" target="_blank" class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-sm transition">
                                         <span>➕</span> নতুন প্রাইভেট প্রপার্টি যুক্ত করুন
                                     </a>
                                 </div>
@@ -288,6 +291,59 @@
                 {{ $properties->links() }}
             </div>
         @endif
+    </div>
+
+    <!-- Google Sheet Bulk Import Modal -->
+    <div x-show="sheetModalOpen" 
+         x-cloak 
+         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-xs"
+         style="display: none;">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 space-y-4">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                <div class="flex items-center gap-2.5">
+                    <span class="text-2xl">📥</span>
+                    <div>
+                        <h3 class="font-extrabold text-slate-900 text-base m-0">গুগল শিট থেকে বাল্ক ইমপোর্ট (প্রাইভেট ভল্ট)</h3>
+                        <p class="text-[11px] text-slate-500 m-0">শিটের সকল প্লট বা ফ্ল্যাট সরাসরি প্রাইভেট ভল্টে ড্রাফট হিসেবে যোগ হবে।</p>
+                    </div>
+                </div>
+                <button type="button" @click="sheetModalOpen = false" class="text-slate-400 hover:text-slate-700 text-xl font-bold cursor-pointer">&times;</button>
+            </div>
+
+            <form action="{{ route('admin.settings.sync-sheet') }}" method="POST" class="space-y-4 text-xs">
+                @csrf
+                <input type="hidden" name="default_status" value="draft">
+
+                <div>
+                    <label class="block font-bold text-slate-700 uppercase mb-1">গুগল শিট লিংক (Google Sheet Public/CSV URL)</label>
+                    <input type="url" name="sheet_url" required
+                        value="{{ \App\Models\Setting::get('adm_google_sheet_url', \App\Models\Setting::get('google_sheet_url', '')) }}"
+                        placeholder="https://docs.google.com/spreadsheets/d/.../edit#gid=0"
+                        class="w-full border border-slate-300 rounded-xl px-3 py-2.5 text-xs font-mono bg-white focus:outline-none focus:border-blue-500">
+                    <p class="text-[10px] text-slate-500 mt-1">
+                        সমর্থিত কলাম: <code class="text-indigo-600 bg-slate-100 px-1 py-0.5 rounded">place</code>, <code class="text-indigo-600 bg-slate-100 px-1 py-0.5 rounded">block</code>, <code class="text-indigo-600 bg-slate-100 px-1 py-0.5 rounded">road</code>, <code class="text-indigo-600 bg-slate-100 px-1 py-0.5 rounded">plot number</code>, <code class="text-indigo-600 bg-slate-100 px-1 py-0.5 rounded">katha</code>, <code class="text-indigo-600 bg-slate-100 px-1 py-0.5 rounded">agent</code>, <code class="text-indigo-600 bg-slate-100 px-1 py-0.5 rounded">contact</code>, <code class="text-indigo-600 bg-slate-100 px-1 py-0.5 rounded">price</code>, <code class="text-indigo-600 bg-slate-100 px-1 py-0.5 rounded">extra</code>, <code class="text-indigo-600 bg-slate-100 px-1 py-0.5 rounded">time line</code>
+                    </p>
+                </div>
+
+                <div class="bg-indigo-50/60 p-3.5 rounded-xl border border-indigo-200 text-indigo-950 space-y-1 text-[11px]">
+                    <div class="font-bold flex items-center gap-1.5 text-indigo-900">
+                        <span>💡</span> অটোমেটিক ডেটা রূপান্তর:
+                    </div>
+                    <div>• <strong>Extra</strong> কলামের মৌজা, দাগ (CS/RS/SA), বিঘা স্বয়ংক্রিয়ভাবে কাস্টম ফিল্ডে সেভ হবে।</div>
+                    <div>• <strong>Price</strong> কলামের <code class="bg-white px-1 rounded text-indigo-700">95 lac</code> বা <code class="bg-white px-1 rounded text-indigo-700">1.25 cr</code> স্বয়ংক্রিয়ভাবে সংখ্যায় রূপান্তর হবে।</div>
+                    <div>• <strong>Katha</strong> কলামের <code class="bg-white px-1 rounded text-indigo-700">2.5+2.5</code> স্বয়ংক্রিয়ভাবে যোগ হয়ে ৫ কাঠা হিসেবে হিসাব হবে।</div>
+                </div>
+
+                <div class="flex items-center justify-end gap-2.5 pt-2">
+                    <button type="button" @click="sheetModalOpen = false" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold cursor-pointer">
+                        বাতিল
+                    </button>
+                    <button type="submit" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold shadow-md flex items-center gap-1.5 cursor-pointer">
+                        <span>🔄</span> এখনই ভল্টে ইমপোর্ট করুন
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 
 </div>

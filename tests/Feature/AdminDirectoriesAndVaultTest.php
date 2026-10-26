@@ -139,4 +139,62 @@ class AdminDirectoriesAndVaultTest extends TestCase
         $hiddenAgainResponse = $this->get(route('property.show', $privateProp->slug));
         $hiddenAgainResponse->assertStatus(404);
     }
+
+    public function test_admin_properties_create_redirects_to_sell_property(): void
+    {
+        $response = $this->actingAs($this->admin)->get(route('admin.properties.create', ['destination' => 'vault']));
+        $response->assertRedirect(route('property.create', ['destination' => 'vault']));
+    }
+
+    public function test_sell_property_with_vault_destination_saves_as_draft_with_custom_fields(): void
+    {
+        $customFields = [
+            ['key' => 'মৌজা', 'value' => 'গজারিয়া'],
+            ['key' => 'RS দাগ নম্বর', 'value' => '৩৮১১, ৩৯৬৮'],
+            ['key' => 'কাগজের অবস্থা', 'value' => '১০০% ফ্রেশ ও নিষ্কণ্টক'],
+        ];
+
+        $postData = [
+            'title'         => 'উত্তরখান ৩ কাঠা নিষ্কণ্টক জমি',
+            'area'          => 'উত্তরখান',
+            'property_type' => 'land',
+            'owner_name'    => 'আফতাব মোল্লা',
+            'owner_phone'   => '01719998877',
+            'size'          => 3,
+            'asking_price'  => 4500000,
+            'destination'   => 'vault',
+            'custom_fields' => json_encode($customFields),
+        ];
+
+        $response = $this->actingAs($this->admin)->post(route('property.store'), $postData);
+        $response->assertRedirect(route('admin.properties.directory'));
+
+        $saved = Property::where('title', 'উত্তরখান ৩ কাঠা নিষ্কণ্টক জমি')->first();
+        $this->assertNotNull($saved);
+        $this->assertEquals('draft', $saved->status);
+        $this->assertEquals('উত্তরখান', $saved->area);
+        $this->assertIsArray($saved->custom_fields);
+        $this->assertCount(3, $saved->custom_fields);
+        $this->assertEquals('মৌজা', $saved->custom_fields[0]['key']);
+        $this->assertEquals('গজারিয়া', $saved->custom_fields[0]['value']);
+
+        // Check search by custom field value in admin directory
+        $searchDir = $this->actingAs($this->admin)->get(route('admin.properties.directory', ['search' => 'গজারিয়া']));
+        $searchDir->assertStatus(200);
+        $searchDir->assertSee('উত্তরখান ৩ কাঠা নিষ্কণ্টক জমি');
+
+        // Check search by RS dag number
+        $searchDag = $this->actingAs($this->admin)->get(route('admin.properties.directory', ['search' => '৩৮১১']));
+        $searchDag->assertStatus(200);
+        $searchDag->assertSee('উত্তরখান ৩ কাঠা নিষ্কণ্টক জমি');
+
+        // Verify dynamic areas and custom keys include newly added values
+        $areas = Property::getDistinctAreas();
+        $this->assertContains('উত্তরখান', $areas);
+
+        $keys = Property::getDistinctCustomKeys();
+        $this->assertContains('মৌজা', $keys);
+        $this->assertContains('RS দাগ নম্বর', $keys);
+        $this->assertContains('কাগজের অবস্থা', $keys);
+    }
 }

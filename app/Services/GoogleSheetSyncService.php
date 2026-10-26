@@ -151,10 +151,10 @@ class GoogleSheetSyncService
     private static function resolveHeaderCanonical(string $header): ?string
     {
         $aliases = [
-            'area' => ['area', 'এলাকা', 'লোকেশন', 'স্থান', 'district', 'city', 'location', 'প্রকল্প'],
+            'area' => ['area', 'place', 'প্লেস', 'এলাকা', 'লোকেশন', 'স্থান', 'district', 'city', 'location', 'প্রকল্প'],
             'sub_area' => ['sub_area', 'subarea', 'সাব এলাকা', 'সাব-এলাকা', 'সেক্টর', 'sector', 'phase', 'ফেজ', 'মহল্লা', 'মৌজা'],
             'block' => ['block', 'ব্লক'],
-            'plot_number' => ['plot_number', 'plot', 'প্লট', 'প্লট নম্বর', 'প্লট নং', 'holding', 'holding_number', 'হোল্ডিং', 'দাগ', 'দাগ নম্বর'],
+            'plot_number' => ['plot_number', 'plot number', 'plot', 'প্লট', 'প্লট নম্বর', 'প্লট নং', 'holding', 'holding_number', 'হোল্ডিং', 'দাগ', 'দাগ নম্বর'],
             'road_number' => ['road_number', 'road', 'রোড', 'রোড নম্বর', 'রোড নং', 'রাস্তা', 'রাস্তা নম্বর'],
             'road_width_ft' => ['road_width_ft', 'road_width', 'width', 'রাস্তার চওড়া', 'রাস্তা চওড়া', 'রাস্তা (ফুট)', 'চওড়া'],
             'type' => ['type', 'property_type', 'ধরন', 'প্রপার্টি টাইপ', 'টাইপ', 'ক্যাটেগরি', 'category'],
@@ -162,11 +162,11 @@ class GoogleSheetSyncService
             'description' => ['description', 'details', 'বিবরণ', 'বর্ণনা', 'ডিটেইলস', 'বিস্তারিত'],
             'asking_price' => ['asking_price', 'price', 'total_price', 'দাম', 'মূল্য', 'মোট দাম', 'মোট মূল্য', 'টাকা'],
             'price_per_unit' => ['price_per_unit', 'price_per_katha', 'price_per_sqft', 'rate', 'দর', 'কাঠা প্রতি দাম', 'বর্গফুট প্রতি দাম'],
-            'size' => ['size', 'katha_size', 'flat_size_sqft', 'সাইজ', 'কাঠা', 'বর্গফুট', 'স্কয়ারফিট', 'জমির সাইজ', 'ফ্ল্যাটের সাইজ'],
+            'size' => ['size', 'katha', 'কাঠা', 'katha_size', 'flat_size_sqft', 'সাইজ', 'বর্গফুট', 'স্কয়ারফিট', 'জমির সাইজ', 'ফ্ল্যাটের সাইজ'],
             'facing' => ['facing', 'দিক', 'মুখ', 'ফেসিং'],
             'is_negotiable' => ['is_negotiable', 'negotiable', 'আলোচনা সাপেক্ষ', 'নেগোশিয়েবল'],
-            'owner_name' => ['owner_name', 'contact_name', 'seller_name', 'মালিক', 'মালিকের নাম', 'এজেন্টের নাম', 'যোগাযোগ ব্যক্তি'],
-            'owner_phone' => ['owner_phone', 'phone', 'mobile', 'contact', 'যোগাযোগ', 'ফোন', 'মোবাইল', 'ফোন নম্বর', 'মোবাইল নম্বর'],
+            'owner_name' => ['owner_name', 'agent', 'contact_name', 'seller_name', 'মালিক', 'মালিকের নাম', 'এজেন্ট', 'এজেন্টের নাম', 'যোগাযোগ ব্যক্তি'],
+            'owner_phone' => ['owner_phone', 'contact', 'phone', 'mobile', 'যোগাযোগ', 'ফোন', 'মোবাইল', 'ফোন নম্বর', 'মোবাইল নম্বর'],
             'source_type' => ['source_type', 'সোর্স', 'সোর্স টাইপ', 'role', 'রোল'],
             'images' => ['images', 'photos', 'image_url', 'photo_url', 'ছবি', 'ছবির লিংক', 'ফটো'],
             'google_map_pin_url' => ['google_map_pin_url', 'map_url', 'map', 'ম্যাপ', 'গুগল ম্যাপ'],
@@ -180,6 +180,9 @@ class GoogleSheetSyncService
             'parking_available' => ['parking_available', 'parking', 'has_parking', 'পার্কিং'],
             'project_name' => ['project_name', 'প্রজেক্টের নাম', 'প্রজেক্ট', 'বিল্ডিং'],
             'developer_name' => ['developer_name', 'ডেভেলপার', 'কোম্পানি'],
+            'extra' => ['extra', 'অতিরিক্ত', 'নোট', 'মৌজা'],
+            'time_line' => ['time line', 'timeline', 'সময়সীমা', 'টাইমলাইন'],
+            'messenger' => ['messenger', 'facebook', 'fb', 'মেসেঞ্জার'],
         ];
 
         foreach ($aliases as $canonical => $list) {
@@ -252,8 +255,36 @@ class GoogleSheetSyncService
             $type = 'commercial';
         }
 
-        $size = !empty($row['size']) ? (float) self::toEnNumber($row['size']) : 0.0;
-        $askingPrice = !empty($row['asking_price']) ? (float) self::toEnNumber(preg_replace('/[^0-9.]/', '', $row['asking_price'])) : 0.0;
+        $rawSize = !empty($row['size']) ? self::toEnNumber($row['size']) : '';
+        $size = 0.0;
+        if (!empty($rawSize)) {
+            if (preg_match('/^([0-9.]+)\s*\+\s*([0-9.]+)$/', $rawSize, $sm)) {
+                $size = (float) $sm[1] + (float) $sm[2];
+            } elseif (preg_match('/^([0-9.]+)\s*\*\s*([0-9.]+)$/', $rawSize, $sm)) {
+                $size = (float) $sm[1] * (float) $sm[2];
+            } elseif (preg_match('/([0-9.]+)/', $rawSize, $sm)) {
+                $size = (float) $sm[1];
+            }
+        }
+
+        $rawPrice = !empty($row['asking_price']) ? trim((string)$row['asking_price']) : '';
+        $askingPrice = 0.0;
+        if (!empty($rawPrice)) {
+            $enPrice = self::toEnNumber($rawPrice);
+            if (preg_match('/([0-9.]+)\s*(?:lac|lakh|লাখ)/i', $enPrice, $pm)) {
+                $askingPrice = (float)$pm[1] * 100000;
+            } elseif (preg_match('/([0-9.]+)\s*(?:cr|crore|কোটি)/i', $enPrice, $pm)) {
+                $askingPrice = (float)$pm[1] * 10000000;
+            } elseif (preg_match('/^([0-9.]+)$/', preg_replace('/[^0-9.]/', '', $enPrice), $pm)) {
+                $val = (float)$pm[1];
+                if ($val > 0 && $val < 50) {
+                    $askingPrice = $val * 10000000; // e.g. 1.25 -> 1.25 crore
+                } else {
+                    $askingPrice = $val;
+                }
+            }
+        }
+
         $pricePerUnit = !empty($row['price_per_unit']) ? (float) self::toEnNumber(preg_replace('/[^0-9.]/', '', $row['price_per_unit'])) : 0.0;
 
         if ($askingPrice <= 0 && $pricePerUnit > 0 && $size > 0) {
@@ -314,6 +345,39 @@ class GoogleSheetSyncService
             }
         }
 
+        $customFields = [];
+        if (!empty($rawPrice)) {
+            $customFields[] = ['key' => 'মূল্য টেক্সট (Raw Price)', 'value' => $rawPrice];
+        }
+        if (!empty($rawSize) && $rawSize !== (string)$size) {
+            $customFields[] = ['key' => 'জমির বিবরণ (Raw Size)', 'value' => $rawSize];
+        }
+        if (!empty($row['time_line'])) {
+            $customFields[] = ['key' => 'হস্তান্তর সময়সীমা', 'value' => trim($row['time_line'])];
+        }
+        if (!empty($row['messenger'])) {
+            $customFields[] = ['key' => 'ফেসবুক / মেসেঞ্জার লিংক', 'value' => trim($row['messenger'])];
+        }
+        if (!empty($row['extra'])) {
+            $extra = trim($row['extra']);
+            if (preg_match('/mouza[-\s:]+([A-Za-z0-9\s\x{0980}-\x{09FF}]+?)(?:,|\n|$)/iu', $extra, $em)) {
+                $customFields[] = ['key' => 'মৌজা (Mouza)', 'value' => trim($em[1])];
+            }
+            if (preg_match('/rs[-\s:]+([0-9,\s]+)/i', $extra, $em)) {
+                $customFields[] = ['key' => 'RS দাগ নম্বর', 'value' => trim($em[1])];
+            }
+            if (preg_match('/cs[-\s:]+([0-9,\s]+)/i', $extra, $em)) {
+                $customFields[] = ['key' => 'CS দাগ নম্বর', 'value' => trim($em[1])];
+            }
+            if (preg_match('/ct[-\s:]+([0-9,\s]+)/i', $extra, $em)) {
+                $customFields[] = ['key' => 'সিটি জরিপ নম্বর', 'value' => trim($em[1])];
+            }
+            if (preg_match('/([0-9]+)\s*bigha/i', $extra, $em)) {
+                $customFields[] = ['key' => 'জমির পরিমাণ (বিঘা)', 'value' => trim($em[1]) . ' বিঘা'];
+            }
+            $customFields[] = ['key' => 'অতিরিক্ত বিবরণ ও কাগজপত্র', 'value' => $extra];
+        }
+
         return [
             'area'               => $area,
             'sub_area'           => $subArea ?: $block,
@@ -323,7 +387,7 @@ class GoogleSheetSyncService
             'road_width_ft'      => $roadWidthFt,
             'type'               => $type,
             'title'              => $title,
-            'description'        => !empty($row['description']) ? trim($row['description']) : '',
+            'description'        => !empty($row['description']) ? trim($row['description']) : (!empty($row['extra']) ? trim($row['extra']) : ''),
             'asking_price'       => $askingPrice,
             'price_per_unit'     => $pricePerUnit,
             'size'               => $size,
@@ -344,6 +408,7 @@ class GoogleSheetSyncService
             'parking_available'  => !empty($row['parking_available']) ? 1 : 0,
             'project_name'       => !empty($row['project_name']) ? trim($row['project_name']) : '',
             'developer_name'     => !empty($row['developer_name']) ? trim($row['developer_name']) : '',
+            'custom_fields'      => $customFields,
         ];
     }
 
@@ -452,6 +517,7 @@ class GoogleSheetSyncService
                 'is_negotiable'      => (bool) $data['is_negotiable'],
                 'status'             => $defaultStatus,
                 'created_by_user_id' => $currentUserId,
+                'custom_fields'      => $data['custom_fields'] ?? [],
             ]);
 
             // Specs

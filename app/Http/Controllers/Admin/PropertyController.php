@@ -39,12 +39,20 @@ class PropertyController extends Controller
         if ($request->filled('property_code')) {
             $query->where('property_code', 'like', "%{$filterCode}%");
         } elseif ($request->filled('search')) {
-            $query->where(function ($q) use ($filterCode) {
+            $escaped = trim(json_encode($filterCode, JSON_UNESCAPED_SLASHES), '"');
+            $query->where(function ($q) use ($filterCode, $escaped) {
                 $q->where('title', 'like', "%{$filterCode}%")
                   ->orWhere('property_code', 'like', "%{$filterCode}%")
                   ->orWhere('block', 'like', "%{$filterCode}%")
                   ->orWhere('plot_number', 'like', "%{$filterCode}%")
-                  ->orWhere('road_number', 'like', "%{$filterCode}%");
+                  ->orWhere('road_number', 'like', "%{$filterCode}%")
+                  ->orWhere('sector', 'like', "%{$filterCode}%")
+                  ->orWhere('area', 'like', "%{$filterCode}%")
+                  ->orWhere('facing', 'like', "%{$filterCode}%")
+                  ->orWhere('custom_fields', 'like', "%{$filterCode}%")
+                  ->orWhere('custom_fields', 'like', "%{$escaped}%")
+                  ->orWhereHas('landDetail', fn($sq) => $sq->where('katha_size', 'like', "%{$filterCode}%")->orWhere('price_total', 'like', "%{$filterCode}%"))
+                  ->orWhereHas('directSources', fn($sq) => $sq->where('owner_name', 'like', "%{$filterCode}%")->orWhere('owner_phone', 'like', "%{$filterCode}%"));
             });
         }
 
@@ -241,12 +249,19 @@ class PropertyController extends Controller
         if ($request->filled('property_code')) {
             $query->where('property_code', 'like', "%{$filterCode}%");
         } elseif ($request->filled('search')) {
-            $query->where(function ($q) use ($filterCode) {
+            $escaped = trim(json_encode($filterCode, JSON_UNESCAPED_SLASHES), '"');
+            $query->where(function ($q) use ($filterCode, $escaped) {
                 $q->where('title', 'like', "%{$filterCode}%")
                   ->orWhere('property_code', 'like', "%{$filterCode}%")
                   ->orWhere('block', 'like', "%{$filterCode}%")
                   ->orWhere('plot_number', 'like', "%{$filterCode}%")
                   ->orWhere('road_number', 'like', "%{$filterCode}%")
+                  ->orWhere('sector', 'like', "%{$filterCode}%")
+                  ->orWhere('area', 'like', "%{$filterCode}%")
+                  ->orWhere('facing', 'like', "%{$filterCode}%")
+                  ->orWhere('custom_fields', 'like', "%{$filterCode}%")
+                  ->orWhere('custom_fields', 'like', "%{$escaped}%")
+                  ->orWhereHas('landDetail', fn($sq) => $sq->where('katha_size', 'like', "%{$filterCode}%")->orWhere('price_total', 'like', "%{$filterCode}%"))
                   ->orWhereHas('directSources', function ($sq) use ($filterCode) {
                       $sq->where('owner_phone', 'like', "%{$filterCode}%")
                          ->orWhere('owner_name', 'like', "%{$filterCode}%");
@@ -277,10 +292,9 @@ class PropertyController extends Controller
         return view('admin.properties.directory', compact('properties', 'stats', 'filterCode', 'filterType', 'filterArea'));
     }
 
-    public function create()
+    public function create(Request $request)
     {
-        $agents = User::whereIn('role', ['agent', 'owner'])->orderBy('name')->get();
-        return view('admin.properties.create', compact('agents'));
+        return redirect()->route('property.create', $request->query());
     }
 
     public function store(Request $request)

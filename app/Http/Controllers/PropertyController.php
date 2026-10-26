@@ -363,15 +363,21 @@ class PropertyController extends Controller
         $user = auth()->user();
 
         $dev_mode = Setting::get('adm_developer_mode', '1') === '1';
+        $isAdmin = auth()->check() && (auth()->user()->isAdmin() || auth()->user()->role === 'admin');
+        $isVaultMode = $request->query('destination') === 'vault' || $request->query('vault') == 1;
 
         return view('pages.sell-property', [
-            'seo'               => $seo,
-            'role'              => $role,
-            'is_owner_user'     => $is_owner_user,
-            'is_agent_user'     => $is_agent_user,
-            'dev_mode'          => $dev_mode,
-            'user_display_name' => $user ? ($user->name ?: $user->username) : '',
-            'user_phone'        => $user ? ($user->whatsapp_number ?: $user->phone) : '',
+            'seo'                   => $seo,
+            'role'                  => $role,
+            'is_owner_user'         => $is_owner_user,
+            'is_agent_user'         => $is_agent_user,
+            'dev_mode'              => $dev_mode,
+            'is_admin'              => $isAdmin,
+            'is_vault_mode'         => $isVaultMode,
+            'available_areas'       => Property::getDistinctAreas(),
+            'available_custom_keys' => Property::getDistinctCustomKeys(),
+            'user_display_name'     => $user ? ($user->name ?: $user->username) : '',
+            'user_phone'            => $user ? ($user->whatsapp_number ?: $user->phone) : '',
         ]);
     }
 
@@ -446,9 +452,29 @@ class PropertyController extends Controller
             $otherFeatures = [];
         }
 
+        $rawCustomFields = $request->input('custom_fields');
+        if (is_string($rawCustomFields)) {
+            $rawCustomFields = json_decode($rawCustomFields, true) ?: [];
+        }
+        $cleanCustomFields = [];
+        if (is_array($rawCustomFields)) {
+            foreach ($rawCustomFields as $cf) {
+                if (is_array($cf) && !empty($cf['key']) && isset($cf['value'])) {
+                    $cleanCustomFields[] = [
+                        'key'   => trim((string)$cf['key']),
+                        'value' => trim((string)$cf['value']),
+                    ];
+                }
+            }
+        }
+
         $isNegotiable = $request->has('is_negotiable')
             ? (int) $request->input('is_negotiable') === 1
             : true;
+
+        $isAdmin = auth()->check() && (auth()->user()->isAdmin() || auth()->user()->role === 'admin');
+        $isVault = ($request->input('destination') === 'vault' || $request->input('destination') === 'directory') && $isAdmin;
+        $propertyStatus = $isVault ? 'draft' : 'live';
 
         $property = Property::create([
             'property_code'      => $code,
@@ -472,7 +498,8 @@ class PropertyController extends Controller
             'latitude'           => $validated['latitude'] ?? null,
             'longitude'          => $validated['longitude'] ?? null,
             'other_features'     => $otherFeatures,
-            'status'             => 'live',
+            'custom_fields'      => $cleanCustomFields,
+            'status'             => $propertyStatus,
             'created_by_user_id' => auth()->id(),
         ]);
 
@@ -685,16 +712,28 @@ class PropertyController extends Controller
         }
 
         if ($request->expectsJson() || $request->ajax()) {
+            $msg = $isVault
+                ? "প্রপার্টি #{$property->property_code} সফলভাবে প্রপার্টি ভল্টে (অফলাইন) সংরক্ষিত হয়েছে!"
+                : 'আপনার প্রপার্টি বিজ্ঞাপনটি সফলভাবে জমা হয়েছে!';
+            $redirectUrl = $isVault ? route('admin.properties.directory') : route('property.show', $property->slug);
+            $portalUrl   = $isVault ? route('admin.properties.directory') : (auth()->check() ? route('buyer.dashboard') : route('properties.land'));
+
             return response()->json([
-                'success' => true,
-                'message' => 'আপনার প্রপার্টি বিজ্ঞাপনটি সফলভাবে জমা হয়েছে!',
-                'data'    => [
-                    'message'      => 'আপনার প্রপার্টি বিজ্ঞাপনটি সফলভাবে জমা হয়েছে!',
+                'success'  => true,
+                'is_vault' => $isVault,
+                'message'  => $msg,
+                'data'     => [
+                    'message'      => $msg,
                     'property_id'  => $property->id,
-                    'redirect_url' => route('property.show', $property->slug),
-                    'portal_url'   => auth()->check() ? route('buyer.dashboard') : route('properties.land'),
+                    'redirect_url' => $redirectUrl,
+                    'portal_url'   => $portalUrl,
                 ],
             ]);
+        }
+
+        if ($isVault) {
+            return redirect()->route('admin.properties.directory')
+                ->with('success', "প্রপার্টি #{$property->property_code} সফলভাবে প্রপার্টি ভল্টে (অফলাইন) সংরক্ষিত হয়েছে!");
         }
 
         return redirect()->route('property.show', $property->slug)

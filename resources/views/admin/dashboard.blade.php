@@ -62,7 +62,7 @@
             <p class="text-xs text-slate-300">আফতাবনগর ডিরেক্ট কন্ট্রোল প্যানেল থেকে প্রয়োজনীয় কাজগুলো এক ক্লিকেই পরিচালনা করুন।</p>
         </div>
         <div class="flex flex-wrap gap-2.5">
-            <a href="{{ route('admin.properties.create') }}" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
+            <a href="{{ route('property.create') }}" target="_blank" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
                 <span>➕</span> নতুন প্রপার্টি যোগ
             </a>
             <a href="{{ route('admin.verifications.index') }}" class="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm">

@@ -1046,50 +1046,50 @@
                     </div>
 
                     <!-- Repeatable 2-Field Couple Rows -->
-                    <div class="space-y-2.5">
+                    <div class="space-y-3">
                         <template x-for="(cf, idx) in customFields" :key="'cf_' + idx">
-                            <div class="bg-white p-2.5 sm:p-3 rounded-xl border border-slate-200/90 shadow-2xs hover:border-indigo-300 transition flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-                                <!-- Field 1: Label / Key (Dropdown with +New option) -->
-                                <div class="w-full sm:w-2/5">
-                                    <div x-show="!cf.is_custom" class="relative">
-                                        <select x-model="cf.key" @change="onKeyChange(idx)"
-                                            class="w-full bg-slate-50 border border-slate-300 focus:border-indigo-500 rounded-lg px-2.5 py-2 text-xs font-semibold text-slate-800 focus:outline-none">
-                                            <template x-for="opt in availableKeys" :key="opt">
-                                                <option :value="opt" x-text="opt" :selected="cf.key === opt"></option>
-                                            </template>
-                                            <option value="__new__" class="font-bold text-indigo-600">➕ নতুন লেবেল তৈরি করুন...</option>
-                                        </select>
+                            <div class="bg-white p-3.5 rounded-xl border border-slate-200/90 shadow-2xs hover:border-indigo-300 transition space-y-2.5">
+                                <!-- Line 1: Field Label/Key Selector + Remove Button -->
+                                <div class="flex items-center justify-between gap-3">
+                                    <div class="flex-1">
+                                        <div x-show="!cf.is_custom" class="relative">
+                                            <select x-model="cf.key" @change="onKeyChange(idx)"
+                                                class="w-full bg-slate-50 border border-slate-300 focus:border-indigo-500 rounded-lg px-3 py-2 text-xs font-semibold text-slate-800 focus:outline-none">
+                                                <template x-for="opt in availableKeys" :key="opt">
+                                                    <option :value="opt" x-text="opt" :selected="cf.key === opt"></option>
+                                                </template>
+                                                <option value="__new__" class="font-bold text-indigo-600">➕ নতুন লেবেল তৈরি করুন...</option>
+                                            </select>
+                                        </div>
+                                        <!-- Inline text field when __new__ is selected -->
+                                        <div x-show="cf.is_custom" class="flex items-center gap-1.5">
+                                            <input type="text" x-model="cf.custom_label"
+                                                placeholder="নতুন লেবেলের নাম লিখুন (যেমন: খাস জমি, জোত ইত্যাদি)..."
+                                                @keydown.enter.prevent="saveNewKey(idx)"
+                                                class="w-full bg-indigo-50/60 border-2 border-indigo-400 rounded-lg px-3 py-1.5 text-xs font-bold text-indigo-950 focus:outline-none">
+                                            <button type="button" @click="saveNewKey(idx)" title="লেবেল সেভ করুন"
+                                                class="px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold shrink-0">
+                                                ✓ সেভ
+                                            </button>
+                                            <button type="button" @click="cf.is_custom = false; cf.key = availableKeys[0] || 'মৌজা'" title="বাতিল"
+                                                class="px-2.5 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg text-xs font-bold shrink-0">
+                                                ✕
+                                            </button>
+                                        </div>
                                     </div>
-                                    <!-- Inline text field when __new__ is selected -->
-                                    <div x-show="cf.is_custom" class="flex items-center gap-1">
-                                        <input type="text" x-model="cf.custom_label"
-                                            placeholder="লেবেলের নাম লিখুন..."
-                                            @keydown.enter.prevent="saveNewKey(idx)"
-                                            class="w-full bg-indigo-50/60 border-2 border-indigo-400 rounded-lg px-2.5 py-1.5 text-xs font-bold text-indigo-950 focus:outline-none">
-                                        <button type="button" @click="saveNewKey(idx)" title="লেবেল সেভ করুন"
-                                            class="px-2 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold shrink-0">
-                                            ✓
-                                        </button>
-                                        <button type="button" @click="cf.is_custom = false; cf.key = availableKeys[0] || 'মৌজা'" title="বাতিল"
-                                            class="px-2 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg text-xs font-bold shrink-0">
-                                            ✕
-                                        </button>
-                                    </div>
-                                </div>
 
-                                <!-- Field 2: Value Text Field -->
-                                <div class="flex-1">
-                                    <input type="text" x-model="cf.value"
-                                        :placeholder="'এখানে ' + (cf.is_custom && cf.custom_label ? cf.custom_label : cf.key) + ' এর মান লিখুন...'"
-                                        class="w-full bg-white border border-slate-300 focus:border-indigo-500 rounded-lg px-3 py-2 text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none font-medium">
-                                </div>
-
-                                <!-- Remove Button -->
-                                <div class="shrink-0 flex items-center justify-end">
+                                    <!-- Remove Button -->
                                     <button type="button" @click="removeCustomField(idx)" title="মুছে ফেলুন"
-                                        class="w-8 h-8 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 flex items-center justify-center text-xs font-bold transition cursor-pointer border border-rose-200/60">
+                                        class="w-8 h-8 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 flex items-center justify-center text-xs font-bold transition cursor-pointer border border-rose-200/60 shrink-0">
                                         ✕
                                     </button>
+                                </div>
+
+                                <!-- Line 2: Value Text Field (Fullwidth) -->
+                                <div>
+                                    <input type="text" x-model="cf.value"
+                                        :placeholder="'এখানে ' + (cf.is_custom && cf.custom_label ? cf.custom_label : cf.key) + ' এর মান / বিবরণ লিখুন...'"
+                                        class="w-full bg-slate-50/60 focus:bg-white border border-slate-300 focus:border-indigo-500 rounded-lg px-3 py-2.5 text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none font-medium">
                                 </div>
                             </div>
                         </template>

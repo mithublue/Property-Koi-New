@@ -296,7 +296,7 @@ class PropertyController extends Controller
 
     public function show(string $slug): View
     {
-        $property = Property::with([
+        $propertyQuery = Property::with([
             'land',
             'flat',
             'share',
@@ -304,7 +304,14 @@ class PropertyController extends Controller
             'directSources.sourceUser.agentProfile',
             'verification',
             'media',
-        ])->where('slug', $slug)->firstOrFail();
+        ])->where('slug', $slug);
+
+        // Keep private/draft directory properties hidden from public visitors
+        if (!auth()->check() || !auth()->user()->isAdmin()) {
+            $propertyQuery->where('status', 'live');
+        }
+
+        $property = $propertyQuery->firstOrFail();
 
         // Increment views count safely
         $property->increment('views_count');

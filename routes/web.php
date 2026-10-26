@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\AgentController as AdminAgentController;
+use App\Http\Controllers\Admin\BuyerController as AdminBuyerController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\DocsController as AdminDocsController;
 use App\Http\Controllers\Admin\DemandController as AdminDemandController;
@@ -212,8 +213,9 @@ Route::prefix('backend')->name('admin.')->middleware('admin.access')->group(func
     // 1. Dashboard
     Route::get('/', [AdminDashboardController::class, 'index'])->name('dashboard');
 
-    // 2. Properties Master Catalog
+    // 2. Properties Master Catalog & Private Directory
     Route::get('/properties', [AdminPropertyController::class, 'index'])->name('properties.index');
+    Route::get('/properties/directory', [AdminPropertyController::class, 'directory'])->name('properties.directory');
     Route::get('/properties/create', [AdminPropertyController::class, 'create'])->name('properties.create');
     Route::post('/properties', [AdminPropertyController::class, 'store'])->name('properties.store');
     Route::get('/properties/{property}/edit', [AdminPropertyController::class, 'edit'])->name('properties.edit');
@@ -221,6 +223,8 @@ Route::prefix('backend')->name('admin.')->middleware('admin.access')->group(func
     Route::delete('/properties/{property}', [AdminPropertyController::class, 'destroy'])->name('properties.destroy');
     Route::post('/properties/bulk-delete', [AdminPropertyController::class, 'bulkDelete'])->name('properties.bulk-delete');
     Route::match(['get', 'post'], '/properties/{property}/status', [AdminPropertyController::class, 'updateStatus'])->name('properties.status');
+    Route::post('/properties/{property}/publish-live', [AdminPropertyController::class, 'publishToLive'])->name('properties.publish-live');
+    Route::post('/properties/{property}/unpublish', [AdminPropertyController::class, 'unpublishToDirectory'])->name('properties.unpublish');
     Route::post('/properties/auto-assign', [AdminPropertyController::class, 'autoAssignInserters'])->name('properties.auto-assign');
     Route::post('/properties/{property}/fb-post', [AdminPropertyController::class, 'postToFacebook'])->name('properties.fb-post');
 
@@ -245,9 +249,15 @@ Route::prefix('backend')->name('admin.')->middleware('admin.access')->group(func
 
     // 4. Agents & Owners Directory
     Route::get('/agents', [AdminAgentController::class, 'index'])->name('agents.index');
+    Route::post('/agents', [AdminAgentController::class, 'store'])->name('agents.store');
     Route::post('/agents/{user}/profile', [AdminAgentController::class, 'updateProfile'])->name('agents.profile');
     Route::post('/agents/{user}/note', [AdminAgentController::class, 'addNote'])->name('agents.note');
     Route::post('/agents/{user}/magic-token', [AdminAgentController::class, 'regenerateMagicToken'])->name('agents.magic-token');
+
+    // 4.1 Buyers Directory (CRM & Preferences)
+    Route::get('/buyers', [AdminBuyerController::class, 'index'])->name('buyers.index');
+    Route::post('/buyers', [AdminBuyerController::class, 'store'])->name('buyers.store');
+    Route::delete('/buyers/{user}', [AdminBuyerController::class, 'destroy'])->name('buyers.destroy');
 
     // 5. CRM Leads & Pipeline
     Route::get('/leads', [AdminLeadController::class, 'index'])->name('leads.index');

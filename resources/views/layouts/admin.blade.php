@@ -75,11 +75,13 @@
                 @php
                     $navItems = [
                         ['route' => 'admin.dashboard', 'icon' => '📊', 'label' => 'ড্যাশবোর্ড ওভারভিউ'],
-                        ['route' => 'admin.properties.index', 'icon' => '🏠', 'label' => 'প্রপার্টি মাস্টার ক্যাটালগ'],
+                        ['route' => 'admin.properties.index', 'icon' => '🏠', 'label' => 'প্রপার্টি ক্যাটালগ (লাইভ)'],
+                        ['route' => 'admin.properties.directory', 'icon' => '🗄️', 'label' => 'প্রাইভেট প্রপার্টি ভল্ট'],
                         ['route' => 'admin.guides.index', 'icon' => '📚', 'label' => 'প্রপার্টি গাইডস ও আর্টিকেল'],
                         ['route' => 'admin.media.index', 'icon' => '🖼️', 'label' => 'মিডিয়া লাইব্রেরি (Cloudinary)'],
                         ['route' => 'admin.verifications.index', 'icon' => '✅', 'label' => '৪-দফা ভেরিফিকেশন'],
-                        ['route' => 'admin.agents.index', 'icon' => '👥', 'label' => 'এজেন্ট ও মালিক পোর্টাল'],
+                        ['route' => 'admin.agents.index', 'icon' => '👥', 'label' => 'এজেন্ট ও মালিক ডিরেক্টরি'],
+                        ['route' => 'admin.buyers.index', 'icon' => '👤', 'label' => 'বায়ার ডিরেক্টরি (Buyers)'],
                         ['route' => 'admin.leads.index', 'icon' => '🎯', 'label' => 'লিড ও সিআরএম পাইপলাইন'],
                         ['route' => 'admin.demands.index', 'icon' => '📋', 'label' => 'প্রপার্টি চাহিদা ও রিকোয়ারমেন্ট'],
                         ['route' => 'admin.visits.index', 'icon' => '📅', 'label' => 'সাইট ভিজিট ও শিডিউলার'],

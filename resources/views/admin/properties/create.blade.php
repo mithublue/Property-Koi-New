@@ -314,14 +314,19 @@
             </div>
         </div>
 
-        <!-- Form Actions -->
-        <div class="flex items-center justify-between pt-4 border-t border-slate-100">
-            <a href="{{ route('admin.properties.index') }}" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition">
-                &larr; ক্যাটালগে ফিরে যান
+        <!-- Form Actions & Destination -->
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-5 border-t border-slate-100">
+            <a href="{{ request('destination') === 'directory' ? route('admin.properties.directory') : route('admin.properties.index') }}" class="w-full sm:w-auto px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition text-center">
+                &larr; ফিরে যান
             </a>
-            <button type="submit" class="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition shadow-md flex items-center gap-2">
-                <span>💾</span> প্রপার্টি সংরক্ষণ করুন
-            </button>
+            <div class="flex flex-wrap items-center gap-2.5 w-full sm:w-auto justify-end">
+                <button type="submit" name="destination" value="directory" class="flex-1 sm:flex-none px-5 py-2.5 bg-slate-800 hover:bg-slate-900 text-amber-400 text-xs font-bold rounded-xl transition shadow-sm flex items-center justify-center gap-2 border border-slate-700">
+                    <span>🗄️</span> প্রাইভেট ডিরেক্টরিতে রাখুন (অফলাইন)
+                </button>
+                <button type="submit" name="destination" value="live" class="flex-1 sm:flex-none px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition shadow-md flex items-center justify-center gap-2">
+                    <span>🚀</span> পাবলিক লিস্টিং (SEO/AEO লাইভ)
+                </button>
+            </div>
         </div>
     </form>
 

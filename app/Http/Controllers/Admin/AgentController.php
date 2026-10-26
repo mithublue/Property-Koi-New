@@ -9,6 +9,8 @@ use App\Models\User;
 use App\Services\MagicLoginService;
 use App\Services\MessageTemplateService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class AgentController extends Controller
 {
@@ -89,9 +91,10 @@ class AgentController extends Controller
         ]);
 
         AgentNote::create([
-            'user_id'    => $user->id,
-            'author_id'  => auth()->id(),
-            'note'       => $validated['note'],
+            'user_id'        => $user->id,
+            'author_user_id' => auth()->id(),
+            'author_name'    => auth()->user()?->name ?? 'Admin',
+            'note_text'      => $validated['note'],
         ]);
 
         return back()->with('success', 'নোট সফলভাবে সংরক্ষণ করা হয়েছে।');
@@ -108,5 +111,59 @@ class AgentController extends Controller
             'url'     => $url,
             'message' => 'নতুন ম্যাজিক লিঙ্ক তৈরি করা হয়েছে!'
         ]);
+    }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'name'                     => 'required|string|max:255',
+            'phone'                    => 'required|string|max:50|unique:users,phone',
+            'whatsapp_number'          => 'nullable|string|max:50',
+            'email'                    => 'nullable|email|max:255|unique:users,email',
+            'role'                     => 'required|in:agent,owner',
+            'admin_fixed_rating'       => 'nullable|numeric|min:1|max:5',
+            'is_verified_direct_agent' => 'nullable|boolean',
+            'notes'                    => 'nullable|string',
+        ], [
+            'phone.required' => 'ফোন নম্বর আবশ্যক।',
+            'phone.unique'   => 'এই ফোন নম্বরের সদস্য ইতিমধ্যে নিবন্ধিত।',
+            'email.unique'   => 'এই ইমেইলটি অন্য অ্যাকাউন্টে ব্যবহৃত হচ্ছে।',
+        ]);
+
+        $rawPhone = preg_replace('/[^0-9]/', '', $validated['phone']);
+        $whatsapp = !empty($validated['whatsapp_number'])
+            ? preg_replace('/[^0-9]/', '', $validated['whatsapp_number'])
+            : $rawPhone;
+
+        $user = User::create([
+            'name'            => $validated['name'],
+            'phone'           => $validated['phone'],
+            'whatsapp_number' => $whatsapp,
+            'email'           => $validated['email'] ?: ($validated['role'] . '_' . Str::random(6) . '@propertykoi.local'),
+            'password'        => Hash::make(Str::random(16)),
+            'role'            => $validated['role'],
+            'is_verified'     => true,
+        ]);
+
+        MagicLoginService::getOrCreateToken($user);
+
+        AgentProfile::create([
+            'user_id'                  => $user->id,
+            'admin_fixed_rating'       => $validated['admin_fixed_rating'] ?? 5.0,
+            'is_verified_direct_agent' => $request->boolean('is_verified_direct_agent', true),
+            'verified_at'              => now(),
+        ]);
+
+        if (!empty($validated['notes'])) {
+            AgentNote::create([
+                'user_id'        => $user->id,
+                'author_user_id' => auth()->id(),
+                'author_name'    => auth()->user()?->name ?? 'Admin',
+                'note_text'      => $validated['notes'],
+            ]);
+        }
+
+        $label = $validated['role'] === 'agent' ? 'এজেন্ট' : 'মালিক';
+        return redirect()->route('admin.agents.index')->with('success', "নতুন {$label} {$user->name} সফলভাবে যুক্ত করা হয়েছে!");
     }
 }

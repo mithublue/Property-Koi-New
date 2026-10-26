@@ -83,6 +83,90 @@ class BuyerDemandMatchService
         return $summary;
     }
 
+    /**
+     * Trigger immediate demand matching when a new property is published to live.
+     */
+    public static function matchNewProperty(Property $property): array
+    {
+        if ($property->status !== 'live') {
+            return [
+                'matched_demands' => 0,
+                'push_sent'       => 0,
+                'email_sent'      => 0,
+                'telegram_sent'   => 0,
+                'phone_logs'      => 0,
+                'details'         => [],
+            ];
+        }
+
+        $property->loadMissing(['land', 'flat', 'share', 'commercial', 'media']);
+
+        $demands = BuyerDemand::where('status', 'active')->get();
+        $matchedCount = 0;
+        $pushSent = 0;
+        $emailSent = 0;
+        $telegramSent = 0;
+        $phoneLogs = 0;
+        $details = [];
+
+        foreach ($demands as $demand) {
+            $matches = self::findMatchingPropertiesForRequirement($demand);
+            $thisMatch = null;
+            foreach ($matches as $m) {
+                if ($m['property']->id === $property->id) {
+                    $thisMatch = $m;
+                    break;
+                }
+            }
+
+            if (!$thisMatch) {
+                continue;
+            }
+
+            // Exclude if already notified
+            $alreadySent = DemandNotification::where('buyer_demand_id', $demand->id)
+                ->where('property_id', $property->id)
+                ->exists();
+
+            if ($alreadySent) {
+                continue;
+            }
+
+            $matchedCount++;
+            $dispatchRes = self::dispatchDemandNotifications($demand, [$thisMatch]);
+
+            $pushSent     += $dispatchRes['push_sent'];
+            $emailSent    += $dispatchRes['email_sent'];
+            $telegramSent += $dispatchRes['telegram_sent'];
+            $phoneLogs    += $dispatchRes['phone_logs'];
+
+            $uniqueMatchesCount = DemandNotification::where('buyer_demand_id', $demand->id)
+                ->distinct('property_id')
+                ->count('property_id');
+
+            $demand->update([
+                'last_notified_at' => now(),
+                'match_count'      => $uniqueMatchesCount,
+                'status'           => 'matched',
+            ]);
+
+            $details[] = [
+                'requirement_code' => $demand->requirement_code,
+                'buyer_name'       => $demand->buyer_name,
+                'score'            => $thisMatch['score'],
+            ];
+        }
+
+        return [
+            'matched_demands' => $matchedCount,
+            'push_sent'       => $pushSent,
+            'email_sent'      => $emailSent,
+            'telegram_sent'   => $telegramSent,
+            'phone_logs'      => $phoneLogs,
+            'details'         => $details,
+        ];
+    }
+
     public static function findMatchingPropertiesForRequirement(BuyerDemand $demand): array
     {
         $query = Property::with(['land', 'flat', 'share', 'commercial', 'media'])

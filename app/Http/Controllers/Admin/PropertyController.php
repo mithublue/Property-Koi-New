@@ -12,6 +12,7 @@ use App\Models\PropertyMedia;
 use App\Models\PropertyShareDetail;
 use App\Models\PropertyVerification;
 use App\Models\User;
+use App\Services\BuyerDemandMatchService;
 use App\Services\FacebookAutoPostService;
 use App\Services\SeoService;
 use Illuminate\Http\Request;
@@ -225,6 +226,57 @@ class PropertyController extends Controller
         ));
     }
 
+    public function directory(Request $request)
+    {
+        $query = Property::with(['media', 'creator', 'verification', 'directSources', 'landDetail', 'flatDetail', 'commercialDetail', 'shareDetail'])
+            ->where(function ($q) {
+                $q->where('status', 'draft')
+                  ->orWhere('status', '!=', 'live');
+            });
+
+        $filterCode = trim((string) ($request->input('property_code') ?: $request->input('search', '')));
+        $filterType = trim((string) ($request->input('type') ?: ''));
+        $filterArea = trim((string) ($request->input('area') ?: ''));
+
+        if ($request->filled('property_code')) {
+            $query->where('property_code', 'like', "%{$filterCode}%");
+        } elseif ($request->filled('search')) {
+            $query->where(function ($q) use ($filterCode) {
+                $q->where('title', 'like', "%{$filterCode}%")
+                  ->orWhere('property_code', 'like', "%{$filterCode}%")
+                  ->orWhere('block', 'like', "%{$filterCode}%")
+                  ->orWhere('plot_number', 'like', "%{$filterCode}%")
+                  ->orWhere('road_number', 'like', "%{$filterCode}%")
+                  ->orWhereHas('directSources', function ($sq) use ($filterCode) {
+                      $sq->where('owner_phone', 'like', "%{$filterCode}%")
+                         ->orWhere('owner_name', 'like', "%{$filterCode}%");
+                  });
+            });
+        }
+
+        if (!empty($filterType) && $filterType !== 'all') {
+            $query->where('type', $filterType);
+        }
+
+        if (!empty($filterArea) && $filterArea !== 'all') {
+            $query->where('area', 'like', "%{$filterArea}%");
+        }
+
+        $properties = $query->latest()->paginate(15)->withQueryString();
+
+        $stats = [
+            'total_private' => Property::where(fn($q) => $q->where('status', 'draft')->orWhere('status', '!=', 'live'))->count(),
+            'draft'         => Property::where('status', 'draft')->count(),
+            'pending'       => Property::whereIn('status', ['pending', 'pending_verification'])->count(),
+            'plots'         => Property::where('type', 'land')->where('status', '!=', 'live')->count(),
+            'flats'         => Property::where('type', 'flat')->where('status', '!=', 'live')->count(),
+            'commercial'    => Property::where('type', 'commercial')->where('status', '!=', 'live')->count(),
+            'share'         => Property::where('type', 'land_share')->where('status', '!=', 'live')->count(),
+        ];
+
+        return view('admin.properties.directory', compact('properties', 'stats', 'filterCode', 'filterType', 'filterArea'));
+    }
+
     public function create()
     {
         $agents = User::whereIn('role', ['agent', 'owner'])->orderBy('name')->get();
@@ -236,6 +288,13 @@ class PropertyController extends Controller
         $ownerPhone = $request->input('owner_phone') ?: ($request->input('source_phone') ?: $request->input('source_whatsapp'));
         if (!empty($ownerPhone)) {
             $request->merge(['owner_phone' => $ownerPhone]);
+        }
+
+        // Support saving directly to private directory / offline vault
+        if ($request->input('destination') === 'directory' || $request->input('save_mode') === 'directory') {
+            $request->merge(['status' => 'draft']);
+        } elseif (!$request->filled('status')) {
+            $request->merge(['status' => 'live']);
         }
 
         $validated = $request->validate([
@@ -320,15 +379,95 @@ class PropertyController extends Controller
             ]);
         }
 
-        // Auto post to FB if live and enabled
+        // Auto post to FB and trigger Buyer Demand match if live
         if ($property->status === 'live') {
             SeoService::pingIndexNow($property);
+            BuyerDemandMatchService::matchNewProperty($property);
             if (\App\Models\Setting::isTrue('adm_fb_autopost_enabled') || \App\Models\Setting::isTrue('fb_autopost_enabled')) {
                 FacebookAutoPostService::postProperty($property);
             }
         }
 
+        if ($property->status === 'draft' || $request->input('destination') === 'directory') {
+            return redirect()->route('admin.properties.directory')->with('success', "প্রপার্টি #{$property->property_code} সফলভাবে প্রাইভেট ডিরেক্টরিতে (ডাটাবেস ভল্ট) সংরক্ষিত হয়েছে। এটি জনসাধারণের কাছে দৃশ্যমান নয়।");
+        }
+
         return redirect()->route('admin.properties.index')->with('success', "প্রপার্টি #{$property->property_code} সফলভাবে তৈরি হয়েছে!");
+    }
+
+    public function publishToLive(Request $request, Property $property)
+    {
+        // 1. Ensure SEO-optimized unique slug
+        if (empty($property->slug)) {
+            $property->slug = Str::slug($property->title) . '-' . strtolower($property->property_code ?: Str::random(5));
+        }
+
+        // 2. Update status & timestamp
+        $property->status = 'live';
+        $property->last_verified_at = now();
+        $property->save();
+
+        // 3. Mark verification checklist as fully verified
+        PropertyVerification::updateOrCreate(
+            ['property_id' => $property->id],
+            [
+                'verification_status'    => 'verified',
+                'verified_at'            => now(),
+                'owner_identity_checked' => true,
+                'location_checked'       => true,
+                'basic_info_checked'     => true,
+                'basic_documents_checked'=> true,
+            ]
+        );
+
+        // 4. Instant search engine indexing ping via IndexNow
+        $indexNowResult = SeoService::pingIndexNow($property);
+
+        // 5. Automated Buyer Demand Matching & notifications
+        $demandMatches = BuyerDemandMatchService::matchNewProperty($property);
+
+        // 6. Facebook auto-post if enabled
+        if (\App\Models\Setting::isTrue('adm_fb_autopost_enabled') || \App\Models\Setting::isTrue('fb_autopost_enabled')) {
+            FacebookAutoPostService::postProperty($property);
+        }
+
+        $matchedCount = $demandMatches['matched_demands'] ?? 0;
+        $publicUrl = route('property.show', $property->slug);
+
+        $msg = "প্রপার্টি #{$property->property_code} সফলভাবে লাইভ সাইটে পাবলিশ করা হয়েছে! SEO & AEO মেটাডাটা, Schema.org LD-JSON এবং AI FAQ প্রস্তুত হয়েছে।";
+        if ($matchedCount > 0) {
+            $msg .= " এবং {$matchedCount} জন আগ্রহী বায়ারের সাথে ম্যাচ করে নোটিফিকেশন পাঠানো হয়েছে!";
+        }
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success'         => true,
+                'property_id'     => $property->id,
+                'public_url'      => $publicUrl,
+                'matched_demands' => $matchedCount,
+                'message'         => $msg,
+            ]);
+        }
+
+        return redirect()->back()->with('success', $msg);
+    }
+
+    public function unpublishToDirectory(Request $request, Property $property)
+    {
+        $property->status = 'draft';
+        $property->save();
+
+        $msg = "প্রপার্টি #{$property->property_code} সফলভাবে প্রাইভেট ডিরেক্টরিতে সরিয়ে নেওয়া হয়েছে। এটি এখন আর জনসাধারণের কাছে দৃশ্যমান নয়।";
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success'     => true,
+                'property_id' => $property->id,
+                'message'     => $msg,
+            ]);
+        }
+
+        return redirect()->back()->with('success', $msg);
     }
 
     public function edit(Property $property)
@@ -481,6 +620,7 @@ class PropertyController extends Controller
 
         if ($status === 'live') {
             SeoService::pingIndexNow($property);
+            BuyerDemandMatchService::matchNewProperty($property);
             if (\App\Models\Setting::isTrue('adm_fb_autopost_enabled') || \App\Models\Setting::isTrue('fb_autopost_enabled')) {
                 FacebookAutoPostService::postProperty($property);
             }

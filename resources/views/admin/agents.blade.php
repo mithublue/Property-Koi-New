@@ -23,10 +23,15 @@
             </span>
         </div>
 
-        <form method="GET" action="{{ route('admin.agents.index') }}" class="flex items-center gap-2 text-xs">
-            <input type="text" name="search" value="{{ request('search') }}" placeholder="নাম, ফোন বা ইমেইল দিয়ে খুঁজুন..." class="px-3 py-1.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none">
-            <button type="submit" class="px-3 py-1.5 bg-slate-900 text-white font-bold rounded-xl hover:bg-slate-800 transition">খুঁজুন</button>
-        </form>
+        <div class="flex items-center gap-2">
+            <form method="GET" action="{{ route('admin.agents.index') }}" class="flex items-center gap-2 text-xs">
+                <input type="text" name="search" value="{{ request('search') }}" placeholder="নাম, ফোন বা ইমেইল দিয়ে খুঁজুন..." class="px-3 py-1.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                <button type="submit" class="px-3 py-1.5 bg-slate-900 text-white font-bold rounded-xl hover:bg-slate-800 transition">খুঁজুন</button>
+            </form>
+            <button type="button" @click="showAddModal = true" class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center gap-1.5 whitespace-nowrap cursor-pointer">
+                <span>➕</span> নতুন সদস্য
+            </button>
+        </div>
     </div>
 
     <!-- Agents Table -->
@@ -200,6 +205,78 @@
         </div>
     </div>
 
+    <!-- Modal: Add New Agent / Owner -->
+    <div x-show="showAddModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-200" @click.away="showAddModal = false">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                    <span>👥</span> নতুন এজেন্ট বা মালিক যুক্ত করুন
+                </h3>
+                <button type="button" @click="showAddModal = false" class="text-slate-400 hover:text-slate-600 font-bold text-lg">&times;</button>
+            </div>
+
+            <form action="{{ route('admin.agents.store') }}" method="POST" class="space-y-4 mt-4 text-xs">
+                @csrf
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">সদস্যের পুরো নাম *</label>
+                        <input type="text" name="name" required placeholder="যেমন: রাশেদুল ইসলাম" class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">ভূমিকা (Role) *</label>
+                        <select name="role" required class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                            <option value="agent">এজেন্ট / মিডিয়া (Agent)</option>
+                            <option value="owner">সরাসরি মালিক (Owner)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">মোবাইল নম্বর *</label>
+                        <input type="text" name="phone" required placeholder="017XXXXXXXX" class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">WhatsApp নম্বর</label>
+                        <input type="text" name="whatsapp_number" placeholder="খালি রাখলে ফোন নম্বর ব্যবহৃত হবে" class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">ইমেইল (ঐচ্ছিক)</label>
+                        <input type="email" name="email" placeholder="agent@example.com" class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">রেটিং (১ - ৫)</label>
+                        <input type="number" step="0.1" name="admin_fixed_rating" value="5.0" min="1" max="5" class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" name="is_verified_direct_agent" value="1" checked class="rounded text-emerald-600 focus:ring-emerald-500">
+                        <span class="font-semibold text-slate-700">ভেরিফাইড ব্যাজ সক্রিয় করুন (Verified Badge)</span>
+                    </label>
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">অভ্যন্তরীণ নোট (ঐচ্ছিক)</label>
+                    <textarea name="notes" rows="2" placeholder="অফিস লোকেশন বা বিশেষ কোনো তথ্য..." class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none"></textarea>
+                </div>
+
+                <div class="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+                    <button type="button" @click="showAddModal = false" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl">
+                        বাতিল
+                    </button>
+                    <button type="submit" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-sm transition">
+                        সদস্য যুক্ত করুন
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
 </div>
 @endsection
 
@@ -208,6 +285,7 @@
 function agentManager() {
     return {
         drawerOpen: false,
+        showAddModal: false,
         currentUser: null,
 
         openDrawer(user) {

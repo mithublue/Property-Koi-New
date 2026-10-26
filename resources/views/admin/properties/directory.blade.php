@@ -192,9 +192,11 @@
                             <!-- Property Info -->
                             <td class="p-4">
                                 <div class="flex items-start gap-3">
-                                    <div class="w-14 h-14 rounded-xl bg-slate-100 border border-slate-200 overflow-hidden flex-shrink-0 flex items-center justify-center text-slate-400">
+                                    <div class="w-14 h-14 rounded-xl bg-slate-100 border border-slate-200 overflow-hidden flex-shrink-0 flex items-center justify-center text-slate-400 cursor-pointer hover:opacity-85 transition group"
+                                         @click="openViewDrawer('{{ $property->id }}')"
+                                         title="ক্লিক করে সম্পূর্ণ ডিটেইলস ভিউ ড্রয়ার দেখুন">
                                         @if(!empty($thumb))
-                                            <img src="{{ $thumb }}" alt="{{ $property->title }}" class="w-full h-full object-cover">
+                                            <img src="{{ $thumb }}" alt="{{ $property->title }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform">
                                         @else
                                             <span class="text-xl">
                                                 @if($property->type === 'land') 🏞️
@@ -206,7 +208,8 @@
                                     </div>
                                     <div class="space-y-1 max-w-xs sm:max-w-sm">
                                         <div class="flex items-center gap-1.5 flex-wrap">
-                                            <span class="px-2 py-0.5 rounded font-mono font-bold text-[10px] bg-slate-900 text-amber-400">
+                                            <span class="px-2 py-0.5 rounded font-mono font-bold text-[10px] bg-slate-900 text-amber-400 cursor-pointer"
+                                                  @click="openViewDrawer('{{ $property->id }}')">
                                                 #{{ $property->property_code }}
                                             </span>
                                             <span class="px-2 py-0.5 rounded font-bold text-[10px] bg-slate-100 text-slate-700">
@@ -216,7 +219,9 @@
                                                 @else ল্যান্ড শেয়ার @endif
                                             </span>
                                         </div>
-                                        <div class="font-bold text-slate-900 line-clamp-1 leading-snug">
+                                        <div class="font-bold text-slate-900 line-clamp-1 leading-snug hover:text-emerald-700 cursor-pointer transition"
+                                             @click="openViewDrawer('{{ $property->id }}')"
+                                             title="ক্লিক করে সম্পূর্ণ ডিটেইলস ভিউ ড্রয়ার দেখুন">
                                             {{ $property->title }}
                                         </div>
                                         <div class="text-[10px] text-slate-400">
@@ -315,21 +320,31 @@
                             <!-- Actions & 1-Click Launch -->
                             <td class="p-4 text-right">
                                 <div class="flex flex-col items-end gap-2">
-                                    <!-- 1-Click Publish Button (if not live) -->
-                                    <template x-if="statuses['{{ $property->id }}'] !== 'live'">
-                                        <form action="{{ route('admin.properties.publish-live', $property) }}" method="POST" onsubmit="return confirm('আপনি কি নিশ্চিত যে প্রপার্টি #{{ $property->property_code }} সম্পূর্ণ SEO, AEO ও AI FAQ সহ তাৎক্ষণিকভাবে পাবলিক সাইটে লাইভ লিস্টিং করতে চান?');">
-                                            @csrf
-                                            <button type="submit" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold text-xs rounded-xl shadow-sm transition transform active:scale-95 whitespace-nowrap cursor-pointer">
-                                                <span>🚀</span> ১-ক্লিকে পাবলিক লিস্টিং
-                                            </button>
-                                        </form>
-                                    </template>
-                                    <template x-if="statuses['{{ $property->id }}'] === 'live'">
-                                        <a href="{{ route('property.show', $property->slug ?: $property->property_code) }}" target="_blank"
-                                           class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-800 border border-emerald-300 font-bold text-xs rounded-xl shadow-xs transition hover:bg-emerald-100">
-                                            <span>🌐</span> লাইভ ভিউ ↗
-                                        </a>
-                                    </template>
+                                    <div class="flex items-center gap-1.5">
+                                        <!-- View in Drawer Button -->
+                                        <button type="button"
+                                                @click="openViewDrawer('{{ $property->id }}')"
+                                                class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-amber-400 hover:text-amber-300 font-bold text-xs rounded-xl shadow-xs transition cursor-pointer"
+                                                title="পাবলিক ভিউয়ের মতো ড্রয়ারে প্রপার্টি দেখুন">
+                                            <span>👁️</span> ভিউ
+                                        </button>
+
+                                        <!-- 1-Click Publish Button (if not live) -->
+                                        <template x-if="statuses['{{ $property->id }}'] !== 'live'">
+                                            <form action="{{ route('admin.properties.publish-live', $property) }}" method="POST" onsubmit="return confirm('আপনি কি নিশ্চিত যে প্রপার্টি #{{ $property->property_code }} সম্পূর্ণ SEO, AEO ও AI FAQ সহ তাৎক্ষণিকভাবে পাবলিক সাইটে লাইভ লিস্টিং করতে চান?');">
+                                                @csrf
+                                                <button type="submit" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold text-xs rounded-xl shadow-sm transition transform active:scale-95 whitespace-nowrap cursor-pointer">
+                                                    <span>🚀</span> পাবলিশ
+                                                </button>
+                                            </form>
+                                        </template>
+                                        <template x-if="statuses['{{ $property->id }}'] === 'live'">
+                                            <a href="{{ route('property.show', $property->slug ?: $property->property_code) }}" target="_blank"
+                                               class="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-emerald-50 text-emerald-800 border border-emerald-300 font-bold text-xs rounded-xl shadow-xs transition hover:bg-emerald-100">
+                                                <span>🌐</span> লাইভ ↗
+                                            </a>
+                                        </template>
+                                    </div>
 
                                     <!-- Quick Utility Links -->
                                     <div class="flex items-center gap-2 text-xs">
@@ -380,6 +395,64 @@
         @endif
     </div>
 
+    <!-- Right-Side Drawer: Property Details Quick View -->
+    <div x-show="viewDrawerOpen" x-cloak
+         class="fixed inset-0 z-50 overflow-hidden bg-slate-900/60 backdrop-blur-xs flex justify-end"
+         @keydown.window.escape="closeViewDrawer()">
+        <div class="w-full max-w-2xl bg-white h-full shadow-2xl flex flex-col justify-between"
+             x-show="viewDrawerOpen"
+             x-transition:enter="transform transition ease-in-out duration-300"
+             x-transition:enter-start="translate-x-full"
+             x-transition:enter-end="translate-x-0"
+             x-transition:leave="transform transition ease-in-out duration-300"
+             x-transition:leave-start="translate-x-0"
+             x-transition:leave-end="translate-x-full"
+             @click.outside="closeViewDrawer()">
+
+            <!-- Drawer Header -->
+            <div class="p-4 px-5 border-b border-slate-200 flex items-center justify-between bg-slate-50/95 sticky top-0 z-20 backdrop-blur-md">
+                <div class="flex items-center gap-2.5">
+                    <span class="w-8 h-8 rounded-xl bg-slate-900 text-amber-400 flex items-center justify-center font-bold text-sm shadow-xs">
+                        👁️
+                    </span>
+                    <div>
+                        <h3 class="text-sm font-black text-slate-900">
+                            প্রপার্টি ডিটেইলস ভিউ (Property Quick View)
+                        </h3>
+                        <p class="text-[11px] text-slate-500">পাবলিক ভিউয়ের মতো পূর্ণাঙ্গ বিবরণ ও ডাটা</p>
+                    </div>
+                </div>
+                <button type="button" @click="closeViewDrawer()" class="text-slate-400 hover:text-slate-700 text-2xl font-bold cursor-pointer p-1">&times;</button>
+            </div>
+
+            <!-- Drawer Content (Scrollable) -->
+            <div class="p-5 flex-1 overflow-y-auto">
+                <!-- Loading Skeleton -->
+                <div x-show="loadingDrawer" class="space-y-4 animate-pulse">
+                    <div class="aspect-16/10 bg-slate-200 rounded-2xl"></div>
+                    <div class="h-6 bg-slate-200 rounded-xl w-3/4"></div>
+                    <div class="h-10 bg-slate-200 rounded-xl w-1/2"></div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="h-16 bg-slate-200 rounded-xl"></div>
+                        <div class="h-16 bg-slate-200 rounded-xl"></div>
+                    </div>
+                    <div class="h-24 bg-slate-200 rounded-xl"></div>
+                </div>
+
+                <!-- Dynamic HTML Injection -->
+                <div id="property-quickview-content" x-show="!loadingDrawer"></div>
+            </div>
+
+            <!-- Drawer Footer -->
+            <div class="p-4 border-t border-slate-200 bg-slate-50 flex items-center justify-between text-xs sticky bottom-0 z-20">
+                <span class="text-slate-500 font-semibold">🔒 PropertyKoi Private Vault</span>
+                <button type="button" @click="closeViewDrawer()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold rounded-xl transition cursor-pointer">
+                    বন্ধ করুন (Close)
+                </button>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 @push('scripts')
@@ -391,11 +464,45 @@ function propertyDirectory() {
         isDeletingBulk: false,
         isUpdatingBulk: false,
         loadingStatuses: {},
+        viewDrawerOpen: false,
+        loadingDrawer: false,
+        activePropertyId: null,
         totalRowsOnPage: {{ $properties->count() }},
         statuses: {
             @foreach($properties as $p)
                 '{{ $p->id }}': '{{ $p->status }}',
             @endforeach
+        },
+
+        async openViewDrawer(id) {
+            this.activePropertyId = id;
+            this.viewDrawerOpen = true;
+            this.loadingDrawer = true;
+            const contentEl = document.getElementById('property-quickview-content');
+            if (contentEl) contentEl.innerHTML = '';
+
+            try {
+                const res = await fetch(`{{ url('/backend/properties') }}/${id}/quick-view`, {
+                    headers: {
+                        'Accept': 'text/html',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                if (!res.ok) throw new Error('প্রপার্টি ডাটা লোড করা যায়নি।');
+                const html = await res.text();
+                if (contentEl) contentEl.innerHTML = html;
+            } catch(e) {
+                if (contentEl) {
+                    contentEl.innerHTML = `<div class="p-6 text-center text-rose-600 font-bold bg-rose-50 rounded-2xl border border-rose-200">ত্রুটি: ${e.message}</div>`;
+                }
+            } finally {
+                this.loadingDrawer = false;
+            }
+        },
+
+        closeViewDrawer() {
+            this.viewDrawerOpen = false;
+            this.activePropertyId = null;
         },
 
         toggleSelectAll(e) {

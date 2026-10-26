@@ -220,6 +220,7 @@ Route::prefix('backend')->name('admin.')->middleware('admin.access')->group(func
     // 2. Properties Master Catalog & Private Directory
     Route::get('/properties', [AdminPropertyController::class, 'index'])->name('properties.index');
     Route::get('/properties/directory', [AdminPropertyController::class, 'directory'])->name('properties.directory');
+    Route::get('/properties/{property}/quick-view', [AdminPropertyController::class, 'quickView'])->name('properties.quick-view');
     Route::get('/properties/create', [AdminPropertyController::class, 'create'])->name('properties.create');
     Route::post('/properties', [AdminPropertyController::class, 'store'])->name('properties.store');
     Route::get('/properties/{property}/edit', [AdminPropertyController::class, 'edit'])->name('properties.edit');

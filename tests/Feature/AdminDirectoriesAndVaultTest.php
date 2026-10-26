@@ -296,4 +296,35 @@ class AdminDirectoriesAndVaultTest extends TestCase
         $this->assertDatabaseMissing('properties', ['id' => $p1->id]);
         $this->assertDatabaseMissing('properties', ['id' => $p2->id]);
     }
+
+    public function test_admin_can_quick_view_vault_property_in_drawer(): void
+    {
+        $property = Property::create([
+            'property_code' => 'PK-VLT99',
+            'title'         => 'ভল্ট টেস্ট প্রপার্টি ড্রয়ার ভিউ',
+            'slug'          => 'vault-test-prop-99',
+            'type'          => 'land',
+            'area'          => 'Aftabnagar',
+            'block'         => 'M',
+            'status'        => 'draft',
+            'asking_price'  => 5500000,
+            'custom_fields' => [['key' => 'মৌজা', 'value' => 'বেরাইদ']],
+            'created_by_user_id' => $this->admin->id,
+        ]);
+
+        // 1. Directory page renders view button & drawer markup
+        $dirResponse = $this->actingAs($this->admin)->get(route('admin.properties.directory'));
+        $dirResponse->assertStatus(200);
+        $dirResponse->assertSee('openViewDrawer(\'' . $property->id . '\')', false);
+        $dirResponse->assertSee('প্রপার্টি ডিটেইলস ভিউ (Property Quick View)');
+
+        // 2. Quick-view endpoint returns rendered partial with property details
+        $viewResponse = $this->actingAs($this->admin)->get(route('admin.properties.quick-view', $property));
+        $viewResponse->assertStatus(200);
+        $viewResponse->assertSee('PK-VLT99');
+        $viewResponse->assertSee('ভল্ট টেস্ট প্রপার্টি ড্রয়ার ভিউ');
+        $viewResponse->assertSee('বেরাইদ');
+        $viewResponse->assertSee('বিস্তারিত টেকনিক্যাল স্পেসিফিকেশন');
+        $viewResponse->assertSee('প্রাইভেট সোর্স ও যোগাযোগের তথ্য');
+    }
 }

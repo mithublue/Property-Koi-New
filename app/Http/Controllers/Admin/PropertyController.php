@@ -305,6 +305,22 @@ class PropertyController extends Controller
         return view('admin.properties.directory', compact('properties', 'stats', 'filterCode', 'filterType', 'filterArea', 'filterStatus'));
     }
 
+    public function quickView(Property $property)
+    {
+        $property->load([
+            'media',
+            'creator.agentProfile',
+            'verification',
+            'directSources.sourceUser.agentProfile',
+            'landDetail',
+            'flatDetail',
+            'commercialDetail',
+            'shareDetail',
+        ]);
+
+        return view('admin.properties.partials.quick-view', compact('property'));
+    }
+
     public function create(Request $request)
     {
         return redirect()->route('property.create', $request->query());

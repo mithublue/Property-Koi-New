@@ -263,6 +263,7 @@ Route::prefix('backend')->name('admin.')->middleware('admin.access')->group(func
     Route::get('/agents', [AdminAgentController::class, 'index'])->name('agents.index');
     Route::get('/agents/search', [AdminAgentController::class, 'search'])->name('agents.search');
     Route::post('/agents', [AdminAgentController::class, 'store'])->name('agents.store');
+    Route::match(['put', 'patch', 'post'], '/agents/{user}', [AdminAgentController::class, 'update'])->name('agents.update');
     Route::post('/agents/{user}/profile', [AdminAgentController::class, 'updateProfile'])->name('agents.profile');
     Route::post('/agents/{user}/note', [AdminAgentController::class, 'addNote'])->name('agents.note');
     Route::post('/agents/{user}/magic-token', [AdminAgentController::class, 'regenerateMagicToken'])->name('agents.magic-token');

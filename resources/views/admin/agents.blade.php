@@ -28,7 +28,7 @@
                 <input type="text" name="search" value="{{ request('search') }}" placeholder="নাম, ফোন বা ইমেইল দিয়ে খুঁজুন..." class="px-3 py-1.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none">
                 <button type="submit" class="px-3 py-1.5 bg-slate-900 text-white font-bold rounded-xl hover:bg-slate-800 transition">খুঁজুন</button>
             </form>
-            <button type="button" @click="showAddModal = true" class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center gap-1.5 whitespace-nowrap cursor-pointer">
+            <button type="button" @click="openAddDrawer()" class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center gap-1.5 whitespace-nowrap cursor-pointer">
                 <span>➕</span> নতুন সদস্য
             </button>
         </div>
@@ -136,8 +136,8 @@
                                 @endif
                             </td>
                             <td class="p-3.5 text-center">
-                                <button @click="openDrawer({{ $user->toJson() }})" class="px-3 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold rounded-lg text-xs transition">
-                                    ড্রয়ার ওপেন &rarr;
+                                <button type="button" @click="openEditDrawer({{ $user->toJson() }})" class="px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold rounded-xl text-xs transition inline-flex items-center gap-1.5 cursor-pointer">
+                                    <span>✏️</span> এডিট ও প্রোফাইল &rarr;
                                 </button>
                             </td>
                         </tr>
@@ -155,67 +155,33 @@
         </div>
     </div>
 
-    <!-- Slide-Over Drawer -->
-    <div x-show="drawerOpen" x-cloak class="fixed inset-0 z-50 overflow-hidden bg-slate-900/50 backdrop-blur-sm flex justify-end">
-        <div class="w-full max-w-md bg-white h-full shadow-2xl flex flex-col justify-between" @click.away="drawerOpen = false">
-            <div class="p-5 border-b border-slate-200 flex items-center justify-between">
+    <!-- Right-Side Drawer: Add New Member -->
+    <div x-show="addDrawerOpen" x-cloak
+         class="fixed inset-0 z-50 overflow-hidden bg-slate-900/50 backdrop-blur-xs flex justify-end"
+         @keydown.window.escape="closeAddDrawer()">
+        <div class="w-full max-w-lg bg-white h-full shadow-2xl flex flex-col justify-between"
+             x-show="addDrawerOpen"
+             x-transition:enter="transform transition ease-in-out duration-300"
+             x-transition:enter-start="translate-x-full"
+             x-transition:enter-end="translate-x-0"
+             x-transition:leave="transform transition ease-in-out duration-300"
+             x-transition:leave-start="translate-x-0"
+             x-transition:leave-end="translate-x-full"
+             @click.outside="closeAddDrawer()">
+
+            <!-- Header -->
+            <div class="p-5 border-b border-slate-200 flex items-center justify-between bg-slate-50/90">
                 <div>
-                    <h3 class="text-base font-bold text-slate-900" x-text="currentUser?.name"></h3>
-                    <p class="text-xs text-slate-500" x-text="'রোল: ' + currentUser?.role"></p>
+                    <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                        <span>➕</span> নতুন এজেন্ট বা মালিক যুক্ত করুন
+                    </h3>
+                    <p class="text-xs text-slate-500 mt-0.5">ডিরেক্টরিতে নতুন সদস্যের প্রোফাইল তৈরি করুন</p>
                 </div>
-                <button @click="drawerOpen = false" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
+                <button type="button" @click="closeAddDrawer()" class="text-slate-400 hover:text-slate-700 text-2xl font-bold cursor-pointer p-1">&times;</button>
             </div>
 
-            <div class="p-5 space-y-5 flex-1 overflow-y-auto text-xs">
-                <!-- Rating and Penalty -->
-                <form :action="'/backend/agents/' + currentUser?.id + '/profile'" method="POST" class="space-y-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
-                    @csrf
-                    <div>
-                        <label class="block font-semibold text-slate-700 mb-1">অ্যাডমিন নির্ধারিত রেটিং (1.0 - 5.0)</label>
-                        <input type="number" step="0.1" min="1" max="5" name="rating" :value="currentUser?.agent_profile?.admin_fixed_rating || 5.0" class="w-full p-2 border border-slate-300 rounded-lg">
-                    </div>
-                    <div>
-                        <label class="block font-semibold text-slate-700 mb-1">পেনাল্টি স্ট্যাটাস</label>
-                        <select name="penalty_status" :value="currentUser?.agent_profile?.penalty_status || 'verified'" class="w-full p-2 border border-slate-300 rounded-lg">
-                            <option value="verified">ভেরিফাইড (স্বাভাবিক)</option>
-                            <option value="unverified">আনভেরিফাইড</option>
-                            <option value="bypassed_warning">সতর্কবার্তা জারি (Warning)</option>
-                            <option value="penalty_spam">স্থগিত / পেনাল্টি (Suspended)</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block font-semibold text-slate-700 mb-1">পেনাল্টির কারণ</label>
-                        <input type="text" name="penalty_reason" :value="currentUser?.agent_profile?.penalty_reason || ''" placeholder="কারণ লিখুন..." class="w-full p-2 border border-slate-300 rounded-lg">
-                    </div>
-                    <button type="submit" class="w-full py-2 bg-slate-900 text-white font-bold rounded-lg hover:bg-slate-800 transition">
-                        প্রোফাইল আপডেট করুন
-                    </button>
-                </form>
-
-                <!-- CRM Notes Form -->
-                <form :action="'/backend/agents/' + currentUser?.id + '/note'" method="POST" class="space-y-2">
-                    @csrf
-                    <label class="block font-bold text-slate-800">অভ্যন্তরীণ অ্যাডমিন নোট যোগ করুন</label>
-                    <textarea name="note" rows="3" required placeholder="এই এজেন্ট বা মালিক সম্পর্কে কোনো গুরুত্বপূর্ণ পর্যবেক্ষণ..." class="w-full p-2.5 border border-slate-300 rounded-xl"></textarea>
-                    <button type="submit" class="w-full py-2 bg-emerald-600 text-white font-bold rounded-xl hover:bg-emerald-700 transition">
-                        নোট সেভ করুন
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal: Add New Agent / Owner -->
-    <div x-show="showAddModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
-        <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-200" @click.away="showAddModal = false">
-            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-                <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
-                    <span>👥</span> নতুন এজেন্ট বা মালিক যুক্ত করুন
-                </h3>
-                <button type="button" @click="showAddModal = false" class="text-slate-400 hover:text-slate-600 font-bold text-lg">&times;</button>
-            </div>
-
-            <form action="{{ route('admin.agents.store') }}" method="POST" class="space-y-4 mt-4 text-xs">
+            <!-- Body Form -->
+            <form action="{{ route('admin.agents.store') }}" method="POST" class="p-5 space-y-4 flex-1 overflow-y-auto text-xs">
                 @csrf
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
@@ -224,7 +190,7 @@
                     </div>
                     <div>
                         <label class="block font-semibold text-slate-700 mb-1">ভূমিকা (Role) *</label>
-                        <select name="role" required class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                        <select name="role" required class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none font-semibold">
                             <option value="agent">এজেন্ট / মিডিয়া (Agent)</option>
                             <option value="owner">সরাসরি মালিক (Owner)</option>
                         </select>
@@ -234,46 +200,190 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                         <label class="block font-semibold text-slate-700 mb-1">মোবাইল নম্বর *</label>
-                        <input type="text" name="phone" required placeholder="017XXXXXXXX" class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                        <input type="text" name="phone" required placeholder="017XXXXXXXX" class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none font-mono">
                     </div>
                     <div>
                         <label class="block font-semibold text-slate-700 mb-1">WhatsApp নম্বর</label>
-                        <input type="text" name="whatsapp_number" placeholder="খালি রাখলে ফোন নম্বর ব্যবহৃত হবে" class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                        <input type="text" name="whatsapp_number" placeholder="খালি রাখলে ফোন নম্বর ব্যবহৃত হবে" class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none font-mono">
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                        <label class="block font-semibold text-slate-700 mb-1">ইমেইল (ঐচ্ছিক)</label>
-                        <input type="email" name="email" placeholder="agent@example.com" class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                        <label class="block font-semibold text-slate-700 mb-1">এজেন্সি / প্রতিষ্ঠানের নাম</label>
+                        <input type="text" name="agency_name" placeholder="যেমন: ঢাকা রিয়েল এস্টেট" class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none">
                     </div>
                     <div>
-                        <label class="block font-semibold text-slate-700 mb-1">রেটিং (১ - ৫)</label>
-                        <input type="number" step="0.1" name="admin_fixed_rating" value="5.0" min="1" max="5" class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                        <label class="block font-semibold text-slate-700 mb-1">ইমেইল (ঐচ্ছিক)</label>
+                        <input type="email" name="email" placeholder="agent@example.com" class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none">
                     </div>
                 </div>
 
                 <div>
+                    <label class="block font-semibold text-slate-700 mb-1">অ্যাডমিন নির্ধারিত রেটিং (১.০ - ৫.০)</label>
+                    <input type="number" step="0.1" name="admin_fixed_rating" value="5.0" min="1" max="5" class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none font-semibold">
+                </div>
+
+                <div class="p-3 bg-emerald-50/60 rounded-xl border border-emerald-200">
                     <label class="flex items-center gap-2 cursor-pointer">
                         <input type="checkbox" name="is_verified_direct_agent" value="1" checked class="rounded text-emerald-600 focus:ring-emerald-500">
-                        <span class="font-semibold text-slate-700">ভেরিফাইড ব্যাজ সক্রিয় করুন (Verified Badge)</span>
+                        <span class="font-bold text-emerald-900">ভেরিফাইড ব্যাজ সক্রিয় রাখুন (Verified Direct Agent)</span>
                     </label>
                 </div>
 
                 <div>
-                    <label class="block font-semibold text-slate-700 mb-1">অভ্যন্তরীণ নোট (ঐচ্ছিক)</label>
+                    <label class="block font-semibold text-slate-700 mb-1">অভ্যন্তরীণ অ্যাডমিন নোট (ঐচ্ছিক)</label>
                     <textarea name="notes" rows="2" placeholder="অফিস লোকেশন বা বিশেষ কোনো তথ্য..." class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:outline-none"></textarea>
                 </div>
 
-                <div class="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
-                    <button type="button" @click="showAddModal = false" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl">
+                <!-- Footer Actions -->
+                <div class="pt-4 border-t border-slate-200 flex items-center justify-end gap-2">
+                    <button type="button" @click="closeAddDrawer()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl transition cursor-pointer">
                         বাতিল
                     </button>
-                    <button type="submit" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-sm transition">
-                        সদস্য যুক্ত করুন
+                    <button type="submit" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-sm transition flex items-center gap-1.5 cursor-pointer">
+                        <span>➕</span> সদস্য যুক্ত করুন
                     </button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Right-Side Drawer: Edit Existing Member -->
+    <div x-show="editDrawerOpen" x-cloak
+         class="fixed inset-0 z-50 overflow-hidden bg-slate-900/50 backdrop-blur-xs flex justify-end"
+         @keydown.window.escape="closeEditDrawer()">
+        <div class="w-full max-w-lg bg-white h-full shadow-2xl flex flex-col justify-between"
+             x-show="editDrawerOpen"
+             x-transition:enter="transform transition ease-in-out duration-300"
+             x-transition:enter-start="translate-x-full"
+             x-transition:enter-end="translate-x-0"
+             x-transition:leave="transform transition ease-in-out duration-300"
+             x-transition:leave-start="translate-x-0"
+             x-transition:leave-end="translate-x-full"
+             @click.outside="closeEditDrawer()">
+
+            <!-- Header -->
+            <div class="p-5 border-b border-slate-200 flex items-center justify-between bg-slate-50/90">
+                <div>
+                    <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                        <span>✏️</span> সদস্যের তথ্য এডিট করুন
+                    </h3>
+                    <p class="text-xs text-slate-500 mt-0.5" x-text="currentUser?.name + ' (আইডি #' + currentUser?.id + ')'"></p>
+                </div>
+                <button type="button" @click="closeEditDrawer()" class="text-slate-400 hover:text-slate-700 text-2xl font-bold cursor-pointer p-1">&times;</button>
+            </div>
+
+            <!-- Body Form & Actions -->
+            <div class="p-5 space-y-5 flex-1 overflow-y-auto text-xs">
+                <form :action="'/backend/agents/' + currentUser?.id" method="POST" class="space-y-4">
+                    @csrf
+                    @method('PUT')
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block font-semibold text-slate-700 mb-1">সদস্যের নাম *</label>
+                            <input type="text" name="name" x-model="editForm.name" required class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-700 mb-1">ভূমিকা (Role) *</label>
+                            <select name="role" x-model="editForm.role" required class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none font-semibold">
+                                <option value="agent">এজেন্ট / মিডিয়া (Agent)</option>
+                                <option value="owner">সরাসরি মালিক (Owner)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block font-semibold text-slate-700 mb-1">মোবাইল নম্বর *</label>
+                            <input type="text" name="phone" x-model="editForm.phone" required class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none font-mono">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-700 mb-1">WhatsApp নম্বর</label>
+                            <input type="text" name="whatsapp_number" x-model="editForm.whatsapp_number" class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none font-mono">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block font-semibold text-slate-700 mb-1">এজেন্সি / প্রতিষ্ঠানের নাম</label>
+                            <input type="text" name="agency_name" x-model="editForm.agency_name" placeholder="যেমন: ঢাকা রিয়েল এস্টেট" class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-700 mb-1">ইমেইল</label>
+                            <input type="email" name="email" x-model="editForm.email" placeholder="agent@example.com" class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block font-semibold text-slate-700 mb-1">অ্যাডমিন নির্ধারিত রেটিং (1.0 - 5.0)</label>
+                            <input type="number" step="0.1" min="1" max="5" name="admin_fixed_rating" x-model="editForm.admin_fixed_rating" class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none font-semibold">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-slate-700 mb-1">পেনাল্টি স্ট্যাটাস</label>
+                            <select name="penalty_status" x-model="editForm.penalty_status" class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                                <option value="verified">ভেরিফাইড (স্বাভাবিক)</option>
+                                <option value="unverified">আনভেরিফাইড</option>
+                                <option value="bypassed_warning">সতর্কবার্তা জারি (Warning)</option>
+                                <option value="penalty_spam">স্থগিত / পেনাল্টি (Suspended)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">পেনাল্টির কারণ (প্রযোজ্য ক্ষেত্রে)</label>
+                        <input type="text" name="penalty_reason" x-model="editForm.penalty_reason" placeholder="কারণ লিখুন..." class="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                    </div>
+
+                    <div class="p-3 bg-emerald-50/60 rounded-xl border border-emerald-200">
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" name="is_verified_direct_agent" value="1" :checked="editForm.is_verified_direct_agent" x-model="editForm.is_verified_direct_agent" class="rounded text-emerald-600 focus:ring-emerald-500">
+                            <span class="font-bold text-emerald-900">ভেরিফাইড ডিরেক্ট এজেন্ট ব্যাজ (Verified Direct Agent Badge)</span>
+                        </label>
+                    </div>
+
+                    <div class="pt-2 flex items-center justify-end gap-2">
+                        <button type="button" @click="closeEditDrawer()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl transition cursor-pointer">
+                            বাতিল
+                        </button>
+                        <button type="submit" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-sm transition flex items-center gap-1.5 cursor-pointer">
+                            <span>💾</span> তথ্য আপডেট করুন
+                        </button>
+                    </div>
+                </form>
+
+                <!-- CRM Magic Link & Fast Actions Card -->
+                <div class="pt-4 border-t border-slate-200">
+                    <div class="bg-indigo-50/60 p-4 rounded-2xl border border-indigo-200 space-y-2">
+                        <div class="font-bold text-indigo-950 flex items-center justify-between">
+                            <span>🔑 ম্যাজিক লগইন লিঙ্ক</span>
+                            <button type="button" @click="regenerateToken(currentUser?.id)" class="text-xs text-indigo-600 hover:text-indigo-800 underline font-semibold cursor-pointer">
+                                🔄 নতুন লিঙ্ক তৈরি করুন
+                            </button>
+                        </div>
+                        <p class="text-[11px] text-slate-600">পাসওয়ার্ড ছাড়াই সদস্য এই লিঙ্কে ক্লিক করে সরাসরি তার পোর্টাল অ্যাক্সেস করতে পারবেন।</p>
+                        <div class="flex items-center gap-2 pt-1">
+                            <button type="button" @click="copyMagicLink('{{ url('/auth/magic') }}/' + currentUser?.magic_token)" class="px-3 py-1.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-bold rounded-lg text-xs flex items-center gap-1 cursor-pointer">
+                                <span>📋</span> লিঙ্ক কপি
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CRM Notes Form -->
+                <div class="pt-2 border-t border-slate-200">
+                    <form :action="'/backend/agents/' + currentUser?.id + '/note'" method="POST" class="space-y-2 bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                        @csrf
+                        <label class="block font-bold text-slate-800">📝 অভ্যন্তরীণ অ্যাডমিন নোট যোগ করুন</label>
+                        <textarea name="note" rows="2" required placeholder="এই সদস্য সম্পর্কে কোনো পর্যবেক্ষণ বা মন্তব্য লিখুন..." class="w-full p-2.5 border border-slate-300 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500"></textarea>
+                        <button type="submit" class="w-full py-2 bg-emerald-600 text-white font-bold rounded-xl hover:bg-emerald-700 transition cursor-pointer">
+                            নোট সেভ করুন
+                        </button>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -284,13 +394,52 @@
 <script>
 function agentManager() {
     return {
-        drawerOpen: false,
-        showAddModal: false,
+        addDrawerOpen: false,
+        editDrawerOpen: false,
         currentUser: null,
+        editForm: {
+            name: '',
+            role: 'agent',
+            phone: '',
+            whatsapp_number: '',
+            agency_name: '',
+            email: '',
+            admin_fixed_rating: 5.0,
+            is_verified_direct_agent: true,
+            penalty_status: 'verified',
+            penalty_reason: '',
+        },
 
-        openDrawer(user) {
+        openAddDrawer() {
+            this.addDrawerOpen = true;
+            this.editDrawerOpen = false;
+        },
+
+        closeAddDrawer() {
+            this.addDrawerOpen = false;
+        },
+
+        openEditDrawer(user) {
             this.currentUser = user;
-            this.drawerOpen = true;
+            this.editForm = {
+                name: user.name || '',
+                role: user.role || 'agent',
+                phone: user.phone || '',
+                whatsapp_number: user.whatsapp_number || user.phone || '',
+                agency_name: user.agent_profile?.agency_name || '',
+                email: user.email && !user.email.includes('@propertykoi.local') ? user.email : '',
+                admin_fixed_rating: user.agent_profile?.admin_fixed_rating || user.agent_profile?.rating || 5.0,
+                is_verified_direct_agent: user.agent_profile ? !!user.agent_profile.is_verified_direct_agent : true,
+                penalty_status: user.agent_profile?.penalty_status || 'verified',
+                penalty_reason: user.agent_profile?.penalty_reason || '',
+            };
+            this.editDrawerOpen = true;
+            this.addDrawerOpen = false;
+        },
+
+        closeEditDrawer() {
+            this.editDrawerOpen = false;
+            this.currentUser = null;
         },
 
         copyMagicLink(url) {

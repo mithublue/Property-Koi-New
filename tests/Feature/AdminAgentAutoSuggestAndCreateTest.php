@@ -260,4 +260,47 @@ class AdminAgentAutoSuggestAndCreateTest extends TestCase
         // Must belong to regular user, not the agent!
         $this->assertEquals($this->regularUser->id, $property->created_by_user_id);
     }
+
+    public function test_admin_can_update_agent_details_via_endpoint()
+    {
+        $payload = [
+            'name'                     => 'করিম আহমেদ আপডেটেড',
+            'phone'                    => '01711122299',
+            'whatsapp_number'          => '01711122288',
+            'email'                    => 'karim_updated@propertykoi.test',
+            'role'                     => 'agent',
+            'agency_name'              => 'উত্তরখান রিয়েলটরস',
+            'admin_fixed_rating'       => 4.9,
+            'is_verified_direct_agent' => 1,
+            'penalty_status'           => 'bypassed_warning',
+            'penalty_reason'           => 'নিয়ম লঙ্ঘনের প্রাথমিক সতর্কতা',
+        ];
+
+        $response = $this->actingAs($this->admin)
+            ->put(route('admin.agents.update', $this->existingAgent), $payload);
+
+        $response->assertRedirect(route('admin.agents.index'));
+
+        $this->existingAgent->refresh();
+        $this->assertEquals('করিম আহমেদ আপডেটেড', $this->existingAgent->name);
+        $this->assertEquals('01711122299', $this->existingAgent->phone);
+        $this->assertEquals('01711122288', $this->existingAgent->whatsapp_number);
+        $this->assertEquals('karim_updated@propertykoi.test', $this->existingAgent->email);
+
+        $profile = $this->existingAgent->agentProfile;
+        $this->assertEquals('উত্তরখান রিয়েলটরস', $profile->agency_name);
+        $this->assertEquals('4.90', (string) $profile->admin_fixed_rating);
+        $this->assertEquals('bypassed_warning', $profile->penalty_status);
+        $this->assertEquals('নিয়ম লঙ্ঘনের প্রাথমিক সতর্কতা', $profile->penalty_reason);
+    }
+
+    public function test_agent_directory_page_renders_with_drawers()
+    {
+        $response = $this->actingAs($this->admin)->get(route('admin.agents.index'));
+        $response->assertStatus(200);
+        $response->assertSee('openAddDrawer()', false);
+        $response->assertSee('openEditDrawer(', false);
+        $response->assertSee('নতুন এজেন্ট বা মালিক যুক্ত করুন');
+        $response->assertSee('সদস্যের তথ্য এডিট করুন');
+    }
 }

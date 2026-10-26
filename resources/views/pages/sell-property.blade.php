@@ -12,7 +12,13 @@
         <!-- Top Role Mode Banner Card -->
         <div class="@if((isset($is_agent_user) && $is_agent_user) || (isset($is_owner_user) && $is_owner_user)) bg-gradient-to-r from-emerald-950 via-slate-900 to-slate-900 border border-emerald-500/30 @else bg-slate-900 @endif text-white rounded-3xl p-6 sm:p-8 text-center space-y-3 shadow-xl"
              style="background-color: #0f172a;">
-            @if(isset($is_agent_user) && $is_agent_user)
+            @if(isset($is_edit_mode) && $is_edit_mode)
+                <div class="inline-flex items-center gap-1.5 px-3 py-1 bg-indigo-500 text-white font-extrabold text-[11px] rounded-full uppercase shadow-sm mb-1">
+                    ✏️ প্রপার্টি এডিট মোড (ID: #{{ $property->property_code }})
+                </div>
+                <h1 class="text-2xl sm:text-3xl font-extrabold m-0 text-white">প্রপার্টি তথ্য আপডেট ও সম্পাদনা</h1>
+                <p class="text-xs text-slate-300">যেকোনো তথ্য, দাগ/মৌজা বা মূল্য পরিবর্তন করে নিচে সেভ করুন।</p>
+            @elseif(isset($is_agent_user) && $is_agent_user)
                 <div class="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-400 text-slate-950 font-extrabold text-[11px] rounded-full uppercase shadow-sm mb-1">
                     🤝 ডিরেক্ট এজেন্ট মোড (Direct Agent Mode)
                 </div>
@@ -973,6 +979,29 @@
                             </div>
                         </template>
                     </div>
+
+                    @if(isset($property) && $property->media->count() > 0)
+                        <!-- Existing Saved Images (Edit Mode) -->
+                        <div class="pt-3 border-t border-slate-200 space-y-2">
+                            <label class="block font-bold text-slate-800 text-xs uppercase flex items-center gap-1.5">
+                                <span>🖼️</span> পূর্বে আপলোডকৃত ছবিসমূহ:
+                            </label>
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                @foreach($property->media as $m)
+                                    <div id="media-card-{{ $m->id }}" class="relative group rounded-xl overflow-hidden border border-slate-200 bg-white shadow-xs aspect-[4/3]">
+                                        <img src="{{ $m->file_path ? (Str::startsWith($m->file_path, ['http://', 'https://']) ? $m->file_path : asset($m->file_path)) : asset('assets/images/placeholder.jpg') }}" class="w-full h-full object-cover">
+                                        @if($m->is_cover)
+                                            <span class="absolute top-1.5 left-1.5 px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-600 text-white shadow-xs">⭐ মূল কভার</span>
+                                        @endif
+                                        <button type="button" @click.stop="deleteExistingMedia({{ $m->id }})" title="এই ছবিটি মুছুন"
+                                            class="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-rose-600 text-white flex items-center justify-center font-bold text-xs hover:bg-rose-700 transition cursor-pointer">
+                                            ✕
+                                        </button>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
                 </div>
 
                 <!-- YouTube Video Link Input -->
@@ -1167,12 +1196,12 @@
                             <!-- Vault Button -->
                             <button type="button" @click="submitProperty('vault')" :disabled="isSubmitting"
                                 class="w-full py-3.5 px-4 bg-slate-800/90 hover:bg-slate-700 disabled:opacity-60 text-white font-extrabold text-xs sm:text-sm rounded-xl shadow-md border border-slate-600 transition flex items-center justify-center gap-2 cursor-pointer">
-                                <span>🗄️ প্রপার্টি ভল্টে যোগ করুন (প্রাইভেট)</span>
+                                <span x-text="isEditMode ? '🗄️ পরিবর্তনসমূহ ভল্টে সেভ করুন (প্রাইভেট)' : '🗄️ প্রপার্টি ভল্টে যোগ করুন (প্রাইভেট)'"></span>
                             </button>
                             <!-- Live Catalog Button -->
                             <button type="button" @click="submitProperty('publish')" :disabled="isSubmitting"
                                 class="w-full py-3.5 px-4 bg-emerald-500 hover:bg-emerald-600 disabled:opacity-60 text-slate-950 font-extrabold text-xs sm:text-sm rounded-xl shadow-md transition flex items-center justify-center gap-2 cursor-pointer">
-                                <span>🚀 প্রপার্টি পাবলিশ করুন (পাবলিক)</span>
+                                <span x-text="isEditMode ? '🚀 আপডেট ও পাবলিশ করুন (পাবলিক)' : '🚀 প্রপার্টি পাবলিশ করুন (পাবলিক)'"></span>
                             </button>
                         </div>
                     </div>
@@ -1186,12 +1215,12 @@
                                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                 </svg>
-                                <span>প্রপার্টি সাবমিট হচ্ছে, অনুগ্রহ করে অপেক্ষা করুন...</span>
+                                <span>প্রপার্টি প্রসেসিং হচ্ছে, অনুগ্রহ করে অপেক্ষা করুন...</span>
                             </span>
                         </template>
                         <template x-if="!isSubmitting">
                             <span class="inline-flex items-center gap-2">
-                                <span>প্রপার্টি সাবমিট করুন</span>
+                                <span x-text="isEditMode ? 'প্রপার্টি আপডেট করুন' : 'প্রপার্টি সাবমিট করুন'"></span>
                                 <span class="text-base">&rarr;</span>
                             </span>
                         </template>
@@ -1310,102 +1339,88 @@
                     coverIndex: 0,
                     isDevMode: @json($dev_mode ?? true),
                     errorMessage: '',
-                    destination: '{{ ($is_vault_mode ?? false) ? "vault" : "publish" }}',
+                    isEditMode: {{ ($is_edit_mode ?? false) ? 'true' : 'false' }},
+                    propertyId: {{ isset($property) ? $property->id : 'null' }},
+                    updateUrl: '{{ isset($property) ? route("property.update", $property) : "" }}',
+                    destination: '{{ isset($property) && $property->status === "draft" ? "vault" : (($is_vault_mode ?? false) ? "vault" : "publish") }}',
                     isAdmin: {{ ($is_admin ?? false) ? 'true' : 'false' }},
-                    availableKeys: {!! json_encode($available_custom_keys ?? ['মৌজা', 'RS দাগ নম্বর', 'CS দাগ', 'SA দাগ', 'BS দাগ', 'খতিয়ান নম্বর', 'কাগজের অবস্থা', 'হস্তান্তর সময়সীমা', 'নিকটবর্তী ল্যান্ডমার্ক', 'বিদ্যুৎ সংযোগ', 'গ্যাস সংযোগ', 'পানির লাইন', 'রাস্তার প্রশস্ততা', 'বাউন্ডারি ওয়াল', 'মালিকানা ধরন', 'নোট / বিশেষ শর্ত']) !!},
-                    customFields: [
-                        { key: 'মৌজা', value: '', is_custom: false, custom_label: '' },
-                        { key: 'RS দাগ নম্বর', value: '', is_custom: false, custom_label: '' }
-                    ],
+                    availableKeys: {!! json_encode($available_custom_keys ?? ['মৌজা', 'RS দাগ নম্বর', 'CS দাগ', 'SA দাগ', 'BS দাগ', 'খতিয়ান নম্বর', 'কাগজের অবস্থা', 'হস্তান্তর সময়সীমা', 'নিকটবর্তী ল্যান্ডমার্ক', 'বিদ্যুৎ সংযোগ', 'গ্যাস সংযোগ', 'পানির লাইন', 'রাস্তার প্রশস্ততা', 'বাউন্ডারি ওয়াল', 'মালিকানা ধরন', 'নোট / বিশেষ শর্ত'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!},
+                    customFields: {!! json_encode(
+                        isset($property) && is_array($property->custom_fields) && count($property->custom_fields) > 0
+                            ? array_map(function($cf) {
+                                return [
+                                    'key' => $cf['key'] ?? '',
+                                    'value' => $cf['value'] ?? '',
+                                    'is_custom' => false,
+                                    'custom_label' => ''
+                                ];
+                            }, $property->custom_fields)
+                            : [
+                                ['key' => 'মৌজা', 'value' => '', 'is_custom' => false, 'custom_label' => ''],
+                                ['key' => 'RS দাগ নম্বর', 'value' => '', 'is_custom' => false, 'custom_label' => '']
+                            ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+                    ) !!},
 
                     formData: {
-                        owner_name: @json($user_display_name ?: ''),
-                        owner_phone: @json($user_phone ?: ''),
-                        source_type: @json(isset($is_agent_user) && $is_agent_user ? 'direct_agent' : 'direct_owner'),
-                        relationship_declaration: @json(isset($is_agent_user) && $is_agent_user ? 'অনুমোদিত ডিরেক্ট এজেন্ট (Direct Agent)' : 'সরাসরি প্রপার্টির মালিক (Direct Owner)'),
-                        property_type: 'land',
-                        area: 'Aftabnagar',
+                        owner_name: @json(isset($property) ? ($property->directSources->first()?->owner_name ?: ($property->creator?->name ?: '')) : ($user_display_name ?: '')),
+                        owner_phone: @json(isset($property) ? ($property->directSources->first()?->owner_phone ?: ($property->creator?->phone ?: '')) : ($user_phone ?: '')),
+                        source_type: @json(isset($property) ? ($property->directSources->first()?->source_type ?: 'direct_owner') : (isset($is_agent_user) && $is_agent_user ? 'direct_agent' : 'direct_owner')),
+                        relationship_declaration: @json(isset($property) ? ($property->directSources->first()?->relationship_declaration ?: 'সরাসরি প্রপার্টির মালিক (Direct Owner)') : (isset($is_agent_user) && $is_agent_user ? 'অনুমোদিত ডিরেক্ট এজেন্ট (Direct Agent)' : 'সরাসরি প্রপার্টির মালিক (Direct Owner)')),
+                        property_type: @json(isset($property) ? $property->type : 'land'),
+                        area: @json(isset($property) ? ($property->area ?: 'Aftabnagar') : 'Aftabnagar'),
                         custom_area: '',
-                        sub_area: '',
-                        title: '',
-                        block: 'C',
-                        sector: '',
-                        road_number: '',
-                        road_width_ft: 25,
-                        plot_number: '',
-                        holding_number: '',
-                        address_visibility: {
-                            block: true,
-                            sector: true,
-                            road_number: true,
-                            road_width_ft: true,
-                            plot_number: true,
-                            holding_number: true
-                        },
-                        facing: 'south',
-                        size: '',
-                        price_per_katha: '',
-                        flat_size_sqft: '',
-                        price_per_sqft: '',
-                        garage_price: '',
-                        utility_price: '',
-                        down_payment: '',
-                        asking_price: '',
-                        is_negotiable: 1,
-                        description: '',
-                        fb_caption: '',
+                        sub_area: @json(isset($property) ? ($property->sub_area ?: '') : ''),
+                        title: @json(isset($property) ? ($property->title ?: '') : ''),
+                        block: @json(isset($property) ? ($property->block ?: '') : 'C'),
+                        sector: @json(isset($property) ? ($property->sector ?: '') : ''),
+                        road_number: @json(isset($property) ? ($property->road_number ?: '') : ''),
+                        road_width_ft: @json(isset($property) ? ($property->road_width_ft ?: 25) : 25),
+                        plot_number: @json(isset($property) ? ($property->plot_number ?: '') : ''),
+                        holding_number: @json(isset($property) ? ($property->holding_number ?: '') : ''),
+                        address_visibility: {!! json_encode(isset($property) && is_array($property->address_visibility) ? $property->address_visibility : [
+                            'block' => true,
+                            'sector' => true,
+                            'road_number' => true,
+                            'road_width_ft' => true,
+                            'plot_number' => true,
+                            'holding_number' => true,
+                        ]) !!},
+                        facing: @json(isset($property) ? ($property->facing ?: 'south') : 'south'),
+                        size: @json(isset($property) ? ($property->landDetail?->katha_size ?: ($property->flatDetail?->flat_size_sqft ?: '')) : ''),
+                        price_per_katha: @json(isset($property) ? ($property->landDetail?->price_per_katha ?: '') : ''),
+                        flat_size_sqft: @json(isset($property) ? ($property->flatDetail?->flat_size_sqft ?: '') : ''),
+                        price_per_sqft: @json(isset($property) ? ($property->flatDetail?->price_per_sqft ?: '') : ''),
+                        garage_price: @json(isset($property) ? ($property->flatDetail?->garage_price ?: '') : ''),
+                        utility_price: @json(isset($property) ? ($property->flatDetail?->utility_price ?: '') : ''),
+                        down_payment: @json(isset($property) ? ($property->flatDetail?->down_payment ?: '') : ''),
+                        asking_price: @json(isset($property) ? ($property->directSources->first()?->asking_price ?: ($property->raw_price ?: '')) : ''),
+                        is_negotiable: @json(isset($property) ? ($property->is_negotiable ? 1 : 0) : 1),
+                        description: @json(isset($property) ? ($property->description ?: '') : ''),
+                        fb_caption: @json(isset($property) ? ($property->fb_caption ?: '') : ''),
                         post_to_facebook: false,
-                        youtube_video_url: '',
-                        google_map_pin_url: '',
-                        latitude: '',
-                        longitude: '',
-                        is_corner: false,
-                        is_lake_facing: false,
-                        boundary_wall_done: false,
-                        soil_filling_status: 'completed',
-                        bedrooms: 3,
-                        bathrooms: 3,
-                        balconies: 2,
-                        floor_number: 2,
-                        completion_status: 'ready',
-                        has_lift: true,
-                        parking_available: true,
-                        has_generator: true,
-                        has_substation: false,
-                        has_gas: true,
-                        project_name: '',
-                        developer_name: '',
-                        land_size_katha: '',
-                        building_stories: '',
-                        units_per_floor: '',
-                        total_shares: '',
-                        available_shares: '',
-                        share_price: '',
-                        has_drawing_dining: true,
-                        has_family_living: true,
-                        has_parking: true,
-                        construction_start_date: '',
-                        construction_duration: '',
-                        current_progress: '',
-                        location_highlights: '',
-                        commercial_type: 'shop',
-                        market_name: '',
-                        shop_number: '',
-                        size_sqft: '',
-                        frontage_ft: '',
-                        ceiling_height_ft: '',
-                        monthly_rent_yield: '',
-                        washroom_type: 'common',
-                        has_escalator: false,
-                        has_central_ac: false,
-                        has_cctv: true,
-                        has_fire_safety: true,
-                        is_main_road_facing: false,
-                        other_features: [
-                            { label: 'বিদ্যুৎ সংযোগ', checked: true },
-                            { label: 'ওয়াইড ড্রেনেজ ব্যবস্থা', checked: true },
-                            { label: 'নিরাপদ আবাসিক পরিবেশ', checked: true }
-                        ]
+                        youtube_video_url: @json(isset($property) ? ($property->youtube_video_url ?: '') : ''),
+                        google_map_pin_url: @json(isset($property) ? ($property->google_map_pin_url ?: '') : ''),
+                        latitude: @json(isset($property) ? ($property->latitude ?: '') : ''),
+                        longitude: @json(isset($property) ? ($property->longitude ?: '') : ''),
+                        is_corner: @json(isset($property) ? (bool) ($property->landDetail?->is_corner ?? $property->commercialDetail?->is_corner ?? false) : false),
+                        is_lake_facing: @json(isset($property) ? (bool) ($property->landDetail?->is_lake_facing ?? false) : false),
+                        boundary_wall_done: @json(isset($property) ? (bool) ($property->landDetail?->boundary_wall_done ?? false) : false),
+                        soil_filling_status: @json(isset($property) ? ($property->landDetail?->soil_filling_status ?: 'completed') : 'completed'),
+                        bedrooms: @json(isset($property) ? ($property->flatDetail?->bedrooms ?: 3) : 3),
+                        bathrooms: @json(isset($property) ? ($property->flatDetail?->bathrooms ?: 3) : 3),
+                        balconies: @json(isset($property) ? ($property->flatDetail?->balconies ?: 2) : 2),
+                        floor_number: @json(isset($property) ? ($property->flatDetail?->floor_number ?: 1) : 1),
+                        completion_status: @json(isset($property) ? ($property->flatDetail?->completion_status ?: 'ready') : 'ready'),
+                        has_lift: @json(isset($property) ? (bool) ($property->flatDetail?->has_lift ?? false) : false),
+                        parking_available: @json(isset($property) ? (bool) ($property->flatDetail?->parking_available ?? false) : false),
+                        has_generator: @json(isset($property) ? (bool) ($property->flatDetail?->has_generator ?? false) : false),
+                        has_substation: @json(isset($property) ? (bool) ($property->flatDetail?->has_substation ?? false) : false),
+                        has_gas: @json(isset($property) ? (bool) ($property->flatDetail?->has_gas ?? false) : false),
+                        other_features: {!! json_encode(isset($property) && is_array($property->other_features) && count($property->other_features) > 0 ? $property->other_features : [
+                            ['label' => 'বিদ্যুৎ সংযোগ', 'checked' => true],
+                            ['label' => 'ওয়াইড ড্রেনেজ ব্যবস্থা', 'checked' => true],
+                            ['label' => 'নিরাপদ আবাসিক পরিবেশ', 'checked' => true]
+                        ]) !!}
                     },
 
                     init: function () {
@@ -1458,6 +1473,27 @@
                             item.key = this.availableKeys[0] || 'মৌজা';
                             item.is_custom = false;
                         }
+                    },
+
+                    deleteExistingMedia: function (mediaId) {
+                        if (!confirm('আপনি কি এই ছবিটি স্থায়ীভাবে মুছে ফেলতে চান?')) return;
+                        var card = document.getElementById('media-card-' + mediaId);
+                        fetch('{{ url("/sell-property/media") }}/' + mediaId, {
+                            method: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Accept': 'application/json'
+                            }
+                        })
+                        .then(function (r) { return r.json(); })
+                        .then(function (data) {
+                            if (data.success && card) {
+                                card.remove();
+                            }
+                        })
+                        .catch(function () {
+                            alert('ছবিটি মুছতে ব্যর্থ হয়েছে।');
+                        });
                     },
 
                     handleGlobalPaste: function (e) {
@@ -2094,8 +2130,8 @@
                             if (self.formData.is_main_road_facing) data.append('is_main_road_facing', '1');
                         }
 
-                        var submitUrl = '{{ route("property.store") }}';
-                        if (window.location && window.location.pathname && window.location.pathname.indexOf('sell-property') !== -1) {
+                        var submitUrl = self.isEditMode && self.updateUrl ? self.updateUrl : '{{ route("property.store") }}';
+                        if (!self.isEditMode && window.location && window.location.pathname && window.location.pathname.indexOf('sell-property') !== -1) {
                             submitUrl = window.location.pathname;
                         }
 

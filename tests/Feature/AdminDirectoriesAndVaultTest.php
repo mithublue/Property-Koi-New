@@ -197,4 +197,51 @@ class AdminDirectoriesAndVaultTest extends TestCase
         $this->assertContains('RS দাগ নম্বর', $keys);
         $this->assertContains('কাগজের অবস্থা', $keys);
     }
+
+    public function test_property_edit_opens_frontend_mode_and_updates_successfully(): void
+    {
+        $property = Property::create([
+            'property_code' => 'PK-EDT01',
+            'title'         => 'আফতাবনগর সি ব্লক ৩ কাঠা প্লট',
+            'slug'          => 'aftabnagar-c-block-3-katha-edt01',
+            'type'          => 'land',
+            'area'          => 'Aftabnagar',
+            'block'         => 'C',
+            'status'        => 'draft',
+            'asking_price'  => 8500000,
+            'custom_fields' => [['key' => 'মৌজা', 'value' => 'মেরাদিয়া']],
+            'created_by_user_id' => $this->admin->id,
+        ]);
+
+        // 1. Frontend edit page loads with 200 OK and preloaded data
+        $editPage = $this->actingAs($this->admin)->get(route('property.edit', $property));
+        $editPage->assertStatus(200);
+        $editPage->assertSee('PK-EDT01');
+        $editPage->assertSee('প্রপার্টি এডিট মোড');
+        $editPage->assertSee('মেরাদিয়া');
+
+        // 3. Update property via frontend update route
+        $updateResponse = $this->actingAs($this->admin)->post(route('property.update', $property), [
+            'title'         => 'আফতাবনগর সি ব্লক ৩ কাঠা কর্নার প্লট (আপডেটেড)',
+            'area'          => 'Aftabnagar',
+            'block'         => 'C',
+            'property_type' => 'land',
+            'size'          => 3,
+            'asking_price'  => 9000000,
+            'owner_phone'   => '01711223344',
+            'destination'   => 'vault',
+            'custom_fields' => json_encode([
+                ['key' => 'মৌজা', 'value' => 'মেরাদিয়া দক্ষিণ'],
+                ['key' => 'RS দাগ নম্বর', 'value' => '৪৯২০'],
+            ]),
+        ]);
+
+        $updateResponse->assertRedirect(route('admin.properties.directory'));
+
+        $property->refresh();
+        $this->assertEquals('আফতাবনগর সি ব্লক ৩ কাঠা কর্নার প্লট (আপডেটেড)', $property->title);
+        $this->assertEquals('draft', $property->status);
+        $this->assertEquals('মেরাদিয়া দক্ষিণ', $property->custom_fields[0]['value']);
+        $this->assertEquals('৪৯২০', $property->custom_fields[1]['value']);
+    }
 }

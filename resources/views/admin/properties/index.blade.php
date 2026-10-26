@@ -307,7 +307,7 @@
                                         <span class="bg-amber-100 text-amber-800 font-bold px-1.5 py-0.5 rounded text-[9px] border border-amber-300">FEATURED</span>
                                     @endif
                                 </div>
-                                <a href="{{ route('admin.properties.edit', $property) }}" class="font-bold text-slate-900 text-sm leading-snug line-clamp-1 hover:text-emerald-600 transition" title="{{ $property->title }}">
+                                <a href="{{ route('property.edit', $property) }}" target="_blank" class="font-bold text-slate-900 text-sm leading-snug line-clamp-1 hover:text-emerald-600 transition" title="{{ $property->title }}">
                                     {{ $property->title }}
                                 </a>
                                 <div class="text-[11px] text-slate-400 mt-0.5">
@@ -507,7 +507,8 @@
                                     </button>
 
                                     <!-- Edit Button -->
-                                    <a href="{{ route('admin.properties.edit', $property) }}"
+                                    <a href="{{ route('property.edit', $property) }}"
+                                       target="_blank"
                                        class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition shadow-xs inline-flex items-center gap-1 cursor-pointer"
                                        title="প্রপার্টি বিবরণ ও মিডিয়া এডিট করুন">
                                         <span>✏️ এডিট</span>

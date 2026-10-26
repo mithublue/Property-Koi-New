@@ -739,4 +739,302 @@ class PropertyController extends Controller
         return redirect()->route('property.show', $property->slug)
             ->with('success', 'আপনার প্রপার্টি বিজ্ঞাপনটি সফলভাবে জমা হয়েছে!');
     }
+
+    public function edit(Property $property, Request $request): View
+    {
+        $property->load(['media', 'verification', 'directSources', 'landDetail', 'flatDetail', 'commercialDetail', 'shareDetail', 'creator']);
+        $seo = SeoService::getOgMeta('sell-property');
+        $seo['title'] = 'প্রপার্টি এডিট - ' . $property->property_code . ' | PropertyKoi';
+
+        $user = auth()->user();
+        $isAdmin = auth()->check() && (auth()->user()->isAdmin() || auth()->user()->role === 'admin');
+        $isVaultMode = $property->status === 'draft' || $request->query('destination') === 'vault';
+
+        return view('pages.sell-property', [
+            'property'              => $property,
+            'is_edit_mode'          => true,
+            'seo'                   => $seo,
+            'role'                  => 'owner',
+            'is_owner_user'         => true,
+            'is_agent_user'         => false,
+            'dev_mode'              => false,
+            'is_admin'              => $isAdmin,
+            'is_vault_mode'         => $isVaultMode,
+            'available_areas'       => Property::getDistinctAreas(),
+            'available_custom_keys' => Property::getDistinctCustomKeys(),
+            'user_display_name'     => $property->directSources->first()?->owner_name ?: ($property->creator?->name ?: ''),
+            'user_phone'            => $property->directSources->first()?->owner_phone ?: ($property->creator?->phone ?: ''),
+        ]);
+    }
+
+    public function update(Request $request, Property $property)
+    {
+        $isAdmin = auth()->check() && (auth()->user()->isAdmin() || auth()->user()->role === 'admin');
+        if (!$isAdmin && auth()->id() !== $property->created_by_user_id) {
+            abort(403, 'এই প্রপার্টি এডিট করার অনুমতি নেই।');
+        }
+
+        $type = $request->input('property_type', $request->input('type', $property->type));
+        if (!in_array($type, ['land', 'flat', 'land_share', 'commercial'])) {
+            $type = $property->type;
+        }
+
+        if (empty($request->input('owner_phone')) && auth()->check() && !empty(auth()->user()->phone)) {
+            $request->merge(['owner_phone' => auth()->user()->phone]);
+        }
+
+        $validated = $request->validate([
+            'title'              => 'required|string|max:255',
+            'area'               => 'nullable|string|max:100',
+            'custom_area'        => 'nullable|string|max:100',
+            'sub_area'           => 'nullable|string|max:100',
+            'block'              => 'nullable|string|max:50',
+            'sector'             => 'nullable|string|max:50',
+            'road_number'        => 'nullable|string|max:50',
+            'road_width_ft'      => 'nullable|numeric',
+            'plot_number'        => 'nullable|string|max:100',
+            'holding_number'     => 'nullable|string|max:50',
+            'facing'             => 'nullable|string|max:30',
+            'description'        => 'nullable|string',
+            'fb_caption'         => 'nullable|string',
+            'is_negotiable'      => 'nullable',
+            'owner_name'         => 'nullable|string|max:191',
+            'owner_phone'        => 'required|string|max:50',
+            'asking_price'       => 'nullable|numeric',
+            'youtube_video_url'  => 'nullable|string|max:255',
+            'google_map_pin_url' => 'nullable|string|max:255',
+            'latitude'           => 'nullable|numeric',
+            'longitude'          => 'nullable|numeric',
+        ]);
+
+        $area = $validated['area'] ?? $property->area;
+        if ($area === '__other__' && !empty($validated['custom_area'])) {
+            $area = $validated['custom_area'];
+        }
+
+        $addressVisibility = $request->input('address_visibility');
+        if (is_string($addressVisibility)) {
+            $addressVisibility = json_decode($addressVisibility, true) ?: [];
+        }
+        $defaults = [
+            'block'          => true,
+            'sector'         => true,
+            'road_number'    => true,
+            'road_width_ft'  => true,
+            'plot_number'    => true,
+            'holding_number' => true,
+        ];
+        if (!is_array($addressVisibility) || empty($addressVisibility)) {
+            $addressVisibility = $defaults;
+        } else {
+            $addressVisibility = array_merge($defaults, $addressVisibility);
+        }
+
+        $otherFeatures = $request->input('other_features');
+        if (is_string($otherFeatures)) {
+            $otherFeatures = json_decode($otherFeatures, true) ?: [];
+        }
+
+        $rawCustomFields = $request->input('custom_fields');
+        if (is_string($rawCustomFields)) {
+            $rawCustomFields = json_decode($rawCustomFields, true) ?: [];
+        }
+        $cleanCustomFields = [];
+        if (is_array($rawCustomFields)) {
+            foreach ($rawCustomFields as $cf) {
+                if (is_array($cf) && !empty($cf['key']) && isset($cf['value'])) {
+                    $cleanCustomFields[] = [
+                        'key'   => trim((string)$cf['key']),
+                        'value' => trim((string)$cf['value']),
+                    ];
+                }
+            }
+        }
+
+        $isNegotiable = $request->has('is_negotiable')
+            ? (int) $request->input('is_negotiable') === 1
+            : true;
+
+        $status = $property->status;
+        if ($isAdmin) {
+            $dest = $request->input('destination');
+            if ($dest === 'vault' || $dest === 'directory') {
+                $status = 'draft';
+            } elseif ($dest === 'publish') {
+                $status = 'live';
+                $property->last_verified_at = now();
+            }
+        }
+
+        $property->update([
+            'type'               => $type,
+            'title'              => $validated['title'],
+            'area'               => $area,
+            'sub_area'           => $validated['sub_area'] ?? ($validated['block'] ?? $property->sub_area),
+            'block'              => $validated['block'] ?? null,
+            'sector'             => $validated['sector'] ?? null,
+            'road_width_ft'      => (int) ($validated['road_width_ft'] ?? $property->road_width_ft),
+            'road_number'        => $validated['road_number'] ?? null,
+            'plot_number'        => $validated['plot_number'] ?? null,
+            'holding_number'     => $validated['holding_number'] ?? null,
+            'address_visibility' => $addressVisibility,
+            'facing'             => $validated['facing'] ?? null,
+            'description'        => $validated['description'] ?? null,
+            'fb_caption'         => $validated['fb_caption'] ?? null,
+            'is_negotiable'      => $isNegotiable,
+            'google_map_pin_url' => $validated['google_map_pin_url'] ?? null,
+            'latitude'           => $validated['latitude'] ?? null,
+            'longitude'          => $validated['longitude'] ?? null,
+            'other_features'     => $otherFeatures,
+            'custom_fields'      => $cleanCustomFields,
+            'status'             => $status,
+        ]);
+
+        $askingPrice = (float) ($request->input('asking_price') ?: 0);
+
+        if ($property->type === 'land') {
+            $katha = (float) ($request->input('size') ?: ($request->input('katha_size') ?: 3.0));
+            $pricePerKatha = (float) ($request->input('price_per_katha') ?: 0);
+            if ($askingPrice <= 0 && $katha > 0 && $pricePerKatha > 0) {
+                $askingPrice = $katha * $pricePerKatha;
+            }
+
+            PropertyLandDetail::updateOrCreate(
+                ['property_id' => $property->id],
+                [
+                    'katha_size'          => $katha,
+                    'price_total'         => $askingPrice,
+                    'price_per_katha'     => $pricePerKatha ?: ($katha > 0 ? round($askingPrice / $katha, 2) : 0),
+                    'is_corner'           => $request->boolean('is_corner'),
+                    'is_lake_facing'      => $request->boolean('is_lake_facing'),
+                    'boundary_wall_done'  => $request->boolean('boundary_wall_done'),
+                    'soil_filling_status' => in_array($request->input('soil_filling_status'), ['filled', 'completed', 'ready']) ? 'filled' : 'unfilled',
+                ]
+            );
+        } elseif ($property->type === 'flat') {
+            $sqft = (float) ($request->input('flat_size_sqft') ?: 1200);
+            $rate = (float) ($request->input('price_per_sqft') ?: 0);
+            $garage = (float) ($request->input('garage_price') ?: 0);
+            $utility = (float) ($request->input('utility_price') ?: 0);
+            if ($askingPrice <= 0 && $sqft > 0 && $rate > 0) {
+                $askingPrice = ($sqft * $rate) + $garage + $utility;
+            }
+
+            PropertyFlatDetail::updateOrCreate(
+                ['property_id' => $property->id],
+                [
+                    'flat_size_sqft'    => $sqft,
+                    'price_per_sqft'    => $rate,
+                    'price_total'       => $askingPrice,
+                    'garage_price'      => $garage,
+                    'utility_price'     => $utility,
+                    'down_payment'      => (float) ($request->input('down_payment') ?: 0),
+                    'bedrooms'          => (int) ($request->input('bedrooms') ?: 3),
+                    'bathrooms'         => (int) ($request->input('bathrooms') ?: 3),
+                    'balconies'         => (int) ($request->input('balconies') ?: 2),
+                    'floor_number'      => (int) ($request->input('floor_number') ?: 1),
+                    'completion_status' => $request->input('completion_status', 'ready'),
+                    'has_lift'          => $request->boolean('has_lift'),
+                    'parking_available' => $request->boolean('parking_available'),
+                    'has_generator'     => $request->boolean('has_generator'),
+                    'has_substation'    => $request->boolean('has_substation'),
+                    'has_gas'           => $request->boolean('has_gas'),
+                ]
+            );
+        }
+
+        // Direct source update
+        $ownerName = $request->input('owner_name') ?: ($property->directSources->first()?->owner_name ?: 'প্রপার্টি মালিক');
+        $ownerPhone = $request->input('owner_phone') ?: ($property->directSources->first()?->owner_phone ?: '');
+        $source = $property->directSources()->first();
+        if ($source) {
+            $source->update([
+                'owner_name'   => $ownerName,
+                'owner_phone'  => $ownerPhone,
+                'asking_price' => $askingPrice,
+            ]);
+        } else {
+            PropertyDirectSource::create([
+                'property_id'              => $property->id,
+                'source_user_id'           => auth()->id() ?: (\App\Models\User::first()?->id),
+                'source_type'              => 'direct_owner',
+                'relationship_declaration' => 'সরাসরি প্রপার্টির মালিক (Direct Owner)',
+                'owner_name'               => $ownerName,
+                'owner_phone'              => $ownerPhone,
+                'asking_price'             => $askingPrice,
+                'is_primary_source'        => true,
+                'verification_status'      => 'pending',
+            ]);
+        }
+
+        // New Images Upload
+        $files = $request->file('property_images') ?: ($request->file('images') ?: []);
+        if (!empty($files)) {
+            $uploadDir = public_path('uploads/properties');
+            if (!is_dir($uploadDir)) {
+                @mkdir($uploadDir, 0755, true);
+            }
+            $existingCount = $property->media()->count();
+            foreach ($files as $i => $file) {
+                if ($file && $file->isValid()) {
+                    $ext = $file->getClientOriginalExtension() ?: 'jpg';
+                    $filename = 'prop_' . $property->id . '_' . time() . '_' . Str::random(6) . '.' . $ext;
+                    $file->move($uploadDir, $filename);
+                    $relPath = 'uploads/properties/' . $filename;
+                    PropertyMedia::create([
+                        'property_id' => $property->id,
+                        'file_path'   => $relPath,
+                        'media_type'  => 'image',
+                        'is_cover'    => $existingCount === 0 && $i === 0,
+                        'sort_order'  => $existingCount + $i,
+                    ]);
+                }
+            }
+        }
+
+        if ($property->status === 'live') {
+            SeoService::pingIndexNow($property);
+        }
+
+        $isVault = $property->status === 'draft';
+        $msg = $isVault
+            ? "প্রপার্টি #{$property->property_code} সফলভাবে ভল্টে আপডেট করা হয়েছে!"
+            : "প্রপার্টি #{$property->property_code} সফলভাবে আপডেট ও পাবলিশ করা হয়েছে!";
+        $redirectUrl = $isVault ? route('admin.properties.directory') : route('property.show', $property->slug);
+
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'success'  => true,
+                'is_vault' => $isVault,
+                'message'  => $msg,
+                'data'     => [
+                    'message'      => $msg,
+                    'property_id'  => $property->id,
+                    'redirect_url' => $redirectUrl,
+                ],
+            ]);
+        }
+
+        if ($isVault) {
+            return redirect()->route('admin.properties.directory')->with('success', $msg);
+        }
+
+        return redirect()->route('property.show', $property->slug)->with('success', $msg);
+    }
+
+    public function deleteMedia(PropertyMedia $media)
+    {
+        $isAdmin = auth()->check() && (auth()->user()->isAdmin() || auth()->user()->role === 'admin');
+        if (!$isAdmin && auth()->id() !== $media->property?->created_by_user_id) {
+            abort(403);
+        }
+
+        $filePath = public_path($media->file_path);
+        if (file_exists($filePath)) {
+            @unlink($filePath);
+        }
+        $media->delete();
+
+        return response()->json(['success' => true]);
+    }
 }

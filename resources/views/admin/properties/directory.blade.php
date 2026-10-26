@@ -251,7 +251,7 @@
 
                                     <!-- Quick Utility Links -->
                                     <div class="flex items-center gap-2 text-xs">
-                                        <a href="{{ route('admin.properties.edit', $property) }}" class="text-indigo-600 hover:text-indigo-800 font-semibold flex items-center gap-0.5">
+                                        <a href="{{ route('property.edit', $property) }}" target="_blank" class="text-indigo-600 hover:text-indigo-800 font-semibold flex items-center gap-0.5">
                                             ✏️ এডিট
                                         </a>
                                         <span class="text-slate-300">|</span>

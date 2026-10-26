@@ -103,7 +103,7 @@
                                 @endif
                             </div>
                             <div class="min-w-0">
-                                <a href="{{ route('admin.properties.edit', $p) }}" class="text-xs font-bold text-slate-900 hover:text-emerald-600 truncate block">
+                                <a href="{{ route('property.edit', $p) }}" target="_blank" class="text-xs font-bold text-slate-900 hover:text-emerald-600 truncate block">
                                     {{ $p->title }}
                                 </a>
                                 <div class="text-[11px] text-slate-500 mt-0.5 flex items-center gap-2">
@@ -117,7 +117,7 @@
                             <span class="text-[10px] font-bold px-2 py-0.5 rounded-full {{ $p->status === 'live' ? 'bg-emerald-100 text-emerald-800' : ($p->status === 'sold' ? 'bg-purple-100 text-purple-800' : 'bg-amber-100 text-amber-800') }}">
                                 {{ strtoupper($p->status) }}
                             </span>
-                            <a href="{{ route('admin.properties.edit', $p) }}" class="text-slate-400 hover:text-slate-600 p-1">
+                            <a href="{{ route('property.edit', $p) }}" target="_blank" class="text-slate-400 hover:text-slate-600 p-1">
                                 ✏️
                             </a>
                         </div>

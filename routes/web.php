@@ -69,6 +69,9 @@ Route::post('/property/{slug}/review', [InteractionController::class, 'submitRev
 // ==========================================
 Route::get('/sell-property', [PropertyController::class, 'create'])->name('property.create');
 Route::post('/sell-property', [PropertyController::class, 'store'])->name('property.store');
+Route::get('/sell-property/{property}/edit', [PropertyController::class, 'edit'])->name('property.edit');
+Route::post('/sell-property/{property}', [PropertyController::class, 'update'])->name('property.update');
+Route::delete('/sell-property/media/{media}', [PropertyController::class, 'deleteMedia'])->name('property.media.delete');
 Route::post('/upload/clipboard-image', [UploadController::class, 'uploadImage'])->name('upload.clipboard');
 
 // ==========================================

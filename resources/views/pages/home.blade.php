@@ -12,7 +12,7 @@
         <div class="max-w-5xl mx-auto text-center relative z-10 space-y-4 sm:space-y-5">
             <span class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-xs md:text-sm font-bold tracking-wide shadow-xs">
                 <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                ১০০% সরাসরি মালিক ও ভেরিফাইড প্রপার্টি
+                ১০০% ভেরিফাইড ও নির্ভরযোগ্য প্রপার্টি মার্কেটপ্লেস
             </span>
 
             <h1 class="text-3xl sm:text-5xl md:text-6xl font-black tracking-tight leading-tight md:leading-tight text-white">
@@ -22,7 +22,7 @@
             </h1>
 
             <p class="max-w-2xl mx-auto text-sm sm:text-base md:text-lg text-slate-200 leading-relaxed font-medium">
-                কোনো মধ্যস্বত্বভোগী ছাড়া সরাসরি প্রকৃত মালিক ও ভেরিফাইড এজেন্টের সাথে আলোচনা করে জমি, ফ্ল্যাট বা দোকান কিনুন ও বিক্রি করুন।
+                যাচাইকৃত কাগজপত্র, সঠিক বাজারমূল্য এবং সরাসরি আলোচনার মাধ্যমে সেরা জমি, ফ্ল্যাট বা দোকান খুঁজুন ও কিনুন।
             </p>
 
             <!-- Search Filter Box -->
@@ -221,6 +221,39 @@
         </div>
     </section>
 
+    <!-- Aftabnagar Buyer Hub & Price Index 2026 Focus Banner -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="bg-gradient-to-r from-emerald-950 via-slate-900 to-teal-950 rounded-3xl p-6 sm:p-8 lg:p-10 text-white shadow-xl border border-emerald-500/30 flex flex-col lg:flex-row items-center justify-between gap-6 relative overflow-hidden">
+            <div class="space-y-3 max-w-2xl relative z-10">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 font-extrabold text-xs border border-emerald-400/30">
+                    <span>📍</span> স্পেশাল ফোকাস: আফতাবনগর ২০২৬
+                </span>
+                <h3 class="text-2xl sm:text-3xl font-black text-white tracking-tight m-0">
+                    আফতাবনগর প্রপার্টি বায়ার গাইড ও কাঠাপ্রতি বাজারদর ২০২৬
+                </h3>
+                <p class="text-xs sm:text-sm text-slate-300 leading-relaxed m-0">
+                    আফতাবনগরের ব্লক A থেকে M পর্যন্ত প্রতিটি ব্লকের কাঠাপ্রতি রেট, ৩ কাঠার বাজেট, রেডি ফ্ল্যাটের স্কয়ারফুট রেট এবং ইস্টার্ন হাউজিং মূল দলিল যাচাই চেকলিস্ট দেখুন এক ক্লিকে।
+                </p>
+                <div class="flex items-center flex-wrap gap-3 pt-1 text-xs text-emerald-300 font-semibold">
+                    <span>✓ ১৪টি ব্লক রেট ইনডেক্স</span>
+                    <span>✓ ৩-বেড রেডি ফ্ল্যাট রেঞ্জ</span>
+                    <span>✓ ল্যান্ড শেয়ার খরচ বিশ্লেষণ</span>
+                </div>
+            </div>
+            <div class="shrink-0 relative z-10 w-full lg:w-auto flex flex-col sm:flex-row items-center gap-3">
+                <a href="{{ route('guides.aftabnagar') }}"
+                   class="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-black text-xs sm:text-sm transition shadow-lg hover:scale-105">
+                    <span>গাইড ও মূল্য তালিকা দেখুন</span>
+                    <span>&rarr;</span>
+                </a>
+                <a href="{{ route('properties.land', ['area' => 'Aftabnagar']) }}"
+                   class="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-5 py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs sm:text-sm border border-white/20 transition">
+                    <span>আফতাবনগর লাইভ প্লট</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
     <!-- Authority / Platform Overview Section for SEO & AEO -->
     <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" aria-labelledby="platform-authority-heading">
         <div class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-10 shadow-xs space-y-8">
@@ -232,7 +265,7 @@
                     কেন PropertyKoi বাংলাদেশের সেরা প্রপার্টি কেনা-বেচার প্ল্যাটফর্ম?
                 </h2>
                 <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                    PropertyKoi.com হলো ঢাকা, বসুন্ধরা, গুলশান ও আফতাবনগরসহ প্রাইম লোকেশনের সরাসরি প্রপার্টি মার্কেটপ্লেস (Property Buy Sell Platform in Bangladesh)। কোনো মধ্যস্বত্বভোগী বা চেইন ব্রোকার কমিশন ছাড়া সরাসরি প্রকৃত মালিক ও যাচাইকৃত সোর্সের সাথে জমি, ফ্ল্যাট, কমার্শিয়াল স্পেস ও ল্যান্ড শেয়ার কেনাবেচা করুন।
+                    PropertyKoi.com হলো ঢাকা, বসুন্ধরা, গুলশান ও আফতাবনগরসহ প্রাইম লোকেশনের বিশ্বস্ত ও ভেরিফাইড প্রপার্টি মার্কেটপ্লেস (Property Buy Sell Platform in Bangladesh)। নির্ভরযোগ্য ও স্বচ্ছ প্রক্রিয়ায় প্রকৃত মালিক ও পেশাদার প্রতিনিধিদের সাথে জমি, ফ্ল্যাট, কমার্শিয়াল স্পেস ও ল্যান্ড শেয়ার কেনাবেচা করুন।
                 </p>
             </div>
 
@@ -242,9 +275,9 @@
                     <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-800 font-bold flex items-center justify-center text-xl">
                         🤝
                     </div>
-                    <h3 class="text-sm font-black text-slate-900">১০০% সরাসরি মালিক ও দালালমুক্ত</h3>
+                    <h3 class="text-sm font-black text-slate-900">১০০% ভেরিফাইড লিস্টিং ও স্বচ্ছ ডিল</h3>
                     <p class="text-xs text-slate-600 leading-relaxed m-0">
-                        ক্রেতা ও বিক্রেতার মাঝে কোনো চেইন ব্রোকার বা হিডেন ফি নেই। প্রপার্টির মালিকের সাথে সরাসরি কথা বলুন, সরেজমিন ভিজিট শিডিউল করুন ও সেরা মূল্যে ডিল সম্পন্ন করুন।
+                        প্রকৃত মালিক ও অথরাইজড সোর্সের সাথে সরাসরি কথা বলুন, সরেজমিন ভিজিট শিডিউল করুন এবং সম্পূর্ণ স্বচ্ছতায় সেরা মূল্যে প্রপার্টি কিনুন।
                     </p>
                 </article>
 

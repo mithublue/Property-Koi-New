@@ -105,7 +105,7 @@ class SeoService
         $specsText = !empty($specs) ? (' (' . implode(', ', $specs) . ')') : '';
         $priceText = $p->formatted_price ? " | মূল্য: {$p->formatted_price}" : '';
 
-        $desc = trim("{$area} {$block}-এ যাচাইকৃত {$typeBn}{$specsText}{$priceText}। ১০০% ভেরিফাইড কাগজপত্র, কোনো চেইন ব্রোকার ছাড়া সরাসরি মালিক বা অথরাইজড সোর্সের সাথে কথা বলুন PropertyKoi-তে।");
+        $desc = trim("{$area} {$block}-এ যাচাইকৃত {$typeBn}{$specsText}{$priceText}। ১০০% ভেরিফাইড কাগজপত্র, স্বচ্ছ প্রক্রিয়ায় মালিক বা অথরাইজড সোর্সের সাথে সরাসরি কথা বলুন PropertyKoi-তে।");
         return Str::limit($desc, 165, '');
     }
 
@@ -193,7 +193,7 @@ class SeoService
                 'answer'   => "হ্যাঁ, PropertyKoi-এর ৪-পয়েন্ট ভেরিফিকেশন প্রক্রিয়ার আওতায় মালিকের পরিচয়, সরেজমিন লোকেশন, মৌলিক মাপ এবং প্রাথমিক কাগজপত্র (দলিল, নামজারি খতিয়ান ও খাজনা) যাচাই সাপেক্ষে এটি তালিকাভুক্ত করা হয়েছে।",
             ],
             [
-                'question' => "কোনো ব্রোকার ছাড়া সরাসরি প্রপার্টি ভিজিট বা মালিকের সাথে যোগাযোগের উপায় কী?",
+                'question' => "সরাসরি প্রপার্টি ভিজিট বা প্রতিনিধির সাথে যোগাযোগের উপায় কী?",
                 'answer'   => "এই পেজের 'সাইট ভিজিট শিডিউল করুন' বাটনে ক্লিক করে আপনার সুবিধাজনক তারিখ ও সময়ে ভিজিট বুক করতে পারেন, অথবা সরাসরি হোয়াটসঅ্যাপ ও দর প্রস্তাব বাটনের মাধ্যমে আমাদের ডিরেক্ট কোঅর্ডিনেশন টিমের সাথে যোগাযোগ করতে পারেন।",
             ],
         ];
@@ -208,19 +208,19 @@ class SeoService
             'land-search' => [
                 [
                     'question' => 'আফতাবনগরে আবাসিক ও কমার্শিয়াল প্লটের বর্তমান কাঠাপ্রতি দর কেমন?',
-                    'answer'   => 'আফতাবনগরের ব্লক A থেকে N পর্যন্ত লোকেশন, রাস্তার প্রশস্ততা (২০ ফুট থেকে ৬০+ ফুট), কর্নার প্লট এবং লেকভিউ অবস্থানের ওপর ভিত্তি করে জমির মূল্য প্রতি কাঠা সাধারণত ৬০ লাখ থেকে ১.৫ কোটি+ টাকা পর্যন্ত হয়ে থাকে। PropertyKoi-তে সরাসরি মালিকের প্রদত্ত সর্বশেষ ভেরিফাইড মূল্য তালিকা ফিল্টার করে দেখতে পারেন।',
+                    'answer'   => 'আফতাবনগরের ব্লক A থেকে M পর্যন্ত লোকেশন, রাস্তার প্রশস্ততা (২০ ফুট থেকে ৬০+ ফুট), কর্নার প্লট এবং লেকভিউ অবস্থানের ওপর ভিত্তি করে জমির মূল্য প্রতি কাঠা সাধারণত ৬০ লাখ থেকে ১.৫ কোটি+ টাকা পর্যন্ত হয়ে থাকে। PropertyKoi-তে সর্বশেষ ভেরিফাইড মূল্য তালিকা ফিল্টার করে দেখতে পারেন।',
                 ],
                 [
                     'question' => 'জমি কেনার আগে কোন কোন কাগজপত্র ও দলিল যাচাই করা জরুরি?',
                     'answer'   => 'জমি ক্রয়ের পূর্বে মূল রেজিস্ট্রি দলিল, বায়া দলিল (Chain of Title), সিএস/এসএ/আরএস/মহানগর জরিপ খতিয়ান, ইস্টার্ন হাউজিং বরাদ্দপত্র ও ছাড়পত্র, হালনাগাদ নামজারি (Mutation), ডিসিআর এবং সর্বশেষ ভূমি উন্নয়ন কর (খাজনা) রশিদ যাচাই করা আবশ্যক।',
                 ],
                 [
-                    'question' => 'PropertyKoi-তে জমি কিনলে কি কোনো দালাল বা চেইন ব্রোকার কমিশন দিতে হয়?',
-                    'answer'   => 'না। আমাদের প্ল্যাটফর্মে কোনো চেইন ব্রোকার বা হিডেন কমিশন নেই। আপনি সরাসরি যাচাইকৃত মালিক বা অথরাইজড সোর্সের সাথে স্বচ্ছভাবে সাইট ভিজিট, কাগজপত্র যাচাই ও দরদাম সম্পন্ন করতে পারবেন।',
+                    'question' => 'PropertyKoi-তে জমি বা ফ্ল্যাট কেনার ক্ষেত্রে স্বচ্ছতা কীভাবে বজায় রাখা হয়?',
+                    'answer'   => 'PropertyKoi একটি ভেরিফাইড ও প্রফেশনাল মার্কেটপ্লেস। এখানে প্রপার্টির কাগজপত্র, সরেজমিন মাপ ও সঠিক বাজারদর সম্পূর্ণ স্বচ্ছভাবে উপস্থাপন করা হয়, যাতে ক্রেতা সরাসরি যোগাযোগ ও সাইট ভিজিটের মাধ্যমে নিশ্চিত হয়ে সেরা ডিল সম্পন্ন করতে পারেন।',
                 ],
                 [
-                    'question' => 'How to buy residential or commercial land in Aftabnagar, Dhaka directly from owners?',
-                    'answer'   => 'On PropertyKoi.com, browse verified plot listings by block (A to N), road width (20ft to 60ft), and katha size. Schedule a direct site visit or contact the verified seller with zero broker interference.',
+                    'question' => 'How to find verified residential or commercial land in Aftabnagar, Dhaka?',
+                    'answer'   => 'On PropertyKoi.com, browse 100% verified plot listings by block (A to M), road width (20ft to 60ft), and katha size. Schedule a direct site visit and inspect legal documents with complete transparency.',
                 ],
             ],
             'flat-search' => [
@@ -326,11 +326,11 @@ class SeoService
             default => [
                 [
                     'question' => 'PropertyKoi.com কী এবং এটি কীভাবে বাংলাদেশের একটি বিশ্বস্ত প্রপার্টি প্ল্যাটফর্ম (Property Buy & Sell Platform in Bangladesh)?',
-                    'answer'   => 'PropertyKoi হলো ঢাকা, বসুন্ধরা, গুলশান, বনশ্রী ও আফতাবনগরসহ যেকোনো এলাকার সরাসরি রিয়েল এস্টেট কেনা-বেচার আধুনিক মার্কেটপ্লেস (Property Buy Sell Platform in Bangladesh)। এখানে কোনো চেইন ব্রোকার বা দালাল ছাড়া ১০০% ভেরিফাইড জমি, রেডি ফ্ল্যাট, দোকান ও ল্যান্ড শেয়ার সরাসরি মালিক বা অথরাইজড সোর্সের সাথে কেনাবেচা করা যায়।',
+                    'answer'   => 'PropertyKoi হলো ঢাকা, বসুন্ধরা, গুলশান, বনশ্রী ও আফতাবনগরসহ যেকোনো এলাকার সরাসরি রিয়েল এস্টেট কেনা-বেচার আধুনিক মার্কেটপ্লেস (Property Buy Sell Platform in Bangladesh)। এখানে ১০০% ভেরিফাইড জমি, রেডি ফ্ল্যাট, দোকান ও ল্যান্ড শেয়ার স্বচ্ছ প্রক্রিয়ায় প্রকৃত মালিক বা অথরাইজড সোর্সের সাথে কেনাবেচা করা যায়।',
                 ],
                 [
-                    'question' => 'কোনো দালাল ছাড়া সরাসরি মালিকের সাথে জমি বা ফ্ল্যাট কেনার প্রক্রিয়া কী?',
-                    'answer'   => 'PropertyKoi-তে প্রতিটি লিস্টিংয়ের পাশে "সাইট ভিজিট শিডিউল করুন" অথবা "সরাসরি যোগাযোগ" বাটন রয়েছে। এখানে ক্লিক করে আপনি মধ্যস্বত্বভোগী ছাড়া সরাসরি মালিক বা প্রধান প্রতিনিধির সাথে কথা বলে সরেজমিন প্রপার্টি দেখতে পারবেন।',
+                    'question' => 'PropertyKoi-তে সরাসরি ভেরিফাইড জমি বা ফ্ল্যাট কেনার প্রক্রিয়া কী?',
+                    'answer'   => 'PropertyKoi-তে প্রতিটি লিস্টিংয়ের সাথে "সাইট ভিজিট শিডিউল করুন" এবং সরাসরি যোগাযোগ সুবিধা রয়েছে। এখানে ক্লিক করে আপনি যাচাইকৃত তথ্যসহ সরাসরি কথা বলে সরেজমিন প্রপার্টি দেখতে পারবেন।',
                 ],
                 [
                     'question' => 'PropertyKoi-এর ৪-পয়েন্ট ভেরিফিকেশন (4-Point Verification) কী?',
@@ -338,7 +338,7 @@ class SeoService
                 ],
                 [
                     'question' => 'How does PropertyKoi compare with traditional real estate classified websites in Bangladesh?',
-                    'answer'   => 'Unlike unverified classifieds full of fake agent chains, PropertyKoi focuses on direct-owner listings, 4-point title verification, and automated buyer-demand notifications via Telegram & Email, ensuring 100% transparent and broker-free transactions.',
+                    'answer'   => 'Unlike unverified classifieds with inaccurate listings, PropertyKoi focuses on verified direct listings, 4-point title verification, and automated buyer-demand notifications via Telegram & Email, ensuring 100% transparent transactions.',
                 ],
                 [
                     'question' => 'পছন্দের প্রপার্টি খুঁজে না পেলে করণীয় কী?',
@@ -354,7 +354,7 @@ class SeoService
     public static function getOgMeta(string $page = '', ?Property $property = null): array
     {
         $siteName = self::getSiteName();
-        $siteDesc = 'PropertyKoi.com হলো বাংলাদেশের শীর্ষস্থানীয় প্রপার্টি কেনা-বেচার প্ল্যাটফর্ম (Property Buy & Sell Platform in Bangladesh)। কোনো দালাল বা চেইন ব্রোকার ছাড়া ঢাকা, বসুন্ধরা, গুলশান, বনশ্রী ও আফতাবনগরের ভেরিফাইড আবাসিক প্লট, জমি, রেডি ফ্ল্যাট, কমার্শিয়াল স্পেস ও ল্যান্ড শেয়ার সরাসরি মালিকের সাথে কেনাবেচা করুন।';
+        $siteDesc = 'PropertyKoi.com হলো বাংলাদেশের শীর্ষস্থানীয় প্রপার্টি কেনা-বেচার প্ল্যাটফর্ম (Property Buy & Sell Platform in Bangladesh)। স্বচ্ছ ও ভেরিফাইড প্রক্রিয়ায় ঢাকা, বসুন্ধরা, গুলশান, বনশ্রী ও আফতাবনগরের ভেরিফাইড আবাসিক প্লট, জমি, রেডি ফ্ল্যাট, কমার্শিয়াল স্পেস ও ল্যান্ড শেয়ার সরাসরি কেনাবেচা করুন।';
         $defaultKeywords = 'property buy sell platform in bangladesh, real estate marketplace bangladesh, buy sell plot flat dhaka, bashundhara flat for sale, gulshan property for sale, aftabnagar plot for sale, ready flat in dhaka, direct owner property bangladesh, জমি ফ্ল্যাট কেনাবেচা ঢাকা, বসুন্ধরা ফ্ল্যাট, আফতাবনগর জমি বিক্রয়, রেডি ফ্ল্যাট ঢাকা, প্রপার্টি কই, PropertyKoi';
 
         if ($property) {
@@ -405,7 +405,7 @@ class SeoService
         $meta = match ($page) {
             'land-search' => [
                 'title'       => "Plots & Land for Sale in Dhaka & Aftabnagar | জমি ও প্লট বিক্রয় — {$siteName}",
-                'description' => 'ঢাকা, বসুন্ধরা, আফতাবনগর ও সংলগ্ন এলাকার সরাসরি মালিকের ভেরিফাইড আবাসিক ও বাণিজ্যিক প্লট। ২০ থেকে ৬০ ফুট রাস্তা, কর্নার ও লেকভিউ প্লট কিনুন ১০০% যাচাইকৃত নামজারি ও দলিলসহ। কোনো ব্রোকার কমিশন নেই।',
+                'description' => 'ঢাকা, বসুন্ধরা, আফতাবনগর ও সংলগ্ন এলাকার ভেরিফাইড আবাসিক ও বাণিজ্যিক প্লট। ২০ থেকে ৬০ ফুট রাস্তা, কর্নার ও লেকভিউ প্লট কিনুন ১০০% যাচাইকৃত নামজারি ও দলিলসহ। নিরাপদ ও নির্ভরযোগ্য প্ল্যাটফর্ম।',
                 'keywords'    => 'plots for sale in dhaka, aftabnagar plot for sale, buy land in bashundhara, buy land in aftabnagar dhaka, residential plot for sale dhaka, aftabnagar katha price, direct owner plot, আফতাবনগর জমি বিক্রয়, বসুন্ধরা জমি, প্লট কেনাবেচা ঢাকা, PropertyKoi',
                 'image'       => self::getCustomOrAssetImage('adm_seo_land_og_image', 'og-land.jpg'),
                 'url'         => route('properties.land'),
@@ -413,7 +413,7 @@ class SeoService
             ],
             'flat-search' => [
                 'title'       => "Ready Flats & Apartments for Sale in Dhaka | ফ্ল্যাট বিক্রয় — {$siteName}",
-                'description' => 'ঢাকা, বসুন্ধরা, গুলশান, আফতাবনগর ও বনশ্রীতে ১০০% রেডি এবং নির্মাণাধীন আধুনিক ৩/৪ বেডরুমের ফ্ল্যাট ও অ্যাপার্টমেন্ট। লিফট, জেনারেটর ও কার পার্কিংসহ সরাসরি ভেরিফাইড মালিক ও নির্মাতাদের লিস্টিং। ব্রোকারমুক্ত সাশ্রয়ী ডিল।',
+                'description' => 'ঢাকা, বসুন্ধরা, গুলশান, আফতাবনগর ও বনশ্রীতে ১০০% রেডি এবং নির্মাণাধীন আধুনিক ৩/৪ বেডরুমের ফ্ল্যাট ও অ্যাপার্টমেন্ট। লিফট, জেনারেটর ও কার পার্কিংসহ ভেরিফাইড মালিক ও নির্মাতাদের লিস্টিং। স্বচ্ছ প্রক্রিয়ায় সেরা ডিল।',
                 'keywords'    => 'ready flat in dhaka, flat in bashundhara, flat for sale in gulshan, apartment for sale in aftabnagar dhaka, 3 bed flat dhaka, luxury flat dhaka, direct owner flat sale, রেডি ফ্ল্যাট ঢাকা, বসুন্ধরা ফ্ল্যাট, গুলশান ফ্ল্যাট, ফ্ল্যাট বিক্রয় ঢাকা, PropertyKoi',
                 'image'       => self::getCustomOrAssetImage('adm_seo_flat_og_image', 'og-flat.jpg'),
                 'url'         => route('properties.flat'),
@@ -437,7 +437,7 @@ class SeoService
             ],
             'all-search' => [
                 'title'       => "Verified Properties for Sale in Dhaka | সকল প্রপার্টি লিস্টিং — {$siteName}",
-                'description' => 'আফতাবনগর, বসুন্ধরা, পূর্বাচল ও ঢাকার সকল যাচাইকৃত জমি, রেডি ফ্ল্যাট, দোকান এবং ল্যান্ড শেয়ার প্রপার্টি এক জায়গায় খুঁজুন ও তুলনা করুন। ১০০% দালালমুক্ত।',
+                'description' => 'আফতাবনগর, বসুন্ধরা, পূর্বাচল ও ঢাকার সকল যাচাইকৃত জমি, রেডি ফ্ল্যাট, দোকান এবং ল্যান্ড শেয়ার প্রপার্টি এক জায়গায় খুঁজুন ও তুলনা করুন। সম্পূর্ণ ভেরিফাইড ও নির্ভরযোগ্য।',
                 'keywords'    => $defaultKeywords,
                 'image'       => self::getCustomOrAssetImage('adm_seo_default_og_image', 'og-default.jpg'),
                 'url'         => route('properties.index'),
@@ -453,7 +453,7 @@ class SeoService
             ],
             'sell-property' => [
                 'title'       => "Post Free Property Ad in Bangladesh | প্রপার্টি বিক্রির ফ্রি বিজ্ঞাপন দিন — {$siteName}",
-                'description' => 'আপনার জমি, ফ্ল্যাট বা দোকান বিক্রির বিজ্ঞাপন সম্পূর্ণ ফ্রিতে পোস্ট করুন। কোনো ব্রোকার কমিশন বা মধ্যস্বত্বভোগী ছাড়া সরাসরি হাজারো প্রকৃত ক্রেতার সাথে যোগাযোগ করুন।',
+                'description' => 'আপনার জমি, ফ্ল্যাট বা দোকান বিক্রির বিজ্ঞাপন সম্পূর্ণ ফ্রিতে পোস্ট করুন। সরাসরি হাজারো প্রকৃত ক্রেতার সাথে সংযোগ স্থাপন করে দ্রুত ডিল সম্পন্ন করুন।',
                 'keywords'    => 'post free property ad bangladesh, sell property online dhaka, free real estate listing bangladesh, post flat land ad, প্রপার্টি বিক্রির বিজ্ঞাপন, জমি বিক্রি, ফ্ল্যাট বিক্রি, PropertyKoi',
                 'image'       => self::getCustomOrAssetImage('adm_seo_sell_og_image', 'og-sell.jpg'),
                 'url'         => route('property.create'),
@@ -576,7 +576,7 @@ class SeoService
                 'image'                   => self::getCustomOrAssetImage('adm_seo_default_og_image', 'og-default.jpg'),
                 'description'             => $desc ?: 'PropertyKoi.com হলো বাংলাদেশের বিশ্বস্ত প্রপার্টি কেনা-বেচার প্ল্যাটফর্ম (Property Buy Sell Platform in Bangladesh)।',
                 'disambiguatingDescription' => 'PropertyKoi is a direct real estate buy and sell platform in Bangladesh specializing in verified land, flats, and commercial properties in Dhaka.',
-                'slogan'                  => 'সরাসরি প্রপার্টি মার্কেটপ্লেস — ১০০% দালালমুক্ত ও ভেরিফাইড',
+                'slogan'                  => 'বাংলাদেশের বিশ্বস্ত প্রপার্টি মার্কেটপ্লেস — ১০০% ভেরিফাইড ও স্বচ্ছ লেনদেন',
                 'telephone'               => Setting::get('adm_admin_whatsapp_number', Setting::get('support_phone', '+8801672646242')),
                 'knowsAbout'              => [
                     'Real Estate in Bangladesh',
@@ -858,6 +858,245 @@ class SeoService
     }
 
     /**
+     * Get Complete SEO, Open Graph, Twitter & AEO Metadata for Aftabnagar Buyer Hub & Price Index.
+     */
+    public static function getAftabnagarBuyerGuideMeta(): array
+    {
+        $siteName = self::getSiteName();
+        $title = "Aftabnagar Property Buyer Guide & Price Index 2026 | আফতাবনগর প্লট ও ফ্ল্যাট বাজারদর ২০২৬ — {$siteName}";
+        $desc = "আফতাবনগরের প্রতিটি ব্লকের (A-M) বর্তমান জমির কাঠাপ্রতি বাজারদর, ৩ কাঠা প্লটের বাজেট, রেডি ফ্ল্যাটের স্কয়ারফুট রেট, ল্যান্ড শেয়ার ও আইনি দলিল যাচাই নির্দেশিকা ২০২৬।";
+        $keywords = "aftabnagar plot price per katha, aftabnagar flat price, aftabnagar land for sale, aftabnagar 3 katha plot price, aftabnagar property price 2026, ready flat in aftabnagar, eastern housing aftabnagar, aftabnagar block A plot, aftabnagar block B, aftabnagar block C flat, aftabnagar block D, aftabnagar block E, aftabnagar block F, aftabnagar block G H I J K L M, aftabnagar land share, আফতাবনগর জমির দাম, আফতাবনগর প্লট বিক্রয়, আফতাবনগর রেডি ফ্ল্যাট, আফতাবনগর ল্যান্ড শেয়ার, আফতাবনগর প্রপার্টি গাইড, PropertyKoi";
+        $url = route('guides.aftabnagar');
+        $image = self::getCustomOrAssetImage('adm_seo_land_og_image', 'og-land.jpg');
+
+        $faqs = [
+            [
+                'question' => 'আফতাবনগরে আবাসিক প্লটের বর্তমান কাঠাপ্রতি বাজারদর কেমন (২০২৬)?',
+                'answer'   => '২০২৬ সালের হালনাগাদ বাজারদর অনুযায়ী আফতাবনগরের ব্লক A থেকে C (প্রাইম জোন) পর্যন্ত প্রতি কাঠা জমির দাম ১.১০ কোটি থেকে ১.৬০ কোটি টাকা। ব্লক D থেকে F পর্যন্ত ৮০ লাখ থেকে ১.২৫ কোটি টাকা এবং তুলনামূলক নতুন সম্প্রসারিত ব্লক G থেকে M ও এক্সটেনশনে প্রতি কাঠা ৪৫ লাখ থেকে ৯৫ লাখ টাকা পর্যন্ত রয়েছে। রাস্তার প্রশস্ততা (২০ থেকে ৬০ ফুট), লেকভিউ এবং কর্নার পজিশনের ওপর ভিত্তি করে দাম পরিবর্তিত হয়।',
+            ],
+            [
+                'question' => 'আফতাবনগরে ৩ কাঠা ও ৫ কাঠা প্লটের গড় বাজেট কত হতে পারে?',
+                'answer'   => 'আফতাবনগরে ৩ কাঠার একটি স্ট্যান্ডার্ড আবাসিক প্লটের জন্য ব্লকভেদে মোট বাজেট ১.৫০ কোটি থেকে ৪.৫০ কোটি টাকা পর্যন্ত হতে পারে। ৫ কাঠার প্লটের ক্ষেত্রে বাজেট ২.৫০ কোটি থেকে ৭.৫০ কোটি টাকার মধ্যে ওঠানামা করে।',
+            ],
+            [
+                'question' => 'বসবাসের জন্য আফতাবনগরের কোন কোন ব্লক সবচেয়ে জনপ্রিয় ও সেরা?',
+                'answer'   => 'তাৎক্ষণিক বসবাস, পরিবার ও শিশুদের সুবিধার জন্য ব্লক A, B, C ও D সবচেয়ে জনপ্রিয়। এই ব্লকগুলো রামপুরা ব্রিজ, হাতিরঝিল প্রবেশদ্বার, ইস্ট ওয়েস্ট বিশ্ববিদ্যালয় এবং সুপরিচিত স্কুল ও বাজারের খুব কাছে অবস্থিত। নিরিবিলি পরিবেশের জন্য ব্লক E ও F এবং দীর্ঘমেয়াদী বিনিয়োগের জন্য ব্লক G থেকে M অত্যন্ত আকর্ষণীয়।',
+            ],
+            [
+                'question' => 'আফতাবনগরে রেডি ফ্ল্যাট বনাম নির্মাণাধীন ফ্ল্যাটের স্কয়ারফুট রেট কেমন?',
+                'answer'   => 'আফতাবনগরে ৩ বেডরুমের রেডি ফ্ল্যাটের বর্তমান মূল্য প্রতি স্কয়ারফুট ৬,২০০ থেকে ৯,৫০০ টাকা (ব্লকভেদে মোট ৯০ লাখ থেকে ১.৮ কোটি টাকা)। অন্যদিকে চলমান বা আন্ডার-কনস্ট্রাকশন ফ্ল্যাট প্রতি স্কয়ারফুট ৫,২০০ থেকে ৬,৮০০ টাকার মধ্যে কিস্তি সুবিধাসহ পাওয়া যায়।',
+            ],
+            [
+                'question' => 'আফতাবনগরে ল্যান্ড শেয়ার (Land Share) ফ্ল্যাট কেনার সুবিধা ও খরচ কেমন?',
+                'answer'   => 'ল্যান্ড শেয়ার পদ্ধতিতে ক্রেতারা যৌথভাবে জমি কিনে নির্মাণ খরচে ফ্ল্যাট তৈরি করেন। এতে প্রচলিত ডেভেলপার রেটের চেয়ে ৩০% থেকে ৩৫% পর্যন্ত সাশ্রয় হয়। আফতাবনগরে ল্যান্ড শেয়ার ফ্ল্যাটে প্রতি স্কয়ারফুট খরচ সাধারণত ৩,৮০০ থেকে ৪,৮০০ টাকার মধ্যে সম্পন্ন করা সম্ভব।',
+            ],
+            [
+                'question' => 'ইস্টার্ন হাউজিং লিমিটেড (EHL) আফতাবনগর প্লট কেনার সময় কী কী দলিল চেক করতে হয়?',
+                'answer'   => 'ইস্টার্ন হাউজিংয়ের প্লট কেনার পূর্বে মূল বরাদ্দপত্র (Allotment Letter), দখল হস্তান্তরপত্র (Possession Letter), ইএইচএল ট্রান্সফার পারমিশন বা নো-অবজেকশন সার্টিফিকেট (NOC), মূল রেজিস্ট্রি সাব-কবলা দলিল, বায়া দলিল এবং হালনাগাদ নামজারি ও খাজনা রশিদ নিখুঁতভাবে যাচাই করতে হবে।',
+            ],
+            [
+                'question' => 'আফতাবনগরে নামজারি (Mutation) ও ডিসিআর (DCR) যাচাই করার উপায় কী?',
+                'answer'   => 'সংশ্লিষ্ট সহকারী কমিশনার (ভূমি) অফিস বা ভূমি মন্ত্রণালয়ের ই-নামজারি পোর্টাল (mutation.land.gov.bd) থেকে খতিয়ান নম্বর ও প্রস্তাবিত খতিয়ান এন্ট্রি অনলাইনে যাচাই করা যায়। সাথে ডিসিআর (DCR) ও হালনাগাদ ভূমি উন্নয়ন কর রশিদ মিলিয়ে নিশ্চিত হতে হয়।',
+            ],
+            [
+                'question' => 'রাজউক (RAJUK) ড্যাপ (DAP) এবং ভবন নির্মাণের অনুমোদন আফতাবনগরে কীভাবে কাজ করে?',
+                'answer'   => 'আফতাবনগর রাজউকের ডিটেইল্ড এরিয়া প্ল্যান (DAP) আওতাভুক্ত। বাড়ি নির্মাণের জন্য রাজউকের ভূমি ব্যবহার ছাড়পত্র (Land Use Clearance) এবং ইমারত নির্মাণ বিধিমালা অনুযায়ী নকশা অনুমোদন (Building Plan Approval) গ্রহণ করতে হয়। রাস্তার প্রশস্ততার ওপর ভবনের উচ্চতা ও এফএআর (FAR) নির্ধারিত হয়।',
+            ],
+            [
+                'question' => 'রামপুরা ব্রিজ, হাতিরঝিল ও গুলশানের সাথে আফতাবনগরের যাতায়াত ব্যবস্থা কেমন?',
+                'answer'   => 'আফতাবনগরের প্রধান প্রবেশদ্বার রামপুরা ব্রিজ ও হাতিরঝিলের সাথে সরাসরি সংযুক্ত। হাতিরঝিল এক্সপ্রেসওয়ে ব্যবহারের মাধ্যমে গুলশান, বনানী, কারওয়ান বাজার ও ধানমন্ডিতে খুব অল্প সময়ে ট্রাফিক জ্যাম এড়িয়ে যাতায়াত করা যায়। এছাড়াও বনশ্রী ও মেরাদিয়া দিয়ে খিলগাঁওয়ের সাথে সহজ বিকল্প সড়ক যোগাযোগ রয়েছে।',
+            ],
+            [
+                'question' => 'আফতাবনগরে স্কুল, বিশ্ববিদ্যালয় ও নাগরিক সুযোগ-সুবিধা কেমন?',
+                'answer'   => 'আফতাবনগরে রয়েছে ইস্ট ওয়েস্ট ইউনিভার্সিটির মতো খ্যাতনামা বিদ্যাপীঠ, ঢাকা ইমপেরিয়াল কলেজ, একাধিক স্বনামধন্য ইংলিশ মিডিয়াম ও বাংলা মাধ্যম স্কুল, মসজিদ, মাদ্রাসা, সুপারশপ এবং মনোরম লেকওয়াক পাড়।',
+            ],
+            [
+                'question' => 'PropertyKoi-তে আফতাবনগরের যাচাইকৃত প্রপার্টি কীভাবে খুঁজে পাবো?',
+                'answer'   => 'PropertyKoi.com-এর ল্যান্ড সার্চ বা ফ্ল্যাট সার্চ ফিল্টারে এলাকা হিসেবে "Aftabnagar" এবং আপনার পছন্দের নির্দিষ্ট "Block" (যেমন Block A, B, C) নির্বাচন করুন। আপনি সরাসরি যাচাইকৃত মূল্য, রাস্তার মাপ এবং বিস্তারিত স্পেসিফিকেশনসহ লাইভ লিস্টিং দেখতে পারবেন।',
+            ],
+            [
+                'question' => 'পছন্দের প্লট বা ফ্ল্যাট খুঁজে না পেলে কীভাবে রিকোয়ারমেন্ট সাবমিট করবো?',
+                'answer'   => 'PropertyKoi-এর "চাহিদা জানান (Chahida)" বাটনে গিয়ে আপনার কাঙ্ক্ষিত এলাকা "আফতাবনগর", পছন্দের ব্লক, আয়তন ও বাজেট সিলেক্ট করে সাবমিট করুন। উপযুক্ত কোনো প্রপার্টি তালিকাভুক্ত হওয়ামাত্র সিস্টেম আপনাকে স্বয়ংক্রিয়ভাবে অ্যালার্ট পাঠাবে।',
+            ],
+        ];
+
+        $siteUrl = url('/');
+        $schema = [
+            '@context' => 'https://schema.org',
+            '@graph'   => [
+                [
+                    '@type'         => 'WebSite',
+                    '@id'           => $siteUrl . '#website',
+                    'url'           => $siteUrl,
+                    'name'          => $siteName,
+                    'alternateName' => ['PropertyKoi', 'PropertyKoi.com', 'প্রপার্টি কই'],
+                ],
+                [
+                    '@type'       => 'Organization',
+                    '@id'         => $siteUrl . '#organization',
+                    'name'        => $siteName,
+                    'url'         => $siteUrl,
+                    'logo'        => [
+                        '@type' => 'ImageObject',
+                        'url'   => self::getCustomOrAssetImage('adm_seo_default_og_image', 'logo.png'),
+                    ],
+                ],
+                [
+                    '@type'            => 'WebPage',
+                    '@id'              => $url . '#webpage',
+                    'url'              => $url,
+                    'name'             => $title,
+                    'description'      => $desc,
+                    'isPartOf'         => ['@id' => $siteUrl . '#website'],
+                    'inLanguage'       => 'bn-BD',
+                    'breadcrumb'       => ['@id' => $url . '#breadcrumb'],
+                    'about'            => [
+                        '@type' => 'Place',
+                        'name'  => 'Aftabnagar, Dhaka',
+                        'address' => [
+                            '@type'           => 'PostalAddress',
+                            'addressLocality' => 'Dhaka',
+                            'addressRegion'   => 'Dhaka Division',
+                            'addressCountry'  => 'BD',
+                        ],
+                    ],
+                ],
+                [
+                    '@type'           => 'Dataset',
+                    '@id'             => $url . '#dataset',
+                    'name'            => 'Aftabnagar Real Estate Price Index 2026',
+                    'description'     => 'Comprehensive block-by-block property price data (per katha rate, flat square foot rate, road widths) for Aftabnagar, Dhaka in 2026.',
+                    'url'             => $url,
+                    'temporalCoverage'=> '2026',
+                    'spatialCoverage' => 'Aftabnagar, Dhaka, Bangladesh',
+                    'creator'         => ['@id' => $siteUrl . '#organization'],
+                ],
+                [
+                    '@type'           => 'BreadcrumbList',
+                    '@id'             => $url . '#breadcrumb',
+                    'itemListElement' => [
+                        [
+                            '@type'    => 'ListItem',
+                            'position' => 1,
+                            'name'     => 'হোম',
+                            'item'     => $siteUrl,
+                        ],
+                        [
+                            '@type'    => 'ListItem',
+                            'position' => 2,
+                            'name'     => 'প্রপার্টি গাইডস',
+                            'item'     => route('guides.index'),
+                        ],
+                        [
+                            '@type'    => 'ListItem',
+                            'position' => 3,
+                            'name'     => 'আফতাবনগর বায়ার গাইড ও প্রাইস ইনডেক্স ২০২৬',
+                            'item'     => $url,
+                        ],
+                    ],
+                ],
+                [
+                    '@type'      => 'FAQPage',
+                    '@id'        => $url . '#faq',
+                    'mainEntity' => array_map(function ($f) {
+                        return [
+                            '@type'          => 'Question',
+                            'name'           => $f['question'],
+                            'acceptedAnswer' => [
+                                '@type' => 'Answer',
+                                'text'  => $f['answer'],
+                            ],
+                        ];
+                    }, $faqs),
+                ],
+            ],
+        ];
+
+        return [
+            'title'       => $title,
+            'description' => $desc,
+            'keywords'    => $keywords,
+            'image'       => $image,
+            'images'      => [$image],
+            'image_alt'   => 'Aftabnagar Property Buyer Guide and Price Index 2026',
+            'url'         => $url,
+            'type'        => 'website',
+            'robots'      => 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1',
+            'faqs'        => $faqs,
+            'schema'      => $schema,
+        ];
+    }
+
+    /**
+     * Build dynamic SEO meta for property search pages, with hyper-focused Aftabnagar buyer targeting.
+     */
+    public static function getSearchOgMeta(string $forcedType, array $filters = []): array
+    {
+        $siteName = self::getSiteName();
+        $area = trim((string) ($filters['area'] ?? ''));
+        $block = trim((string) ($filters['block'] ?? ''));
+        $isAftab = (stripos($area, 'aftab') !== false || strpos($area, 'আফতাব') !== false);
+
+        $pageSlug = match ($forcedType) {
+            'land' => 'land-search',
+            'flat' => 'flat-search',
+            'commercial' => 'commercial-search',
+            'land_share' => 'land-share-search',
+            default => 'all-search',
+        };
+
+        if (!$isAftab && empty($block)) {
+            return self::getOgMeta($pageSlug);
+        }
+
+        $blockText = !empty($block) ? "ব্লক {$block} (Block {$block})" : "ব্লক A-M";
+        $blockQuery = !empty($block) ? " Block {$block}" : "";
+
+        if ($forcedType === 'land') {
+            $title = "Aftabnagar{$blockQuery} Plots for Sale | আফতাবনগর {$blockText} জমি ও প্লট বিক্রয় ২০২৬ — {$siteName}";
+            $desc = "আফতাবনগর {$blockText}-এ সরাসরি যাচাইকৃত আবাসিক ও বাণিজ্যিক প্লট। ২০ থেকে ৬০ ফুট রাস্তা, কর্নার ও লেকভিউ প্লটের কাঠাপ্রতি বাজারদর ও লাইভ লিস্টিং দেখুন।";
+            $keywords = "aftabnagar plot for sale, aftabnagar block {$block} plot, buy land in aftabnagar, aftabnagar plot price per katha, আফতাবনগর জমি বিক্রয়, আফতাবনগর প্লট, PropertyKoi";
+            $image = self::getCustomOrAssetImage('adm_seo_land_og_image', 'og-land.jpg');
+            $url = route('properties.land', array_filter(['area' => 'Aftabnagar', 'block' => $block]));
+        } elseif ($forcedType === 'flat') {
+            $title = "Flats for Sale in Aftabnagar{$blockQuery} | আফতাবনগর {$blockText} ফ্ল্যাট বিক্রয় — {$siteName}";
+            $desc = "আফতাবনগর {$blockText}-এ ৩ ও ৪ বেডরুমের রেডি এবং নির্মাণাধীন আধুনিক ফ্ল্যাট ও অ্যাপার্টমেন্ট। সঠিক স্কয়ারফুট রেট ও ভেরিফাইড কাগজপত্রে কিনুন PropertyKoi-তে।";
+            $keywords = "flat for sale in aftabnagar, ready flat aftabnagar, apartment aftabnagar block {$block}, 3 bed flat aftabnagar, আফতাবনগর ফ্ল্যাট বিক্রয়, PropertyKoi";
+            $image = self::getCustomOrAssetImage('adm_seo_flat_og_image', 'og-flat.jpg');
+            $url = route('properties.flat', array_filter(['area' => 'Aftabnagar', 'block' => $block]));
+        } elseif ($forcedType === 'land_share') {
+            $title = "Land Share Projects in Aftabnagar{$blockQuery} | আফতাবনগর ল্যান্ড শেয়ার — {$siteName}";
+            $desc = "আফতাবনগর {$blockText}-এ সাশ্রয়ী খরচে আধুনিক ফ্ল্যাট নির্মাণের ভেরিফাইড যৌথ ল্যান্ড শেয়ার প্রকল্প। বাজারদরের চেয়ে ৩০-৩৫% কম খরচে নিজস্ব ফ্ল্যাট।";
+            $keywords = "land share aftabnagar, land share flat project aftabnagar block {$block}, affordable flat dhaka, আফতাবনগর ল্যান্ড শেয়ার, PropertyKoi";
+            $image = self::getCustomOrAssetImage('adm_seo_commercial_og_image', 'og-commercial.jpg');
+            $url = route('properties.share', array_filter(['area' => 'Aftabnagar', 'block' => $block]));
+        } else {
+            $title = "Properties for Sale in Aftabnagar{$blockQuery} | আফতাবনগর {$blockText} সকল প্রপার্টি — {$siteName}";
+            $desc = "আফতাবনগর {$blockText}-এর সকল যাচাইকৃত আবাসিক প্লট, রেডি ফ্ল্যাট, দোকান ও ল্যান্ড শেয়ার প্রপার্টি এক জায়গায় খুঁজুন ও তুলনা করুন।";
+            $keywords = "aftabnagar properties for sale, aftabnagar plot flat shop, aftabnagar real estate, আফতাবনগর প্রপার্টি, PropertyKoi";
+            $image = self::getCustomOrAssetImage('adm_seo_default_og_image', 'og-default.jpg');
+            $url = route('properties.index', array_filter(['area' => 'Aftabnagar', 'block' => $block]));
+        }
+
+        $faqs = self::getHubFaqs($pageSlug);
+        $schema = self::getWebsiteSchema($title, $desc, $url, $faqs);
+
+        return [
+            'title'       => $title,
+            'description' => $desc,
+            'keywords'    => $keywords,
+            'image'       => $image,
+            'images'      => [$image],
+            'image_alt'   => $title,
+            'url'         => $url,
+            'type'        => 'website',
+            'robots'      => 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1',
+            'faqs'        => $faqs,
+            'schema'      => $schema,
+        ];
+    }
+
+    /**
      * Build comprehensive Schema.org @graph for a single Guide (Article + BreadcrumbList + FAQPage).
      */
     public static function getGuideSchema(
@@ -1017,6 +1256,7 @@ class SeoService
 
             $urls = [
                 url('/'),
+                route('guides.aftabnagar'),
                 route('properties.land'),
                 route('properties.flat'),
                 route('properties.commercial'),

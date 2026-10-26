@@ -32,6 +32,7 @@ class SitemapController extends Controller
             ['url' => url('/land-share-search'), 'priority' => '0.9', 'freq' => 'daily', 'lastmod' => $latestUpdate],
             ['url' => url('/commercial-search'), 'priority' => '0.9', 'freq' => 'daily', 'lastmod' => $latestUpdate],
             ['url' => url('/chahida'), 'priority' => '0.9', 'freq' => 'daily', 'lastmod' => $latestUpdate],
+            ['url' => route('guides.aftabnagar'), 'priority' => '1.0', 'freq' => 'daily', 'lastmod' => $latestUpdate],
             ['url' => url('/sell-property'), 'priority' => '0.8', 'freq' => 'weekly', 'lastmod' => $latestUpdate],
             ['url' => url('/map-view'), 'priority' => '0.7', 'freq' => 'weekly', 'lastmod' => $latestUpdate],
             ['url' => url('/guides'), 'priority' => '0.9', 'freq' => 'daily', 'lastmod' => $latestUpdate],

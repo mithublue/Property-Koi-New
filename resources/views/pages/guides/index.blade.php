@@ -57,6 +57,27 @@
             @endforeach
         </div>
 
+        <!-- Special Location Hub: Aftabnagar Buyer Guide & Price Index 2026 -->
+        <div class="mb-10 bg-gradient-to-r from-emerald-900 via-teal-900 to-slate-900 rounded-3xl p-6 sm:p-8 text-white shadow-lg border border-emerald-500/30 flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden">
+            <div class="space-y-2 max-w-2xl relative z-10">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 font-bold text-xs border border-emerald-400/40">
+                    <span>📍</span> স্পেশাল বায়ার গাইড ২০২৬
+                </span>
+                <h3 class="text-xl sm:text-2xl font-black text-white m-0">
+                    আফতাবনগর প্রপার্টি বায়ার গাইড ও কাঠাপ্রতি বাজারদর ২০২৬
+                </h3>
+                <p class="text-xs sm:text-sm text-slate-300 leading-relaxed m-0">
+                    ব্লক A থেকে M পর্যন্ত কাঠাপ্রতি জমির রেট, ৩ কাঠা প্লটের বাজেট, রেডি ফ্ল্যাটের স্কয়ারফুট রেট এবং ইস্টার্ন হাউজিং দলিল যাচাই নির্দেশিকা।
+                </p>
+            </div>
+            <div class="shrink-0 relative z-10 w-full md:w-auto">
+                <a href="{{ route('guides.aftabnagar') }}" class="inline-flex items-center justify-center gap-2 w-full md:w-auto px-6 py-3 rounded-2xl bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-black text-xs sm:text-sm transition shadow-md">
+                    <span>সম্পূর্ণ গাইড ও প্রাইস টেবিল দেখুন</span>
+                    <span>&rarr;</span>
+                </a>
+            </div>
+        </div>
+
         <!-- Featured Guide (Hero Card if Page 1) -->
         @if(!empty($featuredGuide))
             <div class="mb-12 bg-white rounded-3xl border border-slate-200/90 shadow-md hover:shadow-xl transition-all overflow-hidden group">

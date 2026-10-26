@@ -97,6 +97,11 @@ Route::match(['get', 'post'], '/shortlist/data', [PortalController::class, 'shor
 // ==========================================
 // 5.1 KNOWLEDGE HUB / GUIDES, CALCULATORS & VALUATION
 // ==========================================
+Route::get('/aftabnagar-property-guide', [GuideController::class, 'aftabnagarGuide'])->name('guides.aftabnagar');
+Route::redirect('/aftabnagar', '/aftabnagar-property-guide', 301);
+Route::redirect('/aftabnagar-plot-price', '/aftabnagar-property-guide', 301);
+Route::redirect('/aftabnagar-flat-price', '/aftabnagar-property-guide', 301);
+
 Route::get('/guides', [GuideController::class, 'index'])->name('guides.index');
 Route::get('/guides/{slug}', [GuideController::class, 'show'])->name('guides.show');
 

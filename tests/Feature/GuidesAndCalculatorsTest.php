@@ -176,5 +176,44 @@ class GuidesAndCalculatorsTest extends TestCase
         $this->assertStringContainsString('/calculators/land-share-roi', $content);
         $this->assertStringContainsString('/valuation', $content);
         $this->assertStringContainsString('/guides/sitemap-test-guide', $content);
+        $this->assertStringContainsString('/aftabnagar-property-guide', $content);
+    }
+
+    public function test_aftabnagar_buyer_guide_page_loads_and_has_schema_and_price_index()
+    {
+        // 1. Direct page loads
+        $response = $this->get(route('guides.aftabnagar'));
+        $response->assertStatus(200);
+        $response->assertSee('আফতাবনগর প্রপার্টি বায়ার গাইড ও');
+        $response->assertSee('কাঠাপ্রতি বাজারদর ২০২৬');
+        $response->assertSee('ব্লক এ (Block A)');
+        $response->assertSee('ব্লক বি (Block B)');
+        $response->assertSee('ব্লকভিত্তিক জমির কাঠাপ্রতি মূল্য তালিকা');
+        $response->assertSee('ইএইচএল বরাদ্দ ও মূল দলিল');
+        $response->assertSee('Dataset');
+        $response->assertSee('Aftabnagar Real Estate Price Index 2026');
+        $response->assertSee('FAQPage');
+
+        // Verify broker/dalal claims are absent
+        $content = $response->getContent();
+        $this->assertStringNotContainsString('০% ব্রোকার ফি', $content);
+        $this->assertStringNotContainsString('দালাল ছাড়া', $content);
+        $this->assertStringNotContainsString('ব্রোকার ছাড়া', $content);
+
+        // 2. SEO Aliases redirect 301
+        $this->get('/aftabnagar')->assertRedirect('/aftabnagar-property-guide');
+        $this->get('/aftabnagar-plot-price')->assertRedirect('/aftabnagar-property-guide');
+        $this->get('/aftabnagar-flat-price')->assertRedirect('/aftabnagar-property-guide');
+    }
+
+    public function test_aftabnagar_search_seo_is_dynamically_generated()
+    {
+        $response = $this->get('/land-search?area=Aftabnagar&block=A');
+        $response->assertStatus(200);
+        $response->assertSee('Aftabnagar Block A Plots for Sale');
+
+        $content = $response->getContent();
+        $this->assertStringNotContainsString('০% ব্রোকার ফি', $content);
+        $this->assertStringNotContainsString('দালাল ছাড়া', $content);
     }
 }

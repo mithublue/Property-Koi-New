@@ -960,7 +960,7 @@
                             <span>🤝</span>
                             <span>ভেরিফাইড ডিরেক্ট সোর্স ও ক্রেতা রিভিউ</span>
                         </h3>
-                        <p class="text-xs text-slate-500 mt-0.5 m-0">দালাল বা চেইন ব্রোকার মুক্ত সরাসরি মালিক ও ভেরিফাইড সোর্স তথ্য</p>
+                        <p class="text-xs text-slate-500 mt-0.5 m-0">যাচাইকৃত মালিক ও অথরাইজড প্রপার্টি সোর্স তথ্য</p>
                     </div>
                     <button type="button"
                             @click="openReviewModal('{{ $primarySource?->source_user_id ?? 1 }}', '{{ $isOwner ? 'owner' : 'agent' }}')"
@@ -1124,7 +1124,7 @@
                 </a>
 
                 <div class="pt-3 border-t border-slate-100 text-center text-xs text-slate-400 space-y-1">
-                    <div>🔒 মালিক বা এজেন্টের নম্বর চেইন ব্রোকার স্প্যাম মুক্ত রাখতে প্ল্যাটফর্ম সুরক্ষিত রাখে।</div>
+                    <div>🔒 ক্রেতা ও বিক্রেতার গোপনীয়তা রক্ষায় এবং স্প্যাম রোধে প্ল্যাটফর্ম যোগাযোগ সুরক্ষিত রাখে।</div>
                 </div>
 
                 <!-- Favorite / Shortlist & Compare Buttons -->
@@ -1384,7 +1384,7 @@
                 </a>
 
                 <div class="pt-3 border-t border-slate-100 text-center text-[11px] text-slate-400">
-                    🔒 মালিক বা এজেন্টের নম্বর চেইন ব্রোকার স্প্যাম মুক্ত রাখতে প্ল্যাটফর্ম সুরক্ষিত রাখে।
+                    🔒 ক্রেতা ও বিক্রেতার গোপনীয়তা রক্ষায় এবং স্প্যাম রোধে প্ল্যাটফর্ম যোগাযোগ সুরক্ষিত রাখে।
                 </div>
             </div>
         </div>

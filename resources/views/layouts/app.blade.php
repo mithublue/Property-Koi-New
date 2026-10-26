@@ -25,7 +25,7 @@
         $seoData = array_merge($defaultSeo, is_array($seo ?? null) ? $seo : []);
 
         $seoTitle = $seoData['title'] ?? ($siteName . ' — ' . $siteTagline);
-        $seoDesc = $seoData['description'] ?? 'ঢাকা, বসুন্ধরা, গুলশান ও আফতাবনগরসহ প্রাইম লোকেশনের সরাসরি জমি, ফ্ল্যাট ও কমার্শিয়াল প্রপার্টি মার্কেটপ্লেস। কোনো ব্রোকার ছাড়া সরাসরি মালিকের সাথে কথা বলুন।';
+        $seoDesc = $seoData['description'] ?? 'ঢাকা, বসুন্ধরা, গুলশান ও আফতাবনগরসহ প্রাইম লোকেশনের ভেরিফাইড জমি, ফ্ল্যাট ও কমার্শিয়াল প্রপার্টি মার্কেটপ্লেস। নিরাপদ ও স্বচ্ছ লেনদেনে সেরা প্রপার্টি খুঁজুন বা কিনুন।';
         $seoKeywords = $seoData['keywords'] ?? 'বসুন্ধরা ফ্ল্যাট, গুলশান প্রপার্টি, আফতাবনগর জমি বিক্রয়, বসুন্ধরা জমি, Bashundhara flat for sale, Gulshan flat price, Aftabnagar land, রেডি ফ্ল্যাট ঢাকা, কমার্শিয়াল দোকান, ল্যান্ড শেয়ার প্রজেক্ট, PropertyKoi, প্রপার্টি কই';
         $seoImage = \App\Services\SeoService::formatOgImageUrl($seoData['image'] ?? null, 'og-default.jpg');
         $seoImages = !empty($seoData['images']) && is_array($seoData['images'])
@@ -674,6 +674,7 @@
                         GUIDES & TOOLS / গাইড ও ক্যালকুলেটর
                     </h4>
                     <ul class="space-y-2.5 text-xs sm:text-sm list-none p-0 m-0">
+                        <li><a href="{{ route('guides.aftabnagar') }}" class="text-amber-300 hover:text-amber-200 font-semibold transition-colors flex items-center gap-2 group"><span class="text-amber-400 text-xs transition-transform group-hover:translate-x-1">★</span><span>আফতাবনগর বায়ার গাইড ও বাজারদর ২০২৬</span></a></li>
                         <li><a href="{{ route('guides.index') }}" class="text-slate-400 hover:text-emerald-400 transition-colors flex items-center gap-2 group"><span class="text-emerald-500 text-xs transition-transform group-hover:translate-x-1">&rsaquo;</span><span>প্রপার্টি গাইড ও নলেজ হাব</span></a></li>
                         <li><a href="{{ route('calculators.registration') }}" class="text-slate-400 hover:text-emerald-400 transition-colors flex items-center gap-2 group"><span class="text-emerald-500 text-xs transition-transform group-hover:translate-x-1">&rsaquo;</span><span>রেজিস্ট্রেশন ফি ক্যালকুলেটর</span></a></li>
                         <li><a href="{{ route('calculators.land-share') }}" class="text-slate-400 hover:text-emerald-400 transition-colors flex items-center gap-2 group"><span class="text-emerald-500 text-xs transition-transform group-hover:translate-x-1">&rsaquo;</span><span>ল্যান্ড শেয়ার ROI ক্যালকুলেটর</span></a></li>

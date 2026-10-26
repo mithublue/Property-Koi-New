@@ -198,7 +198,7 @@
 
         <div class="pt-3 flex flex-wrap items-center justify-center gap-3 text-[11px] text-emerald-200/90 font-medium">
             <span class="flex items-center gap-1.5 bg-white/10 px-3 py-1 rounded-full border border-white/10">
-                <span class="text-emerald-400">✓</span> ১০০% ব্রোকার মুক্ত ও ডিরেক্ট লিস্টিং
+                <span class="text-emerald-400">✓</span> ১০০% ভেরিফাইড ও অথেনটিক লিস্টিং
             </span>
             <span class="flex items-center gap-1.5 bg-white/10 px-3 py-1 rounded-full border border-white/10">
                 <span class="text-emerald-400">✓</span> ±১৫% বাজেট টলারেন্স ম্যাচিং

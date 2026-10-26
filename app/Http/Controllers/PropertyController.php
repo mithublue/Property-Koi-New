@@ -284,7 +284,7 @@ class PropertyController extends Controller
             default => 'all-search',
         };
 
-        $seo = SeoService::getOgMeta($pageSlug);
+        $seo = SeoService::getSearchOgMeta($forcedType, $request->all());
 
         return view('pages.properties', [
             'properties' => $properties,

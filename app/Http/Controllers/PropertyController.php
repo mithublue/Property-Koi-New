@@ -15,6 +15,7 @@ use App\Models\User;
 use App\Models\AgentProfile;
 use App\Services\GoogleSheetSyncService;
 use App\Services\MagicLoginService;
+use App\Services\PropertySearchService;
 use App\Services\SeoService;
 use App\Services\WatermarkService;
 use Illuminate\Http\RedirectResponse;
@@ -60,24 +61,14 @@ class PropertyController extends Controller
             $query->where('type', $type);
         }
 
-        // Keyword search (title, code, block, road, area, description)
+        // Keyword search (bilingual smart search across title, code, block, road, area, description, etc.)
         $keyword = trim((string) ($request->query('search') ?: $request->query('keyword', '')));
         if ($keyword !== '') {
-            $query->where(function ($q) use ($keyword) {
-                $q->where('title', 'like', "%{$keyword}%")
-                  ->orWhere('property_code', 'like', "%{$keyword}%")
-                  ->orWhere('area', 'like', "%{$keyword}%")
-                  ->orWhere('sub_area', 'like', "%{$keyword}%")
-                  ->orWhere('block', 'like', "%{$keyword}%")
-                  ->orWhere('sector', 'like', "%{$keyword}%")
-                  ->orWhere('road_number', 'like', "%{$keyword}%")
-                  ->orWhere('plot_number', 'like', "%{$keyword}%")
-                  ->orWhere('description', 'like', "%{$keyword}%");
-            });
+            PropertySearchService::applySearchQuery($query, $keyword, false);
         }
 
         if ($request->filled('area') && $request->area !== 'all') {
-            $query->where('area', $request->area);
+            PropertySearchService::applyAreaFilter($query, $request->area);
         }
 
         if ($request->filled('sub_area') && $request->sub_area !== 'all') {
@@ -85,7 +76,21 @@ class PropertyController extends Controller
         }
 
         if ($request->filled('block') && $request->block !== 'all') {
-            $query->where('block', $request->block);
+            $parsedBlock = PropertySearchService::parseSearch('Block ' . $request->block)['detected']['block'] ?? null;
+            if ($parsedBlock) {
+                $canonical = $parsedBlock['canonical'];
+                $variants = $parsedBlock['variants'];
+                $query->where(function ($bq) use ($canonical, $variants) {
+                    $bq->where('block', $canonical)->orWhere('block', 'like', "%{$canonical}%");
+                    foreach ($variants as $v) {
+                        if (mb_strlen($v) > 1) {
+                            $bq->orWhere('title', 'like', "%{$v}%")->orWhere('block', 'like', "%{$v}%");
+                        }
+                    }
+                });
+            } else {
+                $query->where('block', $request->block);
+            }
         }
 
         if ($request->filled('sector') && $request->sector !== 'all') {

@@ -14,6 +14,7 @@ use App\Models\PropertyVerification;
 use App\Models\User;
 use App\Services\BuyerDemandMatchService;
 use App\Services\FacebookAutoPostService;
+use App\Services\PropertySearchService;
 use App\Services\SeoService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -39,21 +40,7 @@ class PropertyController extends Controller
         if ($request->filled('property_code')) {
             $query->where('property_code', 'like', "%{$filterCode}%");
         } elseif ($request->filled('search')) {
-            $escaped = trim(json_encode($filterCode, JSON_UNESCAPED_SLASHES), '"');
-            $query->where(function ($q) use ($filterCode, $escaped) {
-                $q->where('title', 'like', "%{$filterCode}%")
-                  ->orWhere('property_code', 'like', "%{$filterCode}%")
-                  ->orWhere('block', 'like', "%{$filterCode}%")
-                  ->orWhere('plot_number', 'like', "%{$filterCode}%")
-                  ->orWhere('road_number', 'like', "%{$filterCode}%")
-                  ->orWhere('sector', 'like', "%{$filterCode}%")
-                  ->orWhere('area', 'like', "%{$filterCode}%")
-                  ->orWhere('facing', 'like', "%{$filterCode}%")
-                  ->orWhere('custom_fields', 'like', "%{$filterCode}%")
-                  ->orWhere('custom_fields', 'like', "%{$escaped}%")
-                  ->orWhereHas('landDetail', fn($sq) => $sq->where('katha_size', 'like', "%{$filterCode}%")->orWhere('price_total', 'like', "%{$filterCode}%"))
-                  ->orWhereHas('directSources', fn($sq) => $sq->where('owner_name', 'like', "%{$filterCode}%")->orWhere('owner_phone', 'like', "%{$filterCode}%"));
-            });
+            PropertySearchService::applySearchQuery($query, $filterCode, true);
         }
 
         // 2. Inserter Phone
@@ -99,14 +86,8 @@ class PropertyController extends Controller
         }
 
         // 3. Area
-        if (!empty($filterArea)) {
-            if (strcasecmp($filterArea, 'Bashundhara') === 0 || strcasecmp($filterArea, 'Bashundhara R/A') === 0) {
-                $query->whereIn('area', ['Bashundhara', 'Bashundhara R/A', 'Bashundhara Residential Area']);
-            } elseif (strcasecmp($filterArea, 'Aftabnagar') === 0 || strcasecmp($filterArea, 'Aftab Nagar') === 0) {
-                $query->whereIn('area', ['Aftabnagar', 'Aftab Nagar']);
-            } else {
-                $query->where('area', $filterArea);
-            }
+        if (!empty($filterArea) && $filterArea !== 'all') {
+            PropertySearchService::applyAreaFilter($query, $filterArea);
         }
 
         // 4. Property Type
@@ -260,24 +241,7 @@ class PropertyController extends Controller
         if ($request->filled('property_code')) {
             $query->where('property_code', 'like', "%{$filterCode}%");
         } elseif ($request->filled('search')) {
-            $escaped = trim(json_encode($filterCode, JSON_UNESCAPED_SLASHES), '"');
-            $query->where(function ($q) use ($filterCode, $escaped) {
-                $q->where('title', 'like', "%{$filterCode}%")
-                  ->orWhere('property_code', 'like', "%{$filterCode}%")
-                  ->orWhere('block', 'like', "%{$filterCode}%")
-                  ->orWhere('plot_number', 'like', "%{$filterCode}%")
-                  ->orWhere('road_number', 'like', "%{$filterCode}%")
-                  ->orWhere('sector', 'like', "%{$filterCode}%")
-                  ->orWhere('area', 'like', "%{$filterCode}%")
-                  ->orWhere('facing', 'like', "%{$filterCode}%")
-                  ->orWhere('custom_fields', 'like', "%{$filterCode}%")
-                  ->orWhere('custom_fields', 'like', "%{$escaped}%")
-                  ->orWhereHas('landDetail', fn($sq) => $sq->where('katha_size', 'like', "%{$filterCode}%")->orWhere('price_total', 'like', "%{$filterCode}%"))
-                  ->orWhereHas('directSources', function ($sq) use ($filterCode) {
-                      $sq->where('owner_phone', 'like', "%{$filterCode}%")
-                         ->orWhere('owner_name', 'like', "%{$filterCode}%");
-                  });
-            });
+            PropertySearchService::applySearchQuery($query, $filterCode, true);
         }
 
         if (!empty($filterType) && $filterType !== 'all') {
@@ -285,7 +249,7 @@ class PropertyController extends Controller
         }
 
         if (!empty($filterArea) && $filterArea !== 'all') {
-            $query->where('area', 'like', "%{$filterArea}%");
+            PropertySearchService::applyAreaFilter($query, $filterArea);
         }
 
         $properties = $query->latest()->paginate(15)->withQueryString();

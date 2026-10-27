@@ -66,14 +66,16 @@ Route::post('/api/live-chat/track', [InteractionController::class, 'trackLiveCha
 Route::post('/property/{slug}/review', [InteractionController::class, 'submitReview'])->name('property.review');
 
 // ==========================================
-// 3. SELL PROPERTY (CLIPBOARD / WEBP)
+// 3. SELL PROPERTY (CLIPBOARD / WEBP) - REQUIRES AUTH
 // ==========================================
-Route::get('/sell-property', [PropertyController::class, 'create'])->name('property.create');
-Route::post('/sell-property', [PropertyController::class, 'store'])->name('property.store');
-Route::get('/sell-property/{property}/edit', [PropertyController::class, 'edit'])->name('property.edit');
-Route::post('/sell-property/{property}', [PropertyController::class, 'update'])->name('property.update');
-Route::delete('/sell-property/media/{media}', [PropertyController::class, 'deleteMedia'])->name('property.media.delete');
-Route::post('/upload/clipboard-image', [UploadController::class, 'uploadImage'])->name('upload.clipboard');
+Route::middleware('auth')->group(function () {
+    Route::get('/sell-property', [PropertyController::class, 'create'])->name('property.create');
+    Route::post('/sell-property', [PropertyController::class, 'store'])->name('property.store');
+    Route::get('/sell-property/{property}/edit', [PropertyController::class, 'edit'])->name('property.edit');
+    Route::post('/sell-property/{property}', [PropertyController::class, 'update'])->name('property.update');
+    Route::delete('/sell-property/media/{media}', [PropertyController::class, 'deleteMedia'])->name('property.media.delete');
+    Route::post('/upload/clipboard-image', [UploadController::class, 'uploadImage'])->name('upload.clipboard');
+});
 
 // ==========================================
 // 4. BUYER DEMANDS / CHAHIDA & UNSUBSCRIBE

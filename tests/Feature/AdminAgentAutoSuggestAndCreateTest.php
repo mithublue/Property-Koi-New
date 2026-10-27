@@ -58,12 +58,10 @@ class AdminAgentAutoSuggestAndCreateTest extends TestCase
         $response->assertDontSeeText('এজেন্টের হোয়াটসঅ্যাপ নম্বর');
     }
 
-    public function test_guest_cannot_see_agent_assignment_fields()
+    public function test_guest_cannot_access_sell_property_page_and_is_redirected_to_login()
     {
         $response = $this->get(route('property.create'));
-        $response->assertStatus(200);
-        $response->assertDontSeeText('দায়িত্বপ্রাপ্ত এজেন্ট');
-        $response->assertDontSeeText('এজেন্টের হোয়াটসঅ্যাপ নম্বর');
+        $response->assertRedirect(route('login'));
     }
 
     public function test_admin_sees_agent_assignment_fields()

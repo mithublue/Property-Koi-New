@@ -19,7 +19,10 @@ class SellPropertyAndProfileTest extends TestCase
 
     public function test_sell_property_page_renders_successfully()
     {
-        $response = $this->get('/sell-property?role=owner');
+        $this->get('/sell-property?role=owner')->assertRedirect(route('login'));
+
+        $user = User::factory()->create();
+        $response = $this->actingAs($user)->get('/sell-property?role=owner');
         $response->assertStatus(200);
         $response->assertSee('প্রপার্টি মালিক মোড');
         $response->assertSee('Smart Auto-Fill');
@@ -189,7 +192,8 @@ class SellPropertyAndProfileTest extends TestCase
             'post_to_facebook'   => '0',
         ];
 
-        $response = $this->postJson(route('property.store'), $payload);
+        $user = User::factory()->create();
+        $response = $this->actingAs($user)->postJson(route('property.store'), $payload);
         $response->assertStatus(200);
         $response->assertJson([
             'success' => true,
@@ -275,8 +279,10 @@ class SellPropertyAndProfileTest extends TestCase
 
     public function test_sell_property_form_and_admin_forms_have_address_visibility_show_by_default()
     {
+        $user = User::factory()->create();
+
         // 1. Frontend form page displays '👁️ শো' as default state for visibility toggles
-        $sellFormRes = $this->get(route('property.create'));
+        $sellFormRes = $this->actingAs($user)->get(route('property.create'));
         $sellFormRes->assertStatus(200);
         $sellFormRes->assertSee('👁️ শো');
 
@@ -292,7 +298,7 @@ class SellPropertyAndProfileTest extends TestCase
             'price_total'   => 12000000,
             'owner_phone'   => '01711223344',
         ];
-        $res = $this->postJson(route('property.store'), $payload);
+        $res = $this->actingAs($user)->postJson(route('property.store'), $payload);
         $res->assertStatus(200);
 
         $saved = Property::where('title', 'টেস্ট ডিফল্ট শো ভিজিবিলিটি প্রপার্টি')->first();
@@ -305,6 +311,8 @@ class SellPropertyAndProfileTest extends TestCase
 
     public function test_property_creation_fails_without_owner_phone()
     {
+        $user = User::factory()->create();
+
         $payload = [
             'property_type' => 'land',
             'title'         => 'ফোন নম্বর ছাড়া প্রপার্টি',
@@ -315,7 +323,7 @@ class SellPropertyAndProfileTest extends TestCase
             // owner_phone is deliberately omitted
         ];
 
-        $res = $this->postJson(route('property.store'), $payload);
+        $res = $this->actingAs($user)->postJson(route('property.store'), $payload);
         $res->assertStatus(422);
         $res->assertJsonValidationErrors(['owner_phone']);
     }

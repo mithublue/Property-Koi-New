@@ -108,13 +108,13 @@ class AuthController extends Controller
             \Illuminate\Support\Facades\Log::error('Activation email sending failed: ' . $e->getMessage());
         }
 
-        // Direct login right into buyer dashboard
+        // Direct login right into buyer dashboard or intended URL
         Auth::login($user, true);
         if ($request->hasSession()) {
             $request->session()->regenerate();
         }
 
-        return redirect()->route('buyer.dashboard')->with('success', 'আপনার অ্যাকাউন্ট সফলভাবে তৈরি হয়েছে! একটি অ্যাক্টিভেশন লিঙ্ক ও ওটিপি কোড আপনার ইমেইলে পাঠানো হয়েছে।');
+        return redirect()->intended(route('buyer.dashboard'))->with('success', 'আপনার অ্যাকাউন্ট সফলভাবে তৈরি হয়েছে! একটি অ্যাক্টিভেশন লিঙ্ক ও ওটিপি কোড আপনার ইমেইলে পাঠানো হয়েছে।');
     }
 
     public function verifyEmail(string $token)

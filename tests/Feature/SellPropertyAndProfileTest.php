@@ -327,4 +327,22 @@ class SellPropertyAndProfileTest extends TestCase
         $res->assertStatus(422);
         $res->assertJsonValidationErrors(['owner_phone']);
     }
+
+    public function test_logged_out_users_do_not_see_post_ad_buttons()
+    {
+        // Guest visiting homepage
+        $guestHome = $this->get(route('home'));
+        $guestHome->assertStatus(200);
+        $guestHome->assertDontSeeText('বিজ্ঞাপন দিন');
+        $guestHome->assertDontSeeText('ফ্রি প্রপার্টি বিজ্ঞাপন দিন');
+        $guestHome->assertDontSeeText('প্রপার্টি পোস্ট করুন (Post Ad)');
+        $guestHome->assertDontSee(route('property.create'));
+
+        // Logged-in user visiting homepage
+        $user = User::factory()->create();
+        $authHome = $this->actingAs($user)->get(route('home'));
+        $authHome->assertStatus(200);
+        $authHome->assertSeeText('বিজ্ঞাপন দিন');
+        $authHome->assertSee(route('property.create'));
+    }
 }

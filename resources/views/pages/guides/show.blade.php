@@ -141,9 +141,11 @@
                     <a href="{{ route('guides.index') }}" class="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-emerald-600 hover:text-emerald-700">
                         &larr; <span>সকল গাইডে ফিরে যান</span>
                     </a>
+                    @auth
                     <a href="{{ route('property.create') }}" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition shadow-xs">
                         <span>বিনামূল্যে আপনার প্রপার্টি বিজ্ঞাপন দিন</span> &rarr;
                     </a>
+                    @endauth
                 </div>
 
             </article>

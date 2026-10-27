@@ -324,10 +324,12 @@
                 </div>
 
                 <!-- Call to Actions -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                <div class="grid grid-cols-1 {{ auth()->check() ? 'sm:grid-cols-2' : '' }} gap-3 pt-2">
+                    @auth
                     <a href="{{ route('property.create') }}" class="py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition flex items-center justify-center gap-2 shadow-xs">
                         <span>📢</span> এই রেঞ্জে প্রপার্টি বিক্রি করুন
                     </a>
+                    @endauth
                     <a href="{{ route('chahida.index') }}" class="py-3 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition flex items-center justify-center gap-2 shadow-xs">
                         <span>🎯</span> এই বাজেটে প্রপার্টি চাহিদা দিন
                     </a>

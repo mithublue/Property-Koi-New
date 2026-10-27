@@ -386,14 +386,17 @@
                         </div>
                     @endauth
 
+                    @auth
                     <a href="{{ route('property.create') }}"
                        class="ml-1 px-4 py-2 rounded-xl text-sm font-bold bg-emerald-600 text-white shadow-md shadow-emerald-600/25 hover:bg-emerald-700 hover:shadow-lg transition-all flex items-center gap-1.5">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                         <span>বিজ্ঞাপন দিন</span>
                     </a>
+                    @endauth
                 </nav>
 
-                <!-- Mobile Right Action (Post ad button on mobile topbar) -->
+                <!-- Mobile Right Action (Post ad button on mobile topbar - Logged-in users only) -->
+                @auth
                 <div class="flex items-center md:hidden">
                     <a href="{{ route('property.create') }}"
                        class="p-2 rounded-xl bg-emerald-600 text-white shadow-xs"
@@ -401,6 +404,7 @@
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                     </a>
                 </div>
+                @endauth
 
             </div>
         </div>
@@ -502,9 +506,11 @@
                     </a>
                 </div>
             @endauth
+            @auth
             <a href="{{ route('property.create') }}" class="block px-4 py-3.5 rounded-xl text-base font-bold bg-emerald-600 text-white text-center shadow-md">
                 ফ্রি প্রপার্টি বিজ্ঞাপন দিন
             </a>
+            @endauth
         </div>
     </header>
 
@@ -617,6 +623,7 @@
                 <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
                 <span>চাহিদা</span>
             </a>
+            @auth
             <a href="{{ route('property.create') }}"
                class="flex flex-col items-center justify-center py-1 rounded-xl text-xs font-semibold text-emerald-600 font-bold">
                 <div class="w-6 h-6 rounded-lg bg-emerald-600 text-white flex items-center justify-center mb-0.5 shadow-sm">
@@ -624,6 +631,15 @@
                 </div>
                 <span>পোস্ট</span>
             </a>
+            @else
+            <a href="{{ route('login') }}"
+               class="flex flex-col items-center justify-center py-1 rounded-xl text-xs font-semibold {{ request()->routeIs('login', 'register') ? 'text-emerald-600 font-bold' : 'text-slate-500 hover:text-slate-900' }}">
+                <div class="w-6 h-6 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center mb-0.5 shadow-2xs">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/></svg>
+                </div>
+                <span>লগইন</span>
+            </a>
+            @endauth
         </div>
     </nav>
 
@@ -664,7 +680,9 @@
                         <li><a href="{{ route('chahida.index') }}" class="text-slate-400 hover:text-emerald-400 transition-colors flex items-center gap-2 group"><span class="text-emerald-500 text-xs transition-transform group-hover:translate-x-1">&rsaquo;</span><span>ক্রেতা চাহিদা জমা দিন (Chahida)</span></a></li>
                         <li><a href="{{ route('buyer.dashboard') }}" class="text-slate-400 hover:text-emerald-400 transition-colors flex items-center gap-2 group"><span class="text-emerald-500 text-xs transition-transform group-hover:translate-x-1">&rsaquo;</span><span>ক্রেতা ড্যাশবোর্ড (Buyer Dashboard)</span></a></li>
                         <li><a href="{{ route('shortlist') }}" class="text-slate-400 hover:text-emerald-400 transition-colors flex items-center gap-2 group"><span class="text-emerald-500 text-xs transition-transform group-hover:translate-x-1">&rsaquo;</span><span>শর্টলিস্ট প্রপার্টি (Shortlist)</span></a></li>
+                        @auth
                         <li><a href="{{ route('property.create') }}" class="text-slate-400 hover:text-emerald-400 transition-colors flex items-center gap-2 group"><span class="text-emerald-500 text-xs transition-transform group-hover:translate-x-1">&rsaquo;</span><span>প্রপার্টি পোস্ট করুন (Post Ad)</span></a></li>
+                        @endauth
                     </ul>
                 </div>
 

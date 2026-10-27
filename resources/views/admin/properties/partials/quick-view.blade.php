@@ -309,6 +309,42 @@
         </div>
     </div>
 
+    <!-- 🔒 Hidden Note & Smart Extracted Tags (Admin Only) -->
+    @if(!empty($p->hidden_note) || !empty($p->hidden_tags))
+        <div class="bg-amber-50/70 rounded-2xl border-2 border-amber-300 p-4 space-y-3 shadow-xs">
+            <div class="flex items-center justify-between border-b border-amber-200 pb-2">
+                <span class="font-extrabold text-amber-950 text-xs flex items-center gap-1.5">
+                    <span class="text-base">🔒</span> গোপন নোট ও ট্যাগ (Hidden Note - শুধুমাত্র অ্যাডমিনদের জন্য)
+                </span>
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-200 text-amber-900">
+                    গোপন / Never Public
+                </span>
+            </div>
+
+            @if(!empty($p->hidden_tags) && is_array($p->hidden_tags))
+                <div class="space-y-1">
+                    <span class="text-[10px] font-bold text-amber-800 uppercase tracking-wider block">এক্সট্রাক্টেড স্মার্ট কিওয়ার্ড / ট্যাগ:</span>
+                    <div class="flex flex-wrap gap-1.5">
+                        @foreach($p->hidden_tags as $tag)
+                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-amber-100 border border-amber-300 text-amber-900 text-[11px] font-bold shadow-2xs">
+                                <span>🏷️</span> {{ $tag }}
+                            </span>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+
+            @if(!empty($p->hidden_note))
+                <div class="space-y-1">
+                    <span class="text-[10px] font-bold text-amber-800 uppercase tracking-wider block">নোটের মূল টেক্সট:</span>
+                    <div class="text-xs text-slate-800 leading-relaxed whitespace-pre-line bg-white/90 p-3 rounded-xl border border-amber-200 font-sans">
+                        {{ $p->hidden_note }}
+                    </div>
+                </div>
+            @endif
+        </div>
+    @endif
+
     <!-- Custom Fields / Mouza / Registry Details -->
     @if(!empty($p->custom_fields) && is_array($p->custom_fields) && count($p->custom_fields) > 0)
         <div class="bg-white rounded-2xl border border-slate-200 p-4 space-y-3">

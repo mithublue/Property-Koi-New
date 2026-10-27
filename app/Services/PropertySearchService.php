@@ -688,4 +688,89 @@ class PropertySearchService
             }
         });
     }
+
+    /**
+     * Smart keyword & tag extraction from hidden admin notes.
+     *
+     * @param string|null $note
+     * @return array
+     */
+    public static function extractKeywordsFromNote(?string $note): array
+    {
+        if (empty($note)) {
+            return [];
+        }
+
+        // Normalize Bengali composite characters (nukta vs dedicated letters)
+        $note = str_replace(
+            ["\xE0\xA6\xAF\xE0\xA6\xBC", "\xE0\xA6\xA1\xE0\xA6\xBC", "\xE0\xA6\xA2\xE0\xA6\xBC"],
+            ['য়', 'ড়', 'ঢ়'],
+            $note
+        );
+        if (class_exists(\Normalizer::class)) {
+            $note = \Normalizer::normalize($note, \Normalizer::FORM_C);
+        }
+
+        $tags = [];
+
+        // 1. Extract explicit hashtags (e.g. #urgent, #জরুরী_বিক্রয়, #corner)
+        if (preg_match_all('/#([a-zA-Z0-9_\x{0980}-\x{09FF}]+)/u', $note, $matches)) {
+            foreach ($matches[1] as $ht) {
+                $cleanHt = str_replace('_', ' ', trim($ht));
+                if (mb_strlen($cleanHt) >= 2) {
+                    $tags[] = $cleanHt;
+                }
+            }
+        }
+
+        // 2. High-value Bangladesh real estate domain key phrases
+        $domainPatterns = [
+            'জরুরী বিক্রয়'      => ['জরুরী বিক্রয়', 'জরুরী বিক্রি', 'জরুরি বিক্রয়', 'জরুরি বিক্রি', 'urgent sale', 'urgent sell', 'distress sale', 'কম দাম'],
+            'মালিক বিদেশে'      => ['মালিক বিদেশে', 'প্রবাসী মালিক', 'মালিক ইউকে', 'মালিক আমেরিকা', 'মালিক কানাডা', 'owner abroad'],
+            'পাওয়ার অব এটর্নি'   => ['পাওয়ার অব অ্যাটর্নি', 'পাওয়ার অব এটর্নি', 'পাওয়ার অফ এটর্নি', 'power of attorney', 'আমমোক্তার'],
+            'নামজারি সম্পন্ন'     => ['নামজারি শেষ', 'নামজারি সম্পন্ন', 'নামজারি ও খাজনা', 'খারিজ শেষ', 'খারিজ সম্পন্ন', 'mutation done', 'mutation ok'],
+            'খাজনা হালনাগাদ'    => ['খাজনা হালনাগাদ', 'খাজনা পরিশোধ', 'খাজনা ক্লিয়ার', 'খাজনা ক্লিয়ার', 'tax updated'],
+            'বায়া দলিল ক্লিয়ার' => ['বায়া দলিল ক্লিয়ার', 'বায়া দলিল ক্লিয়ার', 'বায়া দলিল ওকে', 'বায়া দলিল আছে', 'বায়া দলিল', 'baya dolil'],
+            'রাজউক অনুমোদন'    => ['রাজউক অনুমোদন', 'রাজউক প্ল্যান', 'রাজউক পাশ', 'rajuk approved'],
+            'ব্যাংক লোন সুবিধা'   => ['ব্যাংক লোন সম্ভব', 'ব্যাংক লোন সুবিধা', 'লোন সুবিধা', 'লোন সম্ভব', 'bank loan available'],
+            'সীমানা প্রাচীর'     => ['বাউন্ডারি ওয়াল', 'বাউন্ডারি ওয়াল', 'বাউন্ডারি করা', 'সীমানা প্রাচীর', 'boundary wall done', 'boundary done'],
+            'নিষ্কণ্টক জমি'      => ['নিষ্কণ্টক', 'ঝামেলামুক্ত', 'dispute free', 'clear title'],
+            'মেইন রোড সংলগ্ন'     => ['মেইন রোড সংলগ্ন', 'মেইন রোডে', 'প্রধান সড়ক', 'main road'],
+            'কর্নার প্লট'       => ['কর্নার প্লট', 'কোনার প্লট', 'corner plot', 'corner'],
+            'লেক ভিউ'           => ['লেক ভিউ', 'লেক ফেসিং', 'লেক পার', 'লেক সংলগ্ন', 'lake view', 'lake facing'],
+            'পার্ক সংলগ্ন'       => ['পার্কের কাছে', 'পার্ক সংলগ্ন', 'পার্ক ভিউ', 'park facing'],
+            'মসজিদের কাছে'      => ['মসজিদের কাছে', 'মসজিদ সংলগ্ন', 'near mosque'],
+            'দাম ফিক্সড'        => ['দাম ফিক্সড', 'ফিক্সড প্রাইজ', 'ফিক্সড দাম', 'fixed price', 'non negotiable'],
+            'আলোচনা সাপেক্ষে'   => ['আলোচনা সাপেক্ষে', 'দাম আলোচনা', 'negotiable'],
+            'নগদ টাকা প্রয়োজন'   => ['নগদ টাকা লাগবে', 'ক্যাশ পেমেন্ট', 'cash payment', 'cash only'],
+            'ডাইরেক্ট ওনার'      => ['ডাইরেক্ট ওনার', 'সরাসরি মালিক', 'direct owner'],
+            'ওয়ারিশান সম্পত্তি'  => ['ওয়ারিশান', 'ওয়ারিশ সনদ', 'ওয়ারিশ সূত্রে'],
+        ];
+
+        foreach ($domainPatterns as $canonicalTag => $aliases) {
+            foreach ($aliases as $alias) {
+                if (mb_stripos($note, $alias) !== false) {
+                    $tags[] = $canonicalTag;
+                    break;
+                }
+            }
+        }
+
+        // 3. Extract itemized bullets or comma/newline-separated short points
+        $lines = preg_split('/[\r\n\t,;•|●\-\*]+/u', $note, -1, PREG_SPLIT_NO_EMPTY);
+        foreach ($lines as $line) {
+            $line = trim($line, " \t\n\r\0\x0B\"'()[]{}.,;:!?#-");
+            $wordCount = count(preg_split('/\s+/u', $line, -1, PREG_SPLIT_NO_EMPTY));
+            if ($wordCount >= 2 && $wordCount <= 5 && mb_strlen($line) <= 40) {
+                if (!preg_match('/(?:কথা|বলল|বলবেন|হবে|করবেন|আছেন|যাবেন|দেখা|হয়েছে)/u', $line)) {
+                    $tags[] = $line;
+                }
+            }
+        }
+
+        // Deduplicate and filter
+        $tags = array_values(array_unique(array_filter($tags, fn($t) => mb_strlen(trim($t)) >= 2)));
+
+        return array_slice($tags, 0, 10);
+    }
 }

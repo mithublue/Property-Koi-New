@@ -501,6 +501,9 @@ class PropertyController extends Controller
         $assignedAgent = $this->resolveAgentForProperty($request, $isAdmin);
         $creatorId = $assignedAgent ? $assignedAgent->id : auth()->id();
 
+        $hiddenNote = ($isAdmin && $request->filled('hidden_note')) ? $request->input('hidden_note') : null;
+        $hiddenTags = ($isAdmin && !empty($hiddenNote)) ? PropertySearchService::extractKeywordsFromNote($hiddenNote) : null;
+
         $property = Property::create([
             'property_code'      => $code,
             'type'               => $type,
@@ -524,6 +527,8 @@ class PropertyController extends Controller
             'longitude'          => $validated['longitude'] ?? null,
             'other_features'     => $otherFeatures,
             'custom_fields'      => $cleanCustomFields,
+            'hidden_note'        => $hiddenNote,
+            'hidden_tags'        => $hiddenTags,
             'status'             => $propertyStatus,
             'created_by_user_id' => $creatorId,
         ]);
@@ -941,6 +946,11 @@ class PropertyController extends Controller
         ];
         if ($assignedAgent) {
             $updatePayload['created_by_user_id'] = $assignedAgent->id;
+        }
+        if ($isAdmin && $request->has('hidden_note')) {
+            $hiddenNote = $request->input('hidden_note');
+            $updatePayload['hidden_note'] = $hiddenNote;
+            $updatePayload['hidden_tags'] = PropertySearchService::extractKeywordsFromNote($hiddenNote);
         }
         $property->update($updatePayload);
 

@@ -219,17 +219,28 @@ class PropertyController extends Controller
     {
         $query = Property::with(['media', 'creator', 'verification', 'directSources', 'landDetail', 'flatDetail', 'commercialDetail', 'shareDetail']);
 
-        $filterCode   = trim((string) ($request->input('property_code') ?: $request->input('search', '')));
-        $filterType   = trim((string) ($request->input('type') ?: ''));
-        $filterArea   = trim((string) ($request->input('area') ?: ''));
-        $filterStatus = trim((string) ($request->input('status') ?: ''));
+        $filterCode     = trim((string) ($request->input('property_code') ?: $request->input('search', '')));
+        $filterKeyword  = trim((string) $request->input('keyword', ''));
+        $filterNote     = trim((string) $request->input('note', ''));
+        $filterArea     = trim((string) ($request->input('area') ?: ''));
 
-        if (!empty($filterStatus) && $filterStatus !== 'all') {
-            if ($filterStatus === 'pending') {
-                $query->whereIn('status', ['pending', 'pending_verification']);
-            } else {
-                $query->where('status', $filterStatus);
+        // Multiselect Types: supports array (types[] or type[]) and comma-separated string
+        $rawTypes = $request->input('types', $request->input('type', []));
+        $filterTypes = is_array($rawTypes) ? $rawTypes : explode(',', (string)$rawTypes);
+        $filterTypes = array_values(array_filter(array_map('trim', $filterTypes), fn($t) => !empty($t) && $t !== 'all'));
+
+        // Multiselect Statuses: supports array (statuses[] or status[]) and comma-separated string
+        $rawStatuses = $request->input('statuses', $request->input('status', []));
+        $filterStatuses = is_array($rawStatuses) ? $rawStatuses : explode(',', (string)$rawStatuses);
+        $filterStatuses = array_values(array_filter(array_map('trim', $filterStatuses), fn($s) => !empty($s) && $s !== 'all'));
+
+        // Status Filter
+        if (!empty($filterStatuses)) {
+            $expandedStatuses = $filterStatuses;
+            if (in_array('pending', $expandedStatuses, true) && !in_array('pending_verification', $expandedStatuses, true)) {
+                $expandedStatuses[] = 'pending_verification';
             }
+            $query->whereIn('status', $expandedStatuses);
         } else {
             // Default directory scope: draft / non-live
             $query->where(function ($q) {
@@ -238,18 +249,38 @@ class PropertyController extends Controller
             });
         }
 
+        // Type Filter
+        if (!empty($filterTypes)) {
+            $query->whereIn('type', $filterTypes);
+        }
+
+        // Area Filter
+        if (!empty($filterArea) && $filterArea !== 'all') {
+            PropertySearchService::applyAreaFilter($query, $filterArea);
+        }
+
+        // Main Property Search (bilingual)
         if ($request->filled('property_code')) {
             $query->where('property_code', 'like', "%{$filterCode}%");
         } elseif ($request->filled('search')) {
             PropertySearchService::applySearchQuery($query, $filterCode, true);
         }
 
-        if (!empty($filterType) && $filterType !== 'all') {
-            $query->where('type', $filterType);
+        // Dedicated Keyword / Tag search
+        if (!empty($filterKeyword)) {
+            $escaped = trim(json_encode($filterKeyword, JSON_UNESCAPED_SLASHES), '"');
+            $query->where(function ($q) use ($filterKeyword, $escaped) {
+                $q->where('hidden_tags', 'like', "%{$filterKeyword}%")
+                  ->orWhere('hidden_tags', 'like', "%{$escaped}%")
+                  ->orWhere('other_features', 'like', "%{$filterKeyword}%")
+                  ->orWhere('custom_fields', 'like', "%{$filterKeyword}%")
+                  ->orWhere('custom_fields', 'like', "%{$escaped}%");
+            });
         }
 
-        if (!empty($filterArea) && $filterArea !== 'all') {
-            PropertySearchService::applyAreaFilter($query, $filterArea);
+        // Dedicated Hidden Note text search
+        if (!empty($filterNote)) {
+            $query->where('hidden_note', 'like', "%{$filterNote}%");
         }
 
         $properties = $query->latest()->paginate(15)->withQueryString();
@@ -266,7 +297,42 @@ class PropertyController extends Controller
             'share'         => Property::where('type', 'land_share')->where('status', '!=', 'live')->count(),
         ];
 
-        return view('admin.properties.directory', compact('properties', 'stats', 'filterCode', 'filterType', 'filterArea', 'filterStatus'));
+        $filterType = implode(',', $filterTypes);
+        $filterStatus = implode(',', $filterStatuses);
+
+        return view('admin.properties.directory', compact(
+            'properties',
+            'stats',
+            'filterCode',
+            'filterKeyword',
+            'filterNote',
+            'filterTypes',
+            'filterStatuses',
+            'filterType',
+            'filterStatus',
+            'filterArea'
+        ));
+    }
+
+    public function updateHiddenNote(Request $request, Property $property)
+    {
+        $note = $request->input('hidden_note');
+        $tags = PropertySearchService::extractKeywordsFromNote($note);
+
+        $property->hidden_note = $note;
+        $property->hidden_tags = $tags;
+        $property->save();
+
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'success'     => true,
+                'message'     => 'গোপন নোট সফলভাবে সংরক্ষিত হয়েছে।',
+                'hidden_note' => $property->hidden_note,
+                'hidden_tags' => $property->hidden_tags ?: [],
+            ]);
+        }
+
+        return back()->with('success', 'গোপন নোট ও কিওয়ার্ড সফলভাবে সংরক্ষিত হয়েছে।');
     }
 
     public function quickView(Property $property)
@@ -346,6 +412,13 @@ class PropertyController extends Controller
                 'holding_number' => true,
             ]),
         ]));
+
+        if ($request->has('hidden_note')) {
+            $hiddenNote = $request->input('hidden_note');
+            $property->hidden_note = $hiddenNote;
+            $property->hidden_tags = PropertySearchService::extractKeywordsFromNote($hiddenNote);
+            $property->save();
+        }
 
         // Initialize verification record
         PropertyVerification::create([
@@ -521,6 +594,13 @@ class PropertyController extends Controller
                 'holding_number' => true,
             ]),
         ]));
+
+        if ($request->has('hidden_note')) {
+            $hiddenNote = $request->input('hidden_note');
+            $property->hidden_note = $hiddenNote;
+            $property->hidden_tags = PropertySearchService::extractKeywordsFromNote($hiddenNote);
+            $property->save();
+        }
 
         $this->saveTypeDetails($property, $request);
 

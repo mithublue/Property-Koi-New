@@ -148,6 +148,7 @@ class SheetImporterController extends Controller
                 'asking_price'    => 'মূল্য / দাম (Price - 95 lac, 1.25 cr ইত্যাদি স্মার্ট পার্সিং)',
                 'price_per_unit'  => 'প্রতি ইউনিট মূল্য (Price Per Unit)',
                 'is_negotiable'   => 'দাম আলোচনা সাপেক্ষ (Negotiable: yes/no)',
+                'hidden_note'     => '🔒 গোপন নোট (Hidden Note - শুধুমাত্র অভ্যন্তরীণ ভল্টের জন্য, পাবলিক হবে না)',
                 'description'     => 'বিস্তারিত বিবরণ (Description)',
             ],
             'প্লট ও ফ্ল্যাটের স্পেসিফিকেশন' => [
@@ -697,6 +698,8 @@ class SheetImporterController extends Controller
                         } else {
                             $data['status'] = $defaultStatus;
                         }
+                    } elseif ($target === 'hidden_note') {
+                        $data['hidden_note'] = $rawVal;
                     } elseif ($target === 'parse_extra') {
                         $data['raw_extra'] = $rawVal;
                         self::parseExtraIntoCustomFields($rawVal, $data);
@@ -758,6 +761,12 @@ class SheetImporterController extends Controller
                         'custom_fields'  => $mergedCustomFields,
                     ]);
 
+                    if (!empty($data['hidden_note'])) {
+                        $existingProperty->hidden_note = $data['hidden_note'];
+                        $existingProperty->hidden_tags = \App\Services\PropertySearchService::extractKeywordsFromNote($data['hidden_note']);
+                        $existingProperty->save();
+                    }
+
                     self::updateSubDetails($existingProperty, $data);
                     self::updateDirectSource($existingProperty, $data);
 
@@ -784,6 +793,8 @@ class SheetImporterController extends Controller
                         'description'        => $data['description'] ?: $data['raw_extra'],
                         'status'             => $data['status'] ?: $defaultStatus,
                         'custom_fields'      => $data['custom_fields'],
+                        'hidden_note'        => $data['hidden_note'] ?? null,
+                        'hidden_tags'        => !empty($data['hidden_note']) ? \App\Services\PropertySearchService::extractKeywordsFromNote($data['hidden_note']) : null,
                         'created_by_user_id' => auth()->id(),
                     ]);
 

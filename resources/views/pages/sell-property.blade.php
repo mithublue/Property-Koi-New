@@ -325,6 +325,25 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Admin Only: Hidden Note & Smart Keyword Tags -->
+                    <div class="bg-amber-50/70 p-4 rounded-2xl border-2 border-amber-300/80 shadow-xs space-y-2">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <span class="inline-flex items-center gap-1 text-[11px] bg-amber-700 text-white font-bold px-2.5 py-0.5 rounded-full tracking-wide">
+                                    🔒 শুধু অ্যাডমিন
+                                </span>
+                                <span class="font-bold text-amber-950 text-xs">গোপন নোট (Hidden Note - কখনই পাবলিশ হবে না)</span>
+                            </div>
+                            <span class="text-[10px] font-bold text-amber-800 bg-amber-200/90 px-2 py-0.5 rounded-full">
+                                পাবলিকলি সম্পূর্ণ অপ্রকাশিত থাকবে
+                            </span>
+                        </div>
+                        <p class="text-[11px] text-amber-800 m-0">এখানে প্রপার্টির অভ্যন্তরীণ গোপন তথ্য, মালিকের একান্ত শর্ত, জরুরি মূল্য বা আইনি বিষয় লিখুন। সিস্টেম স্বয়ংক্রিয়ভাবে গুরুত্বপূর্ণ বিষয়গুলো কিওয়ার্ড ট্যাগ হিসেবে আলাদা করবে।</p>
+                        <textarea x-model="formData.hidden_note" rows="3"
+                            placeholder="যেমন: মালিক বিদেশে থাকেন, ১ কোটি ২০ লাখ ফিক্সড প্রাইস, বায়া দলিল ওকে, নামজারি সম্পন্ন, দ্রুত টাকা দরকার..."
+                            class="w-full border border-amber-300 rounded-xl p-3 text-xs bg-white text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-500 font-sans"></textarea>
+                    </div>
                 @endif
 
                 <!-- Owner Info -->
@@ -1476,6 +1495,7 @@
                         road_width_ft: @json(isset($property) ? ($property->road_width_ft ?: 25) : 25),
                         plot_number: @json(isset($property) ? ($property->plot_number ?: '') : ''),
                         holding_number: @json(isset($property) ? ($property->holding_number ?: '') : ''),
+                        hidden_note: @json(isset($property) ? ($property->hidden_note ?: '') : ''),
                         address_visibility: {!! json_encode(isset($property) && is_array($property->address_visibility) ? $property->address_visibility : [
                             'block' => true,
                             'sector' => true,
@@ -2140,6 +2160,7 @@
                             data.append('agent_id', self.selectedAgentId || '');
                             data.append('agent_name', self.agentSearch || '');
                             data.append('agent_whatsapp', self.agentWhatsapp || '');
+                            data.append('hidden_note', self.formData.hidden_note || '');
                         }
 
                         var cleanCustomFields = [];

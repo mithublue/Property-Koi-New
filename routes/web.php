@@ -233,6 +233,7 @@ Route::prefix('backend')->name('admin.')->middleware('admin.access')->group(func
     Route::post('/properties/{property}/unpublish', [AdminPropertyController::class, 'unpublishToDirectory'])->name('properties.unpublish');
     Route::post('/properties/auto-assign', [AdminPropertyController::class, 'autoAssignInserters'])->name('properties.auto-assign');
     Route::post('/properties/{property}/fb-post', [AdminPropertyController::class, 'postToFacebook'])->name('properties.fb-post');
+    Route::post('/properties/{property}/hidden-note', [AdminPropertyController::class, 'updateHiddenNote'])->name('properties.hidden-note');
 
     // 2.1 Property Guides & Articles Management
     Route::resource('guides', AdminGuideController::class)->except(['show']);

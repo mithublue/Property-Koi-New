@@ -50,11 +50,21 @@
             <button type="button" @click="switchTab('property')"
                     :class="activeTab === 'property' ? 'bg-emerald-600 text-white shadow-md font-bold' : 'bg-slate-50 text-slate-700 hover:bg-slate-100 font-semibold'"
                     class="flex-1 sm:flex-none px-5 py-3 rounded-xl text-xs sm:text-sm transition flex items-center justify-center gap-2.5 cursor-pointer">
-                <span class="text-base">🏠</span>
-                <span>প্রপার্টি ইমপোর্টার (Properties)</span>
+                <span class="text-base">🏞️</span>
+                <span>জমি ও প্লট ইমপোর্টার (Plots)</span>
                 <span class="text-[11px] px-2 py-0.5 rounded-full"
                       :class="activeTab === 'property' ? 'bg-emerald-700 text-white' : 'bg-slate-200 text-slate-700'"
                       x-text="getTabPresetsCount('property') + ' প্রিসেট'"></span>
+            </button>
+
+            <button type="button" @click="switchTab('flat')"
+                    :class="activeTab === 'flat' ? 'bg-emerald-600 text-white shadow-md font-bold' : 'bg-slate-50 text-slate-700 hover:bg-slate-100 font-semibold'"
+                    class="flex-1 sm:flex-none px-5 py-3 rounded-xl text-xs sm:text-sm transition flex items-center justify-center gap-2.5 cursor-pointer">
+                <span class="text-base">🏢</span>
+                <span>ফ্ল্যাট ও অ্যাপার্টমেন্ট ইমপোর্টার (Flats)</span>
+                <span class="text-[11px] px-2 py-0.5 rounded-full"
+                      :class="activeTab === 'flat' ? 'bg-emerald-700 text-white' : 'bg-slate-200 text-slate-700'"
+                      x-text="getTabPresetsCount('flat') + ' প্রিসেট'"></span>
             </button>
 
             <button type="button" @click="switchTab('agent')"
@@ -243,6 +253,20 @@
                                     </select>
                                 </template>
 
+                                <!-- Flat Target Fields -->
+                                <template x-if="activeTab === 'flat'">
+                                    <select x-model="mappings[col]" @change="onFieldChange(col)" class="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900 font-medium focus:outline-none focus:border-emerald-500">
+                                        <option value="_skip">✕ এই কলামটি বাদ দিন (Ignore / Skip)</option>
+                                        @foreach($flatTargetFields as $groupLabel => $fields)
+                                            <optgroup label="{{ $groupLabel }}">
+                                                @foreach($fields as $fKey => $fLabel)
+                                                    <option value="{{ $fKey }}">{{ $fLabel }}</option>
+                                                @endforeach
+                                            </optgroup>
+                                        @endforeach
+                                    </select>
+                                </template>
+
                                 <!-- Agent Target Fields -->
                                 <template x-if="activeTab === 'agent'">
                                     <select x-model="mappings[col]" @change="onFieldChange(col)" class="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900 font-medium focus:outline-none focus:border-emerald-500">
@@ -290,13 +314,27 @@
         <template x-if="activeTab === 'property'">
             <div class="bg-indigo-50/70 border border-indigo-200 rounded-xl p-3.5 text-indigo-950 text-xs space-y-1.5">
                 <div class="font-bold flex items-center gap-1.5 text-indigo-900">
-                    <span>🧠</span> প্রপার্টি স্মার্ট ইন্টেলিজেন্ট পার্সার রুলস:
+                    <span>🧠</span> জমি ও প্লট স্মার্ট ইন্টেলিজেন্ট পার্সার রুলস:
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-[11px]">
                     <div>• <strong>Extra কলাম:</strong> মৌজা, CS/RS/SA দাগ, হস্তান্তর কাস্টম ফিল্ডে সেভ হবে।</div>
                     <div>• <strong>গাণিতিক সাইজ:</strong> <code class="bg-white px-1 rounded text-indigo-800">2.5+2.5</code> যোগ হয়ে ৫ কাঠা সেভ হবে।</div>
                     <div>• <strong>মূল্য রূপান্তর:</strong> <code class="bg-white px-1 rounded text-indigo-800">95 lac</code> বা <code class="bg-white px-1 rounded text-indigo-800">1.25 cr</code> পূর্ণ টাকায় সেভ হবে।</div>
                     <div>• <strong>সোর্স ও এজেন্ট:</strong> এজেন্ট কন্টাক্ট ডিরেক্ট সোর্স হিসেবে অটো-লিংক হবে।</div>
+                </div>
+            </div>
+        </template>
+
+        <template x-if="activeTab === 'flat'">
+            <div class="bg-blue-50/70 border border-blue-200 rounded-xl p-3.5 text-blue-950 text-xs space-y-1.5">
+                <div class="font-bold flex items-center gap-1.5 text-blue-900">
+                    <span>🏢</span> ফ্ল্যাট ও অ্যাপার্টমেন্ট স্মার্ট পার্সার রুলস:
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-[11px]">
+                    <div>• <strong>সাইজ ও ফ্লোর:</strong> <code class="bg-white px-1 rounded text-blue-800">1350 sqft</code>, <code class="bg-white px-1 rounded text-blue-800">4th floor</code> স্বয়ংক্রিয়ভাবে পার্স হয়ে সেভ হবে।</div>
+                    <div>• <strong>বেড, বাথ ও বারান্দা:</strong> কলাম থেকে সংখ্যা (<code class="bg-white px-1 rounded text-blue-800">3 Bed</code>, <code class="bg-white px-1 rounded text-blue-800">2 Bath</code>) সরাসরি ফ্ল্যাট ডিটেইলসে যাবে।</div>
+                    <div>• <strong>সুযোগ-সুবিধা:</strong> লিফট, জেনারেটর, গ্যাস ও কার পার্কিং সুবিধা <code class="bg-white px-1 rounded text-blue-800">Yes / No</code> হিসেবে সংরক্ষিত হবে।</div>
+                    <div>• <strong>ভল্ট ও গোপন নোট:</strong> ডিফল্টভাবে ড্রাফট স্ট্যাটাসে প্রপার্টি ভল্টে সংরক্ষিত হবে এবং গোপন নোট শুধুমাত্র ব্যাকএন্ডেই থাকবে।</div>
                 </div>
             </div>
         </template>
@@ -437,6 +475,62 @@
                     <input type="text" x-model="defaultArea" placeholder="যেমন: Aftabnagar, Bashundhara"
                            class="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-2 text-xs font-medium text-slate-900 focus:outline-none focus:border-emerald-500">
                     <div class="text-[11px] text-slate-500">শিটের সারিতে এরিয়া ফাঁকা থাকলে এটি ব্যবহার হবে।</div>
+                </div>
+            </div>
+        </template>
+
+        <!-- Flat Specific Options -->
+        <template x-if="activeTab === 'flat'">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="space-y-1.5 bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                    <label class="block text-xs font-bold text-slate-800 uppercase">১. ডিফল্ট স্ট্যাটাস (Status)</label>
+                    <select x-model="defaultStatus" class="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-2 text-xs font-bold text-slate-900 focus:outline-none focus:border-emerald-500">
+                        <option value="draft">⚪ Draft (ড্রাফট / প্রাইভেট ভল্ট)</option>
+                        <option value="live">🟢 Live (সরাসরি পাবলিক ক্যাটালগ)</option>
+                        <option value="pending">🟡 Pending (পেন্ডিং যাচাই)</option>
+                        <option value="sold">⚫ Sold (বিক্রিত)</option>
+                        <option value="booked">🔵 Booked (বুকড)</option>
+                    </select>
+                    <div class="text-[11px] text-slate-500">
+                        শিটে স্ট্যাটাস না থাকলে এই স্ট্যাটাসে সেভ হবে। (ড্রাফট রাখলে অভ্যন্তরীণ ভল্টে থাকবে)।
+                    </div>
+                </div>
+
+                <div class="space-y-1.5 bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                    <label class="block text-xs font-bold text-slate-800 uppercase">২. ডুপ্লিকেট হ্যান্ডলিং (Duplicates)</label>
+                    <div class="space-y-2 pt-1 text-xs">
+                        <label class="flex items-start gap-2 cursor-pointer">
+                            <input type="radio" name="duplicate_mode_flat" value="skip" x-model="duplicateMode" class="mt-0.5 text-emerald-600 focus:ring-emerald-500">
+                            <div>
+                                <span class="font-bold text-slate-900">🛡️ ডুপ্লিকেট বাদ দিন (Skip)</span>
+                                <div class="text-[11px] text-slate-500">একই বিল্ডিং, ফ্লোর ও সাইজের ফ্ল্যাট থাকলে স্কিপ করবে।</div>
+                            </div>
+                        </label>
+                        <label class="flex items-start gap-2 cursor-pointer">
+                            <input type="radio" name="duplicate_mode_flat" value="update" x-model="duplicateMode" class="mt-0.5 text-emerald-600 focus:ring-emerald-500">
+                            <div>
+                                <span class="font-bold text-indigo-700">🔄 আপডেট / রিপ্লেস করুন</span>
+                                <div class="text-[11px] text-slate-500">বিদ্যমান ফ্ল্যাট পেলে নতুন তথ্য দিয়ে আপডেট করবে।</div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="space-y-1.5 bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                    <label class="block text-xs font-bold text-slate-800 uppercase">৩. ডিফল্ট এরিয়া / এলাকা</label>
+                    <input type="text" x-model="defaultArea" placeholder="যেমন: Aftabnagar, Bashundhara"
+                           class="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-2 text-xs font-medium text-slate-900 focus:outline-none focus:border-emerald-500">
+                    <div class="text-[11px] text-slate-500">শিটের সারিতে এরিয়া ফাঁকা থাকলে এটি ব্যবহার হবে।</div>
+                </div>
+
+                <div class="space-y-1.5 bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                    <label class="block text-xs font-bold text-slate-800 uppercase">৪. নির্মাণ / হস্তান্তর অবস্থা</label>
+                    <select x-model="flatDefaultCompletion" class="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-2 text-xs font-medium text-slate-900 focus:outline-none focus:border-emerald-500">
+                        <option value="ready">🏢 রেডি ফ্ল্যাট (Ready)</option>
+                        <option value="under_construction">🏗️ নির্মাণাধীন (Under Construction)</option>
+                        <option value="almost_ready">⏳ প্রায় রেডি (Almost Ready)</option>
+                    </select>
+                    <div class="text-[11px] text-slate-500">শিটে কনস্ট্রাকশন স্ট্যাটাস কলাম না থাকলে প্রযোজ্য হবে।</div>
                 </div>
             </div>
         </template>
@@ -639,6 +733,17 @@
                 </div>
             </template>
 
+            <template x-if="activeTab === 'flat'">
+                <div class="flex items-center gap-3">
+                    <a href="{{ route('admin.properties.directory', ['types' => ['flat']]) }}" class="px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs rounded-xl shadow-md transition flex items-center gap-1.5">
+                        <span>🗄️</span> প্রাইভেট ভল্ট (ফ্ল্যাট) দেখুন
+                    </a>
+                    <a href="{{ route('admin.properties.index', ['type' => 'flat']) }}" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-md transition flex items-center gap-1.5">
+                        <span>🏠</span> পাবলিক ক্যাটালগ দেখুন
+                    </a>
+                </div>
+            </template>
+
             <template x-if="activeTab === 'agent'">
                 <div class="flex items-center gap-3">
                     <a href="{{ route('admin.agents.index') }}" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow-md transition flex items-center gap-1.5">
@@ -682,6 +787,9 @@ function sheetImporterApp() {
         defaultType: 'land',
         defaultArea: 'Aftabnagar',
 
+        // Flat options
+        flatDefaultCompletion: 'ready',
+
         // Agent options
         agentDefaultRole: 'agent',
         agentDefaultRating: 5.0,
@@ -705,9 +813,10 @@ function sheetImporterApp() {
         },
 
         activeTabLabel() {
+            if (this.activeTab === 'flat') return 'ফ্ল্যাট ও অ্যাপার্টমেন্ট ইমপোর্ট';
             if (this.activeTab === 'agent') return 'এজেন্ট ও মালিক ইমপোর্ট';
             if (this.activeTab === 'buyer') return 'বায়ার ও চাহিদা ইমপোর্ট';
-            return 'প্রপার্টি ইমপোর্ট';
+            return 'জমি ও প্লট ইমপোর্ট';
         },
 
         getTabPresetsCount(tab) {
@@ -756,6 +865,11 @@ function sheetImporterApp() {
                     this.destination = this.defaultStatus === 'live' ? 'live' : 'draft';
                     this.defaultType = preset.options.default_type || 'land';
                     this.defaultArea = preset.options.default_area || 'Aftabnagar';
+                } else if (this.activeTab === 'flat') {
+                    this.defaultStatus = preset.options.default_status || preset.options.destination || 'draft';
+                    this.destination = this.defaultStatus === 'live' ? 'live' : 'draft';
+                    this.defaultArea = preset.options.default_area || 'Aftabnagar';
+                    this.flatDefaultCompletion = preset.options.default_completion_status || 'ready';
                 } else if (this.activeTab === 'agent') {
                     this.agentDefaultRole = preset.options.default_role || 'agent';
                     this.agentDefaultRating = preset.options.default_rating || 5.0;
@@ -887,6 +1001,30 @@ function sheetImporterApp() {
                     else if (lower.includes('extra') || lower.includes('details')) this.mappings[col] = 'parse_extra';
                     else if (lower.includes('time') || lower.includes('line')) { this.mappings[col] = 'custom_field'; this.customFieldKeys[col] = 'হস্তান্তর সময়সীমা'; }
                     else if (lower.includes('messenger')) { this.mappings[col] = 'custom_field'; this.customFieldKeys[col] = 'মেসেঞ্জার লিংক'; }
+                } else if (this.activeTab === 'flat') {
+                    if (lower.includes('project') || lower.includes('ভবন') || lower.includes('প্রজেক্ট') || lower.includes('building')) this.mappings[col] = 'project_name';
+                    else if (lower.includes('dev') || lower.includes('কোম্পানি') || lower.includes('developer')) this.mappings[col] = 'developer_name';
+                    else if (lower.includes('place') || lower.includes('area') || lower.includes('এলাকা') || lower.includes('location')) this.mappings[col] = 'area';
+                    else if (lower.includes('block') || lower.includes('ব্লক')) this.mappings[col] = 'block';
+                    else if (lower.includes('sector') || lower.includes('সেক্টর')) this.mappings[col] = 'sector';
+                    else if (lower.includes('road') || lower.includes('রাস্তা')) this.mappings[col] = 'road_number';
+                    else if (lower.includes('plot') || lower.includes('holding') || lower.includes('হোল্ডিং')) this.mappings[col] = 'plot_number';
+                    else if (lower.includes('sqft') || lower.includes('size') || lower.includes('সাইজ')) this.mappings[col] = 'flat_size_sqft';
+                    else if (lower.includes('floor') || lower.includes('তলা') || lower.includes('ফ্লোর')) this.mappings[col] = 'floor_number';
+                    else if (lower.includes('bed') || lower.includes('বেড')) this.mappings[col] = 'bedrooms';
+                    else if (lower.includes('bath') || lower.includes('বাথ')) this.mappings[col] = 'bathrooms';
+                    else if (lower.includes('balcony') || lower.includes('বারান্দা')) this.mappings[col] = 'balconies';
+                    else if (lower.includes('facing') || lower.includes('দিক')) this.mappings[col] = 'facing';
+                    else if (lower.includes('parking') || lower.includes('গ্যারেজ') || lower.includes('পার্কিং')) this.mappings[col] = 'parking_available';
+                    else if (lower.includes('lift') || lower.includes('লিফট')) this.mappings[col] = 'has_lift';
+                    else if (lower.includes('generator') || lower.includes('জেনারেটর')) this.mappings[col] = 'has_generator';
+                    else if (lower.includes('gas') || lower.includes('গ্যাস')) this.mappings[col] = 'has_gas';
+                    else if (lower.includes('price') || lower.includes('দাম') || lower.includes('মূল্য')) this.mappings[col] = 'asking_price';
+                    else if (lower.includes('rate') || lower.includes('রেট')) this.mappings[col] = 'price_per_sqft';
+                    else if (lower.includes('handover') || lower.includes('status') || lower.includes('হস্তান্তর')) this.mappings[col] = 'completion_status';
+                    else if (lower.includes('agent') || lower.includes('মালিক') || lower.includes('owner')) this.mappings[col] = 'owner_name';
+                    else if (lower.includes('contact') || lower.includes('phone') || lower.includes('mobile')) this.mappings[col] = 'owner_phone';
+                    else if (lower.includes('note') || lower.includes('নোট') || lower.includes('hidden') || lower.includes('মন্তব্য')) this.mappings[col] = 'hidden_note';
                 } else if (this.activeTab === 'agent') {
                     if (lower.includes('name') || lower.includes('নাম') || lower.includes('agent') || lower.includes('owner')) this.mappings[col] = 'name';
                     else if (lower.includes('whatsapp') || lower.includes('wa')) this.mappings[col] = 'whatsapp_number';
@@ -959,6 +1097,12 @@ function sheetImporterApp() {
                     options.default_status = this.defaultStatus;
                     options.default_type = this.defaultType;
                     options.default_area = this.defaultArea;
+                } else if (this.activeTab === 'flat') {
+                    options.destination = this.defaultStatus === 'live' ? 'live' : 'draft';
+                    options.default_status = this.defaultStatus;
+                    options.default_type = 'flat';
+                    options.default_area = this.defaultArea;
+                    options.default_completion_status = this.flatDefaultCompletion;
                 } else if (this.activeTab === 'agent') {
                     options.default_role = this.agentDefaultRole;
                     options.default_rating = this.agentDefaultRating;
@@ -1061,6 +1205,12 @@ function sheetImporterApp() {
                     payload.default_status = this.defaultStatus;
                     payload.default_type = this.defaultType;
                     payload.default_area = this.defaultArea;
+                } else if (this.activeTab === 'flat') {
+                    payload.destination = this.defaultStatus === 'live' ? 'live' : 'draft';
+                    payload.default_status = this.defaultStatus;
+                    payload.default_type = 'flat';
+                    payload.default_area = this.defaultArea;
+                    payload.default_completion_status = this.flatDefaultCompletion;
                 } else if (this.activeTab === 'agent') {
                     payload.default_role = this.agentDefaultRole;
                     payload.default_rating = this.agentDefaultRating;

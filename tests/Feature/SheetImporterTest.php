@@ -434,4 +434,123 @@ class SheetImporterTest extends TestCase
         $this->assertNotNull($p3);
         $this->assertEquals('pending_verification', $p3->status); // uses default_status (normalized)
     }
+
+    public function test_flat_importer_tab_and_preset_is_seeded(): void
+    {
+        $response = $this->actingAs($this->admin)->get(route('admin.sheet-importer.index', ['tab' => 'flat']));
+        $response->assertStatus(200);
+        $response->assertSee('ফ্ল্যাট ও অ্যাপার্টমেন্ট স্ট্যান্ডার্ড শিট (Flats Standard)');
+        $response->assertSee('ফ্ল্যাট ও অ্যাপার্টমেন্ট ইমপোর্টার');
+
+        $this->assertDatabaseHas('sheet_import_presets', [
+            'entity_type' => 'flat',
+            'name'        => 'ফ্ল্যাট ও অ্যাপার্টমেন্ট স্ট্যান্ডার্ড শিট (Flats Standard)',
+        ]);
+    }
+
+    public function test_flat_importer_via_google_sheet_creates_flat_and_details(): void
+    {
+        $csvData = "project,area,block,road,size_sqft,floor,bed,bath,balcony,facing,parking,price,handover,developer,agent,phone,notes\n" .
+                   "Green Valley,Aftabnagar,C,5,1350,4,3,3,2,South,Yes,95 lac,Ready,Sheltech,Rahim Mia,01711998877,সরাসরি ফ্ল্যাট মালিকের সাথে জরুরি বায়া দলিল\n" .
+                   "Lake View,Aftabnagar,D,12,1850,7,4,4,3,North-East,Yes,1.65 cr,Under Construction,Navana,Karim Agent,01811998877,ব্যাংক লোন সুবিধা আছে\n";
+
+        Http::fake([
+            '*docs.google.com*' => Http::response($csvData, 200, ['Content-Type' => 'text/csv']),
+        ]);
+
+        $mappings = [
+            'project'   => 'project_name',
+            'area'      => 'area',
+            'block'     => 'block',
+            'road'      => 'road_number',
+            'size_sqft' => 'flat_size_sqft',
+            'floor'     => 'floor_number',
+            'bed'       => 'bedrooms',
+            'bath'      => 'bathrooms',
+            'balcony'   => 'balconies',
+            'facing'    => 'facing',
+            'parking'   => 'parking_available',
+            'price'     => 'asking_price',
+            'developer' => 'developer_name',
+            'handover'  => 'completion_status',
+            'agent'     => 'owner_name',
+            'phone'     => 'owner_phone',
+            'notes'     => 'hidden_note',
+        ];
+
+        $importResponse = $this->actingAs($this->admin)->postJson(route('admin.sheet-importer.import'), [
+            'entity_type'    => 'flat',
+            'sheet_url'      => 'https://docs.google.com/spreadsheets/d/flat-sheet-id/edit',
+            'mappings'       => $mappings,
+            'destination'    => 'draft',
+            'duplicate_mode' => 'skip',
+            'default_area'   => 'Aftabnagar',
+        ]);
+
+        $importResponse->assertStatus(200);
+        $importResponse->assertJson([
+            'success'   => true,
+            'processed' => 2,
+            'created'   => 2,
+            'updated'   => 0,
+            'skipped'   => 0,
+        ]);
+
+        // Verify property was created in draft status and type flat
+        $flatProperty = Property::where('block', 'C')
+            ->where('type', 'flat')
+            ->first();
+
+        $this->assertNotNull($flatProperty);
+        $this->assertEquals('draft', $flatProperty->status);
+        $this->assertEquals('Aftabnagar', $flatProperty->area);
+        $this->assertStringContainsString('1350 স্কয়ার ফিট', $flatProperty->title);
+        $this->assertStringContainsString('3 বেড', $flatProperty->title);
+        $this->assertStringContainsString('Green Valley', $flatProperty->title);
+
+        // Verify PropertyFlatDetail
+        $detail = $flatProperty->flatDetail;
+        $this->assertNotNull($detail);
+        $this->assertEquals(1350.0, (float)$detail->flat_size_sqft);
+        $this->assertEquals(4, $detail->floor_number);
+        $this->assertEquals(3, $detail->bedrooms);
+        $this->assertEquals(3, $detail->bathrooms);
+        $this->assertEquals(2, $detail->balconies);
+        $this->assertEquals('Green Valley', $detail->project_name);
+        $this->assertEquals('Sheltech', $detail->developer_name);
+        $this->assertEquals('ready', $detail->completion_status);
+        $this->assertTrue($detail->parking_available);
+        $this->assertEquals(9500000.0, (float)$detail->price_total);
+
+        // Verify hidden note and smart tags
+        $this->assertEquals('সরাসরি ফ্ল্যাট মালিকের সাথে জরুরি বায়া দলিল', $flatProperty->hidden_note);
+        $this->assertIsArray($flatProperty->hidden_tags);
+        $this->assertContains('বায়া দলিল ক্লিয়ার', $flatProperty->hidden_tags);
+
+        // Verify Direct Source
+        $source = $flatProperty->directSources()->first();
+        $this->assertNotNull($source);
+        $this->assertEquals('Rahim Mia', $source->owner_name);
+        $this->assertEquals('01711998877', $source->owner_phone);
+
+        // Second import with skip should skip duplicates
+        $secondResponse = $this->actingAs($this->admin)->postJson(route('admin.sheet-importer.import'), [
+            'entity_type'    => 'flat',
+            'sheet_url'      => 'https://docs.google.com/spreadsheets/d/flat-sheet-id/edit',
+            'mappings'       => $mappings,
+            'destination'    => 'draft',
+            'duplicate_mode' => 'skip',
+            'default_area'   => 'Aftabnagar',
+        ]);
+
+        $secondResponse->assertStatus(200);
+        $secondResponse->assertJson([
+            'success'   => true,
+            'processed' => 2,
+            'created'   => 0,
+            'skipped'   => 2,
+        ]);
+
+        $this->assertEquals(2, Property::where('type', 'flat')->count());
+    }
 }

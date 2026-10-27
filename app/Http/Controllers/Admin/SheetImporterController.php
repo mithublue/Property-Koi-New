@@ -59,7 +59,44 @@ class SheetImporterController extends Controller
             ]);
         }
 
-        // 2. Seed Agent & Owner standard preset if missing
+        // 2. Seed Flat & Apartment standard preset if missing
+        if (SheetImportPreset::where('entity_type', 'flat')->count() === 0) {
+            SheetImportPreset::create([
+                'entity_type'      => 'flat',
+                'name'             => 'ফ্ল্যাট ও অ্যাপার্টমেন্ট স্ট্যান্ডার্ড শিট (Flats Standard)',
+                'description'      => 'কলামসমূহ: project, area, block, road, size_sqft, floor, bed, bath, balcony, facing, parking, price, handover, developer, agent, phone, notes',
+                'sample_sheet_url' => 'https://docs.google.com/spreadsheets/d/1XWYmjcrBCIwIpBSnpCzvkH7sdtVPeIOSP9XoxmvH6r8/edit?gid=0#gid=0',
+                'field_mappings'   => [
+                    'project'   => 'project_name',
+                    'area'      => 'area',
+                    'block'     => 'block',
+                    'road'      => 'road_number',
+                    'size_sqft' => 'flat_size_sqft',
+                    'floor'     => 'floor_number',
+                    'bed'       => 'bedrooms',
+                    'bath'      => 'bathrooms',
+                    'balcony'   => 'balconies',
+                    'facing'    => 'facing',
+                    'parking'   => 'parking_available',
+                    'price'     => 'asking_price',
+                    'developer' => 'developer_name',
+                    'handover'  => 'completion_status',
+                    'agent'     => 'owner_name',
+                    'phone'     => 'owner_phone',
+                    'notes'     => 'hidden_note',
+                ],
+                'options'          => [
+                    'destination'               => 'draft',
+                    'duplicate_mode'            => 'skip',
+                    'default_type'              => 'flat',
+                    'default_area'              => 'Aftabnagar',
+                    'default_status'            => 'draft',
+                    'default_completion_status' => 'ready',
+                ],
+            ]);
+        }
+
+        // 3. Seed Agent & Owner standard preset if missing
         if (SheetImportPreset::where('entity_type', 'agent')->count() === 0) {
             SheetImportPreset::create([
                 'entity_type'      => 'agent',
@@ -84,7 +121,7 @@ class SheetImporterController extends Controller
             ]);
         }
 
-        // 3. Seed Buyer standard preset if missing
+        // 4. Seed Buyer standard preset if missing
         if (SheetImportPreset::where('entity_type', 'buyer')->count() === 0) {
             SheetImportPreset::create([
                 'entity_type'      => 'buyer',
@@ -114,17 +151,22 @@ class SheetImporterController extends Controller
         $presets = SheetImportPreset::latest()->get();
 
         $propertyTargetFields = self::getPropertyTargetFields();
+        $flatTargetFields     = self::getFlatTargetFields();
         $agentTargetFields    = self::getAgentTargetFields();
         $buyerTargetFields    = self::getBuyerTargetFields();
 
         $activeTab = $request->query('tab', 'property');
-        if (!in_array($activeTab, ['property', 'agent', 'buyer'])) {
+        if ($activeTab === 'land') {
+            $activeTab = 'property';
+        }
+        if (!in_array($activeTab, ['property', 'flat', 'agent', 'buyer'])) {
             $activeTab = 'property';
         }
 
         return view('admin.sheet_importer.index', compact(
             'presets',
             'propertyTargetFields',
+            'flatTargetFields',
             'agentTargetFields',
             'buyerTargetFields',
             'activeTab'
@@ -188,6 +230,70 @@ class SheetImporterController extends Controller
     public static function getTargetFields(): array
     {
         return self::getPropertyTargetFields();
+    }
+
+    /**
+     * Target fields available for mapping Flats & Apartments.
+     */
+    public static function getFlatTargetFields(): array
+    {
+        return [
+            'ফ্ল্যাট ও প্রকল্পের পরিচিতি' => [
+                'title'             => 'প্রপার্টি শিরোনাম (Title - ফাঁকা থাকলে অটো-জেনারেট হবে)',
+                'project_name'      => 'বিল্ডিং / প্রজেক্টের নাম (Project / Building Name)',
+                'developer_name'    => 'ডেভেলপার / কোম্পানির নাম (Developer Name)',
+                'building_type'     => 'ভবনের ধরণ (Building Type: Residential / Mixed)',
+                'completion_status' => 'হস্তান্তর / নির্মাণ অবস্থা (Ready / Under Construction / Almost Ready)',
+                'handover_date'     => 'হস্তান্তরের তারিখ / সাল (Handover Date)',
+            ],
+            'লোকেশন ও ঠিকানা' => [
+                'area'              => 'এলাকা / এরিয়া (Area - যেমন: Aftabnagar, Bashundhara)',
+                'sub_area'          => 'সাব-এরিয়া / ফেজ (Sub Area / Phase)',
+                'block'             => 'ব্লক (Block - যেমন: Block C)',
+                'sector'            => 'সেক্টর (Sector)',
+                'road_number'       => 'রোড নম্বর / নাম (Road)',
+                'road_width_ft'     => 'রাস্তার প্রশস্ততা (Road Width in Ft)',
+                'plot_number'       => 'প্লট / হোল্ডিং নম্বর (Plot / Holding)',
+                'address'           => 'পূর্ণ ঠিকানা (Address)',
+            ],
+            'ফ্ল্যাটের সাইজ ও স্পেসিফিকেশন' => [
+                'flat_size_sqft'    => 'ফ্ল্যাটের সাইজ (Sqft - যেমন: 1250, 1450, 1800 ইত্যাদি)',
+                'floor_number'      => 'ফ্লোর নম্বর (Floor Level - যেমন: 4th floor, 5, 6)',
+                'total_floors'      => 'মোট তলা / উচ্চতা (Total Floors in Building)',
+                'bedrooms'          => 'বেডরুম সংখ্যা (Bedrooms - যেমন: 3 Bed)',
+                'bathrooms'         => 'বাথরুম সংখ্যা (Bathrooms - যেমন: 3 Bath)',
+                'balconies'         => 'বারান্দা সংখ্যা (Balconies - যেমন: 2 বা 3)',
+                'facing'            => 'দিক / ফেসিং (Facing: South, North-East ইত্যাদি)',
+            ],
+            'সুযোগ-সুবিধা (Amenities)' => [
+                'parking_available' => 'কার পার্কিং সুবিধা (Parking: Yes/No, 1/0)',
+                'has_lift'          => 'লিফট সুবিধা (Lift: Yes/No)',
+                'has_generator'     => 'জেনারেটর সুবিধা (Generator: Yes/No)',
+                'has_gas'           => 'গ্যাস সুবিধা (Gas: Yes/No, Cylinder/Line)',
+            ],
+            'মূল্য ও পেমেন্ট' => [
+                'asking_price'      => 'মোট বিক্রয় মূল্য (Total Price - 95 lac, 1.25 cr ইত্যাদি স্মার্ট পার্সিং)',
+                'price_per_sqft'    => 'প্রতি স্কয়ার ফিট মূল্য (Price Per Sqft)',
+                'garage_price'      => 'গ্যারেজ / পার্কিং চার্জ (Garage Price)',
+                'utility_price'     => 'ইউটিলিটি চার্জ (Utility Price)',
+                'down_payment'      => 'ডাউন পেমেন্ট (Down Payment)',
+                'is_negotiable'     => 'দাম আলোচনা সাপেক্ষ (Negotiable: Yes/No)',
+            ],
+            'ভল্ট নোট ও স্ট্যাটাস' => [
+                'status'            => 'প্রপার্টি স্ট্যাটাস (Status: draft/vault, live, pending, sold, booked)',
+                'hidden_note'       => '🔒 গোপন নোট (Hidden Note - শুধুমাত্র অভ্যন্তরীণ ভল্টের জন্য, পাবলিক হবে না)',
+                'description'       => 'বিস্তারিত বিবরণ (Description)',
+            ],
+            'মালিক / এজেন্ট ও সোর্স' => [
+                'owner_name'        => 'এজেন্ট / মালিকের নাম (Agent / Owner Name)',
+                'owner_phone'       => 'কন্টাক্ট / ফোন নম্বর (Phone / Mobile)',
+                'source_type'       => 'সোর্স ক্যাটাগরি (Source Type: agent/owner)',
+            ],
+            'কাস্টম ফিল্ড ও অন্যান্য' => [
+                'custom_field'      => '🏷️ কাস্টম ফিল্ড (Custom Key-Value Pair)',
+                '_skip'             => '✕ এই কলামটি বাদ দিন (Ignore Column)',
+            ],
+        ];
     }
 
     /**
@@ -410,6 +516,80 @@ class SheetImporterController extends Controller
             return '_skip';
         }
 
+        if ($entityType === 'flat') {
+            $flatMap = [
+                'project'         => 'project_name',
+                'building'        => 'project_name',
+                'প্রজেক্ট'        => 'project_name',
+                'ভবন'             => 'project_name',
+                'developer'       => 'developer_name',
+                'কোম্পানি'        => 'developer_name',
+                'ডেভেলপার'        => 'developer_name',
+                'size'            => 'flat_size_sqft',
+                'sqft'            => 'flat_size_sqft',
+                'সাইজ'            => 'flat_size_sqft',
+                'area'            => 'area',
+                'location'        => 'area',
+                'এলাকা'           => 'area',
+                'block'           => 'block',
+                'ব্লক'             => 'block',
+                'sector'          => 'sector',
+                'সেক্টর'          => 'sector',
+                'road'            => 'road_number',
+                'রাস্তা'          => 'road_number',
+                'plot'            => 'plot_number',
+                'holding'         => 'plot_number',
+                'floor'           => 'floor_number',
+                'ফ্লোর'           => 'floor_number',
+                'তলা'             => 'floor_number',
+                'total floor'     => 'total_floors',
+                'bed'             => 'bedrooms',
+                'bedroom'         => 'bedrooms',
+                'বেড'             => 'bedrooms',
+                'বেডরুম'          => 'bedrooms',
+                'bath'            => 'bathrooms',
+                'bathroom'        => 'bathrooms',
+                'বাথ'             => 'bathrooms',
+                'বাথরুম'          => 'bathrooms',
+                'balcony'         => 'balconies',
+                'বারান্দা'         => 'balconies',
+                'facing'          => 'facing',
+                'দিক'             => 'facing',
+                'parking'         => 'parking_available',
+                'গ্যারেজ'         => 'parking_available',
+                'পার্কিং'         => 'parking_available',
+                'lift'            => 'has_lift',
+                'লিফট'            => 'has_lift',
+                'generator'       => 'has_generator',
+                'জেনারেটর'        => 'has_generator',
+                'gas'             => 'has_gas',
+                'গ্যাস'           => 'has_gas',
+                'status'          => 'status',
+                'স্ট্যাটাস'        => 'status',
+                'handover'        => 'completion_status',
+                'হস্তান্তর'       => 'completion_status',
+                'completion'      => 'completion_status',
+                'price'           => 'asking_price',
+                'মূল্য'           => 'asking_price',
+                'দাম'             => 'asking_price',
+                'rate'            => 'price_per_sqft',
+                'agent'           => 'owner_name',
+                'owner'           => 'owner_name',
+                'phone'           => 'owner_phone',
+                'contact'         => 'owner_phone',
+                'mobile'          => 'owner_phone',
+                'note'            => 'hidden_note',
+                'notes'           => 'hidden_note',
+                'hidden'          => 'hidden_note',
+                'মন্তব্য'          => 'hidden_note',
+            ];
+            if (isset($flatMap[$h])) return $flatMap[$h];
+            foreach ($flatMap as $key => $target) {
+                if (str_contains($h, $key)) return $target;
+            }
+            return '_skip';
+        }
+
         // Default: Property mappings
         $map = [
             'place'       => 'area',
@@ -467,7 +647,7 @@ class SheetImporterController extends Controller
     public function storePreset(Request $request)
     {
         $validated = $request->validate([
-            'entity_type'      => 'nullable|string|in:property,agent,buyer',
+            'entity_type'      => 'nullable|string|in:property,flat,agent,buyer',
             'preset_id'        => 'nullable|exists:sheet_import_presets,id',
             'name'             => 'required|string|max:191',
             'description'      => 'nullable|string',
@@ -534,7 +714,9 @@ class SheetImporterController extends Controller
     {
         $entityType = $request->input('entity_type', 'property');
 
-        if ($entityType === 'agent') {
+        if ($entityType === 'flat') {
+            return $this->importFlats($request);
+        } elseif ($entityType === 'agent') {
             return $this->importAgents($request);
         } elseif ($entityType === 'buyer') {
             return $this->importBuyers($request);
@@ -816,6 +998,398 @@ class SheetImporterController extends Controller
         fclose($stream);
 
         $msg = "প্রপার্টি ইমপোর্ট সম্পন্ন: মোট {$totalRows} টি সারির মধ্যে {$createdCount} টি নতুন যুক্ত হয়েছে, {$updatedCount} টি আপডেট হয়েছে, এবং {$skippedCount} টি স্কিপ হয়েছে।";
+
+        return response()->json([
+            'success'    => true,
+            'message'    => $msg,
+            'processed'  => $totalRows,
+            'created'    => $createdCount,
+            'updated'    => $updatedCount,
+            'skipped'    => $skippedCount,
+            'errors'     => $errors,
+            'report'     => [
+                'total_rows' => $totalRows,
+                'created'    => $createdCount,
+                'updated'    => $updatedCount,
+                'skipped'    => $skippedCount,
+                'errors'     => $errors,
+            ],
+        ]);
+    }
+
+    /**
+     * Execute Flat & Apartment Import.
+     */
+    protected function importFlats(Request $request)
+    {
+        $request->validate([
+            'sheet_url'                 => 'required|string',
+            'mappings'                  => 'required|array',
+            'destination'               => 'nullable|string',
+            'default_status'            => 'nullable|string',
+            'duplicate_mode'            => 'required|in:skip,update,all',
+            'default_area'              => 'nullable|string',
+            'default_completion_status' => 'nullable|string',
+        ]);
+
+        $sheetUrl                  = trim($request->input('sheet_url'));
+        $mappings                  = $request->input('mappings');
+        $destination               = $request->input('destination', 'draft');
+        $duplicateMode             = $request->input('duplicate_mode', 'skip');
+        $defaultArea               = trim((string)$request->input('default_area', 'Aftabnagar')) ?: 'Aftabnagar';
+        $defaultCompletionStatus   = trim((string)$request->input('default_completion_status', 'ready')) ?: 'ready';
+        $defaultStatus             = trim((string)$request->input('default_status', '')) ?: ($destination === 'live' ? 'live' : 'draft');
+        if ($defaultStatus === 'pending') {
+            $defaultStatus = 'pending_verification';
+        }
+
+        $fetched = GoogleSheetSyncService::fetchCsvContent($sheetUrl);
+        if (!$fetched['success']) {
+            return response()->json(['success' => false, 'error' => $fetched['error']]);
+        }
+
+        $csvContent = preg_replace('/^\xEF\xBB\xBF/', '', $fetched['content']);
+        $stream = fopen('php://memory', 'r+');
+        fwrite($stream, $csvContent);
+        rewind($stream);
+
+        $headers = fgetcsv($stream);
+        if (!$headers || empty($headers)) {
+            fclose($stream);
+            return response()->json(['success' => false, 'error' => 'শিটের কোনো কলাম খুঁজে পাওয়া যায়নি।']);
+        }
+
+        $colIndexToTarget = [];
+        foreach ($headers as $idx => $h) {
+            $colName = trim((string)$h);
+            if (isset($mappings[$colName]) && $mappings[$colName] !== '_skip') {
+                $colIndexToTarget[$idx] = [
+                    'col_name' => $colName,
+                    'target'   => $mappings[$colName],
+                ];
+            }
+        }
+
+        $totalRows    = 0;
+        $createdCount = 0;
+        $updatedCount = 0;
+        $skippedCount = 0;
+        $errors       = [];
+
+        while (($row = fgetcsv($stream)) !== false) {
+            $rowStr = implode('', array_map('trim', $row));
+            if ($rowStr === '') {
+                continue;
+            }
+
+            $totalRows++;
+
+            try {
+                $data = [
+                    'title'               => '',
+                    'area'                => $defaultArea,
+                    'sub_area'            => '',
+                    'block'               => '',
+                    'sector'              => '',
+                    'road_number'         => '',
+                    'road_width_ft'       => 20,
+                    'plot_number'         => '',
+                    'holding_number'      => '',
+                    'facing'              => 'south',
+                    'status'              => $defaultStatus,
+                    'hidden_note'         => '',
+                    'description'         => '',
+                    'custom_fields'       => [],
+                    'owner_name'          => '',
+                    'owner_phone'         => '',
+                    'source_type'         => 'direct_agent',
+                    // Flat specifics
+                    'project_name'        => '',
+                    'developer_name'      => '',
+                    'building_type'       => 'residential',
+                    'completion_status'   => $defaultCompletionStatus,
+                    'handover_date'       => null,
+                    'flat_size_sqft'      => 0.0,
+                    'floor_number'        => 0,
+                    'total_floors'        => null,
+                    'bedrooms'            => 3,
+                    'bathrooms'           => 3,
+                    'balconies'           => 2,
+                    'asking_price'        => 0.0,
+                    'price_per_sqft'      => 0.0,
+                    'parking_available'   => false,
+                    'garage_price'        => 0.0,
+                    'utility_price'       => 0.0,
+                    'down_payment'        => 0.0,
+                    'has_lift'            => false,
+                    'has_generator'       => false,
+                    'has_substation'      => false,
+                    'has_gas'             => false,
+                    'is_negotiable'       => false,
+                ];
+
+                foreach ($colIndexToTarget as $idx => $mappingInfo) {
+                    $rawVal = isset($row[$idx]) ? trim((string)$row[$idx]) : '';
+                    if ($rawVal === '') continue;
+
+                    $target = $mappingInfo['target'];
+
+                    if ($target === 'area') {
+                        $data['area'] = $rawVal;
+                    } elseif ($target === 'sub_area') {
+                        $data['sub_area'] = $rawVal;
+                    } elseif ($target === 'block') {
+                        $data['block'] = strtoupper(trim(preg_replace('/^(?:block|ব্লক)\s*/iu', '', $rawVal)));
+                    } elseif ($target === 'sector') {
+                        $data['sector'] = $rawVal;
+                    } elseif ($target === 'road_number') {
+                        $data['road_number'] = GoogleSheetSyncService::toEnNumber($rawVal);
+                    } elseif ($target === 'road_width_ft') {
+                        $data['road_width_ft'] = (int) GoogleSheetSyncService::toEnNumber($rawVal) ?: 20;
+                    } elseif ($target === 'plot_number') {
+                        $data['plot_number'] = trim(preg_replace('/^(?:plot|প্লট|নং|#)\s*/iu', '', GoogleSheetSyncService::toEnNumber($rawVal)));
+                    } elseif ($target === 'holding_number') {
+                        $data['holding_number'] = $rawVal;
+                    } elseif ($target === 'facing') {
+                        $data['facing'] = self::normalizeFacing($rawVal);
+                    } elseif ($target === 'flat_size_sqft' || $target === 'size') {
+                        $data['flat_size_sqft'] = self::parseSize($rawVal);
+                        if ((string)$data['flat_size_sqft'] !== $rawVal) {
+                            $data['custom_fields'][] = ['key' => 'ফ্ল্যাট সাইজ টেক্সট (Raw)', 'value' => $rawVal];
+                        }
+                    } elseif ($target === 'floor_number') {
+                        $enNum = GoogleSheetSyncService::toEnNumber($rawVal);
+                        if (preg_match('/([0-9]+)/', $enNum, $m)) {
+                            $data['floor_number'] = (int)$m[1];
+                        }
+                    } elseif ($target === 'total_floors') {
+                        $enNum = GoogleSheetSyncService::toEnNumber($rawVal);
+                        if (preg_match('/([0-9]+)/', $enNum, $m)) {
+                            $data['total_floors'] = (int)$m[1];
+                        }
+                    } elseif ($target === 'bedrooms') {
+                        $enNum = GoogleSheetSyncService::toEnNumber($rawVal);
+                        if (preg_match('/([0-9]+)/', $enNum, $m)) {
+                            $data['bedrooms'] = (int)$m[1];
+                        }
+                    } elseif ($target === 'bathrooms') {
+                        $enNum = GoogleSheetSyncService::toEnNumber($rawVal);
+                        if (preg_match('/([0-9]+)/', $enNum, $m)) {
+                            $data['bathrooms'] = (int)$m[1];
+                        }
+                    } elseif ($target === 'balconies') {
+                        $enNum = GoogleSheetSyncService::toEnNumber($rawVal);
+                        if (preg_match('/([0-9]+)/', $enNum, $m)) {
+                            $data['balconies'] = (int)$m[1];
+                        }
+                    } elseif ($target === 'project_name') {
+                        $data['project_name'] = $rawVal;
+                    } elseif ($target === 'developer_name') {
+                        $data['developer_name'] = $rawVal;
+                    } elseif ($target === 'building_type') {
+                        $data['building_type'] = str_contains(mb_strtolower($rawVal, 'UTF-8'), 'comm') ? 'commercial' : 'residential';
+                    } elseif ($target === 'completion_status') {
+                        $cs = mb_strtolower(trim($rawVal), 'UTF-8');
+                        if (str_contains($cs, 'ready') || str_contains($cs, 'রেডি')) {
+                            $data['completion_status'] = 'ready';
+                        } elseif (str_contains($cs, 'under') || str_contains($cs, 'চলমান') || str_contains($cs, 'construction')) {
+                            $data['completion_status'] = 'under_construction';
+                        } elseif (str_contains($cs, 'almost') || str_contains($cs, 'প্রায়')) {
+                            $data['completion_status'] = 'almost_ready';
+                        } else {
+                            $data['completion_status'] = $rawVal;
+                        }
+                    } elseif ($target === 'handover_date') {
+                        $data['handover_date'] = $rawVal;
+                    } elseif ($target === 'parking_available') {
+                        $pVal = mb_strtolower(trim($rawVal), 'UTF-8');
+                        $data['parking_available'] = in_array($pVal, ['yes', '1', 'true', 'আছে', 'হ্যাঁ', 'y', 'available', 'parking']);
+                    } elseif ($target === 'has_lift') {
+                        $lVal = mb_strtolower(trim($rawVal), 'UTF-8');
+                        $data['has_lift'] = in_array($lVal, ['yes', '1', 'true', 'আছে', 'হ্যাঁ', 'y', 'available']);
+                    } elseif ($target === 'has_generator') {
+                        $gVal = mb_strtolower(trim($rawVal), 'UTF-8');
+                        $data['has_generator'] = in_array($gVal, ['yes', '1', 'true', 'আছে', 'হ্যাঁ', 'y', 'available']);
+                    } elseif ($target === 'has_gas') {
+                        $gasVal = mb_strtolower(trim($rawVal), 'UTF-8');
+                        $data['has_gas'] = in_array($gasVal, ['yes', '1', 'true', 'আছে', 'হ্যাঁ', 'y', 'available', 'line', 'cylinder']);
+                    } elseif ($target === 'asking_price') {
+                        $data['asking_price'] = self::parsePrice($rawVal);
+                        $data['custom_fields'][] = ['key' => 'মূল্য টেক্সট (Raw Price)', 'value' => $rawVal];
+                    } elseif ($target === 'price_per_sqft') {
+                        $data['price_per_sqft'] = (float) GoogleSheetSyncService::toEnNumber(preg_replace('/[^0-9.]/', '', $rawVal));
+                    } elseif ($target === 'garage_price') {
+                        $data['garage_price'] = self::parsePrice($rawVal);
+                    } elseif ($target === 'utility_price') {
+                        $data['utility_price'] = self::parsePrice($rawVal);
+                    } elseif ($target === 'down_payment') {
+                        $data['down_payment'] = self::parsePrice($rawVal);
+                    } elseif ($target === 'is_negotiable') {
+                        $nVal = mb_strtolower(trim($rawVal), 'UTF-8');
+                        $data['is_negotiable'] = in_array($nVal, ['yes', '1', 'true', 'হ্যাঁ', 'আলোচনা সাপেক্ষ']);
+                    } elseif ($target === 'title') {
+                        $data['title'] = $rawVal;
+                    } elseif ($target === 'description') {
+                        $data['description'] = $rawVal;
+                    } elseif ($target === 'owner_name') {
+                        $data['owner_name'] = $rawVal;
+                    } elseif ($target === 'owner_phone') {
+                        $data['owner_phone'] = trim(preg_replace('/[^0-9+,\/ \-]/', '', GoogleSheetSyncService::toEnNumber($rawVal)));
+                    } elseif ($target === 'source_type') {
+                        $data['source_type'] = str_contains(mb_strtolower($rawVal, 'UTF-8'), 'agent') ? 'direct_agent' : 'direct_owner';
+                    } elseif ($target === 'status') {
+                        $s = mb_strtolower(trim($rawVal), 'UTF-8');
+                        if (in_array($s, ['live', 'পাবলিক', 'active', 'available', 'লাইভ'])) {
+                            $data['status'] = 'live';
+                        } elseif (in_array($s, ['draft', 'ড্রাফট', 'vault', 'ভল্ট'])) {
+                            $data['status'] = 'draft';
+                        } elseif (in_array($s, ['pending', 'পেন্ডিং', 'verification', 'যাচাই', 'pending_verification'])) {
+                            $data['status'] = 'pending_verification';
+                        } elseif (in_array($s, ['sold', 'বিক্রিত', 'বিক্রি'])) {
+                            $data['status'] = 'sold';
+                        } elseif (in_array($s, ['booked', 'বুকড', 'বুকিং'])) {
+                            $data['status'] = 'booked';
+                        } else {
+                            $data['status'] = $defaultStatus;
+                        }
+                    } elseif ($target === 'hidden_note') {
+                        $data['hidden_note'] = $rawVal;
+                    } elseif (str_starts_with($target, 'custom_field:') || $target === 'custom_field') {
+                        $customKey = str_starts_with($target, 'custom_field:') ? trim(substr($target, strlen('custom_field:'))) : $mappingInfo['col_name'];
+                        if ($customKey !== '') {
+                            $data['custom_fields'][] = ['key' => $customKey, 'value' => $rawVal];
+                        }
+                    }
+                }
+
+                if (empty($data['block']) && !empty($data['sector'])) {
+                    if (preg_match('/^([a-zA-Z0-9]+)\s*[,/]\s*(.*)$/i', $data['sector'], $bm)) {
+                        $data['block'] = strtoupper(trim($bm[1]));
+                        $data['sector'] = trim($bm[2]);
+                    }
+                }
+
+                // Auto generate smart flat title if empty
+                if (empty($data['title'])) {
+                    $parts = [];
+                    if (!empty($data['area'])) $parts[] = $data['area'];
+                    if (!empty($data['block'])) $parts[] = 'ব্লক ' . $data['block'];
+                    if (!empty($data['flat_size_sqft']) && $data['flat_size_sqft'] > 0) {
+                        $parts[] = (int)$data['flat_size_sqft'] . ' স্কয়ার ফিট';
+                    }
+                    if (!empty($data['bedrooms']) && $data['bedrooms'] > 0) {
+                        $parts[] = $data['bedrooms'] . ' বেড';
+                    }
+                    if (!empty($data['project_name'])) {
+                        $parts[] = '(' . $data['project_name'] . ')';
+                    } else {
+                        $parts[] = 'ফ্ল্যাট';
+                    }
+                    $data['title'] = implode(' - ', $parts);
+                }
+
+                // Check duplicates for flat
+                $existingProperty = null;
+                $eq = Property::query()->where('type', 'flat');
+                if (!empty($data['area'])) $eq->where('area', $data['area']);
+                if (!empty($data['block'])) $eq->where('block', $data['block']);
+                if (!empty($data['road_number'])) $eq->where('road_number', $data['road_number']);
+                if (!empty($data['plot_number'])) $eq->where('plot_number', $data['plot_number']);
+
+                if (!empty($data['flat_size_sqft']) || !empty($data['floor_number']) || !empty($data['project_name'])) {
+                    $eq->whereHas('flatDetail', function ($fq) use ($data) {
+                        if (!empty($data['floor_number'])) {
+                            $fq->where('floor_number', $data['floor_number']);
+                        }
+                        if (!empty($data['flat_size_sqft']) && $data['flat_size_sqft'] > 0) {
+                            $fq->whereBetween('flat_size_sqft', [$data['flat_size_sqft'] - 1, $data['flat_size_sqft'] + 1]);
+                        }
+                        if (!empty($data['project_name'])) {
+                            $fq->where('project_name', $data['project_name']);
+                        }
+                    });
+                }
+
+                $existingProperty = $eq->first();
+
+                if ($existingProperty && $duplicateMode === 'skip') {
+                    $skippedCount++;
+                    continue;
+                }
+
+                if ($existingProperty && $duplicateMode === 'update') {
+                    $mergedCustomFields = array_merge($existingProperty->custom_fields ?? [], $data['custom_fields']);
+                    $existingProperty->update([
+                        'title'          => $data['title'],
+                        'area'           => $data['area'],
+                        'sub_area'       => $data['sub_area'] ?: ($data['sector'] ?: $existingProperty->sub_area),
+                        'block'          => $data['block'] ?: $existingProperty->block,
+                        'sector'         => $data['sector'] ?: $existingProperty->sector,
+                        'road_number'    => $data['road_number'] ?: $existingProperty->road_number,
+                        'road_width_ft'  => $data['road_width_ft'] ?: $existingProperty->road_width_ft,
+                        'plot_number'    => $data['plot_number'] ?: $existingProperty->plot_number,
+                        'holding_number' => $data['holding_number'] ?: $existingProperty->holding_number,
+                        'facing'         => $data['facing'] ?: $existingProperty->facing,
+                        'description'    => $data['description'] ?: $existingProperty->description,
+                        'status'         => $data['status'] ?: $defaultStatus,
+                        'custom_fields'  => $mergedCustomFields,
+                    ]);
+
+                    if (!empty($data['hidden_note'])) {
+                        $existingProperty->hidden_note = $data['hidden_note'];
+                        $existingProperty->hidden_tags = \App\Services\PropertySearchService::extractKeywordsFromNote($data['hidden_note']);
+                        $existingProperty->save();
+                    }
+
+                    self::updateFlatSubDetails($existingProperty, $data);
+                    self::updateDirectSource($existingProperty, $data);
+
+                    $updatedCount++;
+                } else {
+                    $code = 'PK-' . strtoupper(Str::random(6));
+                    $slug = Str::slug($data['title']) . '-' . strtolower(Str::random(5));
+
+                    $property = Property::create([
+                        'property_code'      => $code,
+                        'type'               => 'flat',
+                        'title'              => $data['title'],
+                        'slug'               => $slug,
+                        'area'               => $data['area'],
+                        'sub_area'           => $data['sub_area'] ?: $data['sector'],
+                        'block'              => $data['block'],
+                        'sector'             => $data['sector'],
+                        'road_width_ft'      => $data['road_width_ft'],
+                        'road_number'        => $data['road_number'],
+                        'plot_number'        => $data['plot_number'],
+                        'holding_number'     => $data['holding_number'],
+                        'address_visibility' => ['block' => true, 'sector' => true, 'road_number' => true, 'road_width_ft' => true, 'plot_number' => true, 'holding_number' => true],
+                        'facing'             => $data['facing'],
+                        'description'        => $data['description'],
+                        'status'             => $data['status'] ?: $defaultStatus,
+                        'custom_fields'      => $data['custom_fields'],
+                        'hidden_note'        => $data['hidden_note'] ?? null,
+                        'hidden_tags'        => !empty($data['hidden_note']) ? \App\Services\PropertySearchService::extractKeywordsFromNote($data['hidden_note']) : null,
+                        'created_by_user_id' => auth()->id(),
+                    ]);
+
+                    self::updateFlatSubDetails($property, $data);
+                    self::updateDirectSource($property, $data);
+
+                    if ($property->status === 'live') {
+                        SeoService::pingIndexNow($property);
+                    }
+
+                    $createdCount++;
+                }
+
+            } catch (\Throwable $e) {
+                $errors[] = "সারি #{$totalRows}: " . $e->getMessage();
+            }
+        }
+
+        fclose($stream);
+
+        $msg = "ফ্ল্যাট ও অ্যাপার্টমেন্ট ইমপোর্ট সম্পন্ন: মোট {$totalRows} টি সারির মধ্যে {$createdCount} টি নতুন যুক্ত হয়েছে, {$updatedCount} টি আপডেট হয়েছে, এবং {$skippedCount} টি স্কিপ হয়েছে।";
 
         return response()->json([
             'success'    => true,
@@ -1410,8 +1984,8 @@ class SheetImporterController extends Controller
                     'flat_size_sqft' => $sqft,
                     'price_total'    => $askingPrice,
                     'price_per_sqft' => $sqft > 0 && $askingPrice > 0 ? round($askingPrice / $sqft, 2) : 0,
-                    'bedrooms'       => 3,
-                    'bathrooms'      => 3,
+                    'bedrooms'       => (int)($data['bedrooms'] ?? 3) ?: 3,
+                    'bathrooms'      => (int)($data['bathrooms'] ?? 3) ?: 3,
                 ]
             );
         } elseif ($property->type === 'commercial') {
@@ -1457,5 +2031,51 @@ class SheetImporterController extends Controller
                 'is_primary_source' => true,
             ]);
         }
+    }
+
+    private static function updateFlatSubDetails(Property $property, array $data): void
+    {
+        $askingPrice = (float)($data['asking_price'] ?? 0);
+        $sqft = (float)($data['flat_size_sqft'] ?? 0) ?: 1200;
+        $pricePerSqft = (float)($data['price_per_sqft'] ?? 0);
+        if ($pricePerSqft <= 0 && $sqft > 0 && $askingPrice > 0) {
+            $pricePerSqft = round($askingPrice / $sqft, 2);
+        }
+
+        $completionStatus = $data['completion_status'] ?? 'ready';
+        if (!in_array($completionStatus, ['ready', 'ongoing', 'under_construction'])) {
+            if ($completionStatus === 'almost_ready') {
+                $completionStatus = 'ongoing';
+            } else {
+                $completionStatus = 'ready';
+            }
+        }
+
+        PropertyFlatDetail::updateOrCreate(
+            ['property_id' => $property->id],
+            [
+                'developer_name'    => $data['developer_name'] ?: null,
+                'project_name'      => $data['project_name'] ?: null,
+                'building_type'     => $data['building_type'] ?: 'residential',
+                'completion_status' => $completionStatus,
+                'handover_date'     => !empty($data['handover_date']) ? $data['handover_date'] : null,
+                'flat_size_sqft'    => $sqft,
+                'floor_number'      => (int)($data['floor_number'] ?? 1) ?: 1,
+                'total_floors'      => !empty($data['total_floors']) ? (int)$data['total_floors'] : 6,
+                'bedrooms'          => (int)($data['bedrooms'] ?? 3) ?: 3,
+                'bathrooms'         => (int)($data['bathrooms'] ?? 2) ?: 2,
+                'balconies'         => (int)($data['balconies'] ?? 2) ?: 2,
+                'price_total'       => $askingPrice,
+                'price_per_sqft'    => $pricePerSqft,
+                'parking_available' => (bool)($data['parking_available'] ?? false),
+                'garage_price'      => (float)($data['garage_price'] ?? 0),
+                'utility_price'     => (float)($data['utility_price'] ?? 0),
+                'down_payment'      => (float)($data['down_payment'] ?? 0),
+                'has_lift'          => (bool)($data['has_lift'] ?? false),
+                'has_generator'     => (bool)($data['has_generator'] ?? false),
+                'has_substation'    => (bool)($data['has_substation'] ?? false),
+                'has_gas'           => (bool)($data['has_gas'] ?? false),
+            ]
+        );
     }
 }

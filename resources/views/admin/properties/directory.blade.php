@@ -34,8 +34,11 @@
                 <a href="{{ route('property.create', ['destination' => 'vault']) }}" target="_blank" class="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold text-xs rounded-xl shadow-md transition transform active:scale-95">
                     <span>➕</span> নতুন প্রপার্টি (ভল্ট)
                 </a>
-                <a href="{{ route('admin.sheet-importer.index') }}" class="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-xl shadow-md transition">
-                    <span>📥</span> গুগল শিট বাল্ক ইমপোর্ট
+                <a href="{{ route('admin.sheet-importer.index', ['tab' => 'property']) }}" class="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-700 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl shadow-md transition">
+                    <span>🏞️</span> ল্যান্ড শিট ইমপোর্ট
+                </a>
+                <a href="{{ route('admin.sheet-importer.index', ['tab' => 'flat']) }}" class="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-xl shadow-md transition">
+                    <span>🏢</span> ফ্ল্যাট শিট ইমপোর্ট
                 </a>
                 <a href="{{ route('admin.properties.index') }}" class="inline-flex items-center gap-2 px-4 py-2.5 bg-slate-800/80 hover:bg-slate-700 text-white font-semibold text-xs rounded-xl border border-slate-600/60 transition">
                     <span>🏠</span> লাইভ ক্যাটালগ
@@ -62,8 +65,13 @@
             <div class="text-[11px] font-semibold text-emerald-600">জমি / প্লট</div>
             <div class="text-xl font-extrabold text-emerald-700 mt-0.5">{{ $stats['plots'] ?? 0 }}</div>
         </div>
-        <div class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-xs">
-            <div class="text-[11px] font-semibold text-blue-600">রেডি ফ্ল্যাট</div>
+        <div class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-xs group">
+            <div class="flex items-center justify-between">
+                <div class="text-[11px] font-semibold text-blue-600">রেডি ফ্ল্যাট</div>
+                <a href="{{ route('admin.sheet-importer.index', ['tab' => 'flat']) }}" class="text-[10px] text-blue-600 hover:underline font-bold" title="শিট থেকে ফ্ল্যাট ইমপোর্ট করুন">
+                    📥 ইমপোর্ট
+                </a>
+            </div>
             <div class="text-xl font-extrabold text-blue-700 mt-0.5">{{ $stats['flats'] ?? 0 }}</div>
         </div>
         <div class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-xs">
@@ -497,12 +505,15 @@
                                     <p class="text-xs text-slate-500">
                                         আপনি নতুন প্রপার্টি তৈরি করার সময় "প্রাইভেট ডিরেক্টরিতে সংরক্ষণ" নির্বাচন করতে পারেন অথবা গুগল শিট বাল্ক ইমপোর্টার ব্যবহার করে একযোগে বহু প্রপার্টি ভল্টে যোগ করতে পারেন।
                                     </p>
-                                    <div class="flex items-center justify-center gap-2 pt-1">
+                                    <div class="flex flex-wrap items-center justify-center gap-2 pt-1">
                                         <a href="{{ route('property.create', ['destination' => 'vault']) }}" target="_blank" class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-sm transition">
                                             <span>➕</span> নতুন প্রপার্টি যোগ করুন
                                         </a>
-                                        <a href="{{ route('admin.sheet-importer.index') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-sm transition">
-                                            <span>📥</span> গুগল শিট ইমপোর্টার
+                                        <a href="{{ route('admin.sheet-importer.index', ['tab' => 'property']) }}" class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs rounded-xl shadow-sm transition">
+                                            <span>🏞️</span> ল্যান্ড শিট ইমপোর্ট
+                                        </a>
+                                        <a href="{{ route('admin.sheet-importer.index', ['tab' => 'flat']) }}" class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-sm transition">
+                                            <span>🏢</span> ফ্ল্যাট শিট ইমপোর্ট
                                         </a>
                                     </div>
                                 </div>

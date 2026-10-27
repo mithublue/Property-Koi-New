@@ -297,4 +297,39 @@ class GuideController extends Controller
 
         return null;
     }
+
+    /**
+     * One-Click Database Seeder Trigger from Admin UI.
+     * Runs GuideSeeder or DatabaseSeeder via web request on PHP 8.3 without needing CLI terminal access.
+     */
+    public function seed(Request $request): RedirectResponse
+    {
+        $target = $request->input('target', 'guides');
+
+        try {
+            $class = match ($target) {
+                'all', 'database' => 'Database\\Seeders\\DatabaseSeeder',
+                default           => 'Database\\Seeders\\GuideSeeder',
+            };
+
+            \Illuminate\Support\Facades\Artisan::call('db:seed', [
+                '--class' => $class,
+                '--force' => true,
+            ]);
+
+            \Illuminate\Support\Facades\Artisan::call('optimize:clear');
+
+            $label = $target === 'all'
+                ? 'সম্পূর্ণ ডেটাবেজ ও নলেজ হাব'
+                : '১০টি এআই ও এসইও অপ্টিমাইজড নলেজ হাব গাইড';
+
+            return redirect()->route('admin.guides.index')
+                ->with('success', "অভিনন্দন! ১-ক্লিকে {$label} সফলভাবে ডেটাবেজে সিড ও হালনাগাদ সম্পন্ন হয়েছে।");
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Seeder execution failed from Admin UI: ' . $e->getMessage());
+
+            return redirect()->route('admin.guides.index')
+                ->with('error', 'সিড সম্পন্ন করা সম্ভব হয়নি: ' . $e->getMessage());
+        }
+    }
 }

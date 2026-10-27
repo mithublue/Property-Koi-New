@@ -247,4 +247,40 @@ class GuidesAndCalculatorsTest extends TestCase
         $response->assertSee('SpeakableSpecification');
         $response->assertSee('eporcha.gov.bd');
     }
+
+    public function test_admin_one_click_seeder_endpoint_and_ui()
+    {
+        $admin = User::factory()->create([
+            'role' => 'admin',
+        ]);
+
+        $regularUser = User::factory()->create([
+            'role' => 'buyer',
+        ]);
+
+        // 1. Guest is redirected to login
+        $this->post(route('admin.guides.seed'))->assertRedirect(route('login'));
+
+        // 2. Regular non-admin user is forbidden
+        $this->actingAs($regularUser)->postJson(route('admin.guides.seed'))->assertStatus(403);
+
+        // 3. Admin can view guides index with 1-click seeder button
+        $indexRes = $this->actingAs($admin)->get(route('admin.guides.index'));
+        $indexRes->assertStatus(200);
+        $indexRes->assertSee('১-ক্লিক ডেটাবেজ সিড');
+        $indexRes->assertSee('১০টি এআই গাইড সিড / সিঙ্ক');
+
+        // 4. Admin triggers 1-click seeder via Web
+        $this->assertEquals(0, Guide::count());
+
+        $seedRes = $this->actingAs($admin)->post(route('admin.guides.seed'), [
+            'target' => 'guides',
+        ]);
+
+        $seedRes->assertRedirect(route('admin.guides.index'));
+        $seedRes->assertSessionHas('success');
+
+        // Verify that GuideSeeder executed and populated the database
+        $this->assertEquals(10, Guide::count());
+    }
 }

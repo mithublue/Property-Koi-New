@@ -238,6 +238,7 @@ Route::prefix('backend')->name('admin.')->middleware('admin.access')->group(func
     Route::post('/properties/{property}/hidden-note', [AdminPropertyController::class, 'updateHiddenNote'])->name('properties.hidden-note');
 
     // 2.1 Property Guides & Articles Management
+    Route::post('/guides/seed', [AdminGuideController::class, 'seed'])->name('guides.seed');
     Route::resource('guides', AdminGuideController::class)->except(['show']);
     Route::post('/guides/{guide}/toggle-published', [AdminGuideController::class, 'togglePublished'])->name('guides.toggle-published');
     Route::post('/guides/upload-image', [AdminGuideController::class, 'uploadEditorImage'])->name('guides.upload-image');

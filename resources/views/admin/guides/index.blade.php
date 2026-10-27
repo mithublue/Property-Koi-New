@@ -45,10 +45,66 @@
             @endif
         </form>
 
-        <a href="{{ route('admin.guides.create') }}" data-turbo="false" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-xs transition shrink-0">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-            <span>নতুন গাইড লিখুন</span>
-        </a>
+        <div class="flex items-center flex-wrap gap-2.5 shrink-0" x-data="{ openSeedMenu: false }" @click.outside="openSeedMenu = false">
+            <!-- 1-Click Seeder Dropdown Button (Runs PHP 8.3 via Web Request) -->
+            <div class="relative">
+                <button type="button"
+                        @click="openSeedMenu = !openSeedMenu"
+                        class="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-700 hover:from-emerald-700 hover:to-cyan-800 text-white text-xs font-bold rounded-xl shadow-md transition cursor-pointer active:scale-95"
+                        title="টার্মিনাল ছাড়া সরাসরি ব্রাউজার থেকে সিড রান করুন">
+                    <svg class="w-4 h-4 text-emerald-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                    <span>⚡ ১-ক্লিক ডেটাবেজ সিড</span>
+                    <svg class="w-3.5 h-3.5 text-white/80 transition-transform" :class="openSeedMenu ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                </button>
+
+                <!-- Dropdown items -->
+                <div x-show="openSeedMenu"
+                     x-transition:enter="transition ease-out duration-150"
+                     x-transition:enter-start="opacity-0 translate-y-1 scale-95"
+                     x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                     x-transition:leave="transition ease-in duration-100"
+                     x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+                     x-transition:leave-end="opacity-0 translate-y-1 scale-95"
+                     class="absolute right-0 mt-2 w-72 bg-white rounded-2xl shadow-2xl border border-slate-200 p-2 z-50 divide-y divide-slate-100"
+                     style="display: none;">
+                    <div class="p-2">
+                        <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-1">ওয়ান-ক্লিক সিডার (Web / FPM)</span>
+                        <p class="text-[11px] text-slate-500 leading-normal m-0">টার্মিনালে না ঢুকে ওয়েব সার্ভার থেকেই ১-ক্লিকে সিড রান করুন।</p>
+                    </div>
+                    <div class="py-1 space-y-1">
+                        <form action="{{ route('admin.guides.seed') }}" method="POST" onsubmit="return confirm('১০টি এআই ও এসইও অপ্টিমাইজড নলেজ হাব গাইড সিড করবেন? বর্তমান ডেটা সুরক্ষিত থাকবে।')" class="m-0">
+                            @csrf
+                            <input type="hidden" name="target" value="guides">
+                            <button type="submit" class="w-full text-left px-3 py-2.5 rounded-xl hover:bg-emerald-50 text-slate-800 hover:text-emerald-800 transition flex items-start gap-2.5 cursor-pointer">
+                                <span class="text-base leading-none">📚</span>
+                                <div>
+                                    <span class="font-bold text-xs block leading-tight text-emerald-800">১০টি এআই গাইড সিড / সিঙ্ক</span>
+                                    <span class="text-[10px] text-slate-400">GuideSeeder (আইন, দলিল, রেট)</span>
+                                </div>
+                            </button>
+                        </form>
+
+                        <form action="{{ route('admin.guides.seed') }}" method="POST" onsubmit="return confirm('সম্পূর্ণ ডেটাবেজ (ইউজার, প্রপার্টি ও গাইডস) সিড করবেন?')" class="m-0">
+                            @csrf
+                            <input type="hidden" name="target" value="all">
+                            <button type="submit" class="w-full text-left px-3 py-2.5 rounded-xl hover:bg-slate-100 text-slate-800 hover:text-slate-900 transition flex items-start gap-2.5 cursor-pointer">
+                                <span class="text-base leading-none">🗄️</span>
+                                <div>
+                                    <span class="font-bold text-xs block leading-tight">সম্পূর্ণ ডেটাবেজ সিড করুন</span>
+                                    <span class="text-[10px] text-slate-400">DatabaseSeeder (Full Demo)</span>
+                                </div>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- New Guide Button -->
+            <a href="{{ route('admin.guides.create') }}" data-turbo="false" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-xs transition shrink-0">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                <span>নতুন গাইড লিখুন</span>
+            </a>
+        </div>
     </div>
 
     <!-- Guides Table -->

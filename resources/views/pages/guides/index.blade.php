@@ -111,9 +111,9 @@
                         </div>
                         <div class="mt-6 pt-6 border-t border-slate-100 flex items-center justify-between">
                             <div class="flex items-center gap-2.5 text-xs text-slate-500">
-                                <span class="w-7 h-7 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold">✍️</span>
+                                <span class="w-7 h-7 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold">🏢</span>
                                 <div>
-                                    <span class="font-bold text-slate-800 block">{{ $featuredGuide->author_name }}</span>
+                                    <span class="font-bold text-slate-800 block">Property Koi Desk</span>
                                     <span>{{ $featuredGuide->formatted_date }}</span>
                                 </div>
                             </div>

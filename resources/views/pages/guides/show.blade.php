@@ -34,66 +34,86 @@
                         <span class="text-xs text-slate-500 flex items-center gap-1">
                             <span>👁️</span> {{ number_format($guide->views_count) }} বার পঠিত
                         </span>
-                        <span class="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] font-bold">
-                            ✓ এআই ও এসইও অপ্টিমাইজড (AEO)
-                        </span>
                     </div>
 
                     <h1 class="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight leading-snug" itemprop="headline">
                         {{ $guide->title }}
                     </h1>
 
-                    <!-- AEO Quick Answer / AI Summary Box -->
+                    <!-- Summary Box -->
                     @if(!empty($guide->excerpt))
                         <div class="aeo-quick-summary my-6 p-5 sm:p-6 rounded-3xl bg-gradient-to-br from-emerald-50 via-teal-50 to-emerald-50 border-2 border-emerald-500/80 shadow-xs" data-aeo="summary">
                             <div class="flex items-center gap-2 mb-2 text-emerald-900 font-extrabold text-sm sm:text-base">
-                                <span class="text-lg">⚡</span>
-                                <span>দ্রুত সারসংক্ষেপ ও এআই সামারি (Quick Answer & Key Takeaways)</span>
+                                <span class="text-lg">📌</span>
+                                <span>সারসংক্ষেপ</span>
                             </div>
                             <p class="text-sm sm:text-base text-emerald-950 font-medium leading-relaxed m-0" itemprop="abstract">
                                 {{ $guide->excerpt }}
                             </p>
-                            <div class="mt-3 pt-3 border-t border-emerald-200/60 flex items-center justify-between flex-wrap gap-2 text-xs text-emerald-800">
-                                <span class="flex items-center gap-1 font-semibold"><span>✓</span> সরকারি আইন ও ভূমি রেকর্ড ২০২৬ অনুযায়ী তথ্য যাচাইকৃত</span>
-                                <span class="font-bold text-emerald-700 bg-white/80 px-2 py-0.5 rounded-md border border-emerald-200">AEO Verified</span>
-                            </div>
                         </div>
                     @endif
 
                     <div class="mt-6 flex items-center justify-between flex-wrap gap-4 pt-4 border-t border-slate-100 text-xs">
                         <div class="flex items-center gap-3" itemprop="author" itemscope itemtype="https://schema.org/Person">
                             <div class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-sm">
-                                ✍️
+                                🏢
                             </div>
                             <div>
-                                <span class="font-bold text-slate-800 block text-sm" itemprop="name">{{ $guide->author_name ?: 'PropertyKoi Research Team' }}</span>
+                                <span class="font-bold text-slate-800 block text-sm" itemprop="name">Property Koi Desk</span>
                                 <span class="text-slate-400">আপডেট: <time itemprop="dateModified" datetime="{{ $guide->updated_at ? $guide->updated_at->toIso8601String() : now()->toIso8601String() }}">{{ $guide->formatted_date }}</time></span>
                                 <meta itemprop="datePublished" content="{{ $guide->created_at ? $guide->created_at->toIso8601String() : now()->toIso8601String() }}">
                             </div>
                         </div>
 
-                        <!-- Social Share Pill -->
-                        <div class="flex items-center gap-2" x-data="{ copied: false }">
+                        <!-- Social Share Actions with Original Brand SVGs -->
+                        <div class="flex items-center flex-wrap gap-2" x-data="{ copied: false }">
                             <span class="text-slate-400 text-xs font-semibold mr-1">শেয়ার:</span>
-                            <a href="https://api.whatsapp.com/send?text={{ urlencode($guide->title . ' ' . url()->current()) }}"
-                               target="_blank"
-                               rel="noopener"
-                               class="w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white transition flex items-center justify-center font-bold text-xs"
-                               title="WhatsApp এ শেয়ার করুন">
-                                WA
-                            </a>
+
+                            <!-- Facebook -->
                             <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(url()->current()) }}"
                                target="_blank"
-                               rel="noopener"
-                               class="w-8 h-8 rounded-full bg-sky-50 text-sky-600 hover:bg-sky-600 hover:text-white transition flex items-center justify-center font-bold text-xs"
-                               title="Facebook এ শেয়ার করুন">
-                                FB
+                               rel="noopener noreferrer"
+                               title="Facebook-এ শেয়ার করুন"
+                               class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#1877F2]/10 hover:bg-[#1877F2] text-[#1877F2] hover:text-white text-xs font-bold transition shadow-2xs group">
+                                <svg class="w-4 h-4 fill-current shrink-0 transition-transform group-hover:scale-110" viewBox="0 0 24 24">
+                                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                                </svg>
+                                <span>Facebook</span>
                             </a>
+
+                            <!-- WhatsApp -->
+                            <a href="https://api.whatsapp.com/send?text={{ urlencode($guide->title . ' ' . url()->current()) }}"
+                               target="_blank"
+                               rel="noopener noreferrer"
+                               title="WhatsApp-এ শেয়ার করুন"
+                               class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#25D366]/10 hover:bg-[#25D366] text-[#128C7E] hover:text-white text-xs font-bold transition shadow-2xs group">
+                                <svg class="w-4 h-4 fill-current shrink-0 transition-transform group-hover:scale-110" viewBox="0 0 24 24">
+                                    <path d="M12.031 0C5.39 0 0 5.39 0 12.031c0 2.125.555 4.198 1.609 6.02L.062 24l6.133-1.609a12.002 12.002 0 005.836 1.512h.005c6.64 0 12.031-5.391 12.031-12.031 0-3.219-1.25-6.242-3.523-8.516A11.95 11.95 0 0012.031 0zm-.005 21.996h-.004a9.99 9.99 0 01-5.093-1.398l-.367-.219-3.781.992 1.01-3.687-.24-.383a9.972 9.972 0 01-1.531-5.27c0-5.523 4.492-10.016 10.016-10.016 2.672 0 5.187 1.047 7.078 2.938a9.96 9.96 0 012.937 7.078c0 5.523-4.492 10.016-10.02 10.016zm5.485-7.492c-.3-.15-1.773-.875-2.05-.973-.273-.1-.476-.15-.672.15-.2.3-.77.973-.945 1.172-.176.2-.348.223-.648.074-.3-.15-1.27-.469-2.42-1.492-.894-.797-1.496-1.785-1.672-2.086-.176-.3-.02-.465.13-.613.136-.137.3-.348.45-.523.15-.176.2-.3.3-.5.1-.2.05-.375-.023-.523-.075-.15-.672-1.62-.922-2.22-.246-.582-.496-.5-.672-.511-.176-.008-.375-.008-.574-.008-.2 0-.523.074-.797.375-.273.3-1.047 1.023-1.047 2.5 0 1.473 1.074 2.898 1.223 3.098.15.2 2.113 3.227 5.121 4.523.715.309 1.273.492 1.707.63.719.227 1.375.195 1.895.117.578-.086 1.773-.727 2.023-1.426.25-.7.25-1.3.176-1.426-.075-.125-.274-.2-.574-.35z"/>
+                                </svg>
+                                <span>WhatsApp</span>
+                            </a>
+
+                            <!-- Telegram -->
+                            <a href="https://t.me/share/url?url={{ urlencode(url()->current()) }}&text={{ urlencode($guide->title) }}"
+                               target="_blank"
+                               rel="noopener noreferrer"
+                               title="Telegram-এ শেয়ার করুন"
+                               class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#0088cc]/10 hover:bg-[#0088cc] text-[#0088cc] hover:text-white text-xs font-bold transition shadow-2xs group">
+                                <svg class="w-4 h-4 fill-current shrink-0 transition-transform group-hover:scale-110" viewBox="0 0 24 24">
+                                    <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.121l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.195 1.006.131.832.922z"/>
+                                </svg>
+                                <span>Telegram</span>
+                            </a>
+
+                            <!-- Copy Link Button -->
                             <button type="button"
                                     @click="navigator.clipboard.writeText(window.location.href); copied = true; setTimeout(() => copied = false, 2500)"
-                                    class="px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition text-xs font-semibold flex items-center gap-1 cursor-pointer">
-                                <span x-show="!copied">🔗 লিংক কপি</span>
-                                <span x-show="copied" class="text-emerald-700 font-bold">✅ কপি হয়েছে!</span>
+                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-800 text-slate-700 hover:text-white transition text-xs font-bold cursor-pointer group shadow-2xs">
+                                <svg x-show="!copied" class="w-3.5 h-3.5 fill-none stroke-current stroke-2 shrink-0 transition-transform group-hover:scale-110" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                                </svg>
+                                <span x-show="!copied">লিংক কপি</span>
+                                <span x-show="copied" class="text-emerald-700 font-black">✅ কপি হয়েছে!</span>
                             </button>
                         </div>
                     </div>

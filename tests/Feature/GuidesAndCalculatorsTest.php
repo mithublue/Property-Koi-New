@@ -242,7 +242,9 @@ class GuidesAndCalculatorsTest extends TestCase
         $response = $this->get(route('guides.show', $firstGuide->slug));
         $response->assertStatus(200);
         $response->assertSee('aeo-quick-summary');
-        $response->assertSee('AEO Verified');
+        $response->assertSee('সারসংক্ষেপ');
+        $response->assertSee('Property Koi Desk');
+        $response->assertDontSeeText('এআই সামারি');
         $response->assertSee('FAQPage');
         $response->assertSee('SpeakableSpecification');
         $response->assertSee('eporcha.gov.bd');

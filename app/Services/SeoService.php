@@ -1145,7 +1145,7 @@ class SeoService
     ): array {
         $siteName = self::getSiteName();
         $siteUrl = url('/');
-        $authorName = $guide->author_name ?: $siteName . ' Real Estate Research & Legal Cell';
+        $authorName = 'Property Koi Desk';
 
         $keywordsList = array_map('trim', explode(',', $guide->seo_keywords ?: ''));
         $keywordsList = array_filter($keywordsList);

@@ -1251,25 +1251,47 @@
                         <a href="https://www.facebook.com/sharer/sharer.php?u={{ $encodedShareUrl }}"
                            target="_blank" rel="noopener noreferrer"
                            @click="trackShare('facebook')"
-                           class="py-2 rounded-xl bg-[#1877F2]/10 hover:bg-[#1877F2] text-[#1877F2] hover:text-white text-[11px] font-bold text-center transition">
-                            Facebook
+                           title="Facebook-এ শেয়ার করুন"
+                           class="flex items-center justify-center gap-1.5 py-2 px-1 rounded-xl bg-[#1877F2]/10 hover:bg-[#1877F2] text-[#1877F2] hover:text-white text-[11px] font-bold text-center transition shadow-2xs group">
+                            <svg class="w-3.5 h-3.5 fill-current shrink-0 transition-transform group-hover:scale-110" viewBox="0 0 24 24">
+                                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                            </svg>
+                            <span>Facebook</span>
                         </a>
+
                         <a href="https://api.whatsapp.com/send?text={{ $encodedShareText }}"
                            target="_blank" rel="noopener noreferrer"
                            @click="trackShare('whatsapp')"
-                           class="py-2 rounded-xl bg-[#25D366]/10 hover:bg-[#25D366] text-[#128C7E] hover:text-white text-[11px] font-bold text-center transition">
-                            WhatsApp
+                           title="WhatsApp-এ শেয়ার করুন"
+                           class="flex items-center justify-center gap-1.5 py-2 px-1 rounded-xl bg-[#25D366]/10 hover:bg-[#25D366] text-[#128C7E] hover:text-white text-[11px] font-bold text-center transition shadow-2xs group">
+                            <svg class="w-3.5 h-3.5 fill-current shrink-0 transition-transform group-hover:scale-110" viewBox="0 0 24 24">
+                                <path d="M12.031 0C5.39 0 0 5.39 0 12.031c0 2.125.555 4.198 1.609 6.02L.062 24l6.133-1.609a12.002 12.002 0 005.836 1.512h.005c6.64 0 12.031-5.391 12.031-12.031 0-3.219-1.25-6.242-3.523-8.516A11.95 11.95 0 0012.031 0zm-.005 21.996h-.004a9.99 9.99 0 01-5.093-1.398l-.367-.219-3.781.992 1.01-3.687-.24-.383a9.972 9.972 0 01-1.531-5.27c0-5.523 4.492-10.016 10.016-10.016 2.672 0 5.187 1.047 7.078 2.938a9.96 9.96 0 012.937 7.078c0 5.523-4.492 10.016-10.02 10.016zm5.485-7.492c-.3-.15-1.773-.875-2.05-.973-.273-.1-.476-.15-.672.15-.2.3-.77.973-.945 1.172-.176.2-.348.223-.648.074-.3-.15-1.27-.469-2.42-1.492-.894-.797-1.496-1.785-1.672-2.086-.176-.3-.02-.465.13-.613.136-.137.3-.348.45-.523.15-.176.2-.3.3-.5.1-.2.05-.375-.023-.523-.075-.15-.672-1.62-.922-2.22-.246-.582-.496-.5-.672-.511-.176-.008-.375-.008-.574-.008-.2 0-.523.074-.797.375-.273.3-1.047 1.023-1.047 2.5 0 1.473 1.074 2.898 1.223 3.098.15.2 2.113 3.227 5.121 4.523.715.309 1.273.492 1.707.63.719.227 1.375.195 1.895.117.578-.086 1.773-.727 2.023-1.426.25-.7.25-1.3.176-1.426-.075-.125-.274-.2-.574-.35z"/>
+                            </svg>
+                            <span>WhatsApp</span>
                         </a>
+
                         <a href="https://t.me/share/url?url={{ $encodedShareUrl }}&text={{ urlencode($shareTitle) }}"
                            target="_blank" rel="noopener noreferrer"
                            @click="trackShare('telegram')"
-                           class="py-2 rounded-xl bg-[#0088cc]/10 hover:bg-[#0088cc] text-[#0088cc] hover:text-white text-[11px] font-bold text-center transition">
-                            Telegram
+                           title="Telegram-এ শেয়ার করুন"
+                           class="flex items-center justify-center gap-1.5 py-2 px-1 rounded-xl bg-[#0088cc]/10 hover:bg-[#0088cc] text-[#0088cc] hover:text-white text-[11px] font-bold text-center transition shadow-2xs group">
+                            <svg class="w-3.5 h-3.5 fill-current shrink-0 transition-transform group-hover:scale-110" viewBox="0 0 24 24">
+                                <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.121l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.195 1.006.131.832.922z"/>
+                            </svg>
+                            <span>Telegram</span>
                         </a>
+
                         <button type="button"
                                 @click="copyPropertyLink()"
-                                class="py-2 rounded-xl bg-slate-100 hover:bg-slate-800 text-slate-700 hover:text-white text-[11px] font-bold text-center transition cursor-pointer">
-                            <span x-text="copiedLink ? 'কপিড!' : 'Copy'"></span>
+                                title="লিংক কপি করুন"
+                                class="flex items-center justify-center gap-1.5 py-2 px-1 rounded-xl bg-slate-100 hover:bg-slate-800 text-slate-700 hover:text-white text-[11px] font-bold text-center transition cursor-pointer shadow-2xs group">
+                            <svg x-show="!copiedLink" class="w-3.5 h-3.5 fill-none stroke-current stroke-2 shrink-0 transition-transform group-hover:scale-110" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                            </svg>
+                            <svg x-show="copiedLink" x-cloak class="w-3.5 h-3.5 fill-none stroke-emerald-600 stroke-2 shrink-0" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            <span x-text="copiedLink ? 'কপিড!' : 'Copy'">Copy</span>
                         </button>
                     </div>
                 </div>

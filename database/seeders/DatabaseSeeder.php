@@ -300,5 +300,8 @@ class DatabaseSeeder extends Seeder
             'status' => 'active',
             'unsubscribe_token' => Str::random(32),
         ]);
+
+        // 7. Comprehensive Real Estate Knowledge Hub & Guides (High Authority SEO & AEO)
+        $this->call(GuideSeeder::class);
     }
 }

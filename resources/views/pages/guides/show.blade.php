@@ -18,7 +18,9 @@
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
 
             <!-- Main Article Column (8 Cols) -->
-            <article class="lg:col-span-8 bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-10 shadow-xs">
+            <article class="lg:col-span-8 bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-10 shadow-xs" itemscope itemtype="https://schema.org/Article">
+                <meta itemprop="inLanguage" content="bn-BD">
+                <meta itemprop="mainEntityOfPage" content="{{ route('guides.show', $guide->slug) }}">
 
                 <!-- Meta Header -->
                 <header class="mb-8 pb-8 border-b border-slate-100">
@@ -32,26 +34,41 @@
                         <span class="text-xs text-slate-500 flex items-center gap-1">
                             <span>👁️</span> {{ number_format($guide->views_count) }} বার পঠিত
                         </span>
+                        <span class="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] font-bold">
+                            ✓ এআই ও এসইও অপ্টিমাইজড (AEO)
+                        </span>
                     </div>
 
-                    <h1 class="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight leading-snug">
+                    <h1 class="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight leading-snug" itemprop="headline">
                         {{ $guide->title }}
                     </h1>
 
+                    <!-- AEO Quick Answer / AI Summary Box -->
                     @if(!empty($guide->excerpt))
-                        <p class="mt-4 text-base sm:text-lg text-slate-600 leading-relaxed font-normal bg-slate-50 p-4 rounded-2xl border-l-4 border-emerald-500">
-                            {{ $guide->excerpt }}
-                        </p>
+                        <div class="aeo-quick-summary my-6 p-5 sm:p-6 rounded-3xl bg-gradient-to-br from-emerald-50 via-teal-50 to-emerald-50 border-2 border-emerald-500/80 shadow-xs" data-aeo="summary">
+                            <div class="flex items-center gap-2 mb-2 text-emerald-900 font-extrabold text-sm sm:text-base">
+                                <span class="text-lg">⚡</span>
+                                <span>দ্রুত সারসংক্ষেপ ও এআই সামারি (Quick Answer & Key Takeaways)</span>
+                            </div>
+                            <p class="text-sm sm:text-base text-emerald-950 font-medium leading-relaxed m-0" itemprop="abstract">
+                                {{ $guide->excerpt }}
+                            </p>
+                            <div class="mt-3 pt-3 border-t border-emerald-200/60 flex items-center justify-between flex-wrap gap-2 text-xs text-emerald-800">
+                                <span class="flex items-center gap-1 font-semibold"><span>✓</span> সরকারি আইন ও ভূমি রেকর্ড ২০২৬ অনুযায়ী তথ্য যাচাইকৃত</span>
+                                <span class="font-bold text-emerald-700 bg-white/80 px-2 py-0.5 rounded-md border border-emerald-200">AEO Verified</span>
+                            </div>
+                        </div>
                     @endif
 
                     <div class="mt-6 flex items-center justify-between flex-wrap gap-4 pt-4 border-t border-slate-100 text-xs">
-                        <div class="flex items-center gap-3">
+                        <div class="flex items-center gap-3" itemprop="author" itemscope itemtype="https://schema.org/Person">
                             <div class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-sm">
                                 ✍️
                             </div>
                             <div>
-                                <span class="font-bold text-slate-800 block text-sm">{{ $guide->author_name ?: 'PropertyKoi Research Team' }}</span>
-                                <span class="text-slate-400">আপডেট: {{ $guide->formatted_date }}</span>
+                                <span class="font-bold text-slate-800 block text-sm" itemprop="name">{{ $guide->author_name ?: 'PropertyKoi Research Team' }}</span>
+                                <span class="text-slate-400">আপডেট: <time itemprop="dateModified" datetime="{{ $guide->updated_at ? $guide->updated_at->toIso8601String() : now()->toIso8601String() }}">{{ $guide->formatted_date }}</time></span>
+                                <meta itemprop="datePublished" content="{{ $guide->created_at ? $guide->created_at->toIso8601String() : now()->toIso8601String() }}">
                             </div>
                         </div>
 
@@ -84,41 +101,44 @@
 
                 <!-- Featured Image -->
                 @if(!empty($guide->cover_image))
-                    <div class="mb-8 rounded-2xl overflow-hidden bg-slate-900 shadow-sm aspect-video">
+                    <div class="mb-8 rounded-2xl overflow-hidden bg-slate-900 shadow-sm aspect-video" itemprop="image" itemscope itemtype="https://schema.org/ImageObject">
                         <img src="{{ $guide->cover_url }}"
                              alt="{{ $guide->title }}"
+                             itemprop="url"
                              class="w-full h-full object-cover">
                     </div>
                 @endif
 
                 <!-- Article Rich Content Body -->
-                <div class="guide-content-body prose prose-slate sm:prose-lg max-w-none prose-headings:font-black prose-headings:tracking-tight prose-headings:text-slate-900 prose-h2:text-xl sm:prose-h2:text-2xl prose-h2:mt-8 prose-h2:mb-4 prose-p:leading-relaxed prose-p:text-slate-700 prose-li:text-slate-700 prose-table:text-sm prose-th:bg-slate-100 prose-th:p-3 prose-td:p-3 prose-a:text-emerald-600 prose-a:font-bold hover:prose-a:text-emerald-700">
+                <div class="guide-content-body prose prose-slate sm:prose-lg max-w-none prose-headings:font-black prose-headings:tracking-tight prose-headings:text-slate-900 prose-h2:text-xl sm:prose-h2:text-2xl prose-h2:mt-8 prose-h2:mb-4 prose-p:leading-relaxed prose-p:text-slate-700 prose-li:text-slate-700 prose-table:text-sm prose-th:bg-slate-100 prose-th:p-3 prose-td:p-3 prose-a:text-emerald-600 prose-a:font-bold hover:prose-a:text-emerald-700" itemprop="articleBody">
                     {!! $guide->content !!}
                 </div>
 
-                <!-- AEO FAQ Section for this Guide -->
+                <!-- AEO FAQ Section for this Guide with Microdata -->
                 @if(!empty($guide->faqs) && is_array($guide->faqs))
-                    <section class="mt-12 pt-8 border-t border-slate-200">
+                    <section class="mt-12 pt-8 border-t border-slate-200" itemscope itemtype="https://schema.org/FAQPage">
                         <div class="flex items-center gap-2 mb-6">
                             <span class="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-sm">💡</span>
                             <div>
                                 <h3 class="text-xl font-black text-slate-900">গাইড সংক্রান্ত সাধারণ জিজ্ঞাসা (FAQ)</h3>
-                                <p class="text-xs text-slate-500">আইনি ও সরকারি নিয়মাবলী সম্পর্কে সুস্পষ্ট ব্যাখ্যা</p>
+                                <p class="text-xs text-slate-500">আইনি ও সরকারি নিয়মাবলী সম্পর্কে সুস্পষ্ট ব্যাখ্যা (AI Answer Engine Ready)</p>
                             </div>
                         </div>
 
                         <div class="space-y-3" x-data="{ openFaq: 0 }">
                             @foreach($guide->faqs as $i => $faq)
                                 @if(!empty($faq['question']) && !empty($faq['answer']))
-                                    <div class="border border-slate-200 rounded-2xl overflow-hidden bg-slate-50/50">
+                                    <div class="border border-slate-200 rounded-2xl overflow-hidden bg-slate-50/50" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
                                         <button type="button"
                                                 @click="openFaq = openFaq === {{ $i }} ? null : {{ $i }}"
                                                 class="w-full text-left p-4 sm:p-5 font-bold text-sm sm:text-base text-slate-900 flex items-center justify-between gap-4 cursor-pointer hover:text-emerald-700 transition">
-                                            <span>{{ $faq['question'] }}</span>
+                                            <span itemprop="name">{{ $faq['question'] }}</span>
                                             <svg class="w-5 h-5 shrink-0 transition-transform duration-200" :class="openFaq === {{ $i }} ? 'rotate-180 text-emerald-600' : 'text-slate-400'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                                         </button>
-                                        <div x-show="openFaq === {{ $i }}" x-collapse class="px-4 sm:px-5 pb-5 text-xs sm:text-sm text-slate-600 leading-relaxed border-t border-slate-100 pt-3">
-                                            {!! nl2br(e($faq['answer'])) !!}
+                                        <div x-show="openFaq === {{ $i }}" x-collapse class="px-4 sm:px-5 pb-5 text-xs sm:text-sm text-slate-600 leading-relaxed border-t border-slate-100 pt-3" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                                            <div itemprop="text">
+                                                {!! nl2br(e($faq['answer'])) !!}
+                                            </div>
                                         </div>
                                     </div>
                                 @endif

@@ -227,4 +227,24 @@ class GuidesAndCalculatorsTest extends TestCase
         $generalRes->assertStatus(200);
         $generalRes->assertSee('Plots &amp; Land for Sale in Dhaka &amp; Bangladesh', false);
     }
+
+    public function test_guide_seeder_runs_cleanly_and_renders_aeo_and_schema_tags()
+    {
+        $this->seed(\Database\Seeders\GuideSeeder::class);
+
+        // Verify all 10 guides exist in database
+        $this->assertEquals(10, Guide::count());
+
+        $firstGuide = Guide::where('slug', 'jomir-dolil-o-namjari-khotian-jachai-guide-2026')->first();
+        $this->assertNotNull($firstGuide);
+
+        // Request page and test AEO elements
+        $response = $this->get(route('guides.show', $firstGuide->slug));
+        $response->assertStatus(200);
+        $response->assertSee('aeo-quick-summary');
+        $response->assertSee('AEO Verified');
+        $response->assertSee('FAQPage');
+        $response->assertSee('SpeakableSpecification');
+        $response->assertSee('eporcha.gov.bd');
+    }
 }

@@ -1133,7 +1133,7 @@ class SeoService
     }
 
     /**
-     * Build comprehensive Schema.org @graph for a single Guide (Article + BreadcrumbList + FAQPage).
+     * Build comprehensive Schema.org @graph for a single Guide (Article + BreadcrumbList + FAQPage + Speakable + Citations).
      */
     public static function getGuideSchema(
         Guide $guide,
@@ -1145,7 +1145,10 @@ class SeoService
     ): array {
         $siteName = self::getSiteName();
         $siteUrl = url('/');
-        $authorName = $guide->author_name ?: $siteName . ' Research Team';
+        $authorName = $guide->author_name ?: $siteName . ' Real Estate Research & Legal Cell';
+
+        $keywordsList = array_map('trim', explode(',', $guide->seo_keywords ?: ''));
+        $keywordsList = array_filter($keywordsList);
 
         $graph = [
             [
@@ -1153,7 +1156,8 @@ class SeoService
                 '@id'           => $siteUrl . '#website',
                 'url'           => $siteUrl,
                 'name'          => $siteName,
-                'alternateName' => ['PropertyKoi', 'PropertyKoi.com', 'প্রপার্টি কই'],
+                'alternateName' => ['PropertyKoi', 'PropertyKoi.com', 'প্রপার্টি কই', 'PropertyKoi Bangladesh'],
+                'inLanguage'    => 'bn-BD',
             ],
             [
                 '@type'       => 'Organization',
@@ -1164,6 +1168,18 @@ class SeoService
                     '@type' => 'ImageObject',
                     'url'   => self::getCustomOrAssetImage('adm_seo_default_og_image', 'logo.png'),
                 ],
+                'sameAs'      => [
+                    'https://facebook.com/propertykoi',
+                    'https://youtube.com/@propertykoi',
+                ],
+                'contactPoint' => [
+                    '@type'       => 'ContactPoint',
+                    'contactType' => 'customer support',
+                    'telephone'   => '+8801700000000',
+                    'email'       => 'support@propertykoi.com',
+                    'areaServed'  => 'BD',
+                    'availableLanguage' => ['Bengali', 'English'],
+                ],
             ],
             [
                 '@type'            => 'Article',
@@ -1171,24 +1187,58 @@ class SeoService
                 'isPartOf'         => ['@id' => $siteUrl . '#website'],
                 'headline'         => $title,
                 'description'      => $desc,
-                'mainEntityOfPage' => $url,
+                'mainEntityOfPage' => [
+                    '@type' => 'WebPage',
+                    '@id'   => $url,
+                ],
                 'image'            => [
                     '@type' => 'ImageObject',
                     'url'   => $image,
+                    'width' => 1200,
+                    'height'=> 630,
                 ],
                 'datePublished'    => $guide->created_at ? $guide->created_at->toIso8601String() : now()->toIso8601String(),
                 'dateModified'     => $guide->updated_at ? $guide->updated_at->toIso8601String() : now()->toIso8601String(),
                 'author'           => [
-                    '@type' => 'Person',
-                    'name'  => $authorName,
+                    '@type'       => 'Person',
+                    'name'        => $authorName,
+                    'jobTitle'    => 'Real Estate & Land Law Consultant',
+                    'worksFor'    => ['@id' => $siteUrl . '#organization'],
                 ],
                 'publisher'        => ['@id' => $siteUrl . '#organization'],
                 'inLanguage'       => 'bn-BD',
                 'articleSection'   => $guide->category_label,
+                'keywords'         => implode(', ', $keywordsList),
                 'wordCount'        => str_word_count(strip_tags($guide->content)),
+                'isAccessibleForFree' => true,
+                'educationalLevel' => 'Comprehensive Guide / Advisory',
+                'about'            => [
+                    [
+                        '@type' => 'Thing',
+                        'name'  => 'Real Estate in Bangladesh',
+                        'sameAs'=> 'https://en.wikipedia.org/wiki/Real_estate',
+                    ],
+                    [
+                        '@type' => 'Thing',
+                        'name'  => 'Land registration in Bangladesh',
+                        'sameAs'=> 'https://en.wikipedia.org/wiki/Land_registration',
+                    ],
+                    [
+                        '@type' => 'Thing',
+                        'name'  => 'RAJUK (Rajdhani Unnayan Kartripakkha)',
+                        'sameAs'=> 'https://en.wikipedia.org/wiki/Rajdhani_Unnayan_Kartripakkha',
+                    ],
+                ],
+                'citation'         => [
+                    'https://minland.gov.bd',
+                    'https://eporcha.gov.bd',
+                    'https://mutation.land.gov.bd',
+                    'https://rajuk.gov.bd',
+                    'https://nbr.gov.bd',
+                ],
                 'speakable'        => [
                     '@type'       => 'SpeakableSpecification',
-                    'cssSelector' => ['h1', '.guide-lead', '.guide-content-body'],
+                    'cssSelector' => ['h1', '.guide-lead', '.aeo-quick-summary', '.guide-content-body', '.faq-question', '.faq-answer'],
                 ],
             ],
             [

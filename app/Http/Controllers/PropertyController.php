@@ -304,7 +304,7 @@ class PropertyController extends Controller
         ]);
     }
 
-    public function show(string $slug): View
+    public function show(Request $request, string $slug): View
     {
         $propertyQuery = Property::with([
             'land',
@@ -323,8 +323,23 @@ class PropertyController extends Controller
 
         $property = $propertyQuery->firstOrFail();
 
-        // Increment views count safely
-        $property->increment('views_count');
+        // Increment views count safely for unique visitor visits (ignore admins, bots, and repeated reloads)
+        $isAdmin = auth()->check() && (auth()->user()->isAdmin() || auth()->user()->role === 'admin' || auth()->user()->role === 'administrator');
+        $ua = strtolower((string) request()->userAgent());
+        $isBot = (bool) preg_match('/(bot|crawl|spider|slurp|facebookexternalhit|whatsapp|preview)/i', $ua);
+
+        if (!$isAdmin && !$isBot) {
+            $visitorId = md5(request()->ip() . '|' . ($request->userAgent() ?? 'ua'));
+            $cacheKey = "viewed_prop_{$property->id}_{$visitorId}";
+            $sessionKey = "viewed_prop_{$property->id}";
+
+            if (!cache()->has($cacheKey) && !session()->has($sessionKey)) {
+                $property->increment('views_count');
+                $property->views_count++;
+                cache()->put($cacheKey, true, now()->addHours(24));
+                session()->put($sessionKey, true);
+            }
+        }
 
         // Fetch approved reviews for this property or its primary sources
         $sourceUserIds = $property->directSources->pluck('source_user_id')->filter()->unique()->toArray();

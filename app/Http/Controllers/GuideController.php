@@ -65,16 +65,31 @@ class GuideController extends Controller
         ));
     }
 
-    public function show(string $slug): View
+    public function show(Request $request, string $slug): View
     {
         $guide = Guide::where('slug', $slug)
             ->orWhere('id', $slug)
             ->firstOrFail();
 
-        // Increment view counter safely without updating timestamp
-        $guide->timestamps = false;
-        $guide->increment('views_count');
-        $guide->timestamps = true;
+        // Increment view counter safely for unique visitor visits (ignore admins, bots, and repeated reloads)
+        $isAdmin = auth()->check() && (auth()->user()->isAdmin() || auth()->user()->role === 'admin' || auth()->user()->role === 'administrator');
+        $ua = strtolower((string) request()->userAgent());
+        $isBot = (bool) preg_match('/(bot|crawl|spider|slurp|facebookexternalhit|whatsapp|preview)/i', $ua);
+
+        if (!$isAdmin && !$isBot) {
+            $visitorId = md5(request()->ip() . '|' . (request()->userAgent() ?? 'ua'));
+            $cacheKey = "viewed_guide_{$guide->id}_{$visitorId}";
+            $sessionKey = "viewed_guide_{$guide->id}";
+
+            if (!cache()->has($cacheKey) && !session()->has($sessionKey)) {
+                $guide->timestamps = false;
+                $guide->increment('views_count');
+                $guide->timestamps = true;
+                $guide->views_count++;
+                cache()->put($cacheKey, true, now()->addHours(24));
+                session()->put($sessionKey, true);
+            }
+        }
 
         $relatedGuides = Guide::published()
             ->where('id', '!=', $guide->id)

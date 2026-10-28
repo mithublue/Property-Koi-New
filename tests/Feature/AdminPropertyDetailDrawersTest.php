@@ -89,12 +89,46 @@ class AdminPropertyDetailDrawersTest extends TestCase
     {
         $response = $this->actingAs($this->admin)->get(route('property.show', $this->property->slug));
         $response->assertStatus(200);
+        $response->assertSee('অ্যাডমিন কুইক কন্ট্রোল প্যানেল');
         $response->assertSee('View all data');
         $response->assertSee('✏️ Edit');
         $response->assertSee('adminViewDrawerOpen');
         $response->assertSee('adminEditDrawerOpen');
         $response->assertSee('id="admin-view-all-content"', false);
         $response->assertSee('id="admin-edit-form-content"', false);
+    }
+
+    public function test_page_view_count_is_unique_and_does_not_increment_on_reloads_or_admin_views(): void
+    {
+        // Initial count is 0
+        $this->assertEquals(0, (int) $this->property->views_count);
+
+        // 1. Guest visits for the first time -> count becomes 1
+        $res1 = $this->withServerVariables(['REMOTE_ADDR' => '103.20.10.1'])
+                     ->get(route('property.show', $this->property->slug));
+        $res1->assertStatus(200);
+        $this->assertEquals(1, (int) $this->property->fresh()->views_count);
+
+        // 2. Same guest reloads the page -> count remains 1
+        $res2 = $this->withServerVariables(['REMOTE_ADDR' => '103.20.10.1'])
+                     ->get(route('property.show', $this->property->slug));
+        $res2->assertStatus(200);
+        $this->assertEquals(1, (int) $this->property->fresh()->views_count);
+
+        // 3. Admin visits/reloads -> count never increments for admin
+        $resAdmin = $this->actingAs($this->admin)
+                         ->withServerVariables(['REMOTE_ADDR' => '103.20.10.2'])
+                         ->get(route('property.show', $this->property->slug));
+        $resAdmin->assertStatus(200);
+        $this->assertEquals(1, (int) $this->property->fresh()->views_count);
+
+        // 4. A different guest visitor arrives with a fresh session -> count becomes 2
+        auth()->logout();
+        $this->flushSession();
+        $res3 = $this->withServerVariables(['REMOTE_ADDR' => '103.20.10.99', 'HTTP_USER_AGENT' => 'AnotherBrowser'])
+                     ->get(route('property.show', $this->property->slug));
+        $res3->assertStatus(200);
+        $this->assertEquals(2, (int) $this->property->fresh()->views_count);
     }
 
     public function test_admin_can_fetch_quick_view_via_ajax_with_hidden_notes_and_owner_whatsapp(): void

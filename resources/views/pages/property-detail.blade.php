@@ -466,6 +466,43 @@
          }
      }">
 
+    @if($isAdmin)
+        <!-- ========================================== -->
+        <!-- PROMINENT ADMIN CONTROLS BAR (TOP OF PAGE) -->
+        <!-- ========================================== -->
+        <div class="bg-gradient-to-r from-slate-950 via-slate-900 to-indigo-950 text-white p-4 sm:p-5 rounded-3xl shadow-xl border-2 border-amber-400 flex flex-wrap items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <span class="w-10 h-10 rounded-2xl bg-amber-400 text-slate-950 flex items-center justify-center font-black text-xl shadow-md">🛡️</span>
+                <div>
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <span class="font-extrabold text-sm sm:text-base text-white tracking-wide">অ্যাডমিন কুইক কন্ট্রোল প্যানেল</span>
+                        <span class="px-2.5 py-0.5 rounded-lg bg-amber-400/20 text-amber-300 font-mono text-xs font-black border border-amber-400/40">#{{ $p->property_code }}</span>
+                        <span class="px-2 py-0.5 rounded-lg text-xs font-black {{ $p->status === 'live' ? 'bg-emerald-600 text-white' : 'bg-amber-500 text-slate-950' }}">{{ strtoupper($p->status) }}</span>
+                    </div>
+                    <p class="text-xs text-slate-300 m-0 mt-0.5">হিডেন নোট, সোর্স যোগাযোগ ও ডানদিকের ড্রয়ার এডিটর (শুধুমাত্র অ্যাডমিন ভিউ)</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2.5 flex-wrap">
+                <button type="button"
+                        @click="openAdminViewDrawer()"
+                        class="px-4 py-2.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs sm:text-sm rounded-xl shadow-lg transition flex items-center gap-2 cursor-pointer active:scale-95">
+                    <span>👁️</span> <span>View all data</span>
+                </button>
+                <button type="button"
+                        @click="openAdminEditDrawer()"
+                        class="px-4 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white font-black text-xs sm:text-sm rounded-xl shadow-lg transition flex items-center gap-2 cursor-pointer active:scale-95">
+                    <span>✏️</span> <span>Edit</span>
+                </button>
+                <a href="{{ route('admin.properties.edit', $p) }}" target="_blank"
+                   class="px-3.5 py-2.5 bg-white/10 hover:bg-white/20 text-white font-bold text-xs rounded-xl border border-white/20 transition flex items-center gap-1.5"
+                   title="ব্যাকএন্ড পূর্ণ পেজে এডিট">
+                    <span>↗ Full Backend Edit</span>
+                </a>
+            </div>
+        </div>
+    @endif
+
     <!-- Breadcrumb -->
     <nav aria-label="Breadcrumb" class="flex items-center gap-2 text-xs sm:text-sm text-slate-500 overflow-x-auto py-1">
         <a href="{{ route('home') }}" class="hover:text-emerald-600 transition flex items-center gap-1 font-medium">
@@ -1941,6 +1978,25 @@
     </div>
 
     @if($isAdmin)
+        <!-- ========================================== -->
+        <!-- FLOATING ADMIN QUICK ACTION DOCK (ALWAYS VISIBLE SCROLLING) -->
+        <!-- ========================================== -->
+        <div class="fixed right-4 bottom-6 z-40">
+            <div class="bg-slate-950/95 backdrop-blur-md p-2 rounded-2xl shadow-2xl border-2 border-amber-400 flex items-center gap-2">
+                <span class="text-xs font-black text-amber-300 pl-2 hidden sm:inline">🛡️ Admin:</span>
+                <button type="button"
+                        @click="openAdminViewDrawer()"
+                        class="px-3 py-2 bg-slate-900 hover:bg-slate-800 text-amber-300 font-black text-xs rounded-xl transition flex items-center gap-1.5 shadow-sm cursor-pointer border border-amber-400/30">
+                    <span>👁️</span> <span>View all data</span>
+                </button>
+                <button type="button"
+                        @click="openAdminEditDrawer()"
+                        class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs rounded-xl transition flex items-center gap-1.5 shadow-sm cursor-pointer">
+                    <span>✏️</span> <span>Edit</span>
+                </button>
+            </div>
+        </div>
+
         <!-- ========================================== -->
         <!-- ADMIN DRAWER 1: VIEW ALL DATA (FULL SPECS + HIDDEN NOTE + OWNER/AGENT CONTACTS) -->
         <!-- ========================================== -->

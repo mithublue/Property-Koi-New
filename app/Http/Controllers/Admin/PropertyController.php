@@ -550,10 +550,15 @@ class PropertyController extends Controller
         return redirect()->back()->with('success', $msg);
     }
 
-    public function edit(Property $property)
+    public function edit(Property $property, Request $request)
     {
         $property->load(['media', 'verification', 'directSources', 'landDetail', 'flatDetail', 'commercialDetail', 'shareDetail']);
         $agents = User::whereIn('role', ['agent', 'owner'])->orderBy('name')->get();
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return view('admin.properties.partials.drawer-edit-form', compact('property', 'agents'));
+        }
+
         return view('admin.properties.edit', compact('property', 'agents'));
     }
 
@@ -663,6 +668,19 @@ class PropertyController extends Controller
         }
 
         $activeTab = $request->input('active_tab', 'basic');
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => "প্রপার্টি #{$property->property_code} সফলভাবে আপডেট হয়েছে!",
+                'data'    => [
+                    'property_id'   => $property->id,
+                    'property_code' => $property->property_code,
+                    'title'         => $property->title,
+                    'status'        => $property->status,
+                ],
+            ]);
+        }
 
         return redirect()->route('admin.properties.edit', ['property' => $property, 'tab' => $activeTab])
             ->with('success', "প্রপার্টি #{$property->property_code} সফলভাবে আপডেট হয়েছে!");

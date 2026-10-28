@@ -47,6 +47,8 @@
         'review_text'   => $r->review_text,
         'created_at'    => $r->created_at ? $r->created_at->diffForHumans() : 'সম্প্রতি',
     ])->values()->all() : [];
+
+    $isAdmin = auth()->check() && (auth()->user()->isAdmin() || auth()->user()->role === 'admin' || auth()->user()->role === 'administrator');
 @endphp
 
 <script>
@@ -80,6 +82,77 @@
          copiedLink: false,
          contactDrawerOpen: false,
          safetyTipsModalOpen: false,
+
+         @if($isAdmin)
+         // Admin Exclusive Drawers (View All Data & Inline Edit)
+         adminViewDrawerOpen: false,
+         adminEditDrawerOpen: false,
+         adminDrawerLoading: false,
+         adminDrawerError: '',
+
+         async openAdminViewDrawer() {
+             this.adminEditDrawerOpen = false;
+             this.adminViewDrawerOpen = true;
+             this.adminDrawerLoading = true;
+             this.adminDrawerError = '';
+             const target = document.getElementById('admin-view-all-content');
+             if (target) target.innerHTML = '';
+
+             try {
+                 const res = await fetch('{{ route('admin.properties.quick-view', $p) }}', {
+                     headers: {
+                         'Accept': 'text/html',
+                         'X-Requested-With': 'XMLHttpRequest'
+                     }
+                 });
+                 if (!res.ok) throw new Error('ডাটা লোড করা সম্ভব হয়নি।');
+                 const html = await res.text();
+                 if (target) {
+                     target.innerHTML = html;
+                     if (window.Alpine) {
+                         window.Alpine.initTree(target);
+                     }
+                 }
+             } catch (err) {
+                 this.adminDrawerError = err.message;
+                 if (target) target.innerHTML = `<div class='p-4 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 font-bold'>ত্রুটি: ${err.message}</div>`;
+             } finally {
+                 this.adminDrawerLoading = false;
+             }
+         },
+
+         async openAdminEditDrawer() {
+             this.adminViewDrawerOpen = false;
+             this.adminEditDrawerOpen = true;
+             this.adminDrawerLoading = true;
+             this.adminDrawerError = '';
+             const target = document.getElementById('admin-edit-form-content');
+             if (target) target.innerHTML = '';
+
+             try {
+                 const res = await fetch('{{ route('admin.properties.edit', $p) }}', {
+                     headers: {
+                         'Accept': 'text/html',
+                         'X-Requested-With': 'XMLHttpRequest'
+                     }
+                 });
+                 if (!res.ok) throw new Error('এডিট ফর্ম লোড করা সম্ভব হয়নি।');
+                 const html = await res.text();
+                 if (target) {
+                     target.innerHTML = html;
+                     // Initialize Alpine on injected markup if available
+                     if (window.Alpine) {
+                         window.Alpine.initTree(target);
+                     }
+                 }
+             } catch (err) {
+                 this.adminDrawerError = err.message;
+                 if (target) target.innerHTML = `<div class='p-4 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 font-bold'>ত্রুটি: ${err.message}</div>`;
+             } finally {
+                 this.adminDrawerLoading = false;
+             }
+         },
+         @endif
 
          // Review Modal State
          reviewModalOpen: false,
@@ -455,6 +528,25 @@
                         <span class="text-xs">👁️</span>
                         <span>{{ \App\Models\Property::toBnNumber($p->views_count) }} বার দেখা হয়েছে</span>
                     </span>
+                @endif
+
+                {{-- Admin Exclusive Toolbar in Header --}}
+                @if($isAdmin)
+                    <span>•</span>
+                    <div class="inline-flex items-center gap-1.5 p-1 bg-amber-50/90 border border-amber-300 rounded-xl shadow-2xs">
+                        <button type="button"
+                                @click="openAdminViewDrawer()"
+                                class="inline-flex items-center gap-1 px-2.5 py-1 bg-slate-900 hover:bg-slate-800 text-amber-300 text-xs font-black rounded-lg transition shadow-xs cursor-pointer"
+                                title="হিডেন ও নন-হিডেন সকল ডাটা, মালিক ও এজেন্টের ফোন ও হোয়াটসঅ্যাপ দেখুন">
+                            <span>👁️ View all data</span>
+                        </button>
+                        <button type="button"
+                                @click="openAdminEditDrawer()"
+                                class="inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-black rounded-lg transition shadow-xs cursor-pointer"
+                                title="ডানদিকের ড্রয়ারে প্রপার্টি এডিট করুন">
+                            <span>✏️ Edit</span>
+                        </button>
+                    </div>
                 @endif
             </div>
             <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 leading-tight m-0 tracking-tight">
@@ -1848,5 +1940,158 @@
         </div>
     </div>
 
+    @if($isAdmin)
+        <!-- ========================================== -->
+        <!-- ADMIN DRAWER 1: VIEW ALL DATA (FULL SPECS + HIDDEN NOTE + OWNER/AGENT CONTACTS) -->
+        <!-- ========================================== -->
+        <div x-show="adminViewDrawerOpen" x-cloak
+             class="fixed inset-0 z-50 overflow-hidden"
+             @keydown.escape.window="adminViewDrawerOpen = false">
+            <!-- Backdrop -->
+            <div x-show="adminViewDrawerOpen"
+                 x-transition:enter="ease-in-out duration-300"
+                 x-transition:enter-start="opacity-0"
+                 x-transition:enter-end="opacity-100"
+                 x-transition:leave="ease-in-out duration-200"
+                 x-transition:leave-start="opacity-100"
+                 x-transition:leave-end="opacity-0"
+                 @click="adminViewDrawerOpen = false"
+                 class="fixed inset-0 bg-slate-950/60 backdrop-blur-xs transition-opacity"></div>
+
+            <div class="fixed inset-y-0 right-0 max-w-full flex pl-6 sm:pl-10">
+                <div x-show="adminViewDrawerOpen"
+                     x-transition:enter="transform transition ease-in-out duration-300"
+                     x-transition:enter-start="translate-x-full"
+                     x-transition:enter-end="translate-x-0"
+                     x-transition:leave="transform transition ease-in-out duration-200"
+                     x-transition:leave-start="translate-x-0"
+                     x-transition:leave-end="translate-x-full"
+                     class="w-screen max-w-2xl bg-white shadow-2xl flex flex-col border-l border-slate-200">
+
+                    <!-- Drawer Header -->
+                    <div class="p-4 bg-slate-900 text-white flex items-center justify-between border-b border-slate-800">
+                        <div class="flex items-center gap-2.5">
+                            <span class="w-8 h-8 rounded-xl bg-amber-400 text-slate-950 flex items-center justify-center font-black text-sm">👁️</span>
+                            <div>
+                                <h3 class="font-extrabold text-sm sm:text-base text-white m-0 flex items-center gap-2">
+                                    <span>সম্পূর্ণ প্রপার্টি ডাটা ও ভল্ট ভিউ</span>
+                                    <span class="px-2 py-0.5 rounded-md bg-amber-400/20 text-amber-300 font-mono text-xs font-bold">#{{ $p->property_code }}</span>
+                                </h3>
+                                <p class="text-[11px] text-slate-300 m-0">হিডেন নোট, ট্যাগ, স্পেসিফিকেশন ও মালিক/এজেন্টের পূর্ণাঙ্গ তথ্য (অ্যাডমিন অনলি)</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button type="button"
+                                    @click="openAdminEditDrawer()"
+                                    class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition flex items-center gap-1 cursor-pointer">
+                                <span>✏️ Edit</span>
+                            </button>
+                            <button type="button"
+                                    @click="adminViewDrawerOpen = false"
+                                    class="w-8 h-8 rounded-lg bg-white/10 hover:bg-rose-600 text-white flex items-center justify-center text-lg font-bold transition cursor-pointer">
+                                &times;
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Drawer Body -->
+                    <div class="flex-1 overflow-y-auto p-4 sm:p-6 bg-slate-50/50">
+                        <!-- Loading State -->
+                        <div x-show="adminDrawerLoading" class="py-20 text-center space-y-3">
+                            <div class="inline-block w-8 h-8 border-4 border-slate-200 border-t-amber-500 rounded-full animate-spin"></div>
+                            <p class="text-xs font-bold text-slate-500">প্রপার্টির সম্পূর্ণ ডাটা লোড হচ্ছে, অনুগ্রহ করে অপেক্ষা করুন...</p>
+                        </div>
+
+                        <!-- AJAX Injected Content -->
+                        <div id="admin-view-all-content" x-show="!adminDrawerLoading"></div>
+                    </div>
+
+                    <!-- Drawer Footer -->
+                    <div class="p-3 bg-white border-t border-slate-200 flex items-center justify-between text-xs text-slate-500">
+                        <span class="text-[11px]">🔐 অ্যাডমিন প্রিভিলেজ মোড সক্রিয়</span>
+                        <button type="button" @click="adminViewDrawerOpen = false" class="px-4 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold rounded-lg transition cursor-pointer">
+                            বন্ধ করুন
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- ADMIN DRAWER 2: EDIT PROPERTY INLINE -->
+        <!-- ========================================== -->
+        <div x-show="adminEditDrawerOpen" x-cloak
+             class="fixed inset-0 z-50 overflow-hidden"
+             @keydown.escape.window="adminEditDrawerOpen = false">
+            <!-- Backdrop -->
+            <div x-show="adminEditDrawerOpen"
+                 x-transition:enter="ease-in-out duration-300"
+                 x-transition:enter-start="opacity-0"
+                 x-transition:enter-end="opacity-100"
+                 x-transition:leave="ease-in-out duration-200"
+                 x-transition:leave-start="opacity-100"
+                 x-transition:leave-end="opacity-0"
+                 @click="adminEditDrawerOpen = false"
+                 class="fixed inset-0 bg-slate-950/60 backdrop-blur-xs transition-opacity"></div>
+
+            <div class="fixed inset-y-0 right-0 max-w-full flex pl-6 sm:pl-10">
+                <div x-show="adminEditDrawerOpen"
+                     x-transition:enter="transform transition ease-in-out duration-300"
+                     x-transition:enter-start="translate-x-full"
+                     x-transition:enter-end="translate-x-0"
+                     x-transition:leave="transform transition ease-in-out duration-200"
+                     x-transition:leave-start="translate-x-0"
+                     x-transition:leave-end="translate-x-full"
+                     class="w-screen max-w-2xl bg-white shadow-2xl flex flex-col border-l border-slate-200">
+
+                    <!-- Drawer Header -->
+                    <div class="p-4 bg-emerald-900 text-white flex items-center justify-between border-b border-emerald-800">
+                        <div class="flex items-center gap-2.5">
+                            <span class="w-8 h-8 rounded-xl bg-emerald-400 text-emerald-950 flex items-center justify-center font-black text-sm">✏️</span>
+                            <div>
+                                <h3 class="font-extrabold text-sm sm:text-base text-white m-0 flex items-center gap-2">
+                                    <span>প্রপার্টি দ্রুত এডিট করুন</span>
+                                    <span class="px-2 py-0.5 rounded-md bg-emerald-400/20 text-emerald-200 font-mono text-xs font-bold">#{{ $p->property_code }}</span>
+                                </h3>
+                                <p class="text-[11px] text-emerald-200 m-0">সেভ করার সাথে সাথে পেজে তাৎক্ষণিক আপডেট হবে</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button type="button"
+                                    @click="openAdminViewDrawer()"
+                                    class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-amber-300 rounded-lg text-xs font-bold transition flex items-center gap-1 cursor-pointer">
+                                <span>👁️ View All</span>
+                            </button>
+                            <button type="button"
+                                    @click="adminEditDrawerOpen = false"
+                                    class="w-8 h-8 rounded-lg bg-white/10 hover:bg-rose-600 text-white flex items-center justify-center text-lg font-bold transition cursor-pointer">
+                                &times;
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Drawer Body -->
+                    <div class="flex-1 overflow-y-auto p-4 sm:p-6 bg-slate-50/50">
+                        <!-- Loading State -->
+                        <div x-show="adminDrawerLoading" class="py-20 text-center space-y-3">
+                            <div class="inline-block w-8 h-8 border-4 border-slate-200 border-t-emerald-600 rounded-full animate-spin"></div>
+                            <p class="text-xs font-bold text-slate-500">এডিট ফর্ম লোড হচ্ছে, অনুগ্রহ করে অপেক্ষা করুন...</p>
+                        </div>
+
+                        <!-- AJAX Injected Form Content -->
+                        <div id="admin-edit-form-content" x-show="!adminDrawerLoading"></div>
+                    </div>
+
+                    <!-- Drawer Footer -->
+                    <div class="p-3 bg-white border-t border-slate-200 flex items-center justify-between text-xs text-slate-500">
+                        <span class="text-[11px]">⚡ পরিবর্তন সেভ করলে পেজ রিলোড হবে</span>
+                        <button type="button" @click="adminEditDrawerOpen = false" class="px-4 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold rounded-lg transition cursor-pointer">
+                            বন্ধ করুন
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
 </div>
 @endsection

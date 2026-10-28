@@ -18,6 +18,8 @@
 /public/hot
 /public/storage
 /public/uploads/branding/logo_*
+/public/uploads/adm-test/*
+/public/uploads/watermark/*
 /storage/*.key
 /storage/pail
 /vendor

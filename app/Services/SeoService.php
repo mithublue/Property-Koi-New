@@ -837,7 +837,11 @@ class SeoService
         $siteName = self::getSiteName();
         $title = $guide->seo_title ?: "{$guide->title} | প্রপার্টি গাইড — {$siteName}";
         $desc = $guide->seo_description ?: ($guide->excerpt ?: Str::limit(strip_tags($guide->content), 160));
-        $keywords = $guide->seo_keywords ?: "{$guide->title}, {$guide->category_label}, real estate guide bangladesh, jomir dolil namjari, PropertyKoi";
+        
+        $enProfile = self::getGuideEnglishProfile($guide->slug);
+        $enKeywords = !empty($enProfile['keywords']) ? ", {$enProfile['keywords']}" : '';
+
+        $keywords = ($guide->seo_keywords ?: "{$guide->title}, {$guide->category_label}, real estate guide bangladesh, jomir dolil namjari, PropertyKoi") . $enKeywords;
         $url = route('guides.show', $guide->slug);
         $image = self::formatOgImageUrl($guide->cover_url, 'og-default.jpg');
         $faqs = is_array($guide->faqs) ? $guide->faqs : [];
@@ -854,6 +858,7 @@ class SeoService
             'robots'      => 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1',
             'faqs'        => $faqs,
             'schema'      => self::getGuideSchema($guide, $url, $title, $desc, $image, $faqs),
+            'en_profile'  => $enProfile,
         ];
     }
 
@@ -1133,8 +1138,175 @@ class SeoService
     }
 
     /**
-     * Build comprehensive Schema.org @graph for a single Guide (Article + BreadcrumbList + FAQPage + Speakable + Citations).
+     * Map of English metadata translations and semantic concepts for Guides.
+     * Ensures global LLMs (ChatGPT, Gemini, Perplexity, Claude) and English search queries
+     * can reliably discover, understand, and recommend PropertyKoi's Bengali guides.
      */
+    public static function getGuideEnglishProfile(string $slug): array
+    {
+        $profiles = [
+            'jomir-dolil-o-namjari-khotian-jachai-guide-2026' => [
+                'headline' => 'Complete Guide to Land Title Deed, Chain of Title and Mutation Khatian Verification in Bangladesh (2026)',
+                'description' => 'Comprehensive legal guide for verifying land documents in Bangladesh: Saf-Kabala title deed, 25-year chain of title (Baya Deed), CS/SA/RS/City Survey khatians, AC Land online mutation, and Non-Encumbrance Certificate (NEC).',
+                'keywords' => 'land verification bangladesh, verify land documents dhaka, chain of title baya deed, land mutation online check, eporcha gov bd khatian, non encumbrance certificate bangladesh, property due diligence dhaka',
+                'abstract' => 'This advisory guide explains how to legally verify property title deeds, 25-year continuous chain of title deeds (Baya Dalil), CS/SA/RS khatians, and AC Land mutation records before purchasing land or plots in Bangladesh.',
+                'faqs' => [
+                    [
+                        'question' => 'What is a Baya Deed (Chain Deed / Link Deed) in Bangladesh and why is it essential to check?',
+                        'answer' => 'A Baya Deed (Chain of Title) documents previous ownership transfers. In Bangladesh, verifying an uninterrupted 25-year chain of Baya Deeds is legally required to establish clean title and prevent future ownership disputes or civil litigation.',
+                    ],
+                    [
+                        'question' => 'Is it safe to buy land in Bangladesh without an AC Land Mutation (Namjari)?',
+                        'answer' => 'No. Having a registered Saf-Kabala deed alone does not guarantee undisputed ownership. The seller must possess an official Mutation Khatian (Namjari) in their own name, along with a Duplicate Carbon Receipt (DCR) and updated land development tax receipts.',
+                    ],
+                    [
+                        'question' => 'How can land khatian and mutation records be verified online in Bangladesh?',
+                        'answer' => 'Land records can be digitally verified through the Ministry of Land portals (eporcha.gov.bd and mutation.land.gov.bd) using division, district, upazila, mouza, and khatian/dag numbers to inspect QR-coded digital khatians.',
+                    ],
+                    [
+                        'question' => 'What documents are required when purchasing plots in housing projects like Eastern Housing or RAJUK?',
+                        'answer' => 'Key documents include the original Allotment Letter, Possession Letter, Site Plan, RAJUK/Company Transfer Permission / NOC, registered lease deed/saf-kabala deed, and an approved Mutation Khatian.',
+                    ],
+                    [
+                        'question' => 'How can a Non-Encumbrance Certificate (NEC) be obtained in Bangladesh?',
+                        'answer' => 'An NEC is obtained from the relevant Sub-Registry Office by conducting a 12 to 25-year index search to confirm the property is free from mortgages, bank liens, or legal encumbrances.',
+                    ],
+                ],
+            ],
+            'dhaka-aftabnagar-bashundhara-flat-land-price-comparison-2026' => [
+                'headline' => 'Aftabnagar vs Bashundhara vs Purbachal: Best Location to Buy Land and Flats in Dhaka 2026',
+                'description' => 'Detailed 2026 comparative real estate analysis of Dhaka’s top 3 residential hubs: Aftabnagar, Bashundhara R/A, and Purbachal New Town. Katha price, per sqft flat rates, commuting convenience, and expected ROI.',
+                'keywords' => 'aftabnagar vs bashundhara, purbachal plot price, dhaka real estate price 2026, land price per katha dhaka, best area to buy flat in dhaka, property investment dhaka',
+                'abstract' => 'Comprehensive market comparison between Aftabnagar, Bashundhara, and Purbachal covering plot prices per katha, apartment rates per square foot, connectivity to Hatirjheel/Gulshan, and 5-to-10 year capital appreciation forecasts.',
+                'faqs' => [
+                    [
+                        'question' => 'What is the primary investment advantage of Aftabnagar, Dhaka?',
+                        'answer' => 'Aftabnagar is situated right next to Rampura Bridge, Hatirjheel, Gulshan, and Niketan, offering minimal commute times to central Dhaka business districts and high rental yields for professionals.',
+                    ],
+                    [
+                        'question' => 'What is the average flat price per square foot in Bashundhara Residential Area?',
+                        'answer' => 'Ready apartments in Bashundhara Blocks A to I range from BDT 7,500 to 12,500 per sq ft, while emerging outer blocks (M to P) range between BDT 5,800 and 8,000 per sq ft.',
+                    ],
+                    [
+                        'question' => 'Is investing in Purbachal New Town profitable for long-term real estate growth?',
+                        'answer' => 'Yes. Purbachal offers the highest potential for long-term capital appreciation over a 5 to 10-year horizon due to the 300-ft expressway, government infrastructure, and planned metro rail connectivity.',
+                    ],
+                ],
+            ],
+            'land-share-project-investment-rules-and-safety' => [
+                'headline' => 'Land Share Projects in Dhaka: How It Works, Legal Rules, Cost Savings and Risk Mitigation',
+                'description' => 'Guide to collaborative Land Share flat construction in Dhaka: How groups buy land jointly to build apartments at actual construction cost, saving 30-35% compared to commercial developer prices.',
+                'keywords' => 'land share project dhaka, land share flat investment, joint land purchase apartment bangladesh, affordable flat construction dhaka, land share legal risks',
+                'abstract' => 'An expert advisory on Land Share property investments in Bangladesh explaining joint land purchase agreements, construction fund management, 30-35% cost reduction strategies, and legal safeguards.',
+                'faqs' => [
+                    [
+                        'question' => 'How does a Land Share project reduce flat purchase costs in Dhaka?',
+                        'answer' => 'In a Land Share model, buyers pool funds to acquire proportionate undivided land shares and construct the building at actual civil cost, eliminating high commercial developer profit margins and advertising costs.',
+                    ],
+                    [
+                        'question' => 'What legal document guarantees ownership in a Land Share project?',
+                        'answer' => 'Each shareholder must have registered undivided land share deeds in their name at the Sub-Registry Office, along with individual mutation khatians and a comprehensive joint partnership memorandum (MoU).',
+                    ],
+                ],
+            ],
+            'flat-kenar-age-rajuk-plan-o-anumodon-jachai' => [
+                'headline' => 'How to Verify RAJUK Building Approval Plan Before Buying a Flat in Dhaka (2026 Checklist)',
+                'description' => 'Step-by-step checklist to verify RAJUK plan approval, FAR (Floor Area Ratio) compliance, setback deviations, occupancy certificate, and fire safety before purchasing an apartment in Dhaka.',
+                'keywords' => 'rajuk plan verification, verify flat approval dhaka, rajuk dap building code, occupancy certificate rajuk, flat purchase legal checklist dhaka',
+                'abstract' => 'Critical guidance for homebuyers in Dhaka to inspect approved building designs from RAJUK, verify Floor Area Ratio (FAR), check setback clearances, and ensure legal handover compliance.',
+                'faqs' => [
+                    [
+                        'question' => 'Why must a flat buyer inspect the RAJUK approved architectural plan?',
+                        'answer' => 'To ensure the developer has not constructed unauthorized extra floors or encroached on mandatory setbacks, which can result in demolition notices, refusal of utility connections, or legal disputes.',
+                    ],
+                    [
+                        'question' => 'What is a RAJUK Occupancy Certificate and why is it necessary?',
+                        'answer' => 'An Occupancy Certificate is issued by RAJUK after construction confirming that the building strictly complies with the approved plan and building codes. Without it, legal occupancy is questionable.',
+                    ],
+                ],
+            ],
+            'property-registration-cost-in-bangladesh-stamp-duty-fees' => [
+                'headline' => 'Property Registration Cost in Bangladesh (2026): Stamp Duty, Gain Tax, and Registration Fee Calculator',
+                'description' => 'Official government rate breakdown for registering land and flats in Bangladesh in 2026: Stamp duty (1.5%), Registration fee (1%), Local Government Tax (2-3%), Source Tax / Gain Tax (Section 53H), and VAT.',
+                'keywords' => 'property registration cost bangladesh 2026, stamp duty dhaka, land registration fee calculator, flat transfer tax bangladesh, sub registry fees dhaka',
+                'abstract' => 'A clear financial breakdown of all government statutory fees, stamp duties, local taxes, and source advance taxes required to legally register land, plots, and apartments in Bangladesh.',
+                'faqs' => [
+                    [
+                        'question' => 'What is the total approximate government cost for registering a property in Dhaka?',
+                        'answer' => 'In Dhaka municipal areas, total registration fees generally total between 8% and 11% of the deed value, including 1.5% Stamp Duty, 1% Registration Fee, 2-3% Local Government Tax, and 3-5% Source Tax (Section 53H).',
+                    ],
+                ],
+            ],
+            'power-of-attorney-property-rules-precautions' => [
+                'headline' => 'Buying Property via Power of Attorney in Bangladesh: Legal Rules, Risks and Essential Precautions',
+                'description' => 'Detailed legal analysis of Power of Attorney Act 2012 in Bangladesh: Irrevocable Power of Attorney, death revocation risks, foreign embassies attestation for expatriates, and verification tips.',
+                'keywords' => 'power of attorney property bangladesh, am moktarnama rules, buy flat with power of attorney, expatriate property power of attorney bangladesh',
+                'abstract' => 'Comprehensive legal guidance on executing and verifying registered Power of Attorney documents under Bangladesh law, minimizing risks when purchasing real estate from agents or expatriate owners.',
+                'faqs' => [
+                    [
+                        'question' => 'What type of Power of Attorney is required to sell property legally in Bangladesh?',
+                        'answer' => 'Under the Power of Attorney Act 2012, an Irrevocable Power of Attorney (Am-Moktarnama) registered at the Sub-Registry Office with stamp duty is mandatory to execute property sales.',
+                    ],
+                ],
+            ],
+            'warishi-inherited-property-buying-rules-checklist' => [
+                'headline' => 'Buying Inherited (Warishi) Property in Bangladesh: Farayej, Partition Deed and Legal Checklist',
+                'description' => 'How to safely purchase inherited family property in Bangladesh: Checking Succession Certificate (Waris Sonod), Islamic Farayej calculation, registered Partition Deed (Batwara Dolil), and avoiding minor co-sharer disputes.',
+                'keywords' => 'buy inherited land bangladesh, warishi jomi kenar niyam, partition deed batwara dolil, farayej share calculation dhaka, succession certificate land sale',
+                'abstract' => 'A step-by-step advisory on verifying heirship, Muslim inheritance distribution, registered partition deeds, and obtaining consent from all co-sharers when acquiring inherited land in Bangladesh.',
+                'faqs' => [
+                    [
+                        'question' => 'Can one heir sell a specific parcel of joint inherited land without a registered Partition Deed?',
+                        'answer' => 'No. Without a registered Partition Deed (Batwara Dalil) and individual mutation, an heir only owns an undivided fraction across the entire estate, not a specific demarcated physical plot.',
+                    ],
+                ],
+            ],
+            'bayna-nama-agreement-rules-property-bangladesh' => [
+                'headline' => 'Property Bayna Nama (Sale Agreement) Rules in Bangladesh: Stamp Paper, Advance Payment and Legal Safeguards',
+                'description' => 'Legal guide to drafting a valid Bayna Nama (Deed of Agreement for Sale) in Bangladesh: Mandatory registration, non-judicial stamp requirements, forfeiture conditions, and Specific Relief Act protections.',
+                'keywords' => 'bayna nama format bangladesh, property sale agreement dhaka, bayna registration rules, advance payment land purchase bangladesh',
+                'abstract' => 'Practical advice for property buyers in Bangladesh on drafting registered Bayna agreements, structuring milestone payments, and legally enforcing contracts under the Specific Relief Act.',
+                'faqs' => [
+                    [
+                        'question' => 'Is a Bayna Nama legally enforceable if it is not registered?',
+                        'answer' => 'Under Section 17A of the Registration Act, an agreement for sale (Bayna Nama) must be written and registered within the statutory period to be legally admissible in civil court for specific performance.',
+                    ],
+                ],
+            ],
+            'bank-home-loan-dhaka-documents-interest-rates-2026' => [
+                'headline' => 'Bank Home Loan in Bangladesh (2026): Eligibility, Required Legal Documents, Interest Rates and Fast Approval',
+                'description' => 'Complete guide to securing a home loan for flats and house construction in Bangladesh: Eligibility criteria, legal vetting of property deeds, debt-burden ratio (DBR), latest interest rates, and bank processing.',
+                'keywords' => 'home loan in bangladesh 2026, bank loan for flat purchase dhaka, dbh home loan interest, mortgage loan requirements bangladesh',
+                'abstract' => 'A financial handbook explaining home loan application processes in Bangladeshi banks and NBFIs, legal document vetting requirements, and strategies to secure fast loan approvals.',
+                'faqs' => [
+                    [
+                        'question' => 'What documents do banks require for legal vetting before granting a home loan in Dhaka?',
+                        'answer' => 'Banks require 25-year title deeds and baya deeds, approved RAJUK architectural plans, updated Mutation Khatians, DCR, Non-Encumbrance Certificates (NEC), and proof of applicant income.',
+                    ],
+                ],
+            ],
+            'aftabnagar-buyer-guide-price-index-2026' => [
+                'headline' => 'Aftabnagar Property Buyer Guide and Price Index 2026: Block-by-Block Plot and Flat Rate Analysis',
+                'description' => 'The ultimate 2026 property index for Aftabnagar, Dhaka: Land prices per katha across Blocks A through M, 3/5 katha plot budgets, ready flat sqft rates, Eastern Housing documentation, and RAJUK DAP regulations.',
+                'keywords' => 'aftabnagar property buyer guide 2026, aftabnagar land price per katha, aftabnagar block A plot, ready flat in aftabnagar, aftabnagar real estate price index',
+                'abstract' => 'Comprehensive price index and investment guide for Aftabnagar, Dhaka, breaking down plot values per katha across Blocks A to M, apartment rates, and Eastern Housing transfer guidelines.',
+                'faqs' => [
+                    [
+                        'question' => 'What is the current average residential plot price per katha in Aftabnagar (2026)?',
+                        'answer' => 'Prime Blocks A to C range between BDT 1.10 Crore and 1.60 Crore per katha; mid Blocks D to F range between BDT 80 Lakh and 1.25 Crore; expanding Blocks G to M range between BDT 45 Lakh and 95 Lakh per katha.',
+                    ],
+                ],
+            ],
+        ];
+
+        return $profiles[$slug] ?? [
+            'headline' => $slug,
+            'description' => 'Real estate guide and advisory for buying and selling land, plots, and flats in Dhaka, Bangladesh.',
+            'keywords' => 'property in bangladesh, dhaka real estate guide, PropertyKoi',
+            'abstract' => 'Official advisory published by PropertyKoi Desk on Bangladesh real estate regulations and market prices.',
+            'faqs' => [],
+        ];
+    }
     public static function getGuideSchema(
         Guide $guide,
         string $url,
@@ -1150,6 +1322,75 @@ class SeoService
         $keywordsList = array_map('trim', explode(',', $guide->seo_keywords ?: ''));
         $keywordsList = array_filter($keywordsList);
 
+        $enProfile = self::getGuideEnglishProfile($guide->slug);
+        if (!empty($enProfile['keywords'])) {
+            $enKeys = array_map('trim', explode(',', $enProfile['keywords']));
+            $keywordsList = array_unique(array_merge($keywordsList, $enKeys));
+        }
+
+        $articleEntity = [
+            '@type'            => 'Article',
+            '@id'              => $url . '#article',
+            'isPartOf'         => ['@id' => $siteUrl . '#website'],
+            'headline'         => $title,
+            'alternateName'    => $enProfile['headline'] ?? $title,
+            'description'      => $desc,
+            'abstract'         => $enProfile['abstract'] ?? $desc,
+            'mainEntityOfPage' => [
+                '@type' => 'WebPage',
+                '@id'   => $url,
+            ],
+            'image'            => [
+                '@type' => 'ImageObject',
+                'url'   => $image,
+                'width' => 1200,
+                'height'=> 630,
+            ],
+            'datePublished'    => $guide->created_at ? $guide->created_at->toIso8601String() : now()->toIso8601String(),
+            'dateModified'     => $guide->updated_at ? $guide->updated_at->toIso8601String() : now()->toIso8601String(),
+            'author'           => [
+                '@type'       => 'Person',
+                'name'        => $authorName,
+                'jobTitle'    => 'Real Estate & Land Law Consultant',
+                'worksFor'    => ['@id' => $siteUrl . '#organization'],
+            ],
+            'publisher'        => ['@id' => $siteUrl . '#organization'],
+            'inLanguage'       => ['bn-BD', 'en-US'],
+            'articleSection'   => $guide->category_label,
+            'keywords'         => implode(', ', $keywordsList),
+            'wordCount'        => str_word_count(strip_tags($guide->content)),
+            'isAccessibleForFree' => true,
+            'educationalLevel' => 'Comprehensive Guide / Advisory',
+            'about'            => [
+                [
+                    '@type' => 'Thing',
+                    'name'  => 'Real Estate in Bangladesh',
+                    'sameAs'=> 'https://en.wikipedia.org/wiki/Real_estate',
+                ],
+                [
+                    '@type' => 'Thing',
+                    'name'  => 'Land registration in Bangladesh',
+                    'sameAs'=> 'https://en.wikipedia.org/wiki/Land_registration',
+                ],
+                [
+                    '@type' => 'Thing',
+                    'name'  => 'RAJUK (Rajdhani Unnayan Kartripakkha)',
+                    'sameAs'=> 'https://en.wikipedia.org/wiki/Rajdhani_Unnayan_Kartripakkha',
+                ],
+            ],
+            'citation'         => [
+                'https://minland.gov.bd',
+                'https://eporcha.gov.bd',
+                'https://mutation.land.gov.bd',
+                'https://rajuk.gov.bd',
+                'https://nbr.gov.bd',
+            ],
+            'speakable'        => [
+                '@type'       => 'SpeakableSpecification',
+                'cssSelector' => ['h1', '.guide-lead', '.aeo-quick-summary', '.guide-content-body', '.faq-question', '.faq-answer'],
+            ],
+        ];
+
         $graph = [
             [
                 '@type'         => 'WebSite',
@@ -1157,7 +1398,7 @@ class SeoService
                 'url'           => $siteUrl,
                 'name'          => $siteName,
                 'alternateName' => ['PropertyKoi', 'PropertyKoi.com', 'প্রপার্টি কই', 'PropertyKoi Bangladesh'],
-                'inLanguage'    => 'bn-BD',
+                'inLanguage'    => ['bn-BD', 'en-US'],
             ],
             [
                 '@type'       => 'Organization',
@@ -1181,66 +1422,7 @@ class SeoService
                     'availableLanguage' => ['Bengali', 'English'],
                 ],
             ],
-            [
-                '@type'            => 'Article',
-                '@id'              => $url . '#article',
-                'isPartOf'         => ['@id' => $siteUrl . '#website'],
-                'headline'         => $title,
-                'description'      => $desc,
-                'mainEntityOfPage' => [
-                    '@type' => 'WebPage',
-                    '@id'   => $url,
-                ],
-                'image'            => [
-                    '@type' => 'ImageObject',
-                    'url'   => $image,
-                    'width' => 1200,
-                    'height'=> 630,
-                ],
-                'datePublished'    => $guide->created_at ? $guide->created_at->toIso8601String() : now()->toIso8601String(),
-                'dateModified'     => $guide->updated_at ? $guide->updated_at->toIso8601String() : now()->toIso8601String(),
-                'author'           => [
-                    '@type'       => 'Person',
-                    'name'        => $authorName,
-                    'jobTitle'    => 'Real Estate & Land Law Consultant',
-                    'worksFor'    => ['@id' => $siteUrl . '#organization'],
-                ],
-                'publisher'        => ['@id' => $siteUrl . '#organization'],
-                'inLanguage'       => 'bn-BD',
-                'articleSection'   => $guide->category_label,
-                'keywords'         => implode(', ', $keywordsList),
-                'wordCount'        => str_word_count(strip_tags($guide->content)),
-                'isAccessibleForFree' => true,
-                'educationalLevel' => 'Comprehensive Guide / Advisory',
-                'about'            => [
-                    [
-                        '@type' => 'Thing',
-                        'name'  => 'Real Estate in Bangladesh',
-                        'sameAs'=> 'https://en.wikipedia.org/wiki/Real_estate',
-                    ],
-                    [
-                        '@type' => 'Thing',
-                        'name'  => 'Land registration in Bangladesh',
-                        'sameAs'=> 'https://en.wikipedia.org/wiki/Land_registration',
-                    ],
-                    [
-                        '@type' => 'Thing',
-                        'name'  => 'RAJUK (Rajdhani Unnayan Kartripakkha)',
-                        'sameAs'=> 'https://en.wikipedia.org/wiki/Rajdhani_Unnayan_Kartripakkha',
-                    ],
-                ],
-                'citation'         => [
-                    'https://minland.gov.bd',
-                    'https://eporcha.gov.bd',
-                    'https://mutation.land.gov.bd',
-                    'https://rajuk.gov.bd',
-                    'https://nbr.gov.bd',
-                ],
-                'speakable'        => [
-                    '@type'       => 'SpeakableSpecification',
-                    'cssSelector' => ['h1', '.guide-lead', '.aeo-quick-summary', '.guide-content-body', '.faq-question', '.faq-answer'],
-                ],
-            ],
+            $articleEntity,
             [
                 '@type'           => 'BreadcrumbList',
                 '@id'             => $url . '#breadcrumb',
@@ -1267,8 +1449,9 @@ class SeoService
             ],
         ];
 
+        // Combine Bengali FAQs and English parallel FAQs for Maximum AEO Retrieval
+        $faqEntities = [];
         if (!empty($faqs)) {
-            $faqEntities = [];
             foreach ($faqs as $f) {
                 if (!empty($f['question']) && !empty($f['answer'])) {
                     $faqEntities[] = [
@@ -1281,13 +1464,31 @@ class SeoService
                     ];
                 }
             }
-            if (!empty($faqEntities)) {
-                $graph[] = [
-                    '@type'      => 'FAQPage',
-                    '@id'        => $url . '#faq',
-                    'mainEntity' => $faqEntities,
-                ];
+        }
+
+        if (!empty($enProfile['faqs']) && is_array($enProfile['faqs'])) {
+            foreach ($enProfile['faqs'] as $ef) {
+                if (!empty($ef['question']) && !empty($ef['answer'])) {
+                    $faqEntities[] = [
+                        '@type'          => 'Question',
+                        'name'           => $ef['question'],
+                        'inLanguage'     => 'en-US',
+                        'acceptedAnswer' => [
+                            '@type'      => 'Answer',
+                            'text'       => $ef['answer'],
+                            'inLanguage' => 'en-US',
+                        ],
+                    ];
+                }
             }
+        }
+
+        if (!empty($faqEntities)) {
+            $graph[] = [
+                '@type'      => 'FAQPage',
+                '@id'        => $url . '#faq',
+                'mainEntity' => $faqEntities,
+            ];
         }
 
         return [
@@ -1342,7 +1543,12 @@ class SeoService
 
             $urls = [
                 url('/'),
+                route('guides.index'),
                 route('guides.aftabnagar'),
+                route('calculators.index'),
+                route('calculators.registration'),
+                route('calculators.land-share'),
+                route('valuation.index'),
                 route('properties.land'),
                 route('properties.flat'),
                 route('properties.commercial'),
@@ -1351,6 +1557,14 @@ class SeoService
                 route('property.create'),
                 route('chahida.index'),
             ];
+
+            // Add all published guides
+            try {
+                $guides = Guide::published()->get();
+                foreach ($guides as $g) {
+                    $urls[] = route('guides.show', $g->slug);
+                }
+            } catch (\Throwable $e) {}
 
             $liveProps = Property::where('status', 'live')->get();
             if ($liveProps->isEmpty()) {

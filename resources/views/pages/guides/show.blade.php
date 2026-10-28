@@ -21,6 +21,12 @@
             <article class="lg:col-span-8 bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-10 shadow-xs" itemscope itemtype="https://schema.org/Article">
                 <meta itemprop="inLanguage" content="bn-BD">
                 <meta itemprop="mainEntityOfPage" content="{{ route('guides.show', $guide->slug) }}">
+                @if(!empty($ogMeta['en_profile']['headline']))
+                    <meta itemprop="alternateName" content="{{ $ogMeta['en_profile']['headline'] }}">
+                @endif
+                @if(!empty($ogMeta['en_profile']['abstract']))
+                    <meta itemprop="description" content="{{ $ogMeta['en_profile']['abstract'] }}">
+                @endif
 
                 <!-- Meta Header -->
                 <header class="mb-8 pb-8 border-b border-slate-100">

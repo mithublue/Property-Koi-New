@@ -45,6 +45,19 @@
     <meta name="author" content="{{ $siteName }}">
     <link rel="canonical" href="{{ $seoUrl }}">
 
+    <!-- Bilingual Content-Language & AI Search Discovery -->
+    <meta http-equiv="content-language" content="bn-BD, en-US">
+    @if(!empty($seoData['en_profile']['headline']))
+        <meta name="citation_title" content="{{ $seoData['en_profile']['headline'] }}">
+    @endif
+    @if(!empty($seoData['en_profile']['abstract']))
+        <meta name="citation_abstract" content="{{ $seoData['en_profile']['abstract'] }}">
+        <meta name="ai:summary" content="{{ $seoData['en_profile']['abstract'] }}">
+    @endif
+    @if(!empty($seoData['en_profile']['keywords']))
+        <meta name="ai:keywords" content="{{ $seoData['en_profile']['keywords'] }}">
+    @endif
+
     <!-- Local & Geo SEO Meta Tags (Dhaka / Aftabnagar) -->
     <meta name="geo.region" content="BD-13">
     <meta name="geo.placename" content="Aftabnagar, Dhaka, Bangladesh">

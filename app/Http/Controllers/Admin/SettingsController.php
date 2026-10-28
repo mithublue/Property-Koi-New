@@ -47,9 +47,12 @@ class SettingsController extends Controller
 
         // 2. Media Tab
         $watermark_enabled = Setting::get('adm_watermark_enabled', 'yes') === 'yes';
+        $watermark_type = Setting::get('adm_watermark_type', 'text');
         $watermark_text = Setting::get('adm_watermark_text', 'PropertyKoi.com');
+        $watermark_logo = Setting::get('adm_watermark_logo', '');
         $watermark_position = Setting::get('adm_watermark_position', 'bottom-right');
         $watermark_opacity = (int) Setting::get('adm_watermark_opacity', 82);
+        $watermark_scale = (int) Setting::get('adm_watermark_scale', 20);
 
         $cld_name = Setting::get('adm_cloudinary_cloud_name', '');
         $cld_key = Setting::get('adm_cloudinary_api_key', '');
@@ -279,9 +282,12 @@ class SettingsController extends Controller
             'auto_approve_visits',
             'show_owner_identity',
             'watermark_enabled',
+            'watermark_type',
             'watermark_text',
+            'watermark_logo',
             'watermark_position',
             'watermark_opacity',
+            'watermark_scale',
             'cld_name',
             'cld_key',
             'cld_secret',
@@ -498,7 +504,34 @@ class SettingsController extends Controller
             $deleteOldBrandingFile($oldFavicon);
         }
 
-        unset($inputs['adm_remove_site_logo'], $inputs['adm_remove_site_logo_dark'], $inputs['adm_remove_site_favicon']);
+        // 4. Custom Watermark Logo Upload
+        $oldWatermarkLogo = Setting::get('adm_watermark_logo', '');
+        if ($request->hasFile('adm_watermark_logo_file')) {
+            $request->validate([
+                'adm_watermark_logo_file' => 'image|mimes:png,webp,jpg,jpeg|max:4096',
+            ]);
+            $wmDir = public_path('uploads/watermark');
+            if (!file_exists($wmDir)) {
+                @mkdir($wmDir, 0755, true);
+            }
+            if (!empty($oldWatermarkLogo) && file_exists(public_path($oldWatermarkLogo))) {
+                @unlink(public_path($oldWatermarkLogo));
+            }
+            $file = $request->file('adm_watermark_logo_file');
+            $ext = strtolower($file->getClientOriginalExtension());
+            $filename = 'watermark_logo_' . time() . '.' . $ext;
+            $file->move($wmDir, $filename);
+            $inputs['adm_watermark_logo'] = 'uploads/watermark/' . $filename;
+            $inputs['adm_watermark_type'] = 'image';
+        } elseif ($request->input('adm_remove_watermark_logo') === '1') {
+            if (!empty($oldWatermarkLogo) && file_exists(public_path($oldWatermarkLogo))) {
+                @unlink(public_path($oldWatermarkLogo));
+            }
+            $inputs['adm_watermark_logo'] = '';
+            $inputs['adm_watermark_type'] = 'text';
+        }
+
+        unset($inputs['adm_remove_site_logo'], $inputs['adm_remove_site_logo_dark'], $inputs['adm_remove_site_favicon'], $inputs['adm_remove_watermark_logo']);
 
         // Checkbox definition mapping by tab to ensure unchecked checkboxes persist as 'no' or '0'
         $checkboxesByTab = [

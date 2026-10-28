@@ -532,7 +532,7 @@ function admSettingsRoot() {
                                 <h2 class="text-base font-extrabold text-slate-900 m-0">অটো ইমেজ ওয়াটারমার্ক (Auto Image Watermark Protection)</h2>
                             </div>
                             <p class="text-xs text-slate-600 leading-relaxed m-0">
-                                প্রপার্টি আপলোডের সাথে সাথে ছবিতে স্বয়ংক্রিয়ভাবে আধুনিক পিল-ব্যাজ ওয়াটারমার্ক যুক্ত হবে, যা অন্য ব্রোকারদের ছবি চুরি ও কপি করা থেকে রক্ষা করবে। এটি ক্লাউডিনারি ও লোকাল উভয় স্টোরেজেই কাজ করে।
+                                প্রপার্টি আপলোডের সাথে সাথে ছবিতে স্বয়ংক্রিয়ভাবে আধুনিক টেক্সট ব্যাজ বা আপনার কাস্টম ব্র্যান্ড লোগো ওয়াটারমার্ক হিসেবে যুক্ত হবে, যা ছবি চুরি ও কপি করা থেকে রক্ষা করবে। এটি ক্লাউডিনারি ও লোকাল উভয় স্টোরেজেই কাজ করে।
                             </p>
                         </div>
 
@@ -543,13 +543,81 @@ function admSettingsRoot() {
                         </label>
                     </div>
 
-                    <div x-show="enabled" x-collapse class="pt-3 border-t border-emerald-200/60 space-y-4">
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div x-show="enabled" x-collapse class="pt-3 border-t border-emerald-200/60 space-y-5">
+                        <!-- Watermark Type Selector (Text vs Logo Image) -->
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase mb-2">ওয়াটারমার্কের ধরন (Watermark Type)</label>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-lg">
+                                <label class="flex items-center gap-2.5 p-3 rounded-xl border cursor-pointer transition"
+                                       :class="type === 'text' ? 'bg-white border-emerald-500 shadow-xs ring-2 ring-emerald-500/20' : 'bg-white/60 border-slate-200 hover:bg-white'">
+                                    <input type="radio" name="adm_watermark_type" value="text" x-model="type" class="text-emerald-600 focus:ring-emerald-500">
+                                    <div>
+                                        <span class="block text-xs font-extrabold text-slate-800">🔤 টেক্সট ব্যাজ (Text Badge)</span>
+                                        <span class="block text-[11px] text-slate-500">ব্র্যান্ডের নাম বা ডোমেইন টেক্সট ব্যাজ আকারে ফুটে উঠবে</span>
+                                    </div>
+                                </label>
+                                <label class="flex items-center gap-2.5 p-3 rounded-xl border cursor-pointer transition"
+                                       :class="type === 'image' ? 'bg-white border-emerald-500 shadow-xs ring-2 ring-emerald-500/20' : 'bg-white/60 border-slate-200 hover:bg-white'">
+                                    <input type="radio" name="adm_watermark_type" value="image" x-model="type" class="text-emerald-600 focus:ring-emerald-500">
+                                    <div>
+                                        <span class="block text-xs font-extrabold text-slate-800">🖼️ কাস্টম ইমেজ লোগো (Custom Logo)</span>
+                                        <span class="block text-[11px] text-slate-500">স্বচ্ছ PNG / WebP ফরম্যাটের নিজস্ব লোগো ব্যবহার করুন</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- 1. Text Watermark Settings -->
+                        <div x-show="type === 'text'" class="p-4 bg-white/70 rounded-xl border border-emerald-100">
+                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">ওয়াটারমার্ক টেক্সট (Text Content)</label>
+                            <input type="text" name="adm_watermark_text" x-model="text" placeholder="যেমন: PropertyKoi.com" class="w-full sm:max-w-md border rounded-xl px-3.5 py-2 bg-white font-mono font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-xs">
+                        </div>
+
+                        <!-- 2. Custom Image Logo Settings -->
+                        <div x-show="type === 'image'" class="p-4 bg-white/70 rounded-xl border border-emerald-100 space-y-3">
                             <div>
-                                <label class="block text-xs font-bold text-slate-700 uppercase mb-1">ওয়াটারমার্ক টেক্সট (Text)</label>
-                                <input type="text" name="adm_watermark_text" x-model="text" class="w-full border rounded-xl px-3.5 py-2 bg-white font-mono font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-xs">
+                                <label class="block text-xs font-bold text-slate-700 uppercase mb-1">কাস্টম ইমেজ লোগো আপলোড (Custom Logo Upload)</label>
+                                <p class="text-[11px] text-slate-500 mb-2">স্বচ্ছ ব্যাকগ্রাউন্ডসহ PNG বা WebP ফরম্যাটের লোগো সবচেয়ে ভালো দেখায়। সর্বোচ্চ সাইজ: 4MB।</p>
+                                
+                                <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                                    <!-- Current Logo / Preview Box -->
+                                    <div class="h-16 w-32 bg-slate-100 rounded-lg border border-slate-300 p-1.5 flex items-center justify-center relative overflow-hidden"
+                                         style="background-image: repeating-linear-gradient(45deg, #e2e8f0 25%, transparent 25%, transparent 75%, #e2e8f0 75%, #e2e8f0), repeating-linear-gradient(45deg, #e2e8f0 25%, #ffffff 25%, #ffffff 75%, #e2e8f0 75%, #e2e8f0); background-position: 0 0, 8px 8px; background-size: 16px 16px;">
+                                        <template x-if="logoPreviewUrl">
+                                            <img :src="logoPreviewUrl" alt="Logo Preview" class="max-h-full max-w-full object-contain">
+                                        </template>
+                                        <template x-if="!logoPreviewUrl">
+                                            <span class="text-[10px] text-slate-400 font-bold text-center">লোগো নেই</span>
+                                        </template>
+                                    </div>
+
+                                    <div class="space-y-1.5 flex-1">
+                                        <input type="file" name="adm_watermark_logo_file" accept="image/png,image/webp,image/jpeg" @change="onLogoFileChange($event)" class="text-xs text-slate-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-emerald-600 file:text-white hover:file:bg-emerald-700 cursor-pointer">
+                                        <template x-if="logoUrl">
+                                            <div class="flex items-center gap-2 pt-1">
+                                                <label class="inline-flex items-center gap-1.5 text-xs text-rose-600 font-bold cursor-pointer">
+                                                    <input type="checkbox" name="adm_remove_watermark_logo" value="1" @change="if($event.target.checked){ logoPreviewUrl=''; }else{ logoPreviewUrl=logoUrl; }">
+                                                    <span>লোগো মুছে টেক্সট মোডে ফিরুন</span>
+                                                </label>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </div>
                             </div>
 
+                            <!-- Logo Size / Scale slider -->
+                            <div class="max-w-md pt-2">
+                                <div class="flex items-center justify-between mb-1">
+                                    <label class="text-xs font-bold text-slate-700 uppercase">লোগোর সাইজ / স্কেলিং (Logo Scale)</label>
+                                    <span class="font-mono text-xs font-bold text-emerald-800" x-text="scale + '%'"></span>
+                                </div>
+                                <input type="range" name="adm_watermark_scale" min="10" max="40" step="2" x-model="scale" class="w-full h-2 bg-emerald-200 rounded-lg appearance-none cursor-pointer accent-emerald-600">
+                                <span class="text-[10px] text-slate-500">মূল ছবির মোট প্রস্থের কত শতাংশ জুড়ে লোগো প্রদর্শিত হবে (ডিফল্ট: ২০%)</span>
+                            </div>
+                        </div>
+
+                        <!-- 3. Common Controls: Position & Opacity -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 uppercase mb-1">অবস্থান (Position)</label>
                                 <select name="adm_watermark_position" x-model="position" class="w-full border rounded-xl px-3.5 py-2 bg-white font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-xs">
@@ -576,19 +644,33 @@ function admSettingsRoot() {
                                 <span class="font-bold text-slate-800">ওয়াটারমার্ক লাইভ প্রিভিউ:</span>
                                 <span>আপলোডকৃত ছবিতে ওয়াটারমার্কটি যেভাবে ফুটে উঠবে।</span>
                             </div>
-                            <div class="h-12 w-64 bg-slate-200 rounded-lg overflow-hidden relative border border-slate-300 shadow-inner flex items-center justify-center">
+                            <div class="h-20 w-72 bg-slate-200 rounded-lg overflow-hidden relative border border-slate-300 shadow-inner flex items-center justify-center">
                                 <div class="absolute inset-0 bg-cover bg-center opacity-40" style="background-image: repeating-linear-gradient(45deg, #cbd5e1 25%, transparent 25%, transparent 75%, #cbd5e1 75%, #cbd5e1), repeating-linear-gradient(45deg, #cbd5e1 25%, #f1f5f9 25%, #f1f5f9 75%, #cbd5e1 75%, #cbd5e1); background-position: 0 0, 10px 10px; background-size: 20px 20px;"></div>
-                                <div class="absolute py-1 px-3 rounded-full flex items-center gap-1.5 shadow-sm transition-all"
+                                
+                                <!-- Preview Item positioned dynamically -->
+                                <div class="absolute transition-all"
                                      :class="{
                                          'bottom-1.5 right-1.5': position === 'bottom-right',
                                          'bottom-1.5 left-1.5': position === 'bottom-left',
                                          'top-1.5 right-1.5': position === 'top-right',
                                          'top-1.5 left-1.5': position === 'top-left',
                                          'inset-auto': position === 'center'
-                                     }"
-                                     :style="`background-color: rgba(15, 23, 42, ${opacity/100}); color: rgba(255, 255, 255, ${opacity/100});`">
-                                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                                    <span class="font-bold font-mono text-[10px]" x-text="text || 'PropertyKoi.com'"></span>
+                                     }">
+                                    <!-- If image logo is selected and available -->
+                                    <template x-if="type === 'image' && logoPreviewUrl">
+                                        <div :style="`opacity: ${opacity/100};`" class="max-w-[80px] max-h-[36px] flex items-center justify-center">
+                                            <img :src="logoPreviewUrl" alt="Logo" class="max-h-9 max-w-full object-contain filter drop-shadow">
+                                        </div>
+                                    </template>
+                                    
+                                    <!-- If text mode or no image uploaded yet -->
+                                    <template x-if="type === 'text' || !logoPreviewUrl">
+                                        <div class="py-1 px-3 rounded-full flex items-center gap-1.5 shadow-sm"
+                                             :style="`background-color: rgba(15, 23, 42, ${opacity/100}); color: rgba(255, 255, 255, ${opacity/100});`">
+                                            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                                            <span class="font-bold font-mono text-[10px]" x-text="text || 'PropertyKoi.com'"></span>
+                                        </div>
+                                    </template>
                                 </div>
                             </div>
                         </div>
@@ -3132,13 +3214,28 @@ function admSettingsRoot() {
 function admWatermarkSettings() {
     return {
         enabled: {{ $watermark_enabled ? 'true' : 'false' }},
+        type: @json($watermark_type ?? 'text'),
         text: @json($watermark_text),
         position: @json($watermark_position),
         opacity: {{ (int) $watermark_opacity }},
+        scale: {{ (int) ($watermark_scale ?? 20) }},
+        logoUrl: @json(!empty($watermark_logo) ? asset($watermark_logo) : ''),
+        logoPreviewUrl: @json(!empty($watermark_logo) ? asset($watermark_logo) : ''),
         testingWm: false,
         testWmMsg: '',
         testWmSuccess: false,
         testWmUrl: '',
+        onLogoFileChange: function(event) {
+            var input = event.target;
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                var self = this;
+                reader.onload = function(e) {
+                    self.logoPreviewUrl = e.target.result;
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        },
         testWm: function() {
             var self = this;
             self.testingWm = true;

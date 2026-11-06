@@ -5,7 +5,8 @@
 
 @section('content')
 <div class="max-w-5xl mx-auto space-y-8 text-xs leading-relaxed" x-data="{
-    activeTab: 'api-property',
+    activeTab: 'api-shortform',
+    copiedShort: false,
     copiedProp: false,
     copiedAgent: false,
     copiedKey: false,
@@ -16,16 +17,24 @@
     <!-- Top Navigation Tabs -->
     <div class="flex items-center gap-2 p-1.5 bg-slate-100 rounded-2xl border border-slate-200 overflow-x-auto">
         <button type="button"
+                @click="activeTab = 'api-shortform'"
+                :class="activeTab === 'api-shortform' ? 'bg-indigo-600 text-white shadow-xs font-bold' : 'text-slate-600 hover:text-slate-900 font-semibold'"
+                class="px-4 py-2.5 rounded-xl transition text-xs flex items-center gap-2 whitespace-nowrap cursor-pointer">
+            <span>⚡ কুইক চিটশিট (Short-Form Doc)</span>
+            <span class="px-1.5 py-0.5 rounded-full text-[10px] font-black"
+                  :class="activeTab === 'api-shortform' ? 'bg-white/20 text-white' : 'bg-indigo-100 text-indigo-700'">AI রেডি</span>
+        </button>
+        <button type="button"
                 @click="activeTab = 'api-property'"
                 :class="activeTab === 'api-property' ? 'bg-white text-slate-900 shadow-xs font-bold' : 'text-slate-600 hover:text-slate-900 font-semibold'"
                 class="px-4 py-2.5 rounded-xl transition text-xs flex items-center gap-2 whitespace-nowrap cursor-pointer">
-            <span>🏠 Property API (JSON Schema)</span>
+            <span>🏠 Property API (Full Schema)</span>
         </button>
         <button type="button"
                 @click="activeTab = 'api-agent'"
                 :class="activeTab === 'api-agent' ? 'bg-white text-slate-900 shadow-xs font-bold' : 'text-slate-600 hover:text-slate-900 font-semibold'"
                 class="px-4 py-2.5 rounded-xl transition text-xs flex items-center gap-2 whitespace-nowrap cursor-pointer">
-            <span>👤 Agent API (JSON Schema)</span>
+            <span>👤 Agent API (Full Schema)</span>
         </button>
         <button type="button"
                 @click="activeTab = 'google-sheets'"
@@ -79,6 +88,114 @@
             <div class="p-3 bg-white/5 rounded-xl border border-white/5">
                 <span class="text-slate-400 block text-[11px]">Content Format:</span>
                 <code class="font-mono text-amber-300 font-bold">application/json</code>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 0: Short-Form Quick Doc (AI-Ready & 1-Click Copy) -->
+    <div x-show="activeTab === 'api-shortform'" class="space-y-6">
+        <div class="bg-white p-6 md:p-8 rounded-3xl border border-indigo-200 shadow-md space-y-5">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="px-2.5 py-1 rounded-md text-[11px] font-black bg-indigo-600 text-white shadow-xs">QUICK CHEATSHEET</span>
+                        <h3 class="text-base font-bold text-slate-900">AI ও অটোমেশন শর্টফর্ম ডকুমেন্টেশন</h3>
+                    </div>
+                    <p class="text-slate-500 text-xs mt-1">
+                        কম কথায় উদাহরণসহ সম্পূর্ণ সংক্ষিপ্ত চিটশিট। নিচে ক্লিক করে পুরোটা কপি করে সরাসরি ChatGPT, Gemini, Claude বা স্ক্রিপ্টে পেস্ট করুন।
+                    </p>
+                </div>
+                <button type="button"
+                        @click="navigator.clipboard.writeText(document.getElementById('shortform-doc-text').innerText); copiedShort = true; setTimeout(() => copiedShort = false, 2500)"
+                        class="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white text-xs font-black rounded-xl shadow-md transition active:scale-95 cursor-pointer shrink-0">
+                    <span x-show="!copiedShort">📋 ১-ক্লিকে পুরো শর্টফর্ম ডক কপি করুন</span>
+                    <span x-show="copiedShort" class="font-black text-emerald-300">✅ সম্পূর্ণ ডক কপি হয়েছে!</span>
+                </button>
+            </div>
+
+            <!-- Preformatted Compact Cheatsheet Box -->
+            <div class="relative">
+                <pre id="shortform-doc-text" class="bg-slate-950 text-emerald-400 p-6 rounded-2xl font-mono text-[11.5px] leading-relaxed overflow-x-auto border border-slate-800 selection:bg-indigo-500 selection:text-white"># PROPERTYKOI API CHEATSHEET (AI &amp; AUTOMATION READY)
+
+Base URL: {{ url('/api/v1') }}
+Headers:
+  X-API-KEY: {{ $apiKey }}
+  Content-Type: application/json
+
+============================================================
+1. INSERT PROPERTY (LAND / PLOT)
+============================================================
+POST {{ url('/api/v1/properties') }}
+Body:
+{
+  "property_type": "land",
+  "area": "Bashundhara",
+  "block": "F",
+  "road_number": "25",
+  "plot_number": "4500",
+  "size": "4",
+  "price_per_katha": "1.55cr",
+  "asking_price": "6.2cr",
+  "owner_name": "Saiful Islam",
+  "owner_phone": "+880 1924-400307",
+  "source_type": "agent",
+  "facing": "south",
+  "description": "Just close to Viqarunnisa, asking",
+  "hidden_note": "Direct owner papers verified",
+  "status": "directory"
+}
+
+============================================================
+2. INSERT PROPERTY (FLAT / APARTMENT)
+============================================================
+POST {{ url('/api/v1/properties') }}
+Body:
+{
+  "property_type": "flat",
+  "area": "Aftabnagar",
+  "block": "C",
+  "title": "আফতাবনগর সি ব্লকে ১৬৫০ স্কয়ারফিট রেডি ফ্ল্যাট",
+  "flat_size_sqft": "1650",
+  "price_per_sqft": "8500",
+  "garage_price": "500000",
+  "asking_price": "14500000",
+  "bedrooms": 3,
+  "bathrooms": 3,
+  "balconies": 2,
+  "floor_number": 4,
+  "has_lift": true,
+  "parking_available": true,
+  "has_generator": true,
+  "has_gas": true,
+  "owner_name": "তানভীর আহমেদ",
+  "owner_phone": "01799881122",
+  "status": "directory"
+}
+
+============================================================
+3. INSERT OR UPDATE AGENT
+============================================================
+POST {{ url('/api/v1/agents') }}
+Body:
+{
+  "name": "সাইফুল ইসলাম",
+  "phone": "+880 1924-400307",
+  "whatsapp_number": "+880 1924-400307",
+  "agency_name": "বাটারফ্লাই রিয়েল এস্টেট",
+  "role": "agent",
+  "rating": 5.0,
+  "is_verified_direct_agent": true,
+  "notes": "বসুন্ধরা ও আফতাবনগর অঞ্চলের অভিজ্ঞ এজেন্ট"
+}
+
+============================================================
+4. KEY ENUMS &amp; RULES
+============================================================
+- property_type: "land" | "flat" | "commercial" | "land_share"
+- status: "directory" (private vault) | "live" (published) | "draft"
+- price formats: "1.55cr" | "6.2 crore" | "80lac" | "50 লাখ" | 15000000
+- size formats: "4" | "4 katha" | "100*20 katha" | "1650"
+- Auto-Agent: If owner_phone is provided with property, agent profile is auto-created and linked if not already existing.</pre>
             </div>
         </div>
     </div>

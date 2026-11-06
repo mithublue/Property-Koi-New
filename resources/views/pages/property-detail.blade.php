@@ -1084,6 +1084,8 @@
                 </div>
             @endif
 
+            {{-- সাময়িকভাবে বন্ধ রাখা হয়েছে: ভেরিফাইড ডিরেক্ট সোর্স ও ক্রেতা রিভিউ সেকশন (পরবর্তীতে লাগলে @if(true) করলেই চালু হবে) --}}
+            @if(false)
             <!-- Verified Direct Sources & Buyer Reviews Section (WP Parity) -->
             <div class="bg-white rounded-3xl border border-slate-200 p-5 sm:p-6 shadow-xs space-y-5">
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
@@ -1182,6 +1184,7 @@
                     </template>
                 </div>
             </div>
+            @endif
 
             <!-- AEO (Answer Engine Optimization) & Property FAQ Accordion -->
             @if(!empty($seo['faqs']) && count($seo['faqs']) > 0)

@@ -49,7 +49,19 @@ if ($phpBin === 'php' && !empty($phpCandidates[0])) {
 
 // 1. Git pull
 $gitStatusBefore = runCommand('git status --short');
-$gitPull = runCommand('git pull origin main');
+$isForce = (isset($_GET['force']) && $_GET['force'] === '1');
+
+if ($isForce) {
+    runCommand('git fetch origin main');
+    $gitPull = runCommand('git reset --hard origin/main');
+} else {
+    $gitPull = runCommand('git pull origin main');
+    // If blocked by untracked file conflict, auto-heal with fetch & reset
+    if (strpos($gitPull, 'overwritten by merge') !== false) {
+        runCommand('git fetch origin main');
+        $gitPull .= "\n[Auto-healing untracked conflicts]\n" . runCommand('git reset --hard origin/main');
+    }
+}
 $currentCommit = runCommand('git log -1 --oneline');
 
 // 2. Clear cache & optimize directly via Laravel (runs under Web PHP 8.3)

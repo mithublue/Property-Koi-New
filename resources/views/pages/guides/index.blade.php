@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.app', ['seo' => $ogMeta])
 
 @section('content')
 <div class="bg-gradient-to-b from-slate-50 via-white to-slate-50 min-h-screen py-8 sm:py-12">

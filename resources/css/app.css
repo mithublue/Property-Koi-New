@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
-@source '../../resources/views/**/*.blade.php';
+@source '../views/**/*.blade.php';
 @source '../../storage/framework/views/*.php';
 @source '../../../wp/wp-content/plugins/aftabnagar-direct-marketplace/templates/**/*.php';
 @source '../../../wp/wp-content/plugins/aftabnagar-direct-marketplace/assets/js/**/*.js';

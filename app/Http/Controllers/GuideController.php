@@ -29,12 +29,15 @@ class GuideController extends Controller
             });
         }
 
-        $guides = $query->paginate(9)->withQueryString();
-
         $featuredGuide = null;
-        if (empty($category) && empty($search) && $guides->currentPage() === 1) {
+        if (empty($category) && empty($search) && (int) $request->query('page', 1) === 1) {
             $featuredGuide = Guide::published()->where('is_featured', true)->latest()->first();
+            if ($featuredGuide) {
+                $query->where('id', '!=', $featuredGuide->id);
+            }
         }
+
+        $guides = $query->paginate(9)->withQueryString();
 
         $categories = [
             'all'             => 'সব গাইড',

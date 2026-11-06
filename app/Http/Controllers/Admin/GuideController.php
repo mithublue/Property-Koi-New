@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Guide;
 use App\Services\CloudinaryService;
+use App\Services\GuidePublisherService;
 use App\Services\WatermarkService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -38,7 +39,19 @@ class GuideController extends Controller
         $guides = $query->paginate(15)->withQueryString();
         $categories = Guide::getCategoryOptions();
 
-        return view('admin.guides.index', compact('guides', 'categories'));
+        $publishSettings = GuidePublisherService::getSettings();
+        $targetGuides = GuidePublisherService::getTargetGuides();
+        $targetGuidesCount = $targetGuides->count();
+        $allGuidesList = Guide::select(['id', 'title', 'slug', 'is_published', 'category', 'created_at'])->latest('id')->get();
+
+        return view('admin.guides.index', compact(
+            'guides',
+            'categories',
+            'publishSettings',
+            'targetGuides',
+            'targetGuidesCount',
+            'allGuidesList'
+        ));
     }
 
     public function create(): View
@@ -331,5 +344,85 @@ class GuideController extends Controller
             return redirect()->route('admin.guides.index')
                 ->with('error', 'সিড সম্পন্ন করা সম্ভব হয়নি: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Trigger bulk publishing to the live site based on admin settings or request payload.
+     */
+    public function publishLive(Request $request): JsonResponse|RedirectResponse
+    {
+        $options = [];
+
+        if ($request->filled('scope')) {
+            $options['scope'] = $request->input('scope');
+        }
+
+        if ($request->has('specific_ids')) {
+            $options['specific_ids'] = (array) $request->input('specific_ids');
+        }
+
+        if ($request->filled('default_status')) {
+            $options['default_status'] = $request->input('default_status');
+        }
+
+        if ($request->filled('live_site_url')) {
+            $options['live_site_url'] = $request->input('live_site_url');
+        }
+
+        if ($request->filled('api_key')) {
+            $options['api_key'] = $request->input('api_key');
+        }
+
+        $report = GuidePublisherService::publish($options);
+
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json($report, $report['success'] ? 200 : 422);
+        }
+
+        if ($report['success']) {
+            return redirect()->route('admin.guides.index')->with('success', $report['message']);
+        }
+
+        return redirect()->route('admin.guides.index')->with('error', $report['message']);
+    }
+
+    /**
+     * Publish a single guide directly to the live site.
+     */
+    public function publishSingleLive(Request $request, Guide $guide): RedirectResponse
+    {
+        $report = GuidePublisherService::publishSingle($guide);
+
+        if ($report['success']) {
+            return back()->with('success', "গাইড '{$guide->title}' সফলভাবে লাইভ সাইটে পাবলিশ করা হয়েছে!");
+        }
+
+        $errorMsg = !empty($report['failed'][0]['error']) ? $report['failed'][0]['error'] : ($report['message'] ?? 'পাবলিশ ব্যর্থ হয়েছে');
+        return back()->with('error', "লাইভ সাইটে পাবলিশ করা সম্ভব হয়নি: {$errorMsg}");
+    }
+
+    /**
+     * Update and save publishing configuration settings.
+     */
+    public function savePublishSettings(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'live_site_url'  => 'required|url|max:255',
+            'api_key'        => 'nullable|string|max:255',
+            'publish_scope'  => 'required|in:latest_unpublished,all,specific',
+            'specific_ids'   => 'nullable|array',
+            'default_status' => 'required|in:published,draft',
+        ]);
+
+        GuidePublisherService::saveSettings([
+            'live_site_url'  => $validated['live_site_url'],
+            'api_key'        => $validated['api_key'] ?? '',
+            'publish_scope'  => $validated['publish_scope'],
+            'specific_ids'   => $validated['specific_ids'] ?? [],
+            'default_status' => $validated['default_status'],
+        ]);
+
+        return redirect()->route('admin.guides.index')
+            ->with('success', 'লাইভ সাইট পাবলিশ সেটিংস সফলভাবে সংরক্ষণ করা হয়েছে!');
     }
 }

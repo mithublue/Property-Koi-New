@@ -193,9 +193,14 @@ class GuideApiController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
+        $slugRule = 'nullable|string|max:255';
+        if (!$request->boolean('update_existing')) {
+            $slugRule .= '|unique:guides,slug';
+        }
+
         $validated = $request->validate([
             'title'            => 'required|string|max:255',
-            'slug'             => 'nullable|string|max:255|unique:guides,slug',
+            'slug'             => $slugRule,
             'category'         => 'nullable|string|max:100',
             'excerpt'          => 'nullable|string|max:1000',
             'content'          => 'required|string',
@@ -210,6 +215,7 @@ class GuideApiController extends Controller
             'faqs'             => 'nullable|array',
             'en_profile'       => 'nullable|array',
             'force'            => 'nullable|boolean',
+            'update_existing'  => 'nullable|boolean',
         ]);
 
         $title = trim($validated['title']);
@@ -221,6 +227,58 @@ class GuideApiController extends Controller
 
         if (empty($slug)) {
             $slug = 'guide-' . date('Ymd-His');
+        }
+
+        // Auto-calculate reading time if not explicitly provided
+        $readingTime = (int) ($validated['reading_time_min'] ?? 0);
+        if ($readingTime <= 0) {
+            $wordCount = str_word_count(strip_tags($validated['content']));
+            $readingTime = max(2, (int) ceil($wordCount / 160));
+        }
+
+        // Handle category fallback
+        $category = !empty($validated['category']) ? trim($validated['category']) : 'buying_guides';
+
+        // Author name
+        $author = !empty($validated['author_name']) ? trim($validated['author_name']) : 'Property Koi Desk';
+
+        // Fallback excerpt
+        $excerpt = !empty($validated['excerpt'])
+            ? trim($validated['excerpt'])
+            : Str::limit(strip_tags($validated['content']), 220);
+
+        // If updating existing record by slug
+        if ($request->boolean('update_existing')) {
+            $existingGuide = Guide::where('slug', $slug)->first();
+            if ($existingGuide) {
+                $existingGuide->update([
+                    'title'            => $title,
+                    'category'         => $category,
+                    'excerpt'          => $excerpt,
+                    'content'          => $validated['content'],
+                    'reading_time_min' => $readingTime,
+                    'cover_image'      => $validated['cover_image'] ?? $existingGuide->cover_image,
+                    'author_name'      => $author,
+                    'seo_title'        => $validated['seo_title'] ?? $title,
+                    'seo_description'  => $validated['seo_description'] ?? $excerpt,
+                    'seo_keywords'     => $validated['seo_keywords'] ?? null,
+                    'is_featured'      => $request->boolean('is_featured', $existingGuide->is_featured),
+                    'is_published'     => $request->has('is_published') ? $request->boolean('is_published') : $existingGuide->is_published,
+                    'faqs'             => $validated['faqs'] ?? $existingGuide->faqs,
+                    'en_profile'       => $validated['en_profile'] ?? $existingGuide->en_profile,
+                ]);
+
+                $this->saveLocalBackup($existingGuide);
+
+                return response()->json([
+                    'success' => true,
+                    'action'  => 'updated',
+                    'message' => "Guide '{$existingGuide->title}' updated on live successfully.",
+                    'data'    => array_merge($existingGuide->fresh()->toArray(), [
+                        'public_url' => route('guides.show', $existingGuide->slug),
+                    ]),
+                ], 200);
+            }
         }
 
         // Check topic uniqueness unless force flag is passed
@@ -242,24 +300,6 @@ class GuideApiController extends Controller
                 }
             }
         }
-
-        // Auto-calculate reading time if not explicitly provided
-        $readingTime = (int) ($validated['reading_time_min'] ?? 0);
-        if ($readingTime <= 0) {
-            $wordCount = str_word_count(strip_tags($validated['content']));
-            $readingTime = max(2, (int) ceil($wordCount / 160));
-        }
-
-        // Handle category fallback
-        $category = !empty($validated['category']) ? trim($validated['category']) : 'buying_guides';
-
-        // Author name
-        $author = !empty($validated['author_name']) ? trim($validated['author_name']) : 'Property Koi Desk';
-
-        // Fallback excerpt
-        $excerpt = !empty($validated['excerpt'])
-            ? trim($validated['excerpt'])
-            : Str::limit(strip_tags($validated['content']), 220);
 
         // Prepare Guide record
         $guide = Guide::create([

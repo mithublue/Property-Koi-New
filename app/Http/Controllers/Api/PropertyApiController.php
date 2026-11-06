@@ -246,7 +246,14 @@ class PropertyApiController extends Controller
             $ownerName = trim((string) ($payload['owner_name'] ?? ($payload['agent_name'] ?? ($payload['agent'] ?? ''))));
             $ownerPhone = trim((string) ($payload['owner_phone'] ?? ($payload['contact'] ?? ($payload['phone'] ?? ($payload['agent_phone'] ?? '')))));
             $sourceType = trim((string) ($payload['source_type'] ?? 'agent'));
-            $declaration = trim((string) ($payload['relationship_declaration'] ?? 'API / Google Sheets Integration'));
+            $rawDeclaration = trim((string) ($payload['relationship_declaration'] ?? ''));
+            if (empty($rawDeclaration) || preg_match('/api|google|sheet|sync|bot|script|crawler/i', $rawDeclaration)) {
+                $declaration = ($sourceType === 'owner' || $sourceType === 'direct_owner')
+                    ? 'সরাসরি প্রপার্টির মালিক (Direct Owner)'
+                    : 'অনুমোদিত ডিরেক্ট এজেন্ট (Direct Agent)';
+            } else {
+                $declaration = $rawDeclaration;
+            }
 
             $agentUser = null;
             if (!empty($ownerPhone)) {
@@ -287,8 +294,8 @@ class PropertyApiController extends Controller
                 $otherFeatures = [];
             }
 
-            // 10. Hidden Note & Keywords
-            $hiddenNote = trim((string) ($payload['hidden_note'] ?? ''));
+            // 10. Hidden Note & Keywords (Never publicly visible)
+            $hiddenNote = trim((string) ($payload['hidden_note'] ?? ($payload['private_note'] ?? ($payload['private note'] ?? ''))));
             $hiddenTags = !empty($hiddenNote) ? PropertySearchService::extractKeywordsFromNote($hiddenNote) : null;
 
             // 11. Extract Any Extra / Custom Columns from Google Sheet
@@ -297,6 +304,7 @@ class PropertyApiController extends Controller
                 'source_type', 'relationship_declaration', 'property_type', 'type', 'area', 'place',
                 'custom_area', 'sub_area', 'title', 'block', 'sector', 'road_number', 'road', 'road_no',
                 'road_width_ft', 'road_width', 'plot_number', 'plot', 'plot_no', 'holding_number', 'hidden_note',
+                'private_note', 'private note',
                 'address_visibility', 'facing', 'size', 'katha', 'katha_size', 'price_per_katha',
                 'price', 'price_per_unit', 'total_price', 'price_total', 'flat_size_sqft', 'price_per_sqft',
                 'garage_price', 'utility_price', 'down_payment', 'asking_price', 'is_negotiable',
@@ -324,7 +332,7 @@ class PropertyApiController extends Controller
                 'type'               => $type,
                 'title'              => $title,
                 'slug'               => $slug,
-                'description'        => $description ?: "API মারফত সংগৃহীত প্রপার্টি।",
+                'description'        => (!empty($description) && !str_starts_with(strtolower($description), 'api')) ? $description : "{$title}। বিস্তারিত তথ্যের জন্য সরাসরি যোগাযোগ করুন।",
                 'area'               => $area,
                 'sub_area'           => $subArea ?: ($block ? "Block {$block}" : null),
                 'block'              => $block ?: null,
@@ -402,7 +410,7 @@ class PropertyApiController extends Controller
             } elseif ($type === 'commercial') {
                 PropertyCommercialDetail::create([
                     'property_id' => $property->id,
-                    'space_sqft'  => $size > 0 ? $size : 0.00,
+                    'size_sqft'   => $size > 0 ? $size : 0.00,
                     'price_total' => $askingPrice > 0 ? $askingPrice : 0.00,
                     'price_per_sqft' => $pricePerUnit > 0 ? $pricePerUnit : 0.00,
                 ]);

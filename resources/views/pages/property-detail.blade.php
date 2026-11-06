@@ -1125,8 +1125,20 @@
                                             <span class="text-[11px] font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded-md">⚠️ পর্যবেক্ষণাধীন</span>
                                         @endif
                                     </div>
+                                    @php
+                                        $decl = trim((string) ($src->relationship_declaration ?? ''));
+                                        if (empty($decl) || preg_match('/api|google|sheet|sync|bot|script|crawler|import|bulk|row/i', $decl)) {
+                                            if ($agentProf?->agency_name) {
+                                                $decl = $agentProf->agency_name . ' (অনুমোদিত এজেন্ট)';
+                                            } elseif ($src->source_type === 'direct_owner' || $src->source_type === 'owner') {
+                                                $decl = 'সরাসরি প্রপার্টির মালিক (Direct Owner)';
+                                            } else {
+                                                $decl = 'অনুমোদিত ডিরেক্ট এজেন্ট (Direct Agent)';
+                                            }
+                                        }
+                                    @endphp
                                     <div class="font-extrabold text-slate-900 text-sm pt-1">
-                                        {{ $src->relationship_declaration ?: 'সরাসরি প্রপার্টি সোর্স' }}
+                                        {{ $decl }}
                                     </div>
                                     <div class="text-xs text-slate-500">
                                         🔒 নম্বর প্ল্যাটফর্ম কোঅর্ডিনেটর দ্বারা সুরক্ষিত

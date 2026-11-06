@@ -126,8 +126,46 @@ class GuideController extends Controller
         $featuredProperties = $featuredPropertiesQuery->limit(3)->get();
 
         $ogMeta = SeoService::getGuideMeta($guide);
+        $comments = $guide->approvedRootComments;
 
-        return view('pages.guides.show', compact('guide', 'relatedGuides', 'featuredProperties', 'ogMeta'));
+        return view('pages.guides.show', compact('guide', 'relatedGuides', 'featuredProperties', 'ogMeta', 'comments'));
+    }
+
+    /**
+     * Submit a user inquiry / discussion comment on a guide.
+     */
+    public function storeComment(Request $request, string $slug): \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
+    {
+        $guide = Guide::where('slug', $slug)->orWhere('id', $slug)->firstOrFail();
+
+        // Anti-spam honeypot
+        if ($request->filled('website_hp')) {
+            return back()->with('error', 'Spam detected.');
+        }
+
+        $validated = $request->validate([
+            'author_name'  => 'required|string|max:100',
+            'author_email' => 'nullable|email|max:100',
+            'author_phone' => 'nullable|string|max:25',
+            'comment'      => 'required|string|min:4|max:2000',
+            'parent_id'    => 'nullable|integer|exists:guide_comments,id',
+        ]);
+
+        $comment = \App\Services\GuideCommentService::storeComment($guide, $validated, auth()->user());
+
+        $msg = $comment->is_approved
+            ? 'আপনার মন্তব্যটি সফলভাবে প্রকাশিত হয়েছে!'
+            : 'ধন্যবাদ! আপনার প্রশ্ন/মন্তব্যটি সফলভাবে জমা হয়েছে। আমাদের এক্সপার্ট টিম পর্যালোচনা করে দ্রুত এটি প্রকাশ ও উত্তর প্রদান করবে।';
+
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'success'     => true,
+                'is_approved' => $comment->is_approved,
+                'message'     => $msg,
+            ]);
+        }
+
+        return back()->with('comment_success', $msg);
     }
 
     /**

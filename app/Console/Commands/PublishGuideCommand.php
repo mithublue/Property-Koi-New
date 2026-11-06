@@ -17,7 +17,8 @@ class PublishGuideCommand extends Command
      */
     protected $signature = 'guide:publish 
                             {--file= : Path to JSON guide file}
-                            {--force : Force publishing even if topic similarity is detected}';
+                            {--force : Force publishing even if topic similarity is detected}
+                            {--sync-live : Automatically sync the published guide to the live site}';
 
     /**
      * The console command description.
@@ -105,6 +106,20 @@ class PublishGuideCommand extends Command
         try {
             SeoService::submitToIndexNow();
         } catch (\Throwable $e) {}
+
+        if ($this->option('sync-live')) {
+            $this->info("🌐 Syncing guide to live site...");
+            try {
+                $syncReport = \App\Services\GuidePublisherService::publishSingle($guide);
+                if (!empty($syncReport['success'])) {
+                    $this->info("🚀 Synced to live site: " . ($syncReport['target_url'] ?? 'https://propertykoi.com'));
+                } else {
+                    $this->warn("⚠️ Live sync notice: " . ($syncReport['message'] ?? 'Not synced'));
+                }
+            } catch (\Throwable $e) {
+                $this->warn("⚠️ Live sync error: " . $e->getMessage());
+            }
+        }
 
         $this->info("✅ Successfully published guide: '{$guide->title}'");
         $this->info("🔗 Public URL: " . route('guides.show', $guide->slug));

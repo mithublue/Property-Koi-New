@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\DocsController as AdminDocsController;
 use App\Http\Controllers\Admin\DemandController as AdminDemandController;
 use App\Http\Controllers\Admin\GuideController as AdminGuideController;
+use App\Http\Controllers\Admin\GuideCommentController as AdminGuideCommentController;
 use App\Http\Controllers\Admin\LeadController as AdminLeadController;
 use App\Http\Controllers\Admin\MediaController as AdminMediaController;
 use App\Http\Controllers\Admin\PropertyController as AdminPropertyController;
@@ -111,6 +112,7 @@ Route::redirect('/aftabnagar-flat-price', '/aftabnagar-property-guide', 301);
 
 Route::get('/guides', [GuideController::class, 'index'])->name('guides.index');
 Route::get('/guides/{slug}', [GuideController::class, 'show'])->name('guides.show');
+Route::post('/guides/{slug}/comments', [GuideController::class, 'storeComment'])->name('guides.comments.store');
 
 Route::get('/calculators', [CalculatorController::class, 'index'])->name('calculators.index');
 Route::get('/calculators/registration', [CalculatorController::class, 'registration'])->name('calculators.registration');
@@ -238,6 +240,11 @@ Route::prefix('backend')->name('admin.')->middleware('admin.access')->group(func
     Route::post('/properties/{property}/hidden-note', [AdminPropertyController::class, 'updateHiddenNote'])->name('properties.hidden-note');
 
     // 2.1 Property Guides & Articles Management
+    Route::get('/guides/comments', [AdminGuideCommentController::class, 'index'])->name('guides.comments.index');
+    Route::post('/guides/comments/{comment}/approve', [AdminGuideCommentController::class, 'approve'])->name('guides.comments.approve');
+    Route::post('/guides/comments/{comment}/reject', [AdminGuideCommentController::class, 'reject'])->name('guides.comments.reject');
+    Route::post('/guides/comments/{comment}/reply', [AdminGuideCommentController::class, 'reply'])->name('guides.comments.reply');
+    Route::delete('/guides/comments/{comment}', [AdminGuideCommentController::class, 'destroy'])->name('guides.comments.destroy');
     Route::post('/guides/bulk-action', [AdminGuideController::class, 'bulkAction'])->name('guides.bulk-action');
     Route::post('/guides/publish-live', [AdminGuideController::class, 'publishLive'])->name('guides.publish-live');
     Route::post('/guides/publish-settings', [AdminGuideController::class, 'savePublishSettings'])->name('guides.publish-settings');

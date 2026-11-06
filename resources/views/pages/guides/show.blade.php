@@ -235,6 +235,187 @@
                     @endauth
                 </div>
 
+                <!-- Discussion & Inquiries (Comments & Legal Consultation) -->
+                <section id="discussion-section" class="mt-12 pt-8 border-t border-slate-200" x-data="{ replyToId: null, replyToName: '' }">
+                    <div class="flex items-center justify-between mb-6 flex-wrap gap-2">
+                        <div>
+                            <span class="px-2.5 py-1 rounded-md text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/80 uppercase tracking-wider inline-block mb-1.5">
+                                প্রশ্নোত্তর ও আইনি পরামর্শ
+                            </span>
+                            <h3 class="text-xl sm:text-2xl font-black text-slate-900 flex items-center gap-2">
+                                <span>💬</span>
+                                <span>আলোচনা ও বিশেষজ্ঞ মতামত</span>
+                                <span class="text-xs font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
+                                    {{ $comments->count() }}টি প্রশ্ন
+                                </span>
+                            </h3>
+                        </div>
+                        <a href="#ask-form" class="inline-flex items-center gap-1 text-xs font-bold text-emerald-600 hover:text-emerald-700 bg-emerald-50/70 hover:bg-emerald-100/70 px-3 py-1.5 rounded-lg transition">
+                            <span>✏️ প্রশ্ন করুন</span>
+                        </a>
+                    </div>
+
+                    @if(session('comment_success'))
+                        <div class="mb-6 p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-sm flex items-start gap-3">
+                            <span class="text-xl">✅</span>
+                            <div>
+                                <p class="font-bold">সফলভাবে জমা হয়েছে!</p>
+                                <p class="text-xs text-emerald-800 mt-0.5">{{ session('comment_success') }}</p>
+                            </div>
+                        </div>
+                    @endif
+
+                    @if(session('error'))
+                        <div class="mb-6 p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-900 text-sm flex items-start gap-3">
+                            <span class="text-xl">⚠️</span>
+                            <div>
+                                <p class="font-bold">ত্রুটি!</p>
+                                <p class="text-xs text-rose-800 mt-0.5">{{ session('error') }}</p>
+                            </div>
+                        </div>
+                    @endif
+
+                    <!-- Comments List -->
+                    <div class="space-y-4 mb-8">
+                        @forelse($comments as $comment)
+                            <div class="bg-white rounded-2xl p-5 border border-slate-200/90 shadow-2xs">
+                                <div class="flex items-start justify-between gap-3">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center font-black text-slate-700 text-sm border border-slate-200 shrink-0">
+                                            {{ mb_substr($comment->author_name, 0, 1) }}
+                                        </div>
+                                        <div>
+                                            <div class="flex items-center gap-2 flex-wrap">
+                                                <h4 class="text-sm font-bold text-slate-900">{{ $comment->author_name }}</h4>
+                                                <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-600">পাঠক জিজ্ঞাসা</span>
+                                            </div>
+                                            <time class="text-[11px] text-slate-400 block mt-0.5">{{ $comment->formatted_date }}</time>
+                                        </div>
+                                    </div>
+
+                                    <button type="button"
+                                            @click="replyToId = {{ $comment->id }}; replyToName = '{{ addslashes($comment->author_name) }}'; document.getElementById('ask-form').scrollIntoView({ behavior: 'smooth' });"
+                                            class="text-xs font-semibold text-slate-500 hover:text-emerald-600 transition flex items-center gap-1 px-2.5 py-1 rounded-lg hover:bg-slate-50 cursor-pointer">
+                                        <span>↩️</span>
+                                        <span>রিপ্লাই</span>
+                                    </button>
+                                </div>
+
+                                <p class="mt-3 text-sm text-slate-700 leading-relaxed whitespace-pre-line pl-1 sm:pl-13">
+                                    {{ $comment->comment }}
+                                </p>
+
+                                <!-- Approved Admin / Verified Replies -->
+                                @if($comment->approvedReplies->count() > 0)
+                                    <div class="mt-4 pt-4 border-t border-slate-100 pl-3 sm:pl-10 space-y-3">
+                                        @foreach($comment->approvedReplies as $reply)
+                                            <div class="bg-gradient-to-br from-emerald-50/70 to-teal-50/40 rounded-xl p-4 border border-emerald-200/70 relative">
+                                                <div class="flex items-center justify-between gap-2 mb-2">
+                                                    <div class="flex items-center gap-2 flex-wrap">
+                                                        <span class="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs font-black shrink-0">👑</span>
+                                                        <span class="text-xs font-bold text-emerald-950">{{ $reply->author_name }}</span>
+                                                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-600 text-white shadow-2xs">
+                                                            ✓ ভেরিফাইড অ্যাডমিন উত্তর
+                                                        </span>
+                                                    </div>
+                                                    <time class="text-[10px] text-emerald-700/80">{{ $reply->formatted_date }}</time>
+                                                </div>
+                                                <p class="text-xs sm:text-sm text-slate-800 leading-relaxed whitespace-pre-line">
+                                                    {{ $reply->comment }}
+                                                </p>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                @endif
+                            </div>
+                        @empty
+                            <div class="text-center py-8 px-4 rounded-2xl bg-slate-50/80 border border-dashed border-slate-200">
+                                <span class="text-3xl block mb-2">💡</span>
+                                <h4 class="text-sm font-bold text-slate-700">এখনও কোনো প্রশ্ন জমা পড়েনি</h4>
+                                <p class="text-xs text-slate-500 mt-1 max-w-md mx-auto">
+                                    এই গাইড বা প্রপার্টি আইন বিষয়ে আপনার কোনো প্রশ্ন বা মতামত থাকলে নিচের ফর্মটি পূরণ করে নির্দ্বিধায় জিজ্ঞাসা করুন।
+                                </p>
+                            </div>
+                        @endforelse
+                    </div>
+
+                    <!-- Question / Inquiry Form -->
+                    <div id="ask-form" class="bg-gradient-to-br from-slate-50 via-white to-emerald-50/30 rounded-3xl p-6 sm:p-7 border border-slate-200 shadow-xs">
+                        <div class="mb-5">
+                            <span class="px-2.5 py-1 rounded-md text-[10px] font-bold bg-emerald-100 text-emerald-800 uppercase tracking-wider block w-max mb-1.5">
+                                দ্রুত পরামর্শ
+                            </span>
+                            <h4 class="text-lg font-black text-slate-900">
+                                আপনার কোনো প্রশ্ন বা জিজ্ঞাসা আছে?
+                            </h4>
+                            <p class="text-xs text-slate-500 mt-1 leading-relaxed">
+                                দলিল যাচাই, নামজারি, ফ্ল্যাট ক্রয় বা আইনগত জটিলতায় আপনার প্রশ্ন লিখুন। আমাদের অ্যাডমিন ও লিগ্যাল টিম পর্যালোচনা করে দ্রুত উত্তর প্রদান করবে।
+                            </p>
+                        </div>
+
+                        <!-- Replying Indicator -->
+                        <div x-show="replyToId" x-cloak class="mb-4 p-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 flex items-center justify-between">
+                            <span>
+                                💬 <strong><span x-text="replyToName"></span></strong> এর প্রশ্নের উত্তরে লিখছেন...
+                            </span>
+                            <button type="button" @click="replyToId = null; replyToName = ''" class="text-emerald-700 hover:text-emerald-900 font-bold ml-2 cursor-pointer">
+                                ✕ বাতিল
+                            </button>
+                        </div>
+
+                        <form action="{{ route('guides.comments.store', $guide->slug) }}" method="POST" class="space-y-4">
+                            @csrf
+                            <input type="hidden" name="parent_id" :value="replyToId">
+
+                            <!-- Anti-spam honeypot -->
+                            <div class="hidden" aria-hidden="true" style="display:none !important;">
+                                <input type="text" name="website_hp" tabindex="-1" autocomplete="off">
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 mb-1.5">
+                                        আপনার নাম <span class="text-rose-500">*</span>
+                                    </label>
+                                    <input type="text" name="author_name" required maxlength="100"
+                                           value="{{ auth()->check() ? auth()->user()->name : old('author_name') }}"
+                                           placeholder="যেমন: ইঞ্জিনিয়ার রফিকুল ইসলাম"
+                                           class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-200 text-xs sm:text-sm text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition">
+                                </div>
+
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 mb-1.5">
+                                        মোবাইল / হোয়াটসঅ্যাপ অথবা ইমেইল <span class="text-slate-400 font-normal">(অ্যাডমিন যোগাযোগের জন্য)</span>
+                                    </label>
+                                    <input type="text" name="author_phone" maxlength="50"
+                                           value="{{ auth()->check() ? (auth()->user()->phone ?: auth()->user()->email) : old('author_phone') }}"
+                                           placeholder="017XXXXXXXX বা your@email.com"
+                                           class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-200 text-xs sm:text-sm text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-1.5">
+                                    আপনার প্রশ্ন বা মন্তব্য বিস্তারিত লিখুন <span class="text-rose-500">*</span>
+                                </label>
+                                <textarea name="comment" rows="4" required minlength="4" maxlength="2000"
+                                          placeholder="যেমন: আমার ওয়ারিশ সূত্রে পাওয়া জমির বায়া দলিলে নামের অমিল আছে, এ অবস্থায় নামজারি করতে কি কি অতিরিক্ত কাগজ লাগবে?"
+                                          class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-200 text-xs sm:text-sm text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition resize-y">{{ old('comment') }}</textarea>
+                            </div>
+
+                            <div class="flex items-center justify-between flex-wrap gap-3 pt-1">
+                                <span class="text-[11px] text-slate-400 flex items-center gap-1">
+                                    🔒 আপনার ফোন নম্বর সম্পূর্ণ গোপন রাখা হয় (পাবলিকলি দৃশ্যমান হবে না)।
+                                </span>
+                                <button type="submit" class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white text-xs sm:text-sm font-bold shadow-md shadow-emerald-600/20 transition flex items-center justify-center gap-2 cursor-pointer">
+                                    <span>প্রশ্ন বা মন্তব্য জমা দিন</span>
+                                    <span>&rarr;</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </section>
+
             </article>
 
             <!-- Sidebar Column (4 Cols) -->

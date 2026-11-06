@@ -46,6 +46,20 @@ class Guide extends Model
         return !is_null($this->synced_to_live_at);
     }
 
+    public function comments(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(GuideComment::class);
+    }
+
+    public function approvedRootComments(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(GuideComment::class)
+            ->whereNull('parent_id')
+            ->where('is_approved', true)
+            ->with(['approvedReplies.user'])
+            ->latest('id');
+    }
+
     public function scopePublished(Builder $query): Builder
     {
         return $query->where('is_published', true);

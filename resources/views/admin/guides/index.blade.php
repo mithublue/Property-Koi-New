@@ -168,6 +168,18 @@
                 </div>
             </div>
 
+            <!-- Comments / Inquiries Moderation Button -->
+            <a href="{{ route('admin.guides.comments.index') }}"
+               class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 bg-amber-50 hover:bg-amber-100 text-amber-900 text-xs font-bold rounded-xl border border-amber-200 transition shrink-0"
+               title="পাঠক ও ক্লায়েন্টদের প্রশ্ন ও কমেন্ট মডারেশন">
+                <span>💬 গাইড কমেন্টস</span>
+                @if(!empty($pendingCommentsCount) && $pendingCommentsCount > 0)
+                    <span class="px-1.5 py-0.5 rounded-full text-[10px] font-black bg-rose-500 text-white shadow-xs animate-pulse">
+                        {{ $pendingCommentsCount }} নতুন
+                    </span>
+                @endif
+            </a>
+
             <!-- 4. New Guide Button -->
             <a href="{{ route('admin.guides.create') }}" data-turbo="false" class="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-xs transition shrink-0">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>

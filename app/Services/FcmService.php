@@ -176,7 +176,8 @@ class FcmService
     public static function sendToAdmins(string $title, string $body, ?string $clickUrl = null): array
     {
         try {
-            $tokens = FcmDeviceToken::pluck('token')->unique();
+            $adminUserIds = \App\Models\User::whereIn('role', ['admin', 'administrator'])->pluck('id');
+            $tokens = FcmDeviceToken::whereIn('user_id', $adminUserIds)->pluck('token')->unique();
             $total = $tokens->count();
             if ($total === 0) {
                 return ['total' => 0, 'success' => 0, 'failed' => 0];

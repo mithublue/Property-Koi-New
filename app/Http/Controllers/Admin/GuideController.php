@@ -43,6 +43,7 @@ class GuideController extends Controller
         $targetGuides = GuidePublisherService::getTargetGuides();
         $targetGuidesCount = $targetGuides->count();
         $allGuidesList = Guide::select(['id', 'title', 'slug', 'is_published', 'category', 'created_at'])->latest('id')->get();
+        $pendingCommentsCount = \App\Models\GuideComment::where('is_approved', false)->count();
 
         return view('admin.guides.index', compact(
             'guides',
@@ -50,7 +51,8 @@ class GuideController extends Controller
             'publishSettings',
             'targetGuides',
             'targetGuidesCount',
-            'allGuidesList'
+            'allGuidesList',
+            'pendingCommentsCount'
         ));
     }
 

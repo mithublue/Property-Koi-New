@@ -165,7 +165,8 @@ class GuideController extends Controller
             ]);
         }
 
-        return back()->with('comment_success', $msg);
+        return redirect()->to(route('guides.show', $guide->slug) . '#ask-form')
+            ->with('comment_success', $msg);
     }
 
     /**

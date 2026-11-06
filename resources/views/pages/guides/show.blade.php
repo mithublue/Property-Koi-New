@@ -236,7 +236,49 @@
                 </div>
 
                 <!-- Discussion & Inquiries (Comments & Legal Consultation) -->
-                <section id="discussion-section" class="mt-12 pt-8 border-t border-slate-200" x-data="{ replyToId: null, replyToName: '' }">
+                <section id="discussion-section" class="mt-12 pt-8 border-t border-slate-200"
+                         x-data="{
+                             replyToId: null,
+                             replyToName: '',
+                             isSubmitting: false,
+                             successMessage: '{{ session('comment_success') }}',
+                             errorMessage: '{{ session('error') }}',
+                             commentText: '{{ addslashes(old('comment', '')) }}',
+                             async submitForm(e) {
+                                 this.isSubmitting = true;
+                                 this.errorMessage = '';
+                                 this.successMessage = '';
+                                 const form = e.target;
+                                 const formData = new FormData(form);
+
+                                 try {
+                                     const response = await fetch(form.action, {
+                                         method: 'POST',
+                                         headers: {
+                                             'X-Requested-With': 'XMLHttpRequest',
+                                             'Accept': 'application/json'
+                                         },
+                                         body: formData
+                                     });
+
+                                     const data = await response.json();
+                                     if (response.ok && data.success) {
+                                         this.successMessage = data.message;
+                                         this.commentText = '';
+                                         this.replyToId = null;
+                                         this.replyToName = '';
+                                         document.getElementById('ask-form').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                                     } else {
+                                         this.errorMessage = data.message || (data.errors ? Object.values(data.errors).flat().join(' ') : 'তথ্য জমাদানে ত্রুটি হয়েছে।');
+                                     }
+                                 } catch (err) {
+                                     form.submit();
+                                     return;
+                                 } finally {
+                                     this.isSubmitting = false;
+                                 }
+                             }
+                         }">
                     <div class="flex items-center justify-between mb-6 flex-wrap gap-2">
                         <div>
                             <span class="px-2.5 py-1 rounded-md text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/80 uppercase tracking-wider inline-block mb-1.5">
@@ -255,25 +297,23 @@
                         </a>
                     </div>
 
-                    @if(session('comment_success'))
-                        <div class="mb-6 p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-sm flex items-start gap-3">
-                            <span class="text-xl">✅</span>
-                            <div>
-                                <p class="font-bold">সফলভাবে জমা হয়েছে!</p>
-                                <p class="text-xs text-emerald-800 mt-0.5">{{ session('comment_success') }}</p>
-                            </div>
+                    <!-- Dynamic / Flash Success Notification -->
+                    <div x-show="successMessage" x-cloak class="mb-6 p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-sm flex items-start gap-3 transition">
+                        <span class="text-xl">✅</span>
+                        <div>
+                            <p class="font-bold">সফলভাবে জমা হয়েছে!</p>
+                            <p class="text-xs text-emerald-800 mt-0.5" x-text="successMessage"></p>
                         </div>
-                    @endif
+                    </div>
 
-                    @if(session('error'))
-                        <div class="mb-6 p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-900 text-sm flex items-start gap-3">
-                            <span class="text-xl">⚠️</span>
-                            <div>
-                                <p class="font-bold">ত্রুটি!</p>
-                                <p class="text-xs text-rose-800 mt-0.5">{{ session('error') }}</p>
-                            </div>
+                    <!-- Dynamic / Flash Error Notification -->
+                    <div x-show="errorMessage" x-cloak class="mb-6 p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-900 text-sm flex items-start gap-3 transition">
+                        <span class="text-xl">⚠️</span>
+                        <div>
+                            <p class="font-bold">ত্রুটি!</p>
+                            <p class="text-xs text-rose-800 mt-0.5" x-text="errorMessage"></p>
                         </div>
-                    @endif
+                    </div>
 
                     <!-- Comments List -->
                     <div class="space-y-4 mb-8">
@@ -363,7 +403,10 @@
                             </button>
                         </div>
 
-                        <form action="{{ route('guides.comments.store', $guide->slug) }}" method="POST" class="space-y-4">
+                        <form action="{{ route('guides.comments.store', $guide->slug) }}"
+                              method="POST"
+                              @submit.prevent="submitForm($event)"
+                              class="space-y-4">
                             @csrf
                             <input type="hidden" name="parent_id" :value="replyToId">
 
@@ -399,20 +442,28 @@
                                     আপনার প্রশ্ন বা মন্তব্য বিস্তারিত লিখুন <span class="text-rose-500">*</span>
                                 </label>
                                 <textarea name="comment" rows="4" required minlength="4" maxlength="2000"
+                                          x-model="commentText"
                                           placeholder="যেমন: আমার ওয়ারিশ সূত্রে পাওয়া জমির বায়া দলিলে নামের অমিল আছে, এ অবস্থায় নামজারি করতে কি কি অতিরিক্ত কাগজ লাগবে?"
-                                          class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-200 text-xs sm:text-sm text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition resize-y">{{ old('comment') }}</textarea>
+                                          class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-200 text-xs sm:text-sm text-slate-800 focus:outline-hidden focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition resize-y"></textarea>
                             </div>
 
                             <div class="flex items-center justify-between flex-wrap gap-3 pt-1">
                                 <span class="text-[11px] text-slate-400 flex items-center gap-1">
                                     🔒 আপনার ফোন নম্বর সম্পূর্ণ গোপন রাখা হয় (পাবলিকলি দৃশ্যমান হবে না)।
                                 </span>
-                                <button type="submit" class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white text-xs sm:text-sm font-bold shadow-md shadow-emerald-600/20 transition flex items-center justify-center gap-2 cursor-pointer">
-                                    <span>প্রশ্ন বা মন্তব্য জমা দিন</span>
-                                    <span>&rarr;</span>
+                                <button type="submit"
+                                        :disabled="isSubmitting"
+                                        class="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:scale-95 disabled:opacity-60 text-white text-xs sm:text-sm font-bold shadow-md shadow-emerald-600/20 transition flex items-center justify-center gap-2 cursor-pointer">
+                                    <span x-show="!isSubmitting">প্রশ্ন বা মন্তব্য জমা দিন &rarr;</span>
+                                    <span x-show="isSubmitting" class="flex items-center gap-1.5">
+                                        <svg class="animate-spin -ml-1 mr-1 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
+                                        জমা হচ্ছে...
+                                    </span>
                                 </button>
                             </div>
                         </form>
+                    </div>
+                </section>
                     </div>
                 </section>
 

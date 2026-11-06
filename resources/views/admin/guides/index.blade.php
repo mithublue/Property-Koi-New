@@ -182,12 +182,14 @@
             <table class="w-full text-left text-xs text-slate-600">
                 <thead class="bg-slate-50 text-slate-700 uppercase font-bold text-[11px] border-b border-slate-200">
                     <tr>
-                        <th class="p-4 w-10 text-center">
-                            <input type="checkbox"
-                                   @change="toggleSelectAll()"
-                                   :checked="selectedRows.length > 0 && selectedRows.length === {{ count($guides->items()) }}"
-                                   class="rounded text-indigo-600 focus:ring-indigo-500 cursor-pointer"
-                                   title="সবগুলো নির্বাচন করুন">
+                        <th class="p-4 w-14 text-center">
+                            <div class="flex items-center justify-center">
+                                <input type="checkbox"
+                                       @change="toggleSelectAll()"
+                                       :checked="selectedRows.length > 0 && selectedRows.length === {{ count($guides->items()) }}"
+                                       class="w-5 h-5 rounded-md border-2 border-slate-300 text-indigo-600 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1 cursor-pointer transition shadow-2xs hover:border-indigo-500"
+                                       title="সবগুলো নির্বাচন করুন">
+                            </div>
                         </th>
                         <th class="p-4">শিরোনাম ও ক্যাটাগরি</th>
                         <th class="p-4">লাইভ সিঙ্ক স্ট্যাটাস</th>
@@ -200,13 +202,15 @@
                 <tbody class="divide-y divide-slate-100">
                     @forelse($guides as $guide)
                         <tr class="transition" :class="selectedRows.includes({{ $guide->id }}) ? 'bg-indigo-50/60' : 'hover:bg-slate-50/70'">
-                            <!-- Multi-Checkbox Cell -->
-                            <td class="p-4 w-10 text-center">
-                                <input type="checkbox"
-                                       :value="{{ $guide->id }}"
-                                       :checked="selectedRows.includes({{ $guide->id }})"
-                                       @change="toggleRow({{ $guide->id }})"
-                                       class="rounded text-indigo-600 focus:ring-indigo-500 cursor-pointer">
+                            <!-- Multi-Checkbox Cell (Large & High Tap Target) -->
+                            <td class="p-4 w-14 text-center" @click.stop>
+                                <div class="flex items-center justify-center">
+                                    <input type="checkbox"
+                                           :value="{{ $guide->id }}"
+                                           :checked="selectedRows.includes({{ $guide->id }})"
+                                           @change="toggleRow({{ $guide->id }})"
+                                           class="w-5 h-5 rounded-md border-2 border-slate-300 text-indigo-600 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1 cursor-pointer transition shadow-2xs hover:border-indigo-500">
+                                </div>
                             </td>
 
                             <td class="p-4">
@@ -309,63 +313,72 @@
     </div>
 
     <!-- ======================================================== -->
-    <!-- FLOATING STICKY BULK ACTION BAR (ACTIVE ON MULTI-CHECK) -->
+    <!-- FLOATING STICKY BULK ACTION BAR (PREMIUM SAAS TOOLBAR)   -->
     <!-- ======================================================== -->
     <div x-show="selectedRows.length > 0"
-         x-transition:enter="transition ease-out duration-200"
-         x-transition:enter-start="opacity-0 translate-y-4 scale-95"
+         x-transition:enter="transition ease-out duration-250"
+         x-transition:enter-start="opacity-0 translate-y-8 scale-95"
          x-transition:enter-end="opacity-100 translate-y-0 scale-100"
-         x-transition:leave="transition ease-in duration-150"
+         x-transition:leave="transition ease-in duration-200"
          x-transition:leave-start="opacity-100 translate-y-0 scale-100"
-         x-transition:leave-end="opacity-0 translate-y-4 scale-95"
-         class="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-slate-900/95 text-white px-5 py-3 rounded-2xl shadow-2xl border border-slate-700 backdrop-blur-md flex items-center justify-between gap-4 flex-wrap max-w-2xl w-full"
+         x-transition:leave-end="opacity-0 translate-y-8 scale-95"
+         class="fixed bottom-7 left-1/2 -translate-x-1/2 z-50 bg-slate-950/95 text-white pl-5 pr-3 py-2.5 rounded-2xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.85)] border border-slate-700/80 backdrop-blur-xl flex items-center justify-between gap-5 flex-nowrap whitespace-nowrap min-w-max"
          style="display: none;">
 
-        <div class="flex items-center gap-2.5">
-            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
-            <span class="text-xs font-bold text-white"><span x-text="selectedRows.length"></span>টি গাইড নির্বাচিত</span>
+        <!-- Selected Counter Badge -->
+        <div class="flex items-center gap-2.5 pr-4 border-r border-slate-800 shrink-0">
+            <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-indigo-500/30 text-indigo-300 text-xs font-black ring-2 ring-indigo-400/40">
+                <span x-text="selectedRows.length"></span>
+            </span>
+            <span class="text-xs font-bold text-slate-200 tracking-wide">টি গাইড নির্বাচিত</span>
         </div>
 
-        <div class="flex items-center gap-2 flex-wrap">
-            <form action="{{ route('admin.guides.bulk-action') }}" method="POST" class="inline m-0 flex items-center gap-2">
-                @csrf
-                <template x-for="id in selectedRows" :key="id">
-                    <input type="hidden" name="ids[]" :value="id">
-                </template>
+        <!-- Bulk Action Buttons Horizontal Form -->
+        <form action="{{ route('admin.guides.bulk-action') }}" method="POST" class="inline m-0 flex items-center gap-2 flex-nowrap">
+            @csrf
+            <template x-for="id in selectedRows" :key="id">
+                <input type="hidden" name="ids[]" :value="id">
+            </template>
 
-                <!-- Bulk Action: Live Publish -->
-                <button type="submit" name="action" value="publish_live"
-                        class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white text-xs font-bold shadow-sm transition flex items-center gap-1.5 cursor-pointer">
-                    <span>🚀 লাইভে পাবলিশ</span>
-                </button>
-
-                <!-- Bulk Action: Mark Published -->
-                <button type="submit" name="action" value="publish"
-                        class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition flex items-center gap-1 cursor-pointer"
-                        title="স্ট্যাটাস প্রকাশিত করুন">
-                    <span>✅ প্রকাশিত</span>
-                </button>
-
-                <!-- Bulk Action: Mark Draft -->
-                <button type="submit" name="action" value="draft"
-                        class="px-3 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold transition flex items-center gap-1 cursor-pointer"
-                        title="স্ট্যাটাস ড্রাফট করুন">
-                    <span>⏸️ ড্রাফট</span>
-                </button>
-
-                <!-- Bulk Action: Delete -->
-                <button type="submit" name="action" value="delete"
-                        onclick="return confirm('আপনি কি নিশ্চিত যে নির্বাচিত গাইডগুলো মুছে ফেলতে চান?')"
-                        class="px-3 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition flex items-center gap-1 cursor-pointer"
-                        title="নির্বাচিত গাইড মুছে ফেলুন">
-                    <span>🗑️ ডিলিট</span>
-                </button>
-            </form>
-
-            <button type="button" @click="selectedRows = []" class="px-2.5 py-1.5 text-xs text-slate-400 hover:text-white font-semibold transition cursor-pointer" title="নির্বাচন বাতিল করুন">
-                ✕
+            <!-- 1. Live Publish (Gradient Accent) -->
+            <button type="submit" name="action" value="publish_live"
+                    class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-500 via-purple-600 to-indigo-600 hover:from-indigo-600 hover:to-purple-700 text-white text-xs font-bold shadow-md shadow-indigo-950/50 transition cursor-pointer active:scale-95">
+                <svg class="w-3.5 h-3.5 text-purple-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                <span>🚀 লাইভে পাবলিশ</span>
             </button>
-        </div>
+
+            <!-- 2. Mark Published -->
+            <button type="submit" name="action" value="publish"
+                    class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 text-xs font-bold transition cursor-pointer active:scale-95"
+                    title="নির্বাচিত সব গাইড প্রকাশিত করুন">
+                <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                <span>প্রকাশিত</span>
+            </button>
+
+            <!-- 3. Mark Draft -->
+            <button type="submit" name="action" value="draft"
+                    class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 text-xs font-bold transition cursor-pointer active:scale-95"
+                    title="নির্বাচিত সব গাইড ড্রাফট করুন">
+                <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6"/></svg>
+                <span>ড্রাফট</span>
+            </button>
+
+            <!-- 4. Delete -->
+            <button type="submit" name="action" value="delete"
+                    onclick="return confirm('আপনি কি নিশ্চিত যে নির্বাচিত ' + selectedRows.length + 'টি গাইড মুছে ফেলতে চান?')"
+                    class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 border border-rose-500/30 text-xs font-bold transition cursor-pointer active:scale-95"
+                    title="নির্বাচিত গাইড মুছে ফেলুন">
+                <svg class="w-3.5 h-3.5 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                <span>ডিলিট</span>
+            </button>
+        </form>
+
+        <!-- Close / Cancel Button -->
+        <button type="button" @click="selectedRows = []"
+                class="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/80 transition cursor-pointer"
+                title="নির্বাচন বাতিল করুন">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
     </div>
 
     <!-- ========================================== -->
@@ -669,7 +682,7 @@
                                                    value="{{ $guideItem->id }}"
                                                    :checked="specificIds.includes({{ $guideItem->id }})"
                                                    @change="toggleSpecificId({{ $guideItem->id }})"
-                                                   class="rounded text-indigo-600 focus:ring-indigo-500">
+                                                   class="w-5 h-5 rounded-md border-2 border-slate-300 text-indigo-600 focus:ring-2 focus:ring-indigo-500 cursor-pointer">
                                             <span class="font-medium text-slate-800 truncate">{{ $guideItem->title }}</span>
                                         </div>
                                         <span class="shrink-0 text-[10px] px-1.5 py-0.5 rounded {{ $guideItem->is_published ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700' }}">

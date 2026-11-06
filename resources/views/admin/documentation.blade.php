@@ -189,7 +189,26 @@ Body:
 }
 
 ============================================================
-4. KEY ENUMS &amp; RULES
+4. GOOGLE SHEET COLUMNS MAPPING (১০০% সমর্থিত কলাম)
+============================================================
+Your Sheet Column (Screenshot) -> PropertyKoi API Field & Action
+------------------------------------------------------------
+• place         -> area (এরিয়া/লোকেশন, e.g. "Bashundhara", "Uttor Khan")
+• block         -> block (ব্লক, e.g. "F", "N", "J")
+• sector        -> sector (সেক্টর, e.g. "Sector 2")
+• road          -> road_number (রোড নম্বর, e.g. "25", "25ft", "60ft")
+• plot number   -> plot_number (প্লট নম্বর, e.g. "4500", "5060-5070")
+• katha         -> size / katha_size (জমির কাঠা, e.g. "4", "100*20 katha")
+• agent         -> owner_name (এজেন্ট/মালিকের নাম -> অটো প্রোফাইল তৈরি)
+• contact       -> owner_phone (মোবাইল নম্বর -> ডিরেক্টরি লিংক)
+• messanger     -> whatsapp_number (মেসেঞ্জার/হোয়াটসঅ্যাপ কন্টাক্ট)
+• price         -> price_per_katha (প্রতি কাঠার মূল্য, e.g. "1.55cr")
+• total price   -> asking_price (মোট দাম, e.g. "6.2cr")
+• extra notes   -> description / notes (বিস্তারিত বিবরণ)
+• [ভবিষ্যতে যেকোনো নতুন কলাম] -> custom_fields ও raw_sheet_row (অটো সেভ)
+
+============================================================
+5. KEY ENUMS &amp; RULES
 ============================================================
 - property_type: "land" | "flat" | "commercial" | "land_share"
 - status: "directory" (private vault) | "live" (published) | "draft"
@@ -464,23 +483,24 @@ function syncSelectedRowToPropertyKoi() {
       rowData[key] = rows[i][j];
     }
 
-    const payload = {
+    // Pass all sheet row columns directly so NO column is ever missed or excluded
+    const payload = Object.assign({}, rowData, {
       property_type: rowData["property_type"] || rowData["type"] || "land",
-      area: rowData["area"] || rowData["place"] || "Aftabnagar",
+      area: rowData["place"] || rowData["area"] || "Bashundhara",
       block: rowData["block"] || "",
       sector: rowData["sector"] || "",
-      road_number: rowData["road_number"] || rowData["road"] || "",
-      plot_number: rowData["plot_number"] || rowData["plot"] || "",
+      road_number: rowData["road"] || rowData["road_number"] || rowData["road_no"] || "",
+      plot_number: rowData["plot_number"] || rowData["plot"] || rowData["plot_no"] || "",
       size: rowData["katha"] || rowData["size"] || "",
       owner_name: rowData["agent"] || rowData["owner_name"] || "",
       owner_phone: rowData["contact"] || rowData["owner_phone"] || "",
-      whatsapp_number: rowData["messenger"] || rowData["whatsapp"] || "",
+      whatsapp_number: rowData["messanger"] || rowData["messenger"] || rowData["whatsapp"] || "",
       price_per_katha: rowData["price"] || rowData["price_per_katha"] || "",
       asking_price: rowData["total_price"] || rowData["asking_price"] || "",
-      description: rowData["notes"] || rowData["extra_notes"] || rowData["description"] || "",
+      description: rowData["extra_notes"] || rowData["notes"] || rowData["description"] || "",
       hidden_note: "Source: Google Sheet row " + (startRow + i) + " via Gemini AI",
       status: "directory"
-    };
+    });
 
     const options = {
       method: "post",
@@ -511,6 +531,130 @@ function syncSelectedRowToPropertyKoi() {
     SpreadsheetApp.getUi().alert("সফল: " + successCount + "টি\nত্রুটি:\n" + errorMessages.join("\n"));
   }
 }</pre>
+
+            <!-- Google Sheet Columns Mapping Table -->
+            <div class="space-y-4 pt-4 border-t border-slate-100">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div>
+                        <h4 class="font-black text-slate-900 text-sm flex items-center gap-2">
+                            <span>✅</span> আপনার গুগল শিটের প্রতিটি কলাম ও ডাটাবেজ ম্যাপিং টেবিল
+                        </h4>
+                        <p class="text-[11px] text-slate-500 mt-0.5">
+                            স্ক্রিনশটের সব কয়টি কলাম লাইভ সাইট এপিআই-তে হুবহু ম্যাপ করা আছে। কোনো তথ্য বা কলাম বাদ পড়বে না।
+                        </p>
+                    </div>
+                    <span class="px-2.5 py-1 bg-emerald-100 text-emerald-800 text-[10px] font-black rounded-lg border border-emerald-200 uppercase tracking-wide self-start sm:self-auto">
+                        100% Columns Mapped
+                    </span>
+                </div>
+
+                <div class="overflow-x-auto rounded-2xl border border-slate-200">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-slate-50 border-b border-slate-200 text-slate-700 font-bold">
+                            <tr>
+                                <th class="p-3">গুগল শিট কলাম (Sheet Header)</th>
+                                <th class="p-3">এপিআই ফিল্ড (API Key)</th>
+                                <th class="p-3">ডাটাবেজ টেবিল ও কলাম</th>
+                                <th class="p-3">আপনার শিটের ডাটা (উদাহরণ)</th>
+                                <th class="p-3">সংরক্ষণ স্ট্যাটাস</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 font-mono text-[11px] text-slate-600">
+                            <tr class="hover:bg-slate-50/50">
+                                <td class="p-3 font-bold text-slate-900">place</td>
+                                <td class="p-3 text-indigo-600">area / place</td>
+                                <td class="p-3 text-slate-500 font-sans">properties.area</td>
+                                <td class="p-3 text-slate-700 font-sans">bashundhara, uttor khan</td>
+                                <td class="p-3"><span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded font-bold text-[10px]">✅ সংরক্ষিত</span></td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/50">
+                                <td class="p-3 font-bold text-slate-900">block</td>
+                                <td class="p-3 text-indigo-600">block</td>
+                                <td class="p-3 text-slate-500 font-sans">properties.block</td>
+                                <td class="p-3 text-slate-700">F, N, J, G, D</td>
+                                <td class="p-3"><span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded font-bold text-[10px]">✅ সংরক্ষিত</span></td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/50">
+                                <td class="p-3 font-bold text-slate-900">sector</td>
+                                <td class="p-3 text-indigo-600">sector</td>
+                                <td class="p-3 text-slate-500 font-sans">properties.sector</td>
+                                <td class="p-3 text-slate-700 font-sans">Sector 2</td>
+                                <td class="p-3"><span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded font-bold text-[10px]">✅ সংরক্ষিত</span></td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/50">
+                                <td class="p-3 font-bold text-slate-900">road</td>
+                                <td class="p-3 text-indigo-600">road_number / road</td>
+                                <td class="p-3 text-slate-500 font-sans">properties.road_number</td>
+                                <td class="p-3 text-slate-700">25, 25ft, 60ft</td>
+                                <td class="p-3"><span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded font-bold text-[10px]">✅ সংরক্ষিত</span></td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/50">
+                                <td class="p-3 font-bold text-slate-900">plot number</td>
+                                <td class="p-3 text-indigo-600">plot_number / plot</td>
+                                <td class="p-3 text-slate-500 font-sans">properties.plot_number</td>
+                                <td class="p-3 text-slate-700">4500, 5060-5070, 8992</td>
+                                <td class="p-3"><span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded font-bold text-[10px]">✅ সংরক্ষিত</span></td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/50">
+                                <td class="p-3 font-bold text-slate-900">katha</td>
+                                <td class="p-3 text-indigo-600">size / katha</td>
+                                <td class="p-3 text-slate-500 font-sans">property_land_details.katha_size</td>
+                                <td class="p-3 text-slate-700">4, 5, 3, 100*20 katha</td>
+                                <td class="p-3"><span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded font-bold text-[10px]">✅ সংরক্ষিত</span></td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/50">
+                                <td class="p-3 font-bold text-slate-900">agent</td>
+                                <td class="p-3 text-indigo-600">owner_name / agent</td>
+                                <td class="p-3 text-slate-500 font-sans">users.name &amp; direct_sources</td>
+                                <td class="p-3 text-slate-700 font-sans">Saiful islam</td>
+                                <td class="p-3"><span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded font-bold text-[10px]">✅ অটো এজেন্ট তৈরি</span></td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/50">
+                                <td class="p-3 font-bold text-slate-900">contact</td>
+                                <td class="p-3 text-indigo-600">owner_phone / contact</td>
+                                <td class="p-3 text-slate-500 font-sans">users.phone &amp; direct_sources</td>
+                                <td class="p-3 text-slate-700">-880 1924-400307</td>
+                                <td class="p-3"><span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded font-bold text-[10px]">✅ অটো ডিরেক্টরি লিংক</span></td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/50">
+                                <td class="p-3 font-bold text-slate-900">messanger</td>
+                                <td class="p-3 text-indigo-600">messanger / whatsapp</td>
+                                <td class="p-3 text-slate-500 font-sans">users.whatsapp_number</td>
+                                <td class="p-3 text-slate-700">r7, r10, r12</td>
+                                <td class="p-3"><span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded font-bold text-[10px]">✅ সংরক্ষিত</span></td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/50">
+                                <td class="p-3 font-bold text-slate-900">price</td>
+                                <td class="p-3 text-indigo-600">price / price_per_katha</td>
+                                <td class="p-3 text-slate-500 font-sans">property_land_details.price_per_katha</td>
+                                <td class="p-3 text-slate-700">1.55cr, 1.50cr, 1cr</td>
+                                <td class="p-3"><span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded font-bold text-[10px]">✅ কোটি/লাখ কনভার্ট</span></td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/50">
+                                <td class="p-3 font-bold text-slate-900">total price</td>
+                                <td class="p-3 text-indigo-600">total_price / asking_price</td>
+                                <td class="p-3 text-slate-500 font-sans">property_land_details.price_total</td>
+                                <td class="p-3 text-slate-700">6.2 cr, 12 cr, 7.5 cr</td>
+                                <td class="p-3"><span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded font-bold text-[10px]">✅ কোটি/লাখ কনভার্ট</span></td>
+                            </tr>
+                            <tr class="hover:bg-slate-50/50">
+                                <td class="p-3 font-bold text-slate-900">extra notes / notes</td>
+                                <td class="p-3 text-indigo-600">extra_notes / description</td>
+                                <td class="p-3 text-slate-500 font-sans">properties.description</td>
+                                <td class="p-3 text-slate-700 font-sans">Just close to Viqarunnisa, asking</td>
+                                <td class="p-3"><span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded font-bold text-[10px]">✅ সংরক্ষিত</span></td>
+                            </tr>
+                            <tr class="bg-indigo-50/50">
+                                <td class="p-3 font-bold text-indigo-950">যেকোনো নতুন বা অতিরিক্ত কলাম</td>
+                                <td class="p-3 text-indigo-700">যেকোনো কাস্টম নাম</td>
+                                <td class="p-3 text-slate-700 font-sans">properties.custom_fields &amp; raw_sheet_row</td>
+                                <td class="p-3 text-slate-700 font-sans">যেকোনো তথ্য (যেমন: facing, status)</td>
+                                <td class="p-3"><span class="px-2 py-0.5 bg-indigo-100 text-indigo-800 rounded font-bold text-[10px]">🚀 অটো ক্যাপচার</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 

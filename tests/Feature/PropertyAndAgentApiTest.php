@@ -264,4 +264,62 @@ class PropertyAndAgentApiTest extends TestCase
         $this->assertDatabaseHas('properties', ['area' => 'uttor khan']);
         $this->assertDatabaseHas('properties', ['area' => 'rampura']);
     }
+
+    public function test_can_insert_property_with_exact_google_sheet_columns_including_extra_fields(): void
+    {
+        // Exact columns from user's Google Sheet screenshot
+        $sheetRowPayload = [
+            'place'           => 'bashundhara',
+            'block'           => 'F',
+            'sector'          => '',
+            'road'            => '25ft',
+            'plot number'     => '4500',
+            'katha'           => '4',
+            'agent'           => 'Saiful islam',
+            'contact'         => '-880 1924-400307',
+            'messanger'       => 'r7',
+            'price'           => '1.55cr',
+            'total price'     => '6.2 cr',
+            'extra notes'     => 'Just close to Viqarunnisa, asking',
+            'custom_amenity'  => 'Electricity 3-phase',
+            'custom_status'   => 'VIP urgent',
+        ];
+
+        $response = $this->withHeaders(['X-API-KEY' => $this->apiKey])
+            ->postJson('/api/v1/properties', $sheetRowPayload);
+
+        $response->assertStatus(201);
+        $response->assertJson([
+            'success' => true,
+            'data'    => [
+                'area'        => 'bashundhara',
+                'block'       => 'F',
+                'plot_number' => '4500',
+                'type'        => 'land',
+            ],
+        ]);
+
+        $property = Property::where('area', 'bashundhara')->where('block', 'F')->where('plot_number', '4500')->first();
+        $this->assertNotNull($property);
+        $this->assertEquals('25ft', $property->road_number);
+        $this->assertEquals('Just close to Viqarunnisa, asking', $property->description);
+
+        // Land details
+        $this->assertNotNull($property->landDetail);
+        $this->assertEquals(4.0, (float) $property->landDetail->katha_size);
+        $this->assertEquals(15500000, (float) $property->landDetail->price_per_katha);
+        $this->assertEquals(62000000, (float) $property->landDetail->price_total);
+
+        // Agent auto-created from contact and agent name
+        $agent = User::where('name', 'Saiful islam')->first();
+        $this->assertNotNull($agent);
+        $this->assertStringContainsString('1924-400307', $agent->phone);
+        $this->assertEquals('+880 1924-400307', $agent->phone);
+        $this->assertEquals('r7', $agent->whatsapp_number);
+
+        // Extra custom fields preserved
+        $this->assertEquals('Electricity 3-phase', $property->custom_fields['custom_amenity'] ?? null);
+        $this->assertEquals('VIP urgent', $property->custom_fields['custom_status'] ?? null);
+        $this->assertNotNull($property->custom_fields['raw_sheet_row'] ?? null);
+    }
 }

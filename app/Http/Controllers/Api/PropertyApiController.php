@@ -151,6 +151,16 @@ class PropertyApiController extends Controller
     protected function createPropertyFromPayload(array $payload): Property
     {
         return DB::transaction(function () use ($payload) {
+            // Normalize incoming keys (lowercase, replace spaces and dashes with underscores)
+            $normalized = [];
+            foreach ($payload as $k => $v) {
+                $normKey = strtolower(trim(str_replace([' ', '-'], '_', (string) $k)));
+                if (!isset($normalized[$normKey])) {
+                    $normalized[$normKey] = $v;
+                }
+            }
+            $payload = array_merge($normalized, $payload);
+
             // 1. Resolve Location & Place
             $area = trim((string) ($payload['area'] ?? ($payload['place'] ?? 'ঢাকা')));
             $customArea = trim((string) ($payload['custom_area'] ?? ''));
@@ -161,8 +171,8 @@ class PropertyApiController extends Controller
             $subArea = trim((string) ($payload['sub_area'] ?? ''));
             $block = trim((string) ($payload['block'] ?? ''));
             $sector = trim((string) ($payload['sector'] ?? ''));
-            $road = trim((string) ($payload['road_number'] ?? ($payload['road'] ?? '')));
-            $plotNumber = trim((string) ($payload['plot_number'] ?? ''));
+            $road = trim((string) ($payload['road_number'] ?? ($payload['road'] ?? ($payload['road_no'] ?? ''))));
+            $plotNumber = trim((string) ($payload['plot_number'] ?? ($payload['plot'] ?? ($payload['plot_no'] ?? ''))));
             $holdingNumber = trim((string) ($payload['holding_number'] ?? ''));
 
             // Auto-clean block (e.g. "Block F" -> "F")
@@ -240,7 +250,7 @@ class PropertyApiController extends Controller
 
             $agentUser = null;
             if (!empty($ownerPhone)) {
-                $messenger = trim((string) ($payload['messenger'] ?? ($payload['whatsapp'] ?? '')));
+                $messenger = trim((string) ($payload['messenger'] ?? ($payload['messanger'] ?? ($payload['whatsapp'] ?? ($payload['whatsapp_number'] ?? '')))));
                 $agentUser = $this->findOrCreateAgent($ownerName, $ownerPhone, $messenger, $sourceType);
             }
 
@@ -281,12 +291,34 @@ class PropertyApiController extends Controller
             $hiddenNote = trim((string) ($payload['hidden_note'] ?? ''));
             $hiddenTags = !empty($hiddenNote) ? PropertySearchService::extractKeywordsFromNote($hiddenNote) : null;
 
-            // 11. Generate Codes & Slugs
+            // 11. Extract Any Extra / Custom Columns from Google Sheet
+            $standardKeys = [
+                'owner_name', 'owner_phone', 'contact', 'agent', 'agent_name', 'phone', 'agent_phone',
+                'source_type', 'relationship_declaration', 'property_type', 'type', 'area', 'place',
+                'custom_area', 'sub_area', 'title', 'block', 'sector', 'road_number', 'road', 'road_no',
+                'road_width_ft', 'road_width', 'plot_number', 'plot', 'plot_no', 'holding_number', 'hidden_note',
+                'address_visibility', 'facing', 'size', 'katha', 'katha_size', 'price_per_katha',
+                'price', 'price_per_unit', 'total_price', 'price_total', 'flat_size_sqft', 'price_per_sqft',
+                'garage_price', 'utility_price', 'down_payment', 'asking_price', 'is_negotiable',
+                'description', 'notes', 'extra_notes', 'fb_caption', 'post_to_facebook', 'youtube_video_url',
+                'google_map_pin_url', 'latitude', 'longitude', 'is_corner', 'is_lake_facing',
+                'boundary_wall_done', 'soil_filling_status', 'bedrooms', 'bathrooms', 'balconies',
+                'floor_number', 'completion_status', 'has_lift', 'parking_available', 'has_generator',
+                'has_substation', 'has_gas', 'other_features', 'status', 'messenger', 'messanger', 'whatsapp', 'whatsapp_number'
+            ];
+            $extraColumns = [];
+            foreach ($payload as $pKey => $pVal) {
+                if (!in_array($pKey, $standardKeys) && $pVal !== '' && $pVal !== null) {
+                    $extraColumns[$pKey] = $pVal;
+                }
+            }
+
+            // 12. Generate Codes & Slugs
             $code = 'PK-' . rand(10000, 99999);
             $slug = Str::slug($title) . '-' . strtolower(Str::random(5));
             $creatorId = $agentUser?->id ?: (auth()->id() ?: User::whereIn('role', ['admin', 'administrator'])->value('id'));
 
-            // 12. Create Property Record
+            // 13. Create Property Record
             $property = Property::create([
                 'property_code'      => $code,
                 'type'               => $type,
@@ -315,12 +347,12 @@ class PropertyApiController extends Controller
                 'hidden_tags'        => $hiddenTags,
                 'other_features'     => $otherFeatures,
                 'address_visibility' => $addressVisibility,
-                'custom_fields'      => [
-                    'source'            => 'API / JSON Schema',
+                'custom_fields'      => array_merge($extraColumns, [
+                    'source'            => 'Google Sheet / API Integration',
                     'post_to_facebook'  => $this->toBool($payload['post_to_facebook'] ?? false, false),
                     'youtube_video_url' => $payload['youtube_video_url'] ?? null,
-                    'raw_input'         => $payload,
-                ],
+                    'raw_sheet_row'     => $payload,
+                ]),
             ]);
 
             // 13. Attach Type Details
@@ -421,7 +453,10 @@ class PropertyApiController extends Controller
      */
     protected function findOrCreateAgent(string $name, string $phone, ?string $messenger = null, string $role = 'agent'): User
     {
-        $rawPhone = trim($phone);
+        $rawPhone = ltrim(trim($phone), "-\t\n\r\0\x0B ");
+        if (preg_match('/^880\s*1/', $rawPhone)) {
+            $rawPhone = '+' . $rawPhone;
+        }
         $cleanDigits = preg_replace('/[^0-9]/', '', GoogleSheetSyncService::toEnNumber($rawPhone));
 
         $user = User::where('phone', $rawPhone);

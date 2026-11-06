@@ -33,6 +33,7 @@ Route::prefix('v1')->group(function () {
         // 2. Properties Management (Google Sheets & Gemini AI Ingestion)
         Route::get('/properties', [PropertyApiController::class, 'index'])->name('api.v1.properties.index');
         Route::post('/properties', [PropertyApiController::class, 'store'])->name('api.v1.properties.store');
+        Route::match(['put', 'patch', 'post'], '/properties/{identifier}', [PropertyApiController::class, 'update'])->name('api.v1.properties.update');
         Route::post('/properties/bulk', [PropertyApiController::class, 'bulk'])->name('api.v1.properties.bulk');
 
         // 3. Agents & Owners Directory Management

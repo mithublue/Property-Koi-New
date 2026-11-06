@@ -121,6 +121,37 @@ try {
                 ->update([
                     'description' => \Illuminate\Support\Facades\DB::raw("COALESCE(title, 'চমৎকার লোকেশনে আকর্ষণীয় প্রপার্টি।')")
                 ]);
+
+            // Auto-heal land properties where katha_size is 0 or needs calculation (e.g. 2.5 * 20 katha = 50 katha)
+            \Illuminate\Support\Facades\DB::table('property_land_details')
+                ->where('property_id', 97)
+                ->update([
+                    'katha_size'      => 50.00,
+                    'price_total'     => 150000000.00,
+                    'price_per_katha' => 3000000.00,
+                ]);
+
+            \Illuminate\Support\Facades\DB::table('properties')
+                ->where('id', 97)
+                ->update([
+                    'title' => 'Aftabnagar Block M 50 Katha Plot For Sale'
+                ]);
+
+            // Property #96 (Rampura) - 15 bigha = 300 katha
+            \Illuminate\Support\Facades\DB::table('property_land_details')
+                ->where('property_id', 96)
+                ->where(function ($q) {
+                    $q->whereNull('katha_size')->orWhere('katha_size', '<=', 0);
+                })
+                ->update([
+                    'katha_size' => 300.00,
+                ]);
+
+            \Illuminate\Support\Facades\DB::table('properties')
+                ->where('id', 96)
+                ->update([
+                    'title' => 'Rampura 15 Bigha Land For Sale'
+                ]);
         } catch (\Throwable $dbEx) {
             // Silently ignore if table columns differ
         }

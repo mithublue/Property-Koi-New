@@ -507,21 +507,110 @@ class PropertyApiController extends Controller
     }
 
     /**
-     * Parse size strings like "4 katha", "100*20 katha", "1500 sqft".
+     * Update an existing property via API.
+     */
+    public function update(Request $request, string|int $identifier): JsonResponse
+    {
+        $property = Property::where('id', $identifier)
+            ->orWhere('property_code', $identifier)
+            ->orWhere('slug', $identifier)
+            ->first();
+
+        if (!$property) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Property not found.',
+            ], 404);
+        }
+
+        $payload = $request->all();
+
+        // 1. Update size if provided
+        if (isset($payload['katha']) || isset($payload['size']) || isset($payload['katha_size'])) {
+            $rawSize = trim((string) ($payload['katha'] ?? ($payload['size'] ?? ($payload['katha_size'] ?? ''))));
+            $size = $this->parseSizeValue($rawSize);
+            if ($property->type === 'land' && $property->landDetail) {
+                $property->landDetail->update(['katha_size' => $size]);
+                if ($property->landDetail->price_total > 0 && $size > 0) {
+                    $property->landDetail->update([
+                        'price_per_katha' => round($property->landDetail->price_total / $size, 2),
+                    ]);
+                }
+            } elseif ($property->type === 'flat' && $property->flatDetail) {
+                $property->flatDetail->update(['flat_size_sqft' => $size]);
+            }
+        }
+
+        // 2. Update price if provided
+        if (isset($payload['total_price']) || isset($payload['asking_price'])) {
+            $rawPrice = trim((string) ($payload['total_price'] ?? ($payload['asking_price'] ?? '')));
+            $price = $this->parseMoneyValue($rawPrice);
+            if ($property->type === 'land' && $property->landDetail) {
+                $property->landDetail->update(['price_total' => $price]);
+                if ($property->landDetail->katha_size > 0 && $price > 0) {
+                    $property->landDetail->update([
+                        'price_per_katha' => round($price / $property->landDetail->katha_size, 2),
+                    ]);
+                }
+            }
+        }
+
+        // 3. Update status if provided
+        if (isset($payload['status'])) {
+            $rawStatus = strtolower(trim((string) $payload['status']));
+            $status = match ($rawStatus) {
+                'live', 'published' => 'live',
+                'draft', 'directory' => 'draft',
+                'booked' => 'booked',
+                'sold' => 'sold',
+                default => 'pending_verification',
+            };
+            $property->update(['status' => $status]);
+        }
+
+        // 4. Update title or description
+        if (isset($payload['title']) && !empty(trim((string) $payload['title']))) {
+            $property->update(['title' => trim((string) $payload['title'])]);
+        }
+        if (isset($payload['description'])) {
+            $property->update(['description' => trim((string) $payload['description'])]);
+        }
+
+        $property->refresh();
+
+        return response()->json([
+            'success' => true,
+            'message' => "প্রপার্টি #{$property->property_code} সফলভাবে আপডেট করা হয়েছে!",
+            'data'    => $this->formatProperty($property),
+        ]);
+    }
+
+    /**
+     * Parse size strings like "4 katha", "100*20 katha", "2.5 * 20 katha", "15 bigha", "1500 sqft".
      */
     protected function parseSizeValue(string $str): float
     {
-        $en = GoogleSheetSyncService::toEnNumber(trim($str));
+        $en = strtolower(GoogleSheetSyncService::toEnNumber(trim($str)));
         if (empty($en)) {
             return 0.0;
         }
 
-        if (preg_match('/^([0-9.]+)\s*\*\s*([0-9.]+)$/', $en, $m)) {
-            return (float) $m[1] * (float) $m[2];
+        // Handle multiplication: e.g. "2.5 * 20 katha", "100*20", "2.5x20"
+        if (preg_match('/([0-9.]+)\s*[\*xX×]\s*([0-9.]+)/u', $en, $m)) {
+            return round((float) $m[1] * (float) $m[2], 2);
         }
-        if (preg_match('/^([0-9.]+)\s*\+\s*([0-9.]+)$/', $en, $m)) {
-            return (float) $m[1] + (float) $m[2];
+
+        // Handle addition: e.g. "5 + 2 katha"
+        if (preg_match('/([0-9.]+)\s*\+\s*([0-9.]+)/', $en, $m)) {
+            return round((float) $m[1] + (float) $m[2], 2);
         }
+
+        // Handle bigha auto-conversion to katha: 1 bigha = 20 katha
+        if (preg_match('/([0-9.]+)\s*(?:bigha|বিঘা)/i', $en, $m)) {
+            return round((float) $m[1] * 20, 2);
+        }
+
+        // Handle standard numeric
         if (preg_match('/([0-9.]+)/', $en, $m)) {
             return (float) $m[1];
         }

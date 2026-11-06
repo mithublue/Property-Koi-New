@@ -255,13 +255,16 @@ class GoogleSheetSyncService
             $type = 'commercial';
         }
 
-        $rawSize = !empty($row['size']) ? self::toEnNumber($row['size']) : '';
+        $rawSize = !empty($row['size']) ? strtolower(trim(self::toEnNumber($row['size']))) : '';
         $size = 0.0;
         if (!empty($rawSize)) {
-            if (preg_match('/^([0-9.]+)\s*\+\s*([0-9.]+)$/', $rawSize, $sm)) {
-                $size = (float) $sm[1] + (float) $sm[2];
-            } elseif (preg_match('/^([0-9.]+)\s*\*\s*([0-9.]+)$/', $rawSize, $sm)) {
-                $size = (float) $sm[1] * (float) $sm[2];
+            // Handle multiplication: e.g. "2.5 * 20 katha", "100*20", "2.5x20"
+            if (preg_match('/([0-9.]+)\s*[\*xX×]\s*([0-9.]+)/u', $rawSize, $sm)) {
+                $size = round((float) $sm[1] * (float) $sm[2], 2);
+            } elseif (preg_match('/([0-9.]+)\s*\+\s*([0-9.]+)/', $rawSize, $sm)) {
+                $size = round((float) $sm[1] + (float) $sm[2], 2);
+            } elseif (preg_match('/([0-9.]+)\s*(?:bigha|বিঘা)/i', $rawSize, $sm)) {
+                $size = round((float) $sm[1] * 20, 2);
             } elseif (preg_match('/([0-9.]+)/', $rawSize, $sm)) {
                 $size = (float) $sm[1];
             }

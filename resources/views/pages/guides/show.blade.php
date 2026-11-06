@@ -71,17 +71,17 @@
                             </div>
                         </div>
 
-                        <!-- Social Share Actions with Original Brand SVGs -->
+                        <!-- Social Share Actions with Conventional Solid Brand Buttons -->
                         <div class="flex items-center flex-wrap gap-2" x-data="{ copied: false }">
-                            <span class="text-slate-400 text-xs font-semibold mr-1">শেয়ার:</span>
+                            <span class="text-slate-500 text-xs font-bold mr-1">শেয়ার করুন:</span>
 
                             <!-- Facebook -->
                             <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(url()->current()) }}"
                                target="_blank"
                                rel="noopener noreferrer"
                                title="Facebook-এ শেয়ার করুন"
-                               class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#1877F2]/10 hover:bg-[#1877F2] text-[#1877F2] hover:text-white text-xs font-bold transition shadow-2xs group">
-                                <svg class="w-4 h-4 fill-current shrink-0 transition-transform group-hover:scale-110" viewBox="0 0 24 24">
+                               class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#1877F2] hover:bg-[#166fe5] text-white text-xs font-bold transition shadow-xs hover:shadow-md active:scale-95 group">
+                                <svg class="w-3.5 h-3.5 fill-current shrink-0" viewBox="0 0 24 24">
                                     <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
                                 </svg>
                                 <span>Facebook</span>
@@ -92,8 +92,8 @@
                                target="_blank"
                                rel="noopener noreferrer"
                                title="WhatsApp-এ শেয়ার করুন"
-                               class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#25D366]/10 hover:bg-[#25D366] text-[#128C7E] hover:text-white text-xs font-bold transition shadow-2xs group">
-                                <svg class="w-4 h-4 fill-current shrink-0 transition-transform group-hover:scale-110" viewBox="0 0 24 24">
+                               class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#25D366] hover:bg-[#20ba5a] text-white text-xs font-bold transition shadow-xs hover:shadow-md active:scale-95 group">
+                                <svg class="w-3.5 h-3.5 fill-current shrink-0" viewBox="0 0 24 24">
                                     <path d="M12.031 0C5.39 0 0 5.39 0 12.031c0 2.125.555 4.198 1.609 6.02L.062 24l6.133-1.609a12.002 12.002 0 005.836 1.512h.005c6.64 0 12.031-5.391 12.031-12.031 0-3.219-1.25-6.242-3.523-8.516A11.95 11.95 0 0012.031 0zm-.005 21.996h-.004a9.99 9.99 0 01-5.093-1.398l-.367-.219-3.781.992 1.01-3.687-.24-.383a9.972 9.972 0 01-1.531-5.27c0-5.523 4.492-10.016 10.016-10.016 2.672 0 5.187 1.047 7.078 2.938a9.96 9.96 0 012.937 7.078c0 5.523-4.492 10.016-10.02 10.016zm5.485-7.492c-.3-.15-1.773-.875-2.05-.973-.273-.1-.476-.15-.672.15-.2.3-.77.973-.945 1.172-.176.2-.348.223-.648.074-.3-.15-1.27-.469-2.42-1.492-.894-.797-1.496-1.785-1.672-2.086-.176-.3-.02-.465.13-.613.136-.137.3-.348.45-.523.15-.176.2-.3.3-.5.1-.2.05-.375-.023-.523-.075-.15-.672-1.62-.922-2.22-.246-.582-.496-.5-.672-.511-.176-.008-.375-.008-.574-.008-.2 0-.523.074-.797.375-.273.3-1.047 1.023-1.047 2.5 0 1.473 1.074 2.898 1.223 3.098.15.2 2.113 3.227 5.121 4.523.715.309 1.273.492 1.707.63.719.227 1.375.195 1.895.117.578-.086 1.773-.727 2.023-1.426.25-.7.25-1.3.176-1.426-.075-.125-.274-.2-.574-.35z"/>
                                 </svg>
                                 <span>WhatsApp</span>
@@ -104,8 +104,8 @@
                                target="_blank"
                                rel="noopener noreferrer"
                                title="Telegram-এ শেয়ার করুন"
-                               class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#0088cc]/10 hover:bg-[#0088cc] text-[#0088cc] hover:text-white text-xs font-bold transition shadow-2xs group">
-                                <svg class="w-4 h-4 fill-current shrink-0 transition-transform group-hover:scale-110" viewBox="0 0 24 24">
+                               class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#229ED9] hover:bg-[#1e8dbf] text-white text-xs font-bold transition shadow-xs hover:shadow-md active:scale-95 group">
+                                <svg class="w-3.5 h-3.5 fill-current shrink-0" viewBox="0 0 24 24">
                                     <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.121l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.195 1.006.131.832.922z"/>
                                 </svg>
                                 <span>Telegram</span>
@@ -114,12 +114,12 @@
                             <!-- Copy Link Button -->
                             <button type="button"
                                     @click="navigator.clipboard.writeText(window.location.href); copied = true; setTimeout(() => copied = false, 2500)"
-                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-800 text-slate-700 hover:text-white transition text-xs font-bold cursor-pointer group shadow-2xs">
-                                <svg x-show="!copied" class="w-3.5 h-3.5 fill-none stroke-current stroke-2 shrink-0 transition-transform group-hover:scale-110" viewBox="0 0 24 24">
+                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-900 text-white transition text-xs font-bold cursor-pointer group shadow-xs hover:shadow-md active:scale-95">
+                                <svg x-show="!copied" class="w-3.5 h-3.5 fill-none stroke-current stroke-2 shrink-0" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
                                 </svg>
                                 <span x-show="!copied">লিংক কপি</span>
-                                <span x-show="copied" class="text-emerald-700 font-black">✅ কপি হয়েছে!</span>
+                                <span x-show="copied" class="text-emerald-300 font-black">✅ কপি হয়েছে!</span>
                             </button>
                         </div>
                     </div>
@@ -179,6 +179,47 @@
                     <div>
                         <strong class="font-bold block mb-0.5">আইনি ও সম্পাদকীয় ঘোষণা:</strong>
                         এই গাইডে উল্লেখিত তথ্যাদি ভূমি মন্ত্রণালয়, জাতীয় রাজস্ব বোর্ড (NBR), এবং রাজউকের বিধিমালা ও বিশেষজ্ঞদের বিশ্লেষণ অনুযায়ী সংকলিত। যেকোনো জমি বা ফ্ল্যাট কেনার চূড়ান্ত সিদ্ধান্ত গ্রহণের আগে সংশ্লিষ্ট সাব-রেজিস্ট্রি অফিস বা একজন বিজ্ঞ আইনজীবীর মাধ্যমে কাগজপত্র সরেজমিন যাচাই করার পরামর্শ দেওয়া হচ্ছে।
+                    </div>
+                </div>
+
+                <!-- End of Article Share Strip -->
+                <div class="mt-8 p-5 rounded-2xl bg-slate-50 border border-slate-200/80 flex flex-col sm:flex-row items-center justify-between gap-4" x-data="{ bottomCopied: false }">
+                    <div class="text-center sm:text-left">
+                        <span class="text-xs font-black text-slate-900 block">গাইডটি কি আপনার উপকারে এসেছে?</span>
+                        <span class="text-[11px] text-slate-500">আপনার পরিচিতদের সাথে শেয়ার করে নিরাপদে জমি ও ফ্ল্যাট কেনাবেচায় সাহায্য করুন।</span>
+                    </div>
+                    <div class="flex items-center gap-2 flex-wrap shrink-0">
+                        <!-- Facebook -->
+                        <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(url()->current()) }}"
+                           target="_blank" rel="noopener noreferrer"
+                           title="Facebook-এ শেয়ার করুন"
+                           class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#1877F2] hover:bg-[#166fe5] text-white text-xs font-bold transition shadow-xs active:scale-95">
+                            <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                            <span>Facebook</span>
+                        </a>
+                        <!-- WhatsApp -->
+                        <a href="https://api.whatsapp.com/send?text={{ urlencode($guide->title . ' ' . url()->current()) }}"
+                           target="_blank" rel="noopener noreferrer"
+                           title="WhatsApp-এ শেয়ার করুন"
+                           class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#25D366] hover:bg-[#20ba5a] text-white text-xs font-bold transition shadow-xs active:scale-95">
+                            <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M12.031 0C5.39 0 0 5.39 0 12.031c0 2.125.555 4.198 1.609 6.02L.062 24l6.133-1.609a12.002 12.002 0 005.836 1.512h.005c6.64 0 12.031-5.391 12.031-12.031 0-3.219-1.25-6.242-3.523-8.516A11.95 11.95 0 0012.031 0zm-.005 21.996h-.004a9.99 9.99 0 01-5.093-1.398l-.367-.219-3.781.992 1.01-3.687-.24-.383a9.972 9.972 0 01-1.531-5.27c0-5.523 4.492-10.016 10.016-10.016 2.672 0 5.187 1.047 7.078 2.938a9.96 9.96 0 012.937 7.078c0 5.523-4.492 10.016-10.02 10.016zm5.485-7.492c-.3-.15-1.773-.875-2.05-.973-.273-.1-.476-.15-.672.15-.2.3-.77.973-.945 1.172-.176.2-.348.223-.648.074-.3-.15-1.27-.469-2.42-1.492-.894-.797-1.496-1.785-1.672-2.086-.176-.3-.02-.465.13-.613.136-.137.3-.348.45-.523.15-.176.2-.3.3-.5.1-.2.05-.375-.023-.523-.075-.15-.672-1.62-.922-2.22-.246-.582-.496-.5-.672-.511-.176-.008-.375-.008-.574-.008-.2 0-.523.074-.797.375-.273.3-1.047 1.023-1.047 2.5 0 1.473 1.074 2.898 1.223 3.098.15.2 2.113 3.227 5.121 4.523.715.309 1.273.492 1.707.63.719.227 1.375.195 1.895.117.578-.086 1.773-.727 2.023-1.426.25-.7.25-1.3.176-1.426-.075-.125-.274-.2-.574-.35z"/></svg>
+                            <span>WhatsApp</span>
+                        </a>
+                        <!-- Telegram -->
+                        <a href="https://t.me/share/url?url={{ urlencode(url()->current()) }}&text={{ urlencode($guide->title) }}"
+                           target="_blank" rel="noopener noreferrer"
+                           title="Telegram-এ শেয়ার করুন"
+                           class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#229ED9] hover:bg-[#1e8dbf] text-white text-xs font-bold transition shadow-xs active:scale-95">
+                            <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.121l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.195 1.006.131.832.922z"/></svg>
+                            <span>Telegram</span>
+                        </a>
+                        <!-- Copy Link -->
+                        <button type="button"
+                                @click="navigator.clipboard.writeText(window.location.href); bottomCopied = true; setTimeout(() => bottomCopied = false, 2500)"
+                                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold transition shadow-xs active:scale-95 cursor-pointer">
+                            <span x-show="!bottomCopied">🔗 লিংক কপি</span>
+                            <span x-show="bottomCopied" class="text-emerald-300 font-bold">✅ কপি হয়েছে!</span>
+                        </button>
                     </div>
                 </div>
 

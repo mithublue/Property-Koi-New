@@ -123,7 +123,56 @@ Headers:
   Content-Type: application/json
 
 ============================================================
-1. INSERT PROPERTY (LAND / PLOT)
+1. DIRECT GOOGLE SHEET FORMAT PAYLOAD (সব কলাম সরাসরি API-তে)
+============================================================
+POST {{ url('/api/v1/properties') }}
+Body (গুগল শিটের হুবহু কলাম নাম দিয়ে সরাসরি API কল):
+{
+  "place": "bashundhara",
+  "block": "F",
+  "sector": "",
+  "road": "25ft",
+  "plot number": "4500",
+  "katha": "4",
+  "agent": "Saiful islam",
+  "contact": "-880 1924-400307",
+  "messanger": "r7",
+  "price": "1.55cr",
+  "total price": "6.2 cr",
+  "extra notes": "Just close to Viqarunnisa, asking",
+  "status": "directory"
+}
+
+* একাধিক রো একসাথে পাঠাতে (BULK INSERT):
+POST {{ url('/api/v1/properties/bulk') }}
+Body:
+{
+  "properties": [
+    {
+      "place": "bashundhara",
+      "block": "F",
+      "road": "25ft",
+      "plot number": "4500",
+      "katha": "4",
+      "agent": "Saiful islam",
+      "contact": "-880 1924-400307",
+      "messanger": "r7",
+      "price": "1.55cr",
+      "total price": "6.2 cr",
+      "extra notes": "Just close to Viqarunnisa, asking"
+    },
+    {
+      "place": "uttor khan",
+      "katha": "100*20 katha",
+      "agent": "Saiful islam",
+      "contact": "01711223344",
+      "price": "1cr"
+    }
+  ]
+}
+
+============================================================
+2. INSERT PROPERTY (LAND / PLOT - FULL SCHEMA)
 ============================================================
 POST {{ url('/api/v1/properties') }}
 Body:
@@ -146,7 +195,7 @@ Body:
 }
 
 ============================================================
-2. INSERT PROPERTY (FLAT / APARTMENT)
+3. INSERT PROPERTY (FLAT / APARTMENT)
 ============================================================
 POST {{ url('/api/v1/properties') }}
 Body:
@@ -173,7 +222,7 @@ Body:
 }
 
 ============================================================
-3. INSERT OR UPDATE AGENT
+4. INSERT OR UPDATE AGENT
 ============================================================
 POST {{ url('/api/v1/agents') }}
 Body:
@@ -189,7 +238,7 @@ Body:
 }
 
 ============================================================
-4. GOOGLE SHEET COLUMNS MAPPING (১০০% সমর্থিত কলাম)
+5. GOOGLE SHEET COLUMNS MAPPING (১০০% সমর্থিত কলাম)
 ============================================================
 Your Sheet Column (Screenshot) -> PropertyKoi API Field & Action
 ------------------------------------------------------------
@@ -208,7 +257,7 @@ Your Sheet Column (Screenshot) -> PropertyKoi API Field & Action
 • [ভবিষ্যতে যেকোনো নতুন কলাম] -> custom_fields ও raw_sheet_row (অটো সেভ)
 
 ============================================================
-5. KEY ENUMS &amp; RULES
+6. KEY ENUMS &amp; RULES
 ============================================================
 - property_type: "land" | "flat" | "commercial" | "land_share"
 - status: "directory" (private vault) | "live" (published) | "draft"
@@ -356,6 +405,36 @@ Your Sheet Column (Screenshot) -> PropertyKoi API Field & Action
     "price_per_katha": "1.55cr",
     "asking_price": "6.2cr",
     "description": "Just close to Viqarunnisa, asking",
+    "status": "directory"
+  }'</pre>
+            </div>
+
+            <!-- Direct Google Sheet via API Sample -->
+            <div class="space-y-3 pt-4 border-t border-slate-200">
+                <div>
+                    <h4 class="font-bold text-slate-900 text-sm flex items-center gap-2">
+                        <span>📑</span> গুগল শিটের কলামগুলো সরাসরি API তে পাঠানো (Direct Sheet Columns via API)
+                    </h4>
+                    <p class="text-[11px] text-slate-500 mt-0.5">
+                        কোনো পরিবর্তন ছাড়াই সরাসরি গুগল শিটের কলাম নামগুলো (place, block, road, plot number, katha, agent, contact, messanger, price, total price, extra notes) JSON কী হিসেবে পাঠালে API স্বয়ংক্রিয়ভাবে সবগুলো কলাম রিসিভ করে ডাটাবেজে সংরক্ষণ করবে:
+                    </p>
+                </div>
+                <pre class="bg-slate-950 text-emerald-300 p-4 rounded-xl font-mono text-[11px] overflow-x-auto border border-slate-800">curl -X POST "{{ url('/api/v1/properties') }}" \
+  -H "X-API-KEY: {{ $apiKey }}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "place": "bashundhara",
+    "block": "F",
+    "sector": "",
+    "road": "25ft",
+    "plot number": "4500",
+    "katha": "4",
+    "agent": "Saiful islam",
+    "contact": "-880 1924-400307",
+    "messanger": "r7",
+    "price": "1.55cr",
+    "total price": "6.2 cr",
+    "extra notes": "Just close to Viqarunnisa, asking",
     "status": "directory"
   }'</pre>
             </div>

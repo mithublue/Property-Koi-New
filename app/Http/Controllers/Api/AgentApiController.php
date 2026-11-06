@@ -36,7 +36,8 @@ class AgentApiController extends Controller
                     ->orWhere('whatsapp_number', 'like', "%{$q}%")
                     ->orWhere('email', 'like', "%{$q}%")
                     ->orWhereHas('agentProfile', function ($p) use ($q) {
-                        $p->where('agency_name', 'like', "%{$q}%");
+                        $p->where('agency_name', 'like', "%{$q}%")
+                          ->orWhere('license_no', 'like', "%{$q}%");
                     });
 
                 if (!empty($cleanDigits) && strlen($cleanDigits) >= 4) {
@@ -52,21 +53,7 @@ class AgentApiController extends Controller
         return response()->json([
             'success' => true,
             'total'   => $agents->total(),
-            'data'    => $agents->map(function (User $user) {
-                return [
-                    'id'                       => $user->id,
-                    'name'                     => $user->name,
-                    'phone'                    => $user->phone,
-                    'whatsapp_number'          => $user->whatsapp_number ?: $user->phone,
-                    'email'                    => $user->email,
-                    'role'                     => $user->role,
-                    'agency_name'              => $user->agentProfile?->agency_name,
-                    'rating'                   => $user->agentProfile?->effective_rating ?? 5.0,
-                    'is_verified_direct_agent' => (bool) ($user->agentProfile?->is_verified_direct_agent ?? false),
-                    'properties_count'         => $user->properties()->count(),
-                    'created_at'               => $user->created_at?->toIso8601String(),
-                ];
-            }),
+            'data'    => $agents->map(fn (User $u) => $this->formatAgent($u)),
             'pagination' => [
                 'current_page' => $agents->currentPage(),
                 'last_page'    => $agents->lastPage(),
@@ -76,23 +63,29 @@ class AgentApiController extends Controller
     }
 
     /**
-     * Create or update an agent via API.
+     * Create or update an agent/owner via JSON API.
+     * Fully compatible with standard Agent JSON Schema.
      */
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'name'                     => 'required|string|max:255',
-            'phone'                    => 'required|string|max:60',
-            'whatsapp'                 => 'nullable|string|max:60',
-            'whatsapp_number'          => 'nullable|string|max:60',
-            'email'                    => 'nullable|email|max:255',
-            'role'                     => 'nullable|string|in:agent,owner',
-            'agency_name'              => 'nullable|string|max:255',
-            'agency'                   => 'nullable|string|max:255',
-            'rating'                   => 'nullable|numeric|min:1|max:5',
-            'is_verified'              => 'nullable|boolean',
-            'is_verified_direct_agent' => 'nullable|boolean',
-            'notes'                    => 'nullable|string',
+            'name'                       => 'required|string|max:255',
+            'phone'                      => 'required|string|max:60',
+            'whatsapp'                   => 'nullable|string|max:60',
+            'whatsapp_number'            => 'nullable|string|max:60',
+            'email'                      => 'nullable|email|max:255',
+            'role'                       => 'nullable|string|in:agent,owner',
+            'agency_name'                => 'nullable|string|max:255',
+            'agency'                     => 'nullable|string|max:255',
+            'license_no'                 => 'nullable|string|max:100',
+            'experience_years'           => 'nullable|numeric|min:0|max:80',
+            'direct_owner_network_count' => 'nullable|numeric|min:0',
+            'rating'                     => 'nullable|numeric|min:1|max:5',
+            'admin_fixed_rating'         => 'nullable|numeric|min:1|max:5',
+            'is_verified'                => 'nullable',
+            'is_verified_direct_agent'   => 'nullable',
+            'notes'                      => 'nullable|string',
+            'verification_notes'         => 'nullable|string',
         ]);
 
         $rawPhone = trim((string) $validated['phone']);
@@ -140,7 +133,7 @@ class AgentApiController extends Controller
 
             MagicLoginService::getOrCreateToken($user);
         } else {
-            // Update name and agency if previously missing or provided
+            // Update fields if provided
             $updates = [];
             if (!empty($validated['name']) && (empty($user->name) || str_starts_with($user->name, 'Agent '))) {
                 $updates['name'] = trim($validated['name']);
@@ -148,22 +141,40 @@ class AgentApiController extends Controller
             if (!empty($whatsapp) && empty($user->whatsapp_number)) {
                 $updates['whatsapp_number'] = $whatsapp;
             }
+            if (!empty($validated['email']) && (empty($user->email) || str_ends_with($user->email, '@propertykoi.local'))) {
+                $updates['email'] = trim($validated['email']);
+            }
             if (!empty($updates)) {
                 $user->update($updates);
             }
         }
 
-        // Agent Profile
+        // Agent Profile Resolution
         $profile = $user->agentProfile ?: new AgentProfile(['user_id' => $user->id]);
         if (!empty($agencyName)) {
             $profile->agency_name = $agencyName;
         }
-        if (isset($validated['rating'])) {
-            $profile->admin_fixed_rating = (float) $validated['rating'];
+        if (!empty($validated['license_no'])) {
+            $profile->license_no = trim($validated['license_no']);
         }
-        if (isset($validated['is_verified_direct_agent']) || isset($validated['is_verified'])) {
-            $profile->is_verified_direct_agent = (bool) ($validated['is_verified_direct_agent'] ?? ($validated['is_verified'] ?? true));
-            if ($profile->is_verified_direct_agent && !$profile->verified_at) {
+        if (isset($validated['experience_years'])) {
+            $profile->experience_years = (int) $validated['experience_years'];
+        }
+        if (isset($validated['direct_owner_network_count'])) {
+            $profile->direct_owner_network_count = (int) $validated['direct_owner_network_count'];
+        }
+
+        $ratingVal = $validated['admin_fixed_rating'] ?? ($validated['rating'] ?? null);
+        if ($ratingVal !== null) {
+            $profile->admin_fixed_rating = (float) $ratingVal;
+            $profile->rating = (float) $ratingVal;
+        }
+
+        $verifiedVal = $validated['is_verified_direct_agent'] ?? ($validated['is_verified'] ?? null);
+        if ($verifiedVal !== null) {
+            $isVerified = filter_var($verifiedVal, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? true;
+            $profile->is_verified_direct_agent = $isVerified;
+            if ($isVerified && !$profile->verified_at) {
                 $profile->verified_at = now();
             }
         } elseif ($isNew) {
@@ -171,14 +182,20 @@ class AgentApiController extends Controller
             $profile->verified_at = now();
             $profile->admin_fixed_rating = 5.0;
         }
+
+        $verNotes = $validated['verification_notes'] ?? ($validated['notes'] ?? null);
+        if (!empty($verNotes)) {
+            $profile->verification_notes = trim($verNotes);
+        }
+
         $profile->save();
 
-        // Optional Note
+        // Optional Internal Note
         if (!empty($validated['notes'])) {
             AgentNote::create([
                 'user_id'        => $user->id,
                 'author_user_id' => auth()->id(),
-                'author_name'    => 'API Client / Gemini',
+                'author_name'    => 'API Client / JSON Schema',
                 'note_text'      => trim($validated['notes']),
             ]);
         }
@@ -186,18 +203,8 @@ class AgentApiController extends Controller
         return response()->json([
             'success' => true,
             'is_new'  => $isNew,
-            'message' => $isNew ? 'এজেন্ট সফলভাবে তৈরি করা হয়েছে!' : 'বিদ্যমান এজেন্টের তথ্য হালনাগাদ করা হয়েছে।',
-            'data'    => [
-                'id'                       => $user->id,
-                'name'                     => $user->name,
-                'phone'                    => $user->phone,
-                'whatsapp_number'          => $user->whatsapp_number,
-                'email'                    => $user->email,
-                'role'                     => $user->role,
-                'agency_name'              => $profile->agency_name,
-                'rating'                   => $profile->effective_rating,
-                'is_verified_direct_agent' => (bool) $profile->is_verified_direct_agent,
-            ],
+            'message' => $isNew ? 'এজেন্ট প্রোফাইল সফলভাবে তৈরি করা হয়েছে!' : 'বিদ্যমান এজেন্টের তথ্য সফলভাবে হালনাগাদ করা হয়েছে।',
+            'data'    => $this->formatAgent($user->fresh()),
         ], $isNew ? 201 : 200);
     }
 
@@ -206,7 +213,7 @@ class AgentApiController extends Controller
      */
     public function show(int|string $id): JsonResponse
     {
-        $user = User::with(['agentProfile', 'properties' => fn ($q) => $q->latest()->limit(10)])
+        $user = User::with(['agentProfile', 'properties' => fn ($q) => $q->latest()->limit(15)])
             ->whereIn('role', ['agent', 'owner'])
             ->where(function ($q) use ($id) {
                 $q->where('id', $id)->orWhere('phone', $id);
@@ -215,25 +222,42 @@ class AgentApiController extends Controller
 
         return response()->json([
             'success' => true,
-            'data'    => [
-                'id'                       => $user->id,
-                'name'                     => $user->name,
-                'phone'                    => $user->phone,
-                'whatsapp_number'          => $user->whatsapp_number,
-                'email'                    => $user->email,
-                'role'                     => $user->role,
-                'agency_name'              => $user->agentProfile?->agency_name,
-                'rating'                   => $user->agentProfile?->effective_rating ?? 5.0,
-                'is_verified_direct_agent' => (bool) ($user->agentProfile?->is_verified_direct_agent ?? false),
-                'properties_count'         => $user->properties()->count(),
-                'recent_properties'        => $user->properties->map(fn ($p) => [
+            'data'    => array_merge($this->formatAgent($user), [
+                'recent_properties' => $user->properties->map(fn ($p) => [
                     'id'            => $p->id,
                     'property_code' => $p->property_code,
                     'title'         => $p->title,
                     'area'          => $p->area,
                     'status'        => $p->status,
+                    'created_at'    => $p->created_at?->toIso8601String(),
                 ]),
-            ],
+            ]),
         ]);
+    }
+
+    /**
+     * Format agent object.
+     */
+    protected function formatAgent(User $user): array
+    {
+        $profile = $user->agentProfile;
+
+        return [
+            'id'                         => $user->id,
+            'name'                       => $user->name,
+            'phone'                      => $user->phone,
+            'whatsapp_number'            => $user->whatsapp_number ?: $user->phone,
+            'email'                      => $user->email,
+            'role'                       => $user->role,
+            'agency_name'                => $profile?->agency_name,
+            'license_no'                 => $profile?->license_no,
+            'experience_years'           => $profile?->experience_years ?? 1,
+            'direct_owner_network_count' => $profile?->direct_owner_network_count ?? 0,
+            'rating'                     => $profile?->effective_rating ?? 5.0,
+            'is_verified_direct_agent'   => (bool) ($profile?->is_verified_direct_agent ?? false),
+            'verification_notes'         => $profile?->verification_notes,
+            'properties_count'           => $user->properties()->count(),
+            'created_at'                 => $user->created_at?->toIso8601String(),
+        ];
     }
 }

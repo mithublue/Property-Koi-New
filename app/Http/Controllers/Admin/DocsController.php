@@ -8,6 +8,8 @@ class DocsController extends Controller
 {
     public function index()
     {
-        return view('admin.documentation');
+        $apiKey = \App\Models\Setting::get('adm_api_secret_key', env('PROPERTYKOI_API_KEY', 'propertykoi_guides_sec_2026'));
+
+        return view('admin.documentation', compact('apiKey'));
     }
 }

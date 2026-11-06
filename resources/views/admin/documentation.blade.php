@@ -8,6 +8,8 @@
     activeTab: 'api-shortform',
     copiedShort: false,
     copiedProp: false,
+    copiedSheetJson: false,
+    copiedBulkJson: false,
     copiedAgent: false,
     copiedKey: false,
     copiedScript: false,
@@ -257,7 +259,26 @@ Your Sheet Column (Screenshot) -> PropertyKoi API Field & Action
 • [ভবিষ্যতে যেকোনো নতুন কলাম] -> custom_fields ও raw_sheet_row (অটো সেভ)
 
 ============================================================
-6. KEY ENUMS &amp; RULES
+6. HOW API AUTOMATICALLY PROCESSES GOOGLE SHEET DATA
+============================================================
+1. Location & Address:
+   "place", "block", "sector", "road", "plot number" -> automatically mapped to property location columns. Case-insensitive, space-tolerant.
+
+2. Size & Price Auto-Conversion:
+   "katha": "4" or "100*20 katha" -> parsed to size in katha.
+   "price": "1.55cr" -> automatically converted to 15,500,000 BDT unit rate.
+   "total price": "6.2 cr" -> automatically converted to 62,000,000 BDT asking price.
+
+3. Auto-Agent & Directory Linking:
+   "agent" ("Saiful islam") & "contact" ("-880 1924-400307") ->
+   API checks if phone exists. If not, auto-creates Agent profile, links to property, and saves "messanger" ("r7") as WhatsApp/Messenger.
+
+4. Zero Data Loss:
+   "extra notes" -> saved as description.
+   ANY other custom column in your Google Sheet -> automatically preserved in "custom_fields" and full row in "raw_sheet_row".
+
+============================================================
+7. KEY ENUMS &amp; RULES
 ============================================================
 - property_type: "land" | "flat" | "commercial" | "land_share"
 - status: "directory" (private vault) | "live" (published) | "draft"
@@ -410,22 +431,46 @@ Your Sheet Column (Screenshot) -> PropertyKoi API Field & Action
             </div>
 
             <!-- Direct Google Sheet via API Sample -->
-            <div class="space-y-3 pt-4 border-t border-slate-200">
-                <div>
-                    <h4 class="font-bold text-slate-900 text-sm flex items-center gap-2">
-                        <span>📑</span> গুগল শিটের কলামগুলো সরাসরি API তে পাঠানো (Direct Sheet Columns via API)
-                    </h4>
-                    <p class="text-[11px] text-slate-500 mt-0.5">
-                        কোনো পরিবর্তন ছাড়াই সরাসরি গুগল শিটের কলাম নামগুলো (place, block, road, plot number, katha, agent, contact, messanger, price, total price, extra notes) JSON কী হিসেবে পাঠালে API স্বয়ংক্রিয়ভাবে সবগুলো কলাম রিসিভ করে ডাটাবেজে সংরক্ষণ করবে:
-                    </p>
+            <div class="space-y-4 pt-5 border-t border-slate-200">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div>
+                        <h4 class="font-bold text-slate-900 text-sm flex items-center gap-2">
+                            <span>📑</span> ১. গুগল শিটের কলামগুলো সরাসরি API তে পাঠানো (Single Property via Sheet Columns)
+                        </h4>
+                        <p class="text-[11px] text-slate-500 mt-0.5">
+                            কোনো পরিবর্তন ছাড়াই সরাসরি গুগল শিটের কলাম নামগুলো (place, block, road, plot number, katha, agent, contact, messanger, price, total price, extra notes) JSON কী হিসেবে পাঠালে API স্বয়ংক্রিয়ভাবে সবগুলো কলাম রিসিভ করে ডাটাবেজে সংরক্ষণ করবে:
+                        </p>
+                    </div>
+                    <button type="button"
+                            @click="navigator.clipboard.writeText(document.getElementById('sheet-json-template').innerText); copiedSheetJson = true; setTimeout(() => copiedSheetJson = false, 2500)"
+                            class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold rounded-xl shadow-xs transition cursor-pointer shrink-0">
+                        <span x-show="!copiedSheetJson">📋 শিট JSON কপি করুন</span>
+                        <span x-show="copiedSheetJson" class="font-bold">✅ কপি হয়েছে!</span>
+                    </button>
                 </div>
-                <pre class="bg-slate-950 text-emerald-300 p-4 rounded-xl font-mono text-[11px] overflow-x-auto border border-slate-800">curl -X POST "{{ url('/api/v1/properties') }}" \
+                <pre id="sheet-json-template" class="bg-slate-950 text-emerald-300 p-4 rounded-xl font-mono text-[11px] overflow-x-auto border border-slate-800">{
+  "place": "bashundhara",
+  "block": "F",
+  "sector": "",
+  "road": "25ft",
+  "plot number": "4500",
+  "katha": "4",
+  "agent": "Saiful islam",
+  "contact": "-880 1924-400307",
+  "messanger": "r7",
+  "price": "1.55cr",
+  "total price": "6.2 cr",
+  "extra notes": "Just close to Viqarunnisa, asking",
+  "status": "directory"
+}</pre>
+                <div class="pt-1">
+                    <span class="text-[11px] font-bold text-slate-700 block mb-1">cURL রিকোয়েস্ট:</span>
+                    <pre class="bg-slate-900 text-slate-200 p-3.5 rounded-xl font-mono text-[10.5px] overflow-x-auto">curl -X POST "{{ url('/api/v1/properties') }}" \
   -H "X-API-KEY: {{ $apiKey }}" \
   -H "Content-Type: application/json" \
   -d '{
     "place": "bashundhara",
     "block": "F",
-    "sector": "",
     "road": "25ft",
     "plot number": "4500",
     "katha": "4",
@@ -437,6 +482,92 @@ Your Sheet Column (Screenshot) -> PropertyKoi API Field & Action
     "extra notes": "Just close to Viqarunnisa, asking",
     "status": "directory"
   }'</pre>
+                </div>
+
+                <!-- Explanation Cards: How API Handles Each Column -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
+                    <div class="p-3.5 bg-emerald-50/60 rounded-xl border border-emerald-200/80 text-[11px]">
+                        <strong class="text-emerald-950 font-bold block mb-1">📍 ১. লোকেশন ও প্লট ফিল্ডস:</strong>
+                        <p class="text-emerald-800 leading-relaxed">
+                            <code>place</code>, <code>block</code>, <code>sector</code>, <code>road</code>, <code>plot number</code> সরাসরি প্রপার্টির মূল টেবিলে সঠিক ফিল্ডে ম্যাপ হয়। স্পেসসহ লিখলেও (যেমন: <code>"plot number"</code>) ব্যাকএন্ড স্বয়ংক্রিয়ভাবে শনাক্ত করে।
+                        </p>
+                    </div>
+                    <div class="p-3.5 bg-blue-50/60 rounded-xl border border-blue-200/80 text-[11px]">
+                        <strong class="text-blue-950 font-bold block mb-1">💰 ২. সাইজ ও স্মার্ট মূল্য কনভার্সন:</strong>
+                        <p class="text-blue-800 leading-relaxed">
+                            <code>katha</code>, <code>price</code> (যেমন: <code>"1.55cr"</code>) এবং <code>total price</code> (যেমন: <code>"6.2 cr"</code>) দেওয়া হলে এপিআই স্বয়ংক্রিয়ভাবে কোটি/লাখ হিসাব করে টাকায় রূপান্তর করে <code>property_land_details</code>-এ সেভ করে।
+                        </p>
+                    </div>
+                    <div class="p-3.5 bg-indigo-50/60 rounded-xl border border-indigo-200/80 text-[11px]">
+                        <strong class="text-indigo-950 font-bold block mb-1">👤 ৩. এজেন্ট ও কন্টাক্ট অটো-লিংক:</strong>
+                        <p class="text-indigo-800 leading-relaxed">
+                            <code>agent</code> ও <code>contact</code> দেওয়া হলে সিস্টেম চেক করে ওই নম্বরের এজেন্ট আছে কিনা। না থাকলে নতুন এজেন্ট প্রোফাইল বানিয়ে প্রপার্টির সাথে লিংক করে দেয় এবং <code>messanger</code>-কে হোয়াটসঅ্যাপ/মেসেঞ্জার কন্টাক্ট হিসেবে রাখে।
+                        </p>
+                    </div>
+                    <div class="p-3.5 bg-purple-50/60 rounded-xl border border-purple-200/80 text-[11px]">
+                        <strong class="text-purple-950 font-bold block mb-1">🛡️ ৪. বিবরণ ও যেকোনো কাস্টম কলাম:</strong>
+                        <p class="text-purple-800 leading-relaxed">
+                            <code>extra notes</code> সরাসরি ডেসক্রিপশনে সেভ হয়। এছাড়া গুগল শিটে ভবিষ্যতে নতুন যেকোনো কলাম বসালেও তা বাদ না গিয়ে <code>custom_fields</code> ও <code>raw_sheet_row</code> অবজেক্টে সুরক্ষিত থাকে।
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Bulk API Section -->
+                <div class="space-y-3 pt-4 border-t border-slate-200">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-100 text-purple-800">POST</span>
+                                <code class="text-xs font-bold text-slate-900 font-mono">/api/v1/properties/bulk</code>
+                            </div>
+                            <h4 class="font-bold text-slate-900 text-xs mt-1">
+                                🚀 ২. একাধিক রো একসাথে বাল্ক ইনসার্ট (Bulk Insert via Sheet Columns)
+                            </h4>
+                            <p class="text-[11px] text-slate-500">
+                                শত শত রো একসাথে পাঠাতে <code>properties</code> অ্যারে-তে সরাসরি গুগল শিটের রো-গুলো পাঠিয়ে দিন:
+                            </p>
+                        </div>
+                        <button type="button"
+                                @click="navigator.clipboard.writeText(document.getElementById('bulk-json-template').innerText); copiedBulkJson = true; setTimeout(() => copiedBulkJson = false, 2500)"
+                                class="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-purple-600 hover:bg-purple-700 text-white text-[11px] font-bold rounded-xl shadow-xs transition cursor-pointer shrink-0">
+                            <span x-show="!copiedBulkJson">📋 বাল্ক JSON কপি করুন</span>
+                            <span x-show="copiedBulkJson" class="font-bold">✅ কপি হয়েছে!</span>
+                        </button>
+                    </div>
+                    <pre id="bulk-json-template" class="bg-slate-950 text-purple-300 p-4 rounded-xl font-mono text-[11px] overflow-x-auto border border-slate-800">{
+  "properties": [
+    {
+      "place": "bashundhara",
+      "block": "F",
+      "road": "25ft",
+      "plot number": "4500",
+      "katha": "4",
+      "agent": "Saiful islam",
+      "contact": "-880 1924-400307",
+      "messanger": "r7",
+      "price": "1.55cr",
+      "total price": "6.2 cr",
+      "extra notes": "Just close to Viqarunnisa, asking",
+      "status": "directory"
+    },
+    {
+      "place": "uttor khan",
+      "katha": "100*20 katha",
+      "agent": "Saiful islam",
+      "contact": "01711223344",
+      "messanger": "r7",
+      "status": "directory"
+    },
+    {
+      "place": "rampura",
+      "katha": "6 katha",
+      "price": "2cr",
+      "total price": "12 cr",
+      "status": "directory"
+    }
+  ]
+}</pre>
+                </div>
             </div>
         </div>
     </div>

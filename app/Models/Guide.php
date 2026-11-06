@@ -20,6 +20,7 @@ class Guide extends Model
         'cover_image',
         'reading_time_min',
         'faqs',
+        'en_profile',
         'seo_title',
         'seo_description',
         'seo_keywords',
@@ -31,6 +32,7 @@ class Guide extends Model
 
     protected $casts = [
         'faqs'             => 'array',
+        'en_profile'       => 'array',
         'is_featured'      => 'boolean',
         'is_published'     => 'boolean',
         'reading_time_min' => 'integer',

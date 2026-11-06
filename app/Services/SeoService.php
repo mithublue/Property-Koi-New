@@ -838,7 +838,7 @@ class SeoService
         $title = $guide->seo_title ?: "{$guide->title} | প্রপার্টি গাইড — {$siteName}";
         $desc = $guide->seo_description ?: ($guide->excerpt ?: Str::limit(strip_tags($guide->content), 160));
         
-        $enProfile = self::getGuideEnglishProfile($guide->slug);
+        $enProfile = self::getGuideEnglishProfile($guide->slug, $guide);
         $enKeywords = !empty($enProfile['keywords']) ? ", {$enProfile['keywords']}" : '';
 
         $keywords = ($guide->seo_keywords ?: "{$guide->title}, {$guide->category_label}, real estate guide bangladesh, jomir dolil namjari, PropertyKoi") . $enKeywords;
@@ -1142,8 +1142,12 @@ class SeoService
      * Ensures global LLMs (ChatGPT, Gemini, Perplexity, Claude) and English search queries
      * can reliably discover, understand, and recommend PropertyKoi's Bengali guides.
      */
-    public static function getGuideEnglishProfile(string $slug): array
+    public static function getGuideEnglishProfile(string $slug, ?Guide $guide = null): array
     {
+        if ($guide && !empty($guide->en_profile) && is_array($guide->en_profile)) {
+            return $guide->en_profile;
+        }
+
         $profiles = [
             'jomir-dolil-o-namjari-khotian-jachai-guide-2026' => [
                 'headline' => 'Complete Guide to Land Title Deed, Chain of Title and Mutation Khatian Verification in Bangladesh (2026)',
@@ -1299,7 +1303,18 @@ class SeoService
             ],
         ];
 
-        return $profiles[$slug] ?? [
+        if (isset($profiles[$slug])) {
+            return $profiles[$slug];
+        }
+
+        try {
+            $dbGuide = Guide::where('slug', $slug)->first();
+            if ($dbGuide && !empty($dbGuide->en_profile) && is_array($dbGuide->en_profile)) {
+                return $dbGuide->en_profile;
+            }
+        } catch (\Throwable $e) {}
+
+        return [
             'headline' => $slug,
             'description' => 'Real estate guide and advisory for buying and selling land, plots, and flats in Dhaka, Bangladesh.',
             'keywords' => 'property in bangladesh, dhaka real estate guide, PropertyKoi',
@@ -1322,7 +1337,7 @@ class SeoService
         $keywordsList = array_map('trim', explode(',', $guide->seo_keywords ?: ''));
         $keywordsList = array_filter($keywordsList);
 
-        $enProfile = self::getGuideEnglishProfile($guide->slug);
+        $enProfile = self::getGuideEnglishProfile($guide->slug, $guide);
         if (!empty($enProfile['keywords'])) {
             $enKeys = array_map('trim', explode(',', $enProfile['keywords']));
             $keywordsList = array_unique(array_merge($keywordsList, $enKeys));

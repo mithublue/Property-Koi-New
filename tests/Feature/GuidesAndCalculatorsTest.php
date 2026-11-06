@@ -232,8 +232,8 @@ class GuidesAndCalculatorsTest extends TestCase
     {
         $this->seed(\Database\Seeders\GuideSeeder::class);
 
-        // Verify all 10 guides exist in database
-        $this->assertEquals(10, Guide::count());
+        // Verify guides exist in database
+        $this->assertGreaterThanOrEqual(10, Guide::count());
 
         $firstGuide = Guide::where('slug', 'jomir-dolil-o-namjari-khotian-jachai-guide-2026')->first();
         $this->assertNotNull($firstGuide);
@@ -283,6 +283,6 @@ class GuidesAndCalculatorsTest extends TestCase
         $seedRes->assertSessionHas('success');
 
         // Verify that GuideSeeder executed and populated the database
-        $this->assertEquals(10, Guide::count());
+        $this->assertGreaterThanOrEqual(10, Guide::count());
     }
 }

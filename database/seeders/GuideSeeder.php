@@ -541,7 +541,24 @@ HTML
             ],
         ];
 
+        // Automatically include any JSON-based articles from content/guides/ without code bloat
+        $contentDir = base_path('content/guides');
+        if (\Illuminate\Support\Facades\File::isDirectory($contentDir)) {
+            foreach (\Illuminate\Support\Facades\File::files($contentDir) as $file) {
+                if ($file->getExtension() === 'json') {
+                    $jsonContent = json_decode(\Illuminate\Support\Facades\File::get($file->getRealPath()), true);
+                    if (is_array($jsonContent) && !empty($jsonContent['slug'])) {
+                        $guides[] = $jsonContent;
+                    }
+                }
+            }
+        }
+
         foreach ($guides as $data) {
+            if (empty($data['excerpt']) && !empty($data['content'])) {
+                $data['excerpt'] = \Illuminate\Support\Str::limit(strip_tags($data['content']), 220);
+            }
+
             Guide::updateOrCreate(
                 ['slug' => $data['slug']],
                 $data

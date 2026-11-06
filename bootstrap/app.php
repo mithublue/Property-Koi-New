@@ -19,6 +19,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'admin.access'   => \App\Http\Middleware\EnforceAdminAccess::class,
             'api.guide.auth' => \App\Http\Middleware\VerifyGuideApiKey::class,
+            'api.auth'       => \App\Http\Middleware\VerifyGuideApiKey::class,
         ]);
         $middleware->validateCsrfTokens(except: [
             'api/*',

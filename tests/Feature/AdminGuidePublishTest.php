@@ -152,4 +152,77 @@ class AdminGuidePublishTest extends TestCase
 
         $this->assertTrue($guide->fresh()->is_published);
     }
+
+    public function test_locally_generated_guide_with_null_synced_to_live_is_targeted_as_latest_even_if_published(): void
+    {
+        // Guide is created locally and is_published is true, but synced_to_live_at is null
+        $localGuide = Guide::create([
+            'title'             => 'নতুন লোকাল ফ্ল্যাট গাইড',
+            'slug'              => 'notun-local-flat-guide-2026',
+            'category'          => 'buying_guides',
+            'content'           => '<p>লোকাল কনটেন্ট</p>',
+            'excerpt'           => 'সারসংক্ষেপ',
+            'is_published'      => true,
+            'synced_to_live_at' => null,
+        ]);
+
+        $targets = GuidePublisherService::getTargetGuides('latest_unpublished');
+        $this->assertTrue($targets->contains('id', $localGuide->id));
+        $this->assertFalse($localGuide->isSyncedToLive());
+    }
+
+    public function test_admin_can_bulk_publish_guides_using_checkboxes(): void
+    {
+        Http::fake([
+            'https://propertykoi.com/api/v1/guides' => Http::response([
+                'success' => true,
+                'action'  => 'created',
+            ], 200),
+        ]);
+
+        $g1 = Guide::create(['title' => 'বাল্ক গাইড ১', 'slug' => 'bulk-1', 'content' => '<p>১</p>', 'excerpt' => '১', 'is_published' => false]);
+        $g2 = Guide::create(['title' => 'বাল্ক গাইড ২', 'slug' => 'bulk-2', 'content' => '<p>২</p>', 'excerpt' => '২', 'is_published' => false]);
+
+        $res = $this->actingAs($this->admin)->post(route('admin.guides.bulk-action'), [
+            'action' => 'publish_live',
+            'ids'    => [$g1->id, $g2->id],
+        ]);
+
+        $res->assertRedirect(route('admin.guides.index'));
+        $res->assertSessionHas('success');
+
+        $this->assertTrue($g1->fresh()->is_published);
+        $this->assertTrue($g2->fresh()->is_published);
+        $this->assertTrue($g1->fresh()->isSyncedToLive());
+        $this->assertTrue($g2->fresh()->isSyncedToLive());
+    }
+
+    public function test_admin_can_bulk_delete_and_toggle_status(): void
+    {
+        $g1 = Guide::create(['title' => 'ডিলিট ১', 'slug' => 'del-1', 'content' => '<p>১</p>', 'excerpt' => '১', 'is_published' => false]);
+        $g2 = Guide::create(['title' => 'ডিলিট ২', 'slug' => 'del-2', 'content' => '<p>২</p>', 'excerpt' => '২', 'is_published' => false]);
+
+        // Bulk publish status
+        $this->actingAs($this->admin)->post(route('admin.guides.bulk-action'), [
+            'action' => 'publish',
+            'ids'    => [$g1->id, $g2->id],
+        ]);
+        $this->assertTrue($g1->fresh()->is_published);
+        $this->assertTrue($g2->fresh()->is_published);
+
+        // Bulk draft status
+        $this->actingAs($this->admin)->post(route('admin.guides.bulk-action'), [
+            'action' => 'draft',
+            'ids'    => [$g1->id],
+        ]);
+        $this->assertFalse($g1->fresh()->is_published);
+
+        // Bulk delete
+        $this->actingAs($this->admin)->post(route('admin.guides.bulk-action'), [
+            'action' => 'delete',
+            'ids'    => [$g1->id, $g2->id],
+        ]);
+        $this->assertDatabaseMissing('guides', ['id' => $g1->id]);
+        $this->assertDatabaseMissing('guides', ['id' => $g2->id]);
+    }
 }

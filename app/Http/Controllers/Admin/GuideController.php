@@ -347,6 +347,67 @@ class GuideController extends Controller
     }
 
     /**
+     * Handle multi-checkbox bulk actions (bulk delete, bulk live publish, bulk status toggle).
+     */
+    public function bulkAction(Request $request): JsonResponse|RedirectResponse
+    {
+        $validated = $request->validate([
+            'action' => 'required|string|in:publish_live,delete,publish,draft',
+            'ids'    => 'required|array|min:1',
+            'ids.*'  => 'integer|exists:guides,id',
+        ]);
+
+        $action = $validated['action'];
+        $ids = array_map('intval', $validated['ids']);
+        $count = count($ids);
+
+        switch ($action) {
+            case 'publish_live':
+                $report = GuidePublisherService::publish([
+                    'scope'        => 'specific',
+                    'specific_ids' => $ids,
+                ]);
+                $msg = $report['message'];
+                $success = $report['success'];
+                break;
+
+            case 'delete':
+                Guide::whereIn('id', $ids)->delete();
+                $msg = "নির্বাচিত {$count}টি গাইড সফলভাবে মুছে ফেলা হয়েছে।";
+                $success = true;
+                break;
+
+            case 'publish':
+                Guide::whereIn('id', $ids)->update(['is_published' => true]);
+                $msg = "নির্বাচিত {$count}টি গাইডের স্ট্যাটাস 'প্রকাশিত' করা হয়েছে।";
+                $success = true;
+                break;
+
+            case 'draft':
+                Guide::whereIn('id', $ids)->update(['is_published' => false]);
+                $msg = "নির্বাচিত {$count}টি গাইডের স্ট্যাটাস 'ড্রাফট' করা হয়েছে।";
+                $success = true;
+                break;
+
+            default:
+                $msg = 'অকার্যকর বাল্ক অ্যাকশন।';
+                $success = false;
+        }
+
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => $success,
+                'count'   => $count,
+                'action'  => $action,
+                'message' => $msg,
+            ], $success ? 200 : 422);
+        }
+
+        return redirect()->route('admin.guides.index')
+            ->with($success ? 'success' : 'error', $msg);
+    }
+
+    /**
      * Trigger bulk publishing to the live site based on admin settings or request payload.
      */
     public function publishLive(Request $request): JsonResponse|RedirectResponse

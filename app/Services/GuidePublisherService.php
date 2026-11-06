@@ -92,11 +92,26 @@ class GuidePublisherService
             return Guide::latest('id')->get();
         }
 
-        // Default: 'latest_unpublished' (drafts or not yet published)
-        $unpublished = Guide::where('is_published', false)->latest('id')->get();
+        // Default: 'latest_unpublished' (not yet synced to live or drafts)
+        $guides = Guide::where(function ($q) {
+            $q->whereNull('synced_to_live_at')
+              ->orWhere('is_published', false);
+        })->latest('id')->get();
 
-        // If none found in draft, check if there are newly created guides or return empty
-        return $unpublished;
+        // If none found with null sync date, check if any guides were created after last publish time
+        if ($guides->isEmpty()) {
+            $lastPublishTime = Setting::get('adm_guide_last_publish_time');
+            if ($lastPublishTime) {
+                $guides = Guide::where('created_at', '>', $lastPublishTime)->latest('id')->get();
+            }
+        }
+
+        // If still empty, return latest 3 guides as default fallback
+        if ($guides->isEmpty()) {
+            $guides = Guide::latest('id')->take(3)->get();
+        }
+
+        return $guides;
     }
 
     /**
@@ -166,6 +181,7 @@ class GuidePublisherService
             if ($isLocalTarget) {
                 // Direct database update for local/same-site target
                 $guide->is_published = $targetPublished;
+                $guide->synced_to_live_at = now();
                 $guide->save();
 
                 $successful[] = [
@@ -188,11 +204,12 @@ class GuidePublisherService
                         ->post("{$targetUrl}/api/v1/guides", $payload);
 
                     if ($response->successful()) {
-                        // Mark local guide as published too to remain in sync
+                        // Mark local guide as published and synced to live
+                        $guide->synced_to_live_at = now();
                         if ($targetPublished && !$guide->is_published) {
                             $guide->is_published = true;
-                            $guide->save();
                         }
+                        $guide->save();
 
                         $successful[] = [
                             'id'     => $guide->id,

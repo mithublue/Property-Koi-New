@@ -14,6 +14,7 @@
         openPublishModal: false,
         openSettingsModal: false,
         openSeedMenu: false,
+        selectedRows: [],
         publishScope: '{{ $publishSettings['publish_scope'] }}',
         defaultStatus: '{{ $publishSettings['default_status'] }}',
         liveSiteUrl: '{{ $publishSettings['live_site_url'] }}',
@@ -22,6 +23,22 @@
         specificIds: {{ json_encode($publishSettings['specific_ids'] ?? []) }},
         searchSpecific: '',
         isSubmitting: false,
+        toggleSelectAll() {
+            if (this.selectedRows.length === {{ count($guides->items()) }}) {
+                this.selectedRows = [];
+            } else {
+                this.selectedRows = {{ json_encode($guides->pluck('id')->toArray()) }};
+            }
+        },
+        toggleRow(id) {
+            id = parseInt(id);
+            const idx = this.selectedRows.indexOf(id);
+            if (idx > -1) {
+                this.selectedRows.splice(idx, 1);
+            } else {
+                this.selectedRows.push(id);
+            }
+        },
         toggleSpecificId(id) {
             id = parseInt(id);
             const idx = this.specificIds.indexOf(id);
@@ -79,7 +96,7 @@
             <button type="button"
                     @click="openPublishModal = true"
                     class="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 hover:from-indigo-700 hover:to-purple-800 text-white text-xs font-bold rounded-xl shadow-md transition cursor-pointer active:scale-95"
-                    title="লেটেস্ট ব্লগগুলো সরাসরি লাইভ সাইটে (propertykoi.com) পাবলিশ করুন">
+                    title="লেটেস্ট বা লাইভে না যাওয়া ব্লগগুলো সরাসরি লাইভ সাইটে (propertykoi.com) পাবলিশ করুন">
                 <svg class="w-4 h-4 text-purple-200 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
                 <span>🚀 লাইভ সাইটে পাবলিশ</span>
                 @if($targetGuidesCount > 0)
@@ -159,13 +176,21 @@
         </div>
     </div>
 
-    <!-- Guides Table -->
+    <!-- Guides Table with Multi-Checkbox -->
     <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
         <div class="overflow-x-auto">
             <table class="w-full text-left text-xs text-slate-600">
                 <thead class="bg-slate-50 text-slate-700 uppercase font-bold text-[11px] border-b border-slate-200">
                     <tr>
+                        <th class="p-4 w-10 text-center">
+                            <input type="checkbox"
+                                   @change="toggleSelectAll()"
+                                   :checked="selectedRows.length > 0 && selectedRows.length === {{ count($guides->items()) }}"
+                                   class="rounded text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+                                   title="সবগুলো নির্বাচন করুন">
+                        </th>
                         <th class="p-4">শিরোনাম ও ক্যাটাগরি</th>
+                        <th class="p-4">লাইভ সিঙ্ক স্ট্যাটাস</th>
                         <th class="p-4">ভিউ / পাঠক</th>
                         <th class="p-4">সময় / তারিখ</th>
                         <th class="p-4">স্ট্যাটাস</th>
@@ -174,7 +199,16 @@
                 </thead>
                 <tbody class="divide-y divide-slate-100">
                     @forelse($guides as $guide)
-                        <tr class="hover:bg-slate-50/70 transition">
+                        <tr class="transition" :class="selectedRows.includes({{ $guide->id }}) ? 'bg-indigo-50/60' : 'hover:bg-slate-50/70'">
+                            <!-- Multi-Checkbox Cell -->
+                            <td class="p-4 w-10 text-center">
+                                <input type="checkbox"
+                                       :value="{{ $guide->id }}"
+                                       :checked="selectedRows.includes({{ $guide->id }})"
+                                       @change="toggleRow({{ $guide->id }})"
+                                       class="rounded text-indigo-600 focus:ring-indigo-500 cursor-pointer">
+                            </td>
+
                             <td class="p-4">
                                 <div class="flex items-center gap-3">
                                     <div class="w-12 h-12 rounded-xl bg-slate-100 overflow-hidden shrink-0 border border-slate-200">
@@ -198,6 +232,22 @@
                                     </div>
                                 </div>
                             </td>
+
+                            <!-- Live Sync Status Badge Cell -->
+                            <td class="p-4 whitespace-nowrap">
+                                @if($guide->isSyncedToLive())
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200"
+                                          title="লাইভ সাইটে সক্রিয় (সিঙ্ক: {{ $guide->synced_to_live_at?->format('d M, Y') }})">
+                                        <span>🌐</span> লাইভ সিঙ্কড
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black bg-amber-100 text-amber-900 border border-amber-300 animate-pulse"
+                                          title="এই গাইডটি শুধু লোকাল সাইটে আছে, এখনও লাইভ সাইটে (propertykoi.com) পাঠানো হয়নি">
+                                        <span>⏳</span> লোকাল (লাইভে যায়নি)
+                                    </span>
+                                @endif
+                            </td>
+
                             <td class="p-4 whitespace-nowrap">
                                 <span class="font-bold text-slate-900 block">{{ number_format($guide->views_count) }}</span>
                                 <span class="text-[10px] text-slate-400">বার পঠিত</span>
@@ -242,7 +292,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="p-8 text-center text-slate-500">
+                            <td colspan="7" class="p-8 text-center text-slate-500">
                                 কোনো গাইড পাওয়া যায়নি। নতুন গাইড তৈরি করতে উপরের বাটনে ক্লিক করুন।
                             </td>
                         </tr>
@@ -256,6 +306,66 @@
                 {{ $guides->links() }}
             </div>
         @endif
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- FLOATING STICKY BULK ACTION BAR (ACTIVE ON MULTI-CHECK) -->
+    <!-- ======================================================== -->
+    <div x-show="selectedRows.length > 0"
+         x-transition:enter="transition ease-out duration-200"
+         x-transition:enter-start="opacity-0 translate-y-4 scale-95"
+         x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+         x-transition:leave="transition ease-in duration-150"
+         x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+         x-transition:leave-end="opacity-0 translate-y-4 scale-95"
+         class="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-slate-900/95 text-white px-5 py-3 rounded-2xl shadow-2xl border border-slate-700 backdrop-blur-md flex items-center justify-between gap-4 flex-wrap max-w-2xl w-full"
+         style="display: none;">
+
+        <div class="flex items-center gap-2.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+            <span class="text-xs font-bold text-white"><span x-text="selectedRows.length"></span>টি গাইড নির্বাচিত</span>
+        </div>
+
+        <div class="flex items-center gap-2 flex-wrap">
+            <form action="{{ route('admin.guides.bulk-action') }}" method="POST" class="inline m-0 flex items-center gap-2">
+                @csrf
+                <template x-for="id in selectedRows" :key="id">
+                    <input type="hidden" name="ids[]" :value="id">
+                </template>
+
+                <!-- Bulk Action: Live Publish -->
+                <button type="submit" name="action" value="publish_live"
+                        class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white text-xs font-bold shadow-sm transition flex items-center gap-1.5 cursor-pointer">
+                    <span>🚀 লাইভে পাবলিশ</span>
+                </button>
+
+                <!-- Bulk Action: Mark Published -->
+                <button type="submit" name="action" value="publish"
+                        class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition flex items-center gap-1 cursor-pointer"
+                        title="স্ট্যাটাস প্রকাশিত করুন">
+                    <span>✅ প্রকাশিত</span>
+                </button>
+
+                <!-- Bulk Action: Mark Draft -->
+                <button type="submit" name="action" value="draft"
+                        class="px-3 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold transition flex items-center gap-1 cursor-pointer"
+                        title="স্ট্যাটাস ড্রাফট করুন">
+                    <span>⏸️ ড্রাফট</span>
+                </button>
+
+                <!-- Bulk Action: Delete -->
+                <button type="submit" name="action" value="delete"
+                        onclick="return confirm('আপনি কি নিশ্চিত যে নির্বাচিত গাইডগুলো মুছে ফেলতে চান?')"
+                        class="px-3 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition flex items-center gap-1 cursor-pointer"
+                        title="নির্বাচিত গাইড মুছে ফেলুন">
+                    <span>🗑️ ডিলিট</span>
+                </button>
+            </form>
+
+            <button type="button" @click="selectedRows = []" class="px-2.5 py-1.5 text-xs text-slate-400 hover:text-white font-semibold transition cursor-pointer" title="নির্বাচন বাতিল করুন">
+                ✕
+            </button>
+        </div>
     </div>
 
     <!-- ========================================== -->
@@ -301,8 +411,8 @@
                                :class="publishScope === 'latest_unpublished' ? 'bg-indigo-50/70 border-indigo-500 ring-1 ring-indigo-500' : 'bg-slate-50 border-slate-200 hover:bg-slate-100'">
                             <input type="radio" name="modal_scope" value="latest_unpublished" x-model="publishScope" class="mt-0.5 text-indigo-600 focus:ring-indigo-500">
                             <div>
-                                <span class="block text-xs font-bold text-slate-800">লেটেস্ট অপ্রকাশিত</span>
-                                <span class="block text-[11px] text-slate-500">যেগুলো এখনও পাবলিশ হয়নি (ডিফল্ট)</span>
+                                <span class="block text-xs font-bold text-slate-800">লেটেস্ট / লাইভে যা যায়নি</span>
+                                <span class="block text-[11px] text-slate-500">নতুন লোকাল ব্লগ (ডিফল্ট)</span>
                             </div>
                         </label>
 
@@ -335,7 +445,7 @@
                               x-text="defaultStatus === 'published' ? '✅ সরাসরি প্রকাশিত (Published)' : '⏸️ ড্রাফট (Draft)'">
                         </span>
                     </div>
-                    <button type="button" @click="openPublishModal = false; openSettingsModal = true" class="text-indigo-600 hover:text-indigo-800 font-bold hover:underline">
+                    <button type="button" @click="openPublishModal = false; openSettingsModal = true" class="text-indigo-600 hover:text-indigo-800 font-bold hover:underline cursor-pointer">
                         ⚙️ সেটিংস পরিবর্তন
                     </button>
                 </div>
@@ -345,7 +455,7 @@
                     <div class="flex items-center justify-between mb-2">
                         <span class="text-xs font-bold text-slate-700">টার্গেট ব্লগ প্রিভিউ:</span>
                         <span class="text-[11px] text-slate-500"
-                              x-text="publishScope === 'latest_unpublished' ? '{{ $targetGuidesCount }}টি অপ্রকাশিত ব্লগ' : (publishScope === 'all' ? '{{ $allGuidesList->count() }}টি ব্লগ' : specificIds.length + 'টি নির্দিষ্ট ব্লগ')"></span>
+                              x-text="publishScope === 'latest_unpublished' ? '{{ $targetGuidesCount }}টি নতুন / লোকাল ব্লগ' : (publishScope === 'all' ? '{{ $allGuidesList->count() }}টি ব্লগ' : specificIds.length + 'টি নির্দিষ্ট ব্লগ')"></span>
                     </div>
 
                     <!-- Target blog items -->
@@ -355,26 +465,33 @@
                                 <div class="p-2.5 flex items-center justify-between gap-3 text-xs"
                                      x-show="publishScope === 'latest_unpublished' || publishScope === 'all' || (publishScope === 'specific' && specificIds.includes({{ $tg->id }}))">
                                     <div class="min-w-0 flex items-center gap-2">
-                                        <span class="w-2 h-2 rounded-full shrink-0 {{ $tg->is_published ? 'bg-emerald-500' : 'bg-amber-500' }}"></span>
+                                        <span class="w-2 h-2 rounded-full shrink-0 {{ $tg->isSyncedToLive() ? 'bg-indigo-500' : 'bg-amber-500 animate-ping' }}"></span>
                                         <span class="font-semibold text-slate-800 truncate">{{ $tg->title }}</span>
                                     </div>
-                                    <span class="shrink-0 px-2 py-0.5 rounded text-[10px] font-bold {{ $tg->category_badge_class }}">
-                                        {{ $tg->category_label }}
-                                    </span>
+                                    <div class="flex items-center gap-1.5 shrink-0">
+                                        @if(!$tg->isSyncedToLive())
+                                            <span class="px-1.5 py-0.5 rounded text-[10px] font-black bg-amber-100 text-amber-900 border border-amber-300">
+                                                ⏳ লোকাল
+                                            </span>
+                                        @endif
+                                        <span class="px-2 py-0.5 rounded text-[10px] font-bold {{ $tg->category_badge_class }}">
+                                            {{ $tg->category_label }}
+                                        </span>
+                                    </div>
                                 </div>
                             @endforeach
                         @else
                             <div class="p-4 text-center text-xs text-slate-500" x-show="publishScope === 'latest_unpublished'">
-                                ℹ️ এই মুহূর্তে কোনো অপ্রকাশিত/ড্রাফট ব্লগ নেই। আপনি চাইলে উপরের রেডিও থেকে <strong>"সকল ব্লগ"</strong> অথবা <strong>"নির্দিষ্ট ব্লগ"</strong> সিলেক্ট করে পুনরায় লাইভে সিঙ্ক করতে পারেন।
+                                ℹ️ এই মুহূর্তে কোনো নতুন অপ্রকাশিত ব্লগ নেই। আপনি চাইলে উপরের রেডিও থেকে <strong>"সকল ব্লগ"</strong> অথবা <strong>"নির্দিষ্ট ব্লগ"</strong> সিলেক্ট করে পুনরায় লাইভে সিঙ্ক করতে পারেন।
                             </div>
                         @endif
 
                         @foreach($allGuidesList as $ag)
-                            @if($ag->is_published)
+                            @if($ag->isSyncedToLive())
                                 <div class="p-2.5 flex items-center justify-between gap-3 text-xs"
                                      x-show="publishScope === 'all' || (publishScope === 'specific' && specificIds.includes({{ $ag->id }}))">
                                     <div class="min-w-0 flex items-center gap-2">
-                                        <span class="w-2 h-2 rounded-full shrink-0 bg-emerald-500"></span>
+                                        <span class="w-2 h-2 rounded-full shrink-0 bg-indigo-500"></span>
                                         <span class="font-semibold text-slate-800 truncate">{{ $ag->title }}</span>
                                     </div>
                                     <span class="shrink-0 px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700">
@@ -390,7 +507,7 @@
 
             <!-- Modal Footer -->
             <div class="p-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
-                <button type="button" @click="openPublishModal = false" class="px-4 py-2 text-xs font-bold text-slate-600 hover:text-slate-800">
+                <button type="button" @click="openPublishModal = false" class="px-4 py-2 text-xs font-bold text-slate-600 hover:text-slate-800 cursor-pointer">
                     বাতিল
                 </button>
 

@@ -264,6 +264,7 @@ class GuideApiController extends Controller
                     'seo_keywords'     => $validated['seo_keywords'] ?? null,
                     'is_featured'      => $request->boolean('is_featured', $existingGuide->is_featured),
                     'is_published'     => $request->has('is_published') ? $request->boolean('is_published') : $existingGuide->is_published,
+                    'synced_to_live_at'=> now(),
                     'faqs'             => $validated['faqs'] ?? $existingGuide->faqs,
                     'en_profile'       => $validated['en_profile'] ?? $existingGuide->en_profile,
                 ]);
@@ -317,6 +318,7 @@ class GuideApiController extends Controller
             'seo_keywords'     => $validated['seo_keywords'] ?? null,
             'is_featured'      => $request->boolean('is_featured', false),
             'is_published'     => $request->boolean('is_published', true),
+            'synced_to_live_at'=> now(),
             'author_name'      => $author,
         ]);
 

@@ -26,18 +26,25 @@ class Guide extends Model
         'seo_keywords',
         'is_featured',
         'is_published',
+        'synced_to_live_at',
         'views_count',
         'author_name',
     ];
 
     protected $casts = [
-        'faqs'             => 'array',
-        'en_profile'       => 'array',
-        'is_featured'      => 'boolean',
-        'is_published'     => 'boolean',
-        'reading_time_min' => 'integer',
-        'views_count'      => 'integer',
+        'faqs'              => 'array',
+        'en_profile'        => 'array',
+        'is_featured'       => 'boolean',
+        'is_published'      => 'boolean',
+        'synced_to_live_at' => 'datetime',
+        'reading_time_min'  => 'integer',
+        'views_count'       => 'integer',
     ];
+
+    public function isSyncedToLive(): bool
+    {
+        return !is_null($this->synced_to_live_at);
+    }
 
     public function scopePublished(Builder $query): Builder
     {

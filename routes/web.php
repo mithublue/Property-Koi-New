@@ -238,6 +238,7 @@ Route::prefix('backend')->name('admin.')->middleware('admin.access')->group(func
     Route::post('/properties/{property}/hidden-note', [AdminPropertyController::class, 'updateHiddenNote'])->name('properties.hidden-note');
 
     // 2.1 Property Guides & Articles Management
+    Route::post('/guides/bulk-action', [AdminGuideController::class, 'bulkAction'])->name('guides.bulk-action');
     Route::post('/guides/publish-live', [AdminGuideController::class, 'publishLive'])->name('guides.publish-live');
     Route::post('/guides/publish-settings', [AdminGuideController::class, 'savePublishSettings'])->name('guides.publish-settings');
     Route::post('/guides/{guide}/publish-live', [AdminGuideController::class, 'publishSingleLive'])->name('guides.publish-single-live');

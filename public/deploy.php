@@ -101,6 +101,29 @@ try {
 
         \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
         $migrationOutput = trim(\Illuminate\Support\Facades\Artisan::output());
+
+        // Auto-sanitize any technical/sync declarations from database
+        try {
+            \Illuminate\Support\Facades\DB::table('property_direct_sources')
+                ->where(function ($q) {
+                    $q->where('relationship_declaration', 'like', '%API%')
+                      ->orWhere('relationship_declaration', 'like', '%Google%')
+                      ->orWhere('relationship_declaration', 'like', '%sheet%')
+                      ->orWhere('relationship_declaration', 'like', '%sync%');
+                })
+                ->update([
+                    'relationship_declaration' => \Illuminate\Support\Facades\DB::raw("CASE WHEN source_type IN ('owner', 'direct_owner') THEN 'সরাসরি প্রপার্টির মালিক (Direct Owner)' ELSE 'অনুমোদিত ডিরেক্ট এজেন্ট (Direct Agent)' END")
+                ]);
+
+            \Illuminate\Support\Facades\DB::table('properties')
+                ->where('description', 'like', '%API মারফত%')
+                ->orWhere('description', 'like', '%Google Sheets%')
+                ->update([
+                    'description' => \Illuminate\Support\Facades\DB::raw("COALESCE(title, 'চমৎকার লোকেশনে আকর্ষণীয় প্রপার্টি।')")
+                ]);
+        } catch (\Throwable $dbEx) {
+            // Silently ignore if table columns differ
+        }
     } else {
         $cacheOutput = 'Laravel bootstrap not found';
     }

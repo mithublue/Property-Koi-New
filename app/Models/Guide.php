@@ -131,17 +131,24 @@ class Guide extends Model
 
     public function getCoverUrlAttribute(): string
     {
-        // 1. If an explicit custom local file or user-provided URL was set (not unsplash or generic og-*), use it
-        if (! empty($this->cover_image)
-            && ! str_contains($this->cover_image, 'assets/images/og-')
-            && ! str_contains($this->cover_image, 'images.unsplash.com')) {
+        // 1. If an explicit image URL is already set (including royalty-free Unsplash URLs), use it!
+        if (! empty($this->cover_image)) {
             if (Str::startsWith($this->cover_image, ['http://', 'https://'])) {
                 return $this->cover_image;
             }
-            return asset($this->cover_image);
+            if (! str_contains($this->cover_image, 'assets/images/og-')
+                && ! str_contains($this->cover_image, 'assets/images/guide-default')) {
+                return asset($this->cover_image);
+            }
         }
 
-        // 2. Default thumbnail: Image 2 requested by user (PropertyKoi official branded card)
+        // 2. Resolve royalty-free image matching the title/topic
+        $royaltyFree = GuideImageService::resolveForGuide($this);
+        if ($royaltyFree) {
+            return $royaltyFree;
+        }
+
+        // 3. Fallback to default thumbnail logo card only if no suitable image is found
         return asset('assets/images/guide-default.png');
     }
 

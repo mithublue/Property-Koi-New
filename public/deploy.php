@@ -1,4 +1,12 @@
 <?php
+
+use App\Models\Guide;
+use App\Models\Setting;
+use App\Services\GuideImageService;
+use Illuminate\Contracts\Console\Kernel;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
+
 /**
  * Auto-Deployment Webhook Script for PropertyKoi
  * Triggers on GitHub Push Event
@@ -10,19 +18,20 @@ $secret = 'MyPropertyKoiSecret123';
 // টোকেন যাচাই (Query parameter অথবা Header থেকে)
 $requestToken = $_GET['token'] ?? ($_SERVER['HTTP_X_HUB_SIGNATURE_256'] ?? '');
 
-if (empty($requestToken) || !hash_equals($secret, (string)($_GET['token'] ?? ''))) {
+if (empty($requestToken) || ! hash_equals($secret, (string) ($_GET['token'] ?? ''))) {
     http_response_code(403);
     echo json_encode(['status' => 'error', 'message' => 'Forbidden: Invalid Token']);
     exit;
 }
 
 // কমান্ড রান করার ফাংশন
-function runCommand($cmd) {
-    return shell_exec($cmd . ' 2>&1');
+function runCommand($cmd)
+{
+    return shell_exec($cmd.' 2>&1');
 }
 
 $baseDir = dirname(__DIR__);
-if (!file_exists($baseDir . '/artisan')) {
+if (! file_exists($baseDir.'/artisan')) {
     $baseDir = __DIR__;
 }
 
@@ -30,7 +39,7 @@ chdir($baseDir);
 
 // Find available PHP 8.3 / PHP 8 binaries (supporting CloudLinux alt-php and cPanel ea-php)
 $findPhp = runCommand('ls /opt/alt/php83/usr/bin/php 2>/dev/null || ls /opt/alt/php8*/usr/bin/php 2>/dev/null || which ea-php83 2>/dev/null || which php83 2>/dev/null || which php8.3 2>/dev/null || ls /usr/local/bin/ea-php* 2>/dev/null || ls /opt/cpanel/ea-php*/root/usr/bin/php 2>/dev/null || which php');
-$phpCandidates = array_filter(array_map('trim', explode("\n", (string)$findPhp)));
+$phpCandidates = array_filter(array_map('trim', explode("\n", (string) $findPhp)));
 $phpBin = 'php';
 foreach ($phpCandidates as $candidate) {
     if (strpos($candidate, '83') !== false || strpos($candidate, '8.3') !== false) {
@@ -38,7 +47,7 @@ foreach ($phpCandidates as $candidate) {
         break;
     }
 }
-if ($phpBin === 'php' && !empty($phpCandidates[0])) {
+if ($phpBin === 'php' && ! empty($phpCandidates[0])) {
     foreach ($phpCandidates as $candidate) {
         if (strpos($candidate, '8') !== false) {
             $phpBin = $candidate;
@@ -59,7 +68,7 @@ if ($isForce) {
     // If blocked by untracked file conflict, auto-heal with fetch & reset
     if (strpos($gitPull, 'overwritten by merge') !== false) {
         runCommand('git fetch origin main');
-        $gitPull .= "\n[Auto-healing untracked conflicts]\n" . runCommand('git reset --hard origin/main');
+        $gitPull .= "\n[Auto-healing untracked conflicts]\n".runCommand('git reset --hard origin/main');
     }
 }
 $currentCommit = runCommand('git log -1 --oneline');
@@ -69,86 +78,91 @@ $cacheOutput = '';
 $migrationOutput = '';
 $settingsUpdated = [];
 try {
-    if (file_exists($baseDir . '/vendor/autoload.php') && file_exists($baseDir . '/bootstrap/app.php')) {
-        require_once $baseDir . '/vendor/autoload.php';
-        $app = require_once $baseDir . '/bootstrap/app.php';
-        $kernel = $app->make(\Illuminate\Contracts\Console\Kernel::class);
+    if (file_exists($baseDir.'/vendor/autoload.php') && file_exists($baseDir.'/bootstrap/app.php')) {
+        require_once $baseDir.'/vendor/autoload.php';
+        $app = require_once $baseDir.'/bootstrap/app.php';
+        $kernel = $app->make(Kernel::class);
         $kernel->bootstrap();
 
         // Check if settings payload provided
         $postSettings = $_POST['settings'] ?? null;
         if (empty($postSettings)) {
             $rawJson = @file_get_contents('php://input');
-            if (!empty($rawJson)) {
+            if (! empty($rawJson)) {
                 $decoded = json_decode($rawJson, true);
-                if (!empty($decoded['settings']) && is_array($decoded['settings'])) {
+                if (! empty($decoded['settings']) && is_array($decoded['settings'])) {
                     $postSettings = $decoded['settings'];
                 }
             }
         }
 
-        if (!empty($postSettings) && is_array($postSettings)) {
+        if (! empty($postSettings) && is_array($postSettings)) {
             foreach ($postSettings as $sKey => $sVal) {
                 if (str_starts_with($sKey, 'adm_') || in_array($sKey, ['google_sheet_url', 'admin_whatsapp_number'])) {
-                    \App\Models\Setting::set($sKey, (string)$sVal);
+                    Setting::set($sKey, (string) $sVal);
                     $settingsUpdated[] = $sKey;
                 }
             }
         }
 
-        \Illuminate\Support\Facades\Artisan::call('optimize:clear');
-        $cacheOutput = trim(\Illuminate\Support\Facades\Artisan::output());
+        Artisan::call('optimize:clear');
+        $cacheOutput = trim(Artisan::output());
 
-        \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
-        $migrationOutput = trim(\Illuminate\Support\Facades\Artisan::output());
+        Artisan::call('migrate', ['--force' => true]);
+        $migrationOutput = trim(Artisan::output());
 
         // Auto-sanitize any technical/sync declarations from database
         try {
-            \Illuminate\Support\Facades\DB::table('property_direct_sources')
+            DB::table('property_direct_sources')
                 ->where(function ($q) {
                     $q->where('relationship_declaration', 'like', '%API%')
-                      ->orWhere('relationship_declaration', 'like', '%Google%')
-                      ->orWhere('relationship_declaration', 'like', '%sheet%')
-                      ->orWhere('relationship_declaration', 'like', '%sync%');
+                        ->orWhere('relationship_declaration', 'like', '%Google%')
+                        ->orWhere('relationship_declaration', 'like', '%sheet%')
+                        ->orWhere('relationship_declaration', 'like', '%sync%');
                 })
                 ->update([
-                    'relationship_declaration' => \Illuminate\Support\Facades\DB::raw("CASE WHEN source_type IN ('owner', 'direct_owner') THEN 'সরাসরি প্রপার্টির মালিক (Direct Owner)' ELSE 'অনুমোদিত ডিরেক্ট এজেন্ট (Direct Agent)' END")
+                    'relationship_declaration' => DB::raw("CASE WHEN source_type IN ('owner', 'direct_owner') THEN 'সরাসরি প্রপার্টির মালিক (Direct Owner)' ELSE 'অনুমোদিত ডিরেক্ট এজেন্ট (Direct Agent)' END"),
                 ]);
 
-            \Illuminate\Support\Facades\DB::table('properties')
+            DB::table('properties')
                 ->where('description', 'like', '%API মারফত%')
                 ->orWhere('description', 'like', '%Google Sheets%')
                 ->update([
-                    'description' => \Illuminate\Support\Facades\DB::raw("COALESCE(title, 'চমৎকার লোকেশনে আকর্ষণীয় প্রপার্টি।')")
+                    'description' => DB::raw("COALESCE(title, 'চমৎকার লোকেশনে আকর্ষণীয় প্রপার্টি।')"),
                 ]);
 
-            \Illuminate\Support\Facades\DB::table('guides')
-                ->where(function ($q) {
-                    $q->whereNull('cover_image')
-                      ->orWhere('cover_image', 'like', '%unsplash%')
-                      ->orWhere('cover_image', 'like', '%assets/images/og-%');
-                })
-                ->update([
-                    'cover_image' => 'assets/images/guide-default.png'
-                ]);
+            // Auto-heal guides: assign topic-matched royalty-free photography; fallback to guide-default.png if unmatched
+            $allGuides = Guide::all();
+            foreach ($allGuides as $g) {
+                if (empty($g->cover_image) || str_contains($g->cover_image, 'guide-default') || str_contains($g->cover_image, 'assets/images/og-')) {
+                    $matched = GuideImageService::resolveForGuide($g);
+                    if ($matched) {
+                        $g->cover_image = $matched;
+                        $g->save();
+                    } else {
+                        $g->cover_image = 'assets/images/guide-default.png';
+                        $g->save();
+                    }
+                }
+            }
 
             // Auto-heal land properties where katha_size is 0 or needs calculation (e.g. 2.5 * 20 katha = 50 katha)
-            \Illuminate\Support\Facades\DB::table('property_land_details')
+            DB::table('property_land_details')
                 ->where('property_id', 97)
                 ->update([
-                    'katha_size'      => 50.00,
-                    'price_total'     => 150000000.00,
+                    'katha_size' => 50.00,
+                    'price_total' => 150000000.00,
                     'price_per_katha' => 3000000.00,
                 ]);
 
-            \Illuminate\Support\Facades\DB::table('properties')
+            DB::table('properties')
                 ->where('id', 97)
                 ->update([
-                    'title' => 'Aftabnagar Block M 50 Katha Plot For Sale'
+                    'title' => 'Aftabnagar Block M 50 Katha Plot For Sale',
                 ]);
 
             // Property #96 (Rampura) - 15 bigha = 300 katha
-            \Illuminate\Support\Facades\DB::table('property_land_details')
+            DB::table('property_land_details')
                 ->where('property_id', 96)
                 ->where(function ($q) {
                     $q->whereNull('katha_size')->orWhere('katha_size', '<=', 0);
@@ -157,19 +171,19 @@ try {
                     'katha_size' => 300.00,
                 ]);
 
-            \Illuminate\Support\Facades\DB::table('properties')
+            DB::table('properties')
                 ->where('id', 96)
                 ->update([
-                    'title' => 'Rampura 15 Bigha Land For Sale'
+                    'title' => 'Rampura 15 Bigha Land For Sale',
                 ]);
-        } catch (\Throwable $dbEx) {
+        } catch (Throwable $dbEx) {
             // Silently ignore if table columns differ
         }
     } else {
         $cacheOutput = 'Laravel bootstrap not found';
     }
-} catch (\Throwable $e) {
-    $cacheOutput = 'Artisan error: ' . $e->getMessage();
+} catch (Throwable $e) {
+    $cacheOutput = 'Artisan error: '.$e->getMessage();
 }
 
 // রেসপন্স প্রদান

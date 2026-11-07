@@ -122,6 +122,16 @@ try {
                     'description' => \Illuminate\Support\Facades\DB::raw("COALESCE(title, 'চমৎকার লোকেশনে আকর্ষণীয় প্রপার্টি।')")
                 ]);
 
+            \Illuminate\Support\Facades\DB::table('guides')
+                ->where(function ($q) {
+                    $q->whereNull('cover_image')
+                      ->orWhere('cover_image', 'like', '%unsplash%')
+                      ->orWhere('cover_image', 'like', '%assets/images/og-%');
+                })
+                ->update([
+                    'cover_image' => 'assets/images/guide-default.png'
+                ]);
+
             // Auto-heal land properties where katha_size is 0 or needs calculation (e.g. 2.5 * 20 katha = 50 katha)
             \Illuminate\Support\Facades\DB::table('property_land_details')
                 ->where('property_id', 97)

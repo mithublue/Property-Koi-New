@@ -131,8 +131,10 @@ class Guide extends Model
 
     public function getCoverUrlAttribute(): string
     {
-        // 1. If an explicit custom local file or external URL was uploaded, use it
-        if (! empty($this->cover_image) && ! str_contains($this->cover_image, 'assets/images/og-')) {
+        // 1. If an explicit custom local file or user-provided URL was set (not unsplash or generic og-*), use it
+        if (! empty($this->cover_image)
+            && ! str_contains($this->cover_image, 'assets/images/og-')
+            && ! str_contains($this->cover_image, 'images.unsplash.com')) {
             if (Str::startsWith($this->cover_image, ['http://', 'https://'])) {
                 return $this->cover_image;
             }

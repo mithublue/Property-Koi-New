@@ -12,8 +12,11 @@ use Illuminate\Support\Facades\Log;
 class GuidePublisherService
 {
     public const DEFAULT_LIVE_URL = 'https://propertykoi.com';
+
     public const DEFAULT_API_KEY = 'propertykoi_guides_sec_2026';
+
     public const DEFAULT_SCOPE = 'latest_unpublished'; // 'latest_unpublished', 'all', 'specific'
+
     public const DEFAULT_STATUS = 'published'; // 'published', 'draft'
 
     /**
@@ -27,12 +30,12 @@ class GuidePublisherService
             : (json_decode((string) $specificIdsRaw, true) ?: []);
 
         return [
-            'live_site_url'       => rtrim(trim((string) Setting::get('adm_guide_live_site_url', self::DEFAULT_LIVE_URL)), '/'),
-            'api_key'             => trim((string) Setting::get('adm_guide_api_key', Setting::get('adm_api_secret_key', self::DEFAULT_API_KEY))),
-            'publish_scope'       => Setting::get('adm_guide_publish_scope', self::DEFAULT_SCOPE),
-            'specific_ids'        => array_values(array_filter(array_map('intval', (array) $specificIds))),
-            'default_status'      => Setting::get('adm_guide_publish_default_status', self::DEFAULT_STATUS),
-            'last_publish_time'   => Setting::get('adm_guide_last_publish_time', null),
+            'live_site_url' => rtrim(trim((string) Setting::get('adm_guide_live_site_url', self::DEFAULT_LIVE_URL)), '/'),
+            'api_key' => trim((string) Setting::get('adm_guide_api_key', Setting::get('adm_api_secret_key', self::DEFAULT_API_KEY))),
+            'publish_scope' => Setting::get('adm_guide_publish_scope', self::DEFAULT_SCOPE),
+            'specific_ids' => array_values(array_filter(array_map('intval', (array) $specificIds))),
+            'default_status' => Setting::get('adm_guide_publish_default_status', self::DEFAULT_STATUS),
+            'last_publish_time' => Setting::get('adm_guide_last_publish_time', null),
             'last_publish_report' => json_decode((string) Setting::get('adm_guide_last_publish_report', '[]'), true) ?: null,
         ];
     }
@@ -81,10 +84,11 @@ class GuidePublisherService
         $scope = $scope ?: $settings['publish_scope'];
 
         if ($scope === 'specific') {
-            $ids = !empty($specificIds) ? $specificIds : $settings['specific_ids'];
+            $ids = ! empty($specificIds) ? $specificIds : $settings['specific_ids'];
             if (empty($ids)) {
-                return new Collection();
+                return new Collection;
             }
+
             return Guide::whereIn('id', $ids)->latest('id')->get();
         }
 
@@ -95,7 +99,7 @@ class GuidePublisherService
         // Default: 'latest_unpublished' (not yet synced to live or drafts)
         $guides = Guide::where(function ($q) {
             $q->whereNull('synced_to_live_at')
-              ->orWhere('is_published', false);
+                ->orWhere('is_published', false);
         })->latest('id')->get();
 
         // If none found with null sync date, check if any guides were created after last publish time
@@ -117,23 +121,22 @@ class GuidePublisherService
     /**
      * Publish selected guides to the live site.
      *
-     * @param array $options [
-     *   'scope' => 'latest_unpublished'|'all'|'specific',
-     *   'specific_ids' => [1, 2],
-     *   'default_status' => 'published'|'draft',
-     *   'live_site_url' => 'https://...',
-     *   'api_key' => '...'
-     * ]
-     * @return array
+     * @param  array  $options  [
+     *                          'scope' => 'latest_unpublished'|'all'|'specific',
+     *                          'specific_ids' => [1, 2],
+     *                          'default_status' => 'published'|'draft',
+     *                          'live_site_url' => 'https://...',
+     *                          'api_key' => '...'
+     *                          ]
      */
     public static function publish(array $options = []): array
     {
         $settings = self::getSettings();
 
-        $scope         = $options['scope'] ?? $settings['publish_scope'];
-        $specificIds   = $options['specific_ids'] ?? $settings['specific_ids'];
-        $targetUrl     = rtrim($options['live_site_url'] ?? $settings['live_site_url'], '/');
-        $apiKey        = $options['api_key'] ?? $settings['api_key'];
+        $scope = $options['scope'] ?? $settings['publish_scope'];
+        $specificIds = $options['specific_ids'] ?? $settings['specific_ids'];
+        $targetUrl = rtrim($options['live_site_url'] ?? $settings['live_site_url'], '/');
+        $apiKey = $options['api_key'] ?? $settings['api_key'];
         $defaultStatus = $options['default_status'] ?? $settings['default_status'];
         $targetPublished = ($defaultStatus === 'published');
 
@@ -141,13 +144,13 @@ class GuidePublisherService
 
         if ($guides->isEmpty()) {
             return [
-                'success'    => false,
-                'total'      => 0,
-                'published'  => [],
-                'failed'     => [],
+                'success' => false,
+                'total' => 0,
+                'published' => [],
+                'failed' => [],
                 'target_url' => $targetUrl,
-                'scope'      => $scope,
-                'message'    => 'পাবলিশ করার মতো কোনো ব্লগ পাওয়া যায়নি। সেটিংস থেকে "সকল ব্লগ" অথবা "নির্দিষ্ট ব্লগ" নির্বাচন করুন।',
+                'scope' => $scope,
+                'message' => 'পাবলিশ করার মতো কোনো ব্লগ পাওয়া যায়নি। সেটিংস থেকে "সকল ব্লগ" অথবা "নির্দিষ্ট ব্লগ" নির্বাচন করুন।',
             ];
         }
 
@@ -159,23 +162,23 @@ class GuidePublisherService
 
         foreach ($guides as $guide) {
             $payload = [
-                'title'            => $guide->title,
-                'slug'             => $guide->slug,
-                'category'         => $guide->category,
-                'excerpt'          => $guide->excerpt,
-                'content'          => $guide->content,
+                'title' => $guide->title,
+                'slug' => $guide->slug,
+                'category' => $guide->category,
+                'excerpt' => $guide->excerpt,
+                'content' => $guide->content,
                 'reading_time_min' => $guide->reading_time_min,
-                'cover_image'      => $guide->cover_image,
-                'author_name'      => $guide->author_name,
-                'seo_title'        => $guide->seo_title,
-                'seo_description'  => $guide->seo_description,
-                'seo_keywords'     => $guide->seo_keywords,
-                'is_featured'      => (bool) $guide->is_featured,
-                'is_published'     => $targetPublished,
-                'faqs'             => $guide->faqs ?? [],
-                'en_profile'       => $guide->en_profile ?? [],
-                'force'            => true,
-                'update_existing'  => true,
+                'cover_image' => $guide->cover_url,
+                'author_name' => $guide->author_name,
+                'seo_title' => $guide->seo_title,
+                'seo_description' => $guide->seo_description,
+                'seo_keywords' => $guide->seo_keywords,
+                'is_featured' => (bool) $guide->is_featured,
+                'is_published' => $targetPublished,
+                'faqs' => $guide->faqs ?? [],
+                'en_profile' => $guide->en_profile ?? [],
+                'force' => true,
+                'update_existing' => true,
             ];
 
             if ($isLocalTarget) {
@@ -185,9 +188,9 @@ class GuidePublisherService
                 $guide->save();
 
                 $successful[] = [
-                    'id'     => $guide->id,
-                    'title'  => $guide->title,
-                    'slug'   => $guide->slug,
+                    'id' => $guide->id,
+                    'title' => $guide->title,
+                    'slug' => $guide->slug,
                     'status' => $targetPublished ? 'published' : 'draft',
                     'action' => 'local_updated',
                 ];
@@ -197,8 +200,8 @@ class GuidePublisherService
                     $response = Http::timeout(30)
                         ->withoutVerifying()
                         ->withHeaders([
-                            'X-API-KEY'    => $apiKey,
-                            'Accept'       => 'application/json',
+                            'X-API-KEY' => $apiKey,
+                            'Accept' => 'application/json',
                             'Content-Type' => 'application/json',
                         ])
                         ->post("{$targetUrl}/api/v1/guides", $payload);
@@ -206,22 +209,22 @@ class GuidePublisherService
                     if ($response->successful()) {
                         // Mark local guide as published and synced to live
                         $guide->synced_to_live_at = now();
-                        if ($targetPublished && !$guide->is_published) {
+                        if ($targetPublished && ! $guide->is_published) {
                             $guide->is_published = true;
                         }
                         $guide->save();
 
                         $successful[] = [
-                            'id'     => $guide->id,
-                            'title'  => $guide->title,
-                            'slug'   => $guide->slug,
+                            'id' => $guide->id,
+                            'title' => $guide->title,
+                            'slug' => $guide->slug,
                             'status' => $targetPublished ? 'published' : 'draft',
                             'action' => $response->json('action') ?? 'synced',
                         ];
                     } else {
-                        $errorMsg = $response->json('message') ?: ("HTTP " . $response->status() . ": " . $response->body());
+                        $errorMsg = $response->json('message') ?: ('HTTP '.$response->status().': '.$response->body());
                         $failed[] = [
-                            'id'    => $guide->id,
+                            'id' => $guide->id,
                             'title' => $guide->title,
                             'error' => $errorMsg,
                         ];
@@ -229,11 +232,11 @@ class GuidePublisherService
                     }
                 } catch (\Throwable $e) {
                     $failed[] = [
-                        'id'    => $guide->id,
+                        'id' => $guide->id,
                         'title' => $guide->title,
                         'error' => $e->getMessage(),
                     ];
-                    Log::error("Exception publishing guide [{$guide->id}] to {$targetUrl}: " . $e->getMessage());
+                    Log::error("Exception publishing guide [{$guide->id}] to {$targetUrl}: ".$e->getMessage());
                 }
             }
         }
@@ -246,13 +249,13 @@ class GuidePublisherService
         }
 
         $report = [
-            'success'     => count($successful) > 0,
-            'total'       => $guides->count(),
-            'published'   => $successful,
-            'failed'      => $failed,
-            'target_url'  => $targetUrl,
-            'scope'       => $scope,
-            'timestamp'   => now()->toDateTimeString(),
+            'success' => count($successful) > 0,
+            'total' => $guides->count(),
+            'published' => $successful,
+            'failed' => $failed,
+            'target_url' => $targetUrl,
+            'scope' => $scope,
+            'timestamp' => now()->toDateTimeString(),
         ];
 
         Setting::set('adm_guide_last_publish_time', now()->toDateTimeString());
@@ -260,10 +263,10 @@ class GuidePublisherService
 
         $msgParts = [];
         if (count($successful) > 0) {
-            $msgParts[] = count($successful) . "টি ব্লগ সফলভাবে {$targetUrl} এ পাবলিশ করা হয়েছে!";
+            $msgParts[] = count($successful)."টি ব্লগ সফলভাবে {$targetUrl} এ পাবলিশ করা হয়েছে!";
         }
         if (count($failed) > 0) {
-            $msgParts[] = count($failed) . "টি ব্লগ পাবলিশ হতে ব্যর্থ হয়েছে (API বা নেটওয়ার্ক এরর)।";
+            $msgParts[] = count($failed).'টি ব্লগ পাবলিশ হতে ব্যর্থ হয়েছে (API বা নেটওয়ার্ক এরর)।';
         }
 
         $report['message'] = implode(' ', $msgParts) ?: 'কোনো পরিবর্তন হয়নি।';
@@ -277,7 +280,7 @@ class GuidePublisherService
     public static function publishSingle(Guide $guide, array $options = []): array
     {
         return self::publish(array_merge($options, [
-            'scope'        => 'specific',
+            'scope' => 'specific',
             'specific_ids' => [$guide->id],
         ]));
     }

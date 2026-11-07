@@ -2,9 +2,11 @@
 
 namespace App\Models;
 
+use App\Services\GuideImageService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 
 class Guide extends Model
@@ -32,26 +34,26 @@ class Guide extends Model
     ];
 
     protected $casts = [
-        'faqs'              => 'array',
-        'en_profile'        => 'array',
-        'is_featured'       => 'boolean',
-        'is_published'      => 'boolean',
+        'faqs' => 'array',
+        'en_profile' => 'array',
+        'is_featured' => 'boolean',
+        'is_published' => 'boolean',
         'synced_to_live_at' => 'datetime',
-        'reading_time_min'  => 'integer',
-        'views_count'       => 'integer',
+        'reading_time_min' => 'integer',
+        'views_count' => 'integer',
     ];
 
     public function isSyncedToLive(): bool
     {
-        return !is_null($this->synced_to_live_at);
+        return ! is_null($this->synced_to_live_at);
     }
 
-    public function comments(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function comments(): HasMany
     {
         return $this->hasMany(GuideComment::class);
     }
 
-    public function approvedRootComments(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function approvedRootComments(): HasMany
     {
         return $this->hasMany(GuideComment::class)
             ->whereNull('parent_id')
@@ -72,50 +74,51 @@ class Guide extends Model
 
     public function scopeByCategory(Builder $query, ?string $category): Builder
     {
-        if (!empty($category) && $category !== 'all') {
+        if (! empty($category) && $category !== 'all') {
             return $query->where('category', $category);
         }
+
         return $query;
     }
 
     public function getCategoryLabelAttribute(): string
     {
         return match ($this->category) {
-            'legal_docs'      => 'দলিল ও আইনি গাইড',
+            'legal_docs' => 'দলিল ও আইনি গাইড',
             'market_insights' => 'মার্কেট অ্যানালাইসিস',
-            'buying_guides'   => 'ক্রয়-বিক্রয় গাইড',
-            'investment'      => 'বিনিয়োগ ও ল্যান্ড শেয়ার',
+            'buying_guides' => 'ক্রয়-বিক্রয় গাইড',
+            'investment' => 'বিনিয়োগ ও ল্যান্ড শেয়ার',
             'uncategorised', '' => 'অশ্রেণিকৃত / সাধারণ',
-            default           => $this->category,
+            default => $this->category,
         };
     }
 
     public function getCategoryBadgeClassAttribute(): string
     {
         return match ($this->category) {
-            'legal_docs'      => 'bg-amber-50 text-amber-800 border-amber-200',
+            'legal_docs' => 'bg-amber-50 text-amber-800 border-amber-200',
             'market_insights' => 'bg-sky-50 text-sky-800 border-sky-200',
-            'buying_guides'   => 'bg-emerald-50 text-emerald-800 border-emerald-200',
-            'investment'      => 'bg-purple-50 text-purple-800 border-purple-200',
-            'uncategorised'   => 'bg-slate-100 text-slate-700 border-slate-300',
-            default           => 'bg-teal-50 text-teal-800 border-teal-200',
+            'buying_guides' => 'bg-emerald-50 text-emerald-800 border-emerald-200',
+            'investment' => 'bg-purple-50 text-purple-800 border-purple-200',
+            'uncategorised' => 'bg-slate-100 text-slate-700 border-slate-300',
+            default => 'bg-teal-50 text-teal-800 border-teal-200',
         };
     }
 
     public static function getCategoryOptions(): array
     {
         $defaults = [
-            'uncategorised'   => 'অশ্রেণিকৃত (Uncategorised)',
-            'legal_docs'      => 'দলিল ও আইনি গাইড (Legal & Title Docs)',
+            'uncategorised' => 'অশ্রেণিকৃত (Uncategorised)',
+            'legal_docs' => 'দলিল ও আইনি গাইড (Legal & Title Docs)',
             'market_insights' => 'মার্কেট অ্যানালাইসিস (Market Insights)',
-            'buying_guides'   => 'ক্রয়-বিক্রয় গাইডলাইন (Buying & Selling Guides)',
-            'investment'      => 'বিনিয়োগ ও ল্যান্ড শেয়ার (Investment & Land Share)',
+            'buying_guides' => 'ক্রয়-বিক্রয় গাইডলাইন (Buying & Selling Guides)',
+            'investment' => 'বিনিয়োগ ও ল্যান্ড শেয়ার (Investment & Land Share)',
         ];
 
         try {
             $existing = static::distinct()->pluck('category')->filter()->toArray();
             foreach ($existing as $cat) {
-                if (!isset($defaults[$cat]) && !empty($cat)) {
+                if (! isset($defaults[$cat]) && ! empty($cat)) {
                     $defaults[$cat] = $cat;
                 }
             }
@@ -128,19 +131,16 @@ class Guide extends Model
 
     public function getCoverUrlAttribute(): string
     {
-        if (!empty($this->cover_image)) {
+        // 1. If an explicit custom local file or external URL was uploaded, use it
+        if (! empty($this->cover_image) && ! str_contains($this->cover_image, 'assets/images/og-')) {
             if (Str::startsWith($this->cover_image, ['http://', 'https://'])) {
                 return $this->cover_image;
             }
             return asset($this->cover_image);
         }
 
-        return match ($this->category) {
-            'legal_docs'      => asset('assets/images/og-land.jpg'),
-            'market_insights' => asset('assets/images/og-commercial.jpg'),
-            'investment'      => asset('assets/images/og-flat.jpg'),
-            default           => asset('assets/images/og-default.jpg'),
-        };
+        // 2. Default thumbnail: Image 2 requested by user (PropertyKoi official branded card)
+        return asset('assets/images/guide-default.png');
     }
 
     public function getFormattedDateAttribute(): string

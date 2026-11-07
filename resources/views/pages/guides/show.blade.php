@@ -53,7 +53,7 @@
                                 <span class="text-lg">📌</span>
                                 <span>সারসংক্ষেপ</span>
                             </div>
-                            <p class="text-sm sm:text-base text-emerald-950 font-medium leading-relaxed m-0" itemprop="abstract">
+                            <p class="text-[15.5px] sm:text-[17px] text-emerald-950 font-medium leading-[1.85] tracking-normal m-0" itemprop="abstract">
                                 {{ $guide->excerpt }}
                             </p>
                         </div>
@@ -136,7 +136,7 @@
                 @endif
 
                 <!-- Article Rich Content Body -->
-                <div class="guide-content-body prose prose-slate sm:prose-lg max-w-none prose-headings:font-black prose-headings:tracking-tight prose-headings:text-slate-900 prose-h2:text-xl sm:prose-h2:text-2xl prose-h2:mt-8 prose-h2:mb-4 prose-p:leading-relaxed prose-p:text-slate-700 prose-li:text-slate-700 prose-table:text-sm prose-th:bg-slate-100 prose-th:p-3 prose-td:p-3 prose-a:text-emerald-600 prose-a:font-bold hover:prose-a:text-emerald-700" itemprop="articleBody">
+                <div class="guide-content-body prose prose-slate sm:prose-lg max-w-none prose-headings:font-black prose-headings:text-slate-900 prose-h2:text-2xl sm:prose-h2:text-3xl prose-h2:mt-10 prose-h2:mb-5 prose-h3:text-xl sm:prose-h3:text-2xl prose-h3:mt-8 prose-h3:mb-4 prose-p:text-[17px] sm:prose-p:text-[18px] prose-p:leading-[1.9] prose-p:my-5 prose-p:text-slate-800 prose-li:text-[16.5px] sm:prose-li:text-[17.5px] prose-li:leading-[1.85] prose-li:my-2 prose-li:text-slate-800 prose-table:text-sm sm:prose-table:text-base prose-th:bg-slate-100 prose-th:p-3.5 prose-th:font-black prose-td:p-3.5 prose-a:text-emerald-700 prose-a:font-bold hover:prose-a:text-emerald-800 prose-strong:font-black prose-strong:text-slate-900 tracking-normal" itemprop="articleBody">
                     {!! $guide->content !!}
                 </div>
 
@@ -464,13 +464,11 @@
                         </form>
                     </div>
                 </section>
-                    </div>
-                </section>
 
             </article>
 
-            <!-- Sidebar Column (4 Cols) -->
-            <aside class="lg:col-span-4 space-y-6">
+            <!-- Sidebar Column (4 Cols) - Sticky Desktop Sidebar -->
+            <aside class="lg:col-span-4 space-y-6 lg:sticky lg:top-24 self-start">
 
                 <!-- Interactive Calculators Widget Card -->
                 <div class="bg-gradient-to-br from-emerald-600 to-teal-700 rounded-3xl p-6 text-white shadow-lg relative overflow-hidden">

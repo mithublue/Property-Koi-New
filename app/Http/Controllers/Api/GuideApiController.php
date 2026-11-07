@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Guide;
+use App\Services\GuideImageService;
 use App\Services\SeoService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -31,9 +32,9 @@ class GuideApiController extends Controller
             $keyword = trim((string) $request->search);
             $query->where(function ($q) use ($keyword) {
                 $q->where('title', 'like', "%{$keyword}%")
-                  ->orWhere('excerpt', 'like', "%{$keyword}%")
-                  ->orWhere('slug', 'like', "%{$keyword}%")
-                  ->orWhere('seo_keywords', 'like', "%{$keyword}%");
+                    ->orWhere('excerpt', 'like', "%{$keyword}%")
+                    ->orWhere('slug', 'like', "%{$keyword}%")
+                    ->orWhere('seo_keywords', 'like', "%{$keyword}%");
             });
         }
 
@@ -42,30 +43,30 @@ class GuideApiController extends Controller
 
         return response()->json([
             'success' => true,
-            'data'    => $guides->map(function (Guide $g) {
+            'data' => $guides->map(function (Guide $g) {
                 return [
-                    'id'               => $g->id,
-                    'title'            => $g->title,
-                    'slug'             => $g->slug,
-                    'category'         => $g->category,
-                    'category_label'   => $g->category_label,
-                    'excerpt'          => $g->excerpt,
+                    'id' => $g->id,
+                    'title' => $g->title,
+                    'slug' => $g->slug,
+                    'category' => $g->category,
+                    'category_label' => $g->category_label,
+                    'excerpt' => $g->excerpt,
                     'reading_time_min' => $g->reading_time_min,
-                    'is_featured'      => (bool) $g->is_featured,
-                    'is_published'     => (bool) $g->is_published,
-                    'views_count'      => (int) $g->views_count,
-                    'author_name'      => $g->author_name,
-                    'cover_url'        => $g->cover_url,
-                    'public_url'       => route('guides.show', $g->slug),
-                    'created_at'       => $g->created_at?->toIso8601String(),
-                    'updated_at'       => $g->updated_at?->toIso8601String(),
+                    'is_featured' => (bool) $g->is_featured,
+                    'is_published' => (bool) $g->is_published,
+                    'views_count' => (int) $g->views_count,
+                    'author_name' => $g->author_name,
+                    'cover_url' => $g->cover_url,
+                    'public_url' => route('guides.show', $g->slug),
+                    'created_at' => $g->created_at?->toIso8601String(),
+                    'updated_at' => $g->updated_at?->toIso8601String(),
                 ];
             }),
             'pagination' => [
-                'total'        => $guides->total(),
+                'total' => $guides->total(),
                 'current_page' => $guides->currentPage(),
-                'last_page'    => $guides->lastPage(),
-                'per_page'     => $guides->perPage(),
+                'last_page' => $guides->lastPage(),
+                'per_page' => $guides->perPage(),
             ],
             'categories' => Guide::getCategoryOptions(),
         ]);
@@ -81,19 +82,19 @@ class GuideApiController extends Controller
             ->get()
             ->map(function (Guide $g) {
                 return [
-                    'id'             => $g->id,
-                    'title'          => $g->title,
-                    'slug'           => $g->slug,
-                    'category'       => $g->category,
+                    'id' => $g->id,
+                    'title' => $g->title,
+                    'slug' => $g->slug,
+                    'category' => $g->category,
                     'category_label' => $g->category_label,
-                    'url'            => route('guides.show', $g->slug),
+                    'url' => route('guides.show', $g->slug),
                 ];
             });
 
         return response()->json([
-            'success'      => true,
+            'success' => true,
             'total_topics' => $topics->count(),
-            'topics'       => $topics,
+            'topics' => $topics,
         ]);
     }
 
@@ -104,11 +105,11 @@ class GuideApiController extends Controller
     {
         $request->validate([
             'title' => 'required|string|min:5',
-            'slug'  => 'nullable|string',
+            'slug' => 'nullable|string',
         ]);
 
         $proposedTitle = trim((string) $request->title);
-        $proposedSlug  = $request->filled('slug')
+        $proposedSlug = $request->filled('slug')
             ? Str::slug($request->slug)
             : Str::slug($proposedTitle);
 
@@ -116,14 +117,14 @@ class GuideApiController extends Controller
         $exactSlug = Guide::where('slug', $proposedSlug)->first();
         if ($exactSlug) {
             return response()->json([
-                'success'           => true,
-                'is_unique'         => false,
-                'similarity_score'  => 100,
-                'conflict_reason'   => 'A guide with the exact same slug already exists.',
+                'success' => true,
+                'is_unique' => false,
+                'similarity_score' => 100,
+                'conflict_reason' => 'A guide with the exact same slug already exists.',
                 'conflicting_guide' => [
-                    'id'    => $exactSlug->id,
+                    'id' => $exactSlug->id,
                     'title' => $exactSlug->title,
-                    'slug'  => $exactSlug->slug,
+                    'slug' => $exactSlug->slug,
                 ],
             ]);
         }
@@ -131,30 +132,30 @@ class GuideApiController extends Controller
         // 2. Title similarity scan against all guides
         $existing = Guide::select(['id', 'title', 'slug'])->get();
         $highestSimilarity = 0;
-        $mostSimilarGuide  = null;
+        $mostSimilarGuide = null;
 
         foreach ($existing as $guide) {
             similar_text(mb_strtolower($proposedTitle), mb_strtolower($guide->title), $percent);
             if ($percent > $highestSimilarity) {
                 $highestSimilarity = round($percent, 2);
-                $mostSimilarGuide  = $guide;
+                $mostSimilarGuide = $guide;
             }
         }
 
         $isUnique = $highestSimilarity < 75.0;
 
         return response()->json([
-            'success'           => true,
-            'is_unique'         => $isUnique,
-            'similarity_score'  => $highestSimilarity,
-            'message'           => $isUnique
+            'success' => true,
+            'is_unique' => $isUnique,
+            'similarity_score' => $highestSimilarity,
+            'message' => $isUnique
                 ? 'Topic is unique and ready for aggressive SEO/AEO publication.'
                 : 'Warning: Topic is highly similar to an existing guide. Consider refining the angle or title.',
             'conflicting_guide' => $mostSimilarGuide ? [
-                'id'         => $mostSimilarGuide->id,
-                'title'      => $mostSimilarGuide->title,
-                'slug'       => $mostSimilarGuide->slug,
-                'similarity' => $highestSimilarity . '%',
+                'id' => $mostSimilarGuide->id,
+                'title' => $mostSimilarGuide->title,
+                'slug' => $mostSimilarGuide->slug,
+                'similarity' => $highestSimilarity.'%',
             ] : null,
         ]);
     }
@@ -168,7 +169,7 @@ class GuideApiController extends Controller
             ? Guide::find($identifier)
             : Guide::where('slug', $identifier)->first();
 
-        if (!$guide) {
+        if (! $guide) {
             return response()->json([
                 'success' => false,
                 'message' => "Guide not found for identifier '{$identifier}'.",
@@ -179,11 +180,11 @@ class GuideApiController extends Controller
 
         return response()->json([
             'success' => true,
-            'data'    => array_merge($guide->toArray(), [
+            'data' => array_merge($guide->toArray(), [
                 'category_label' => $guide->category_label,
-                'cover_url'      => $guide->cover_url,
-                'public_url'     => route('guides.show', $guide->slug),
-                'seo_meta'       => $ogMeta,
+                'cover_url' => $guide->cover_url,
+                'public_url' => route('guides.show', $guide->slug),
+                'seo_meta' => $ogMeta,
             ]),
         ]);
     }
@@ -194,39 +195,39 @@ class GuideApiController extends Controller
     public function store(Request $request): JsonResponse
     {
         $slugRule = 'nullable|string|max:255';
-        if (!$request->boolean('update_existing')) {
+        if (! $request->boolean('update_existing')) {
             $slugRule .= '|unique:guides,slug';
         }
 
         $validated = $request->validate([
-            'title'            => 'required|string|max:255',
-            'slug'             => $slugRule,
-            'category'         => 'nullable|string|max:100',
-            'excerpt'          => 'nullable|string|max:1000',
-            'content'          => 'required|string',
+            'title' => 'required|string|max:255',
+            'slug' => $slugRule,
+            'category' => 'nullable|string|max:100',
+            'excerpt' => 'nullable|string|max:1000',
+            'content' => 'required|string',
             'reading_time_min' => 'nullable|integer|min:1|max:120',
-            'cover_image'      => 'nullable|string|max:500',
-            'author_name'      => 'nullable|string|max:100',
-            'seo_title'        => 'nullable|string|max:255',
-            'seo_description'  => 'nullable|string|max:500',
-            'seo_keywords'     => 'nullable|string',
-            'is_featured'      => 'nullable|boolean',
-            'is_published'     => 'nullable|boolean',
-            'faqs'             => 'nullable|array',
-            'en_profile'       => 'nullable|array',
-            'force'            => 'nullable|boolean',
-            'update_existing'  => 'nullable|boolean',
+            'cover_image' => 'nullable|string|max:500',
+            'author_name' => 'nullable|string|max:100',
+            'seo_title' => 'nullable|string|max:255',
+            'seo_description' => 'nullable|string|max:500',
+            'seo_keywords' => 'nullable|string',
+            'is_featured' => 'nullable|boolean',
+            'is_published' => 'nullable|boolean',
+            'faqs' => 'nullable|array',
+            'en_profile' => 'nullable|array',
+            'force' => 'nullable|boolean',
+            'update_existing' => 'nullable|boolean',
         ]);
 
         $title = trim($validated['title']);
 
         // Auto-generate slug if not provided
-        $slug = !empty($validated['slug'])
+        $slug = ! empty($validated['slug'])
             ? Str::slug($validated['slug'])
             : Str::slug($title);
 
         if (empty($slug)) {
-            $slug = 'guide-' . date('Ymd-His');
+            $slug = 'guide-'.date('Ymd-His');
         }
 
         // Auto-calculate reading time if not explicitly provided
@@ -237,13 +238,13 @@ class GuideApiController extends Controller
         }
 
         // Handle category fallback
-        $category = !empty($validated['category']) ? trim($validated['category']) : 'buying_guides';
+        $category = ! empty($validated['category']) ? trim($validated['category']) : 'buying_guides';
 
         // Author name
-        $author = !empty($validated['author_name']) ? trim($validated['author_name']) : 'Property Koi Desk';
+        $author = ! empty($validated['author_name']) ? trim($validated['author_name']) : 'Property Koi Desk';
 
         // Fallback excerpt
-        $excerpt = !empty($validated['excerpt'])
+        $excerpt = ! empty($validated['excerpt'])
             ? trim($validated['excerpt'])
             : Str::limit(strip_tags($validated['content']), 220);
 
@@ -252,30 +253,30 @@ class GuideApiController extends Controller
             $existingGuide = Guide::where('slug', $slug)->first();
             if ($existingGuide) {
                 $existingGuide->update([
-                    'title'            => $title,
-                    'category'         => $category,
-                    'excerpt'          => $excerpt,
-                    'content'          => $validated['content'],
+                    'title' => $title,
+                    'category' => $category,
+                    'excerpt' => $excerpt,
+                    'content' => $validated['content'],
                     'reading_time_min' => $readingTime,
-                    'cover_image'      => $validated['cover_image'] ?? $existingGuide->cover_image,
-                    'author_name'      => $author,
-                    'seo_title'        => $validated['seo_title'] ?? $title,
-                    'seo_description'  => $validated['seo_description'] ?? $excerpt,
-                    'seo_keywords'     => $validated['seo_keywords'] ?? null,
-                    'is_featured'      => $request->boolean('is_featured', $existingGuide->is_featured),
-                    'is_published'     => $request->has('is_published') ? $request->boolean('is_published') : $existingGuide->is_published,
-                    'synced_to_live_at'=> now(),
-                    'faqs'             => $validated['faqs'] ?? $existingGuide->faqs,
-                    'en_profile'       => $validated['en_profile'] ?? $existingGuide->en_profile,
+                    'cover_image' => $validated['cover_image'] ?? $existingGuide->cover_image,
+                    'author_name' => $author,
+                    'seo_title' => $validated['seo_title'] ?? $title,
+                    'seo_description' => $validated['seo_description'] ?? $excerpt,
+                    'seo_keywords' => $validated['seo_keywords'] ?? null,
+                    'is_featured' => $request->boolean('is_featured', $existingGuide->is_featured),
+                    'is_published' => $request->has('is_published') ? $request->boolean('is_published') : $existingGuide->is_published,
+                    'synced_to_live_at' => now(),
+                    'faqs' => $validated['faqs'] ?? $existingGuide->faqs,
+                    'en_profile' => $validated['en_profile'] ?? $existingGuide->en_profile,
                 ]);
 
                 $this->saveLocalBackup($existingGuide);
 
                 return response()->json([
                     'success' => true,
-                    'action'  => 'updated',
+                    'action' => 'updated',
                     'message' => "Guide '{$existingGuide->title}' updated on live successfully.",
-                    'data'    => array_merge($existingGuide->fresh()->toArray(), [
+                    'data' => array_merge($existingGuide->fresh()->toArray(), [
                         'public_url' => route('guides.show', $existingGuide->slug),
                     ]),
                 ], 200);
@@ -283,43 +284,54 @@ class GuideApiController extends Controller
         }
 
         // Check topic uniqueness unless force flag is passed
-        if (!$request->boolean('force')) {
+        if (! $request->boolean('force')) {
             $existing = Guide::select(['id', 'title', 'slug'])->get();
             foreach ($existing as $g) {
                 similar_text(mb_strtolower($title), mb_strtolower($g->title), $percent);
                 if ($percent >= 85.0) {
                     return response()->json([
-                        'success'           => false,
-                        'message'           => 'A guide on a virtually identical topic already exists. To force publication, pass "force": true.',
+                        'success' => false,
+                        'message' => 'A guide on a virtually identical topic already exists. To force publication, pass "force": true.',
                         'conflicting_guide' => [
-                            'id'         => $g->id,
-                            'title'      => $g->title,
-                            'slug'       => $g->slug,
-                            'similarity' => round($percent, 2) . '%',
+                            'id' => $g->id,
+                            'title' => $g->title,
+                            'slug' => $g->slug,
+                            'similarity' => round($percent, 2).'%',
                         ],
                     ], 422);
                 }
             }
         }
 
+        // Resolve suitable royalty-free thumbnail if not provided or generic asset
+        $coverImage = $validated['cover_image'] ?? null;
+        if (empty($coverImage) || str_contains($coverImage, 'assets/images/og-')) {
+            $coverImage = GuideImageService::resolveForTopic(
+                $title,
+                $category,
+                $validated['seo_keywords'] ?? null,
+                $excerpt
+            ) ?: $coverImage;
+        }
+
         // Prepare Guide record
         $guide = Guide::create([
-            'title'            => $title,
-            'slug'             => $slug,
-            'category'         => $category,
-            'excerpt'          => $excerpt,
-            'content'          => $validated['content'],
-            'cover_image'      => $validated['cover_image'] ?? null,
+            'title' => $title,
+            'slug' => $slug,
+            'category' => $category,
+            'excerpt' => $excerpt,
+            'content' => $validated['content'],
+            'cover_image' => $coverImage,
             'reading_time_min' => $readingTime,
-            'faqs'             => $validated['faqs'] ?? [],
-            'en_profile'       => $validated['en_profile'] ?? null,
-            'seo_title'        => $validated['seo_title'] ?? null,
-            'seo_description'  => $validated['seo_description'] ?? null,
-            'seo_keywords'     => $validated['seo_keywords'] ?? null,
-            'is_featured'      => $request->boolean('is_featured', false),
-            'is_published'     => $request->boolean('is_published', true),
-            'synced_to_live_at'=> now(),
-            'author_name'      => $author,
+            'faqs' => $validated['faqs'] ?? [],
+            'en_profile' => $validated['en_profile'] ?? null,
+            'seo_title' => $validated['seo_title'] ?? null,
+            'seo_description' => $validated['seo_description'] ?? null,
+            'seo_keywords' => $validated['seo_keywords'] ?? null,
+            'is_featured' => $request->boolean('is_featured', false),
+            'is_published' => $request->boolean('is_published', true),
+            'synced_to_live_at' => now(),
+            'author_name' => $author,
         ]);
 
         // Save local JSON backup into content/guides/ for version control and clean local backup
@@ -333,12 +345,12 @@ class GuideApiController extends Controller
         }
 
         return response()->json([
-            'success'    => true,
-            'message'    => "Property guide '{$guide->title}' published successfully via API.",
-            'data'       => array_merge($guide->toArray(), [
+            'success' => true,
+            'message' => "Property guide '{$guide->title}' published successfully via API.",
+            'data' => array_merge($guide->toArray(), [
                 'category_label' => $guide->category_label,
-                'cover_url'      => $guide->cover_url,
-                'public_url'     => route('guides.show', $guide->slug),
+                'cover_url' => $guide->cover_url,
+                'public_url' => route('guides.show', $guide->slug),
             ]),
         ], 201);
     }
@@ -352,7 +364,7 @@ class GuideApiController extends Controller
             ? Guide::find($identifier)
             : Guide::where('slug', $identifier)->first();
 
-        if (!$guide) {
+        if (! $guide) {
             return response()->json([
                 'success' => false,
                 'message' => "Guide not found for identifier '{$identifier}'.",
@@ -360,21 +372,21 @@ class GuideApiController extends Controller
         }
 
         $validated = $request->validate([
-            'title'            => 'sometimes|required|string|max:255',
-            'slug'             => 'sometimes|nullable|string|max:255|unique:guides,slug,' . $guide->id,
-            'category'         => 'sometimes|nullable|string|max:100',
-            'excerpt'          => 'sometimes|nullable|string|max:1000',
-            'content'          => 'sometimes|required|string',
+            'title' => 'sometimes|required|string|max:255',
+            'slug' => 'sometimes|nullable|string|max:255|unique:guides,slug,'.$guide->id,
+            'category' => 'sometimes|nullable|string|max:100',
+            'excerpt' => 'sometimes|nullable|string|max:1000',
+            'content' => 'sometimes|required|string',
             'reading_time_min' => 'sometimes|nullable|integer|min:1|max:120',
-            'cover_image'      => 'sometimes|nullable|string|max:500',
-            'author_name'      => 'sometimes|nullable|string|max:100',
-            'seo_title'        => 'sometimes|nullable|string|max:255',
-            'seo_description'  => 'sometimes|nullable|string|max:500',
-            'seo_keywords'     => 'sometimes|nullable|string',
-            'is_featured'      => 'sometimes|nullable|boolean',
-            'is_published'     => 'sometimes|nullable|boolean',
-            'faqs'             => 'sometimes|nullable|array',
-            'en_profile'       => 'sometimes|nullable|array',
+            'cover_image' => 'sometimes|nullable|string|max:500',
+            'author_name' => 'sometimes|nullable|string|max:100',
+            'seo_title' => 'sometimes|nullable|string|max:255',
+            'seo_description' => 'sometimes|nullable|string|max:500',
+            'seo_keywords' => 'sometimes|nullable|string',
+            'is_featured' => 'sometimes|nullable|boolean',
+            'is_published' => 'sometimes|nullable|boolean',
+            'faqs' => 'sometimes|nullable|array',
+            'en_profile' => 'sometimes|nullable|array',
         ]);
 
         $guide->update($validated);
@@ -383,7 +395,7 @@ class GuideApiController extends Controller
         return response()->json([
             'success' => true,
             'message' => "Guide '{$guide->title}' updated successfully.",
-            'data'    => array_merge($guide->fresh()->toArray(), [
+            'data' => array_merge($guide->fresh()->toArray(), [
                 'public_url' => route('guides.show', $guide->slug),
             ]),
         ]);
@@ -398,7 +410,7 @@ class GuideApiController extends Controller
             ? Guide::find($identifier)
             : Guide::where('slug', $identifier)->first();
 
-        if (!$guide) {
+        if (! $guide) {
             return response()->json([
                 'success' => false,
                 'message' => "Guide not found for identifier '{$identifier}'.",
@@ -426,29 +438,29 @@ class GuideApiController extends Controller
 
         try {
             $dir = base_path('content/guides');
-            if (!File::isDirectory($dir)) {
+            if (! File::isDirectory($dir)) {
                 File::makeDirectory($dir, 0755, true);
             }
 
-            $filePath = $dir . DIRECTORY_SEPARATOR . $guide->slug . '.json';
+            $filePath = $dir.DIRECTORY_SEPARATOR.$guide->slug.'.json';
             $data = [
-                'id'               => $guide->id,
-                'title'            => $guide->title,
-                'slug'             => $guide->slug,
-                'category'         => $guide->category,
+                'id' => $guide->id,
+                'title' => $guide->title,
+                'slug' => $guide->slug,
+                'category' => $guide->category,
                 'reading_time_min' => $guide->reading_time_min,
-                'author_name'      => $guide->author_name,
-                'excerpt'          => $guide->excerpt,
-                'cover_image'      => $guide->cover_image,
-                'seo_title'        => $guide->seo_title,
-                'seo_description'  => $guide->seo_description,
-                'seo_keywords'     => $guide->seo_keywords,
-                'faqs'             => $guide->faqs,
-                'en_profile'       => $guide->en_profile,
-                'is_featured'      => (bool) $guide->is_featured,
-                'is_published'     => (bool) $guide->is_published,
-                'updated_at'       => $guide->updated_at?->toIso8601String(),
-                'content'          => $guide->content,
+                'author_name' => $guide->author_name,
+                'excerpt' => $guide->excerpt,
+                'cover_image' => $guide->cover_image,
+                'seo_title' => $guide->seo_title,
+                'seo_description' => $guide->seo_description,
+                'seo_keywords' => $guide->seo_keywords,
+                'faqs' => $guide->faqs,
+                'en_profile' => $guide->en_profile,
+                'is_featured' => (bool) $guide->is_featured,
+                'is_published' => (bool) $guide->is_published,
+                'updated_at' => $guide->updated_at?->toIso8601String(),
+                'content' => $guide->content,
             ];
 
             File::put($filePath, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));

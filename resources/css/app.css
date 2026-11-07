@@ -143,6 +143,63 @@ body {
     margin: 1.75rem 0;
 }
 
+/* Ensure dark cards and callout boxes inside guide content render high-contrast, crystal clear light text */
+.guide-content-body [class*="bg-slate-9"],
+.guide-content-body [class*="bg-slate-8"],
+.guide-content-body [class*="bg-gray-9"],
+.guide-content-body [class*="bg-emerald-9"],
+.guide-content-body [class*="bg-teal-9"] {
+    color: #f1f5f9 !important;
+}
+
+.guide-content-body [class*="bg-slate-9"] p,
+.guide-content-body [class*="bg-slate-8"] p,
+.guide-content-body [class*="bg-gray-9"] p,
+.guide-content-body [class*="bg-emerald-9"] p,
+.guide-content-body [class*="bg-teal-9"] p,
+.guide-content-body [class*="bg-slate-9"] li,
+.guide-content-body [class*="bg-slate-8"] li,
+.guide-content-body [class*="bg-gray-9"] li,
+.guide-content-body [class*="bg-emerald-9"] li,
+.guide-content-body [class*="bg-teal-9"] li,
+.guide-content-body [class*="text-white"] p,
+.guide-content-body [class*="text-white"] li {
+    color: #e2e8f0 !important; /* slate-200 */
+}
+
+.guide-content-body [class*="bg-slate-9"] strong,
+.guide-content-body [class*="bg-slate-8"] strong,
+.guide-content-body [class*="bg-gray-9"] strong,
+.guide-content-body [class*="bg-emerald-9"] strong,
+.guide-content-body [class*="bg-teal-9"] strong,
+.guide-content-body [class*="text-white"] strong {
+    color: #ffffff !important;
+    font-weight: 700;
+}
+
+.guide-content-body [class*="bg-slate-9"] em,
+.guide-content-body [class*="bg-slate-8"] em {
+    color: #38bdf8 !important; /* sky-400 */
+    font-style: normal;
+}
+
+.guide-content-body [class*="bg-slate-9"] table,
+.guide-content-body [class*="bg-slate-8"] table {
+    border-color: #334155 !important;
+}
+
+.guide-content-body [class*="bg-slate-9"] td,
+.guide-content-body [class*="bg-slate-8"] td {
+    color: #cbd5e1 !important;
+    border-color: #334155 !important;
+}
+
+.guide-content-body [class*="bg-slate-9"] th,
+.guide-content-body [class*="bg-slate-8"] th {
+    color: #f8fafc !important;
+    border-color: #334155 !important;
+}
+
 /* Custom Sleek Scrollbar for Sticky Sidebar */
 .sidebar-scroll {
     scrollbar-width: thin;

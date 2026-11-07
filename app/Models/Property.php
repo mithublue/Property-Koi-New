@@ -154,11 +154,8 @@ class Property extends Model
                 : asset($cover->file_path);
         }
 
-        return match ($this->type) {
-            'flat' => asset('assets/images/og-flat.jpg'),
-            'commercial' => asset('assets/images/og-commercial.jpg'),
-            default => asset('assets/images/og-land.jpg'),
-        };
+        // If no photo/thumbnail uploaded, fallback to official default thumbnail
+        return asset('assets/images/guide-default.png');
     }
 
     public function getRawPriceAttribute(): float

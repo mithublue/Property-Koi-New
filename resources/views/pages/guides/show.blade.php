@@ -125,15 +125,13 @@
                     </div>
                 </header>
 
-                <!-- Featured Image -->
-                @if(!empty($guide->cover_image))
-                    <div class="mb-8 rounded-2xl overflow-hidden bg-slate-900 shadow-sm aspect-video" itemprop="image" itemscope itemtype="https://schema.org/ImageObject">
-                        <img src="{{ $guide->cover_url }}"
-                             alt="{{ $guide->title }}"
-                             itemprop="url"
-                             class="w-full h-full object-cover">
-                    </div>
-                @endif
+                <!-- Featured Image / Thumbnail -->
+                <div class="mb-8 rounded-2xl overflow-hidden bg-slate-100 border border-slate-200/80 shadow-xs aspect-video" itemprop="image" itemscope itemtype="https://schema.org/ImageObject">
+                    <img src="{{ $guide->cover_url }}"
+                         alt="{{ $guide->title }}"
+                         itemprop="url"
+                         class="w-full h-full object-cover">
+                </div>
 
                 <!-- Article Rich Content Body -->
                 <div class="guide-content-body prose prose-slate sm:prose-lg max-w-none prose-headings:font-black prose-headings:text-slate-900 prose-h2:text-2xl sm:prose-h2:text-3xl prose-h2:mt-10 prose-h2:mb-5 prose-h3:text-xl sm:prose-h3:text-2xl prose-h3:mt-8 prose-h3:mb-4 prose-p:text-[17px] sm:prose-p:text-[18px] prose-p:leading-[1.9] prose-p:my-5 prose-p:text-slate-800 prose-li:text-[16.5px] sm:prose-li:text-[17.5px] prose-li:leading-[1.85] prose-li:my-2 prose-li:text-slate-800 prose-table:text-sm sm:prose-table:text-base prose-th:bg-slate-100 prose-th:p-3.5 prose-th:font-black prose-td:p-3.5 prose-a:text-emerald-700 prose-a:font-bold hover:prose-a:text-emerald-800 prose-strong:font-black prose-strong:text-slate-900 tracking-normal" itemprop="articleBody">

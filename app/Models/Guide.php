@@ -131,24 +131,22 @@ class Guide extends Model
 
     public function getCoverUrlAttribute(): string
     {
-        // 1. If an explicit image URL is already set (including royalty-free Unsplash URLs), use it!
+        // 1. If an explicit custom image is uploaded and not an external stock/unsplash link
         if (! empty($this->cover_image)) {
+            if (str_contains($this->cover_image, 'unsplash.com') ||
+                str_contains($this->cover_image, 'assets/images/guide-default') ||
+                str_contains($this->cover_image, 'assets/images/og-')) {
+                return asset('assets/images/guide-default.png');
+            }
+
             if (Str::startsWith($this->cover_image, ['http://', 'https://'])) {
                 return $this->cover_image;
             }
-            if (! str_contains($this->cover_image, 'assets/images/og-')
-                && ! str_contains($this->cover_image, 'assets/images/guide-default')) {
-                return asset($this->cover_image);
-            }
+
+            return asset($this->cover_image);
         }
 
-        // 2. Resolve royalty-free image matching the title/topic
-        $royaltyFree = GuideImageService::resolveForGuide($this);
-        if ($royaltyFree) {
-            return $royaltyFree;
-        }
-
-        // 3. Fallback to default thumbnail logo card only if no suitable image is found
+        // 2. If no thumbnail exists, show default thumbnail
         return asset('assets/images/guide-default.png');
     }
 

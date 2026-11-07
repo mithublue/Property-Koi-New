@@ -467,8 +467,8 @@
 
             </article>
 
-            <!-- Sidebar Column (4 Cols) - Sticky Desktop Sidebar -->
-            <aside class="lg:col-span-4 space-y-6 lg:sticky lg:top-24 self-start">
+            <!-- Sidebar Column (4 Cols) - Sticky Desktop Sidebar with Scroll -->
+            <aside class="lg:col-span-4 space-y-5 lg:sticky lg:top-24 self-start lg:max-h-[calc(100vh-6.5rem)] lg:overflow-y-auto lg:overscroll-contain sidebar-scroll pr-1.5 pb-6">
 
                 <!-- Interactive Calculators Widget Card -->
                 <div class="bg-gradient-to-br from-emerald-600 to-teal-700 rounded-3xl p-6 text-white shadow-lg relative overflow-hidden">

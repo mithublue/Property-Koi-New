@@ -131,17 +131,15 @@ try {
                     'description' => DB::raw("COALESCE(title, 'চমৎকার লোকেশনে আকর্ষণীয় প্রপার্টি।')"),
                 ]);
 
-            // Auto-heal guides: if no custom thumbnail uploaded, default to official guide-default.png
-            DB::table('guides')
-                ->where(function ($q) {
-                    $q->whereNull('cover_image')
-                      ->orWhere('cover_image', '')
-                      ->orWhere('cover_image', 'like', '%unsplash%')
-                      ->orWhere('cover_image', 'like', '%assets/images/og-%');
-                })
-                ->update([
-                    'cover_image' => 'assets/images/guide-default.png'
-                ]);
+            // Auto-heal guides: assign suitable topic-matched royalty-free photography; fallback to guide-default.png if unmatched
+            $allGuides = Guide::all();
+            foreach ($allGuides as $g) {
+                if (empty($g->cover_image) || str_contains($g->cover_image, 'guide-default') || str_contains($g->cover_image, 'assets/images/og-') || str_contains($g->cover_image, 'unsplash.com')) {
+                    $matched = GuideImageService::resolveForGuide($g);
+                    $g->cover_image = $matched ?: 'assets/images/guide-default.png';
+                    $g->save();
+                }
+            }
 
             // Auto-heal land properties where katha_size is 0 or needs calculation (e.g. 2.5 * 20 katha = 50 katha)
             DB::table('property_land_details')

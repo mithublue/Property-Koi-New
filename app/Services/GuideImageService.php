@@ -12,7 +12,16 @@ class GuideImageService
      * All URLs are sized for high-definition cards and 1200x630 Open Graph (OG) standards.
      */
     protected const TOPIC_COLLECTIONS = [
-        // 1. Expatriate / NRB / International Investment / Remittance
+        // 1. Heba Dolil / Gift Deed / Blood Relative Transfer
+        'heba_dolil' => [
+            'patterns' => [
+                'হেবা দলিল', 'হেবা', 'দানপত্র', 'রক্তের সম্পর্ক', 'দান দলিল',
+                'heba', 'hiba', 'gift deed',
+            ],
+            'url' => 'https://images.unsplash.com/photo-1577495508048-b635879837f1?auto=format&fit=crop&w=1200&h=630&q=80',
+        ],
+
+        // 2. Expatriate / NRB / International Investment / Remittance
         'nrb' => [
             'patterns' => [
                 'প্রবাসী', 'রেমিট্যান্স', 'এনআরবি', 'nrb', 'expatriate', 'remittance',
@@ -21,7 +30,7 @@ class GuideImageService
             'url' => 'https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?auto=format&fit=crop&w=1200&h=630&q=80',
         ],
 
-        // 2. Power of Attorney / Am-Moktarnama / Legal Authorization
+        // 3. Power of Attorney / Am-Moktarnama / Legal Authorization
         'power_of_attorney' => [
             'patterns' => [
                 'পাওয়ার অব অ্যাটর্নি', 'আম-মোক্তারনামা', 'আম মোক্তারনামা',
@@ -30,7 +39,7 @@ class GuideImageService
             'url' => 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=1200&h=630&q=80',
         ],
 
-        // 3. Inheritance / Waris / Batowara / Farayez / Family Land Law
+        // 4. Inheritance / Waris / Batowara / Farayez / Family Land Law
         'waris_inheritance' => [
             'patterns' => [
                 'ওয়ারিশ', 'উত্তরাধিকার', 'ফারায়েজ', 'ফারায়েয', 'বাটোয়ারা', 'বাটোয়ারা',
@@ -39,7 +48,7 @@ class GuideImageService
             'url' => 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=1200&h=630&q=80',
         ],
 
-        // 4. Bayna Nama / Sale Agreement / Contract / Deal Handshake
+        // 5. Bayna Nama / Sale Agreement / Contract / Deal Handshake
         'bayna_contract' => [
             'patterns' => [
                 'বায়না চুক্তি', 'বায়না চুক্তি', 'বায়না দলিল', 'বায়না দলিল', 'বায়না', 'বায়না',
@@ -48,7 +57,7 @@ class GuideImageService
             'url' => 'https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=1200&h=630&q=80',
         ],
 
-        // 5. RAJUK / Building Plan / DAP / FAR / Setback / Architectural Approval
+        // 6. RAJUK / Building Plan / DAP / FAR / Setback / Architectural Approval
         'rajuk_plan' => [
             'patterns' => [
                 'রাজউক', 'ড্যাপ', 'dap', 'rajuk', 'ফার', 'far', 'নকশা অনুমোদন',
@@ -57,7 +66,7 @@ class GuideImageService
             'url' => 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=1200&h=630&q=80',
         ],
 
-        // 6. Bank Home Loan / Interest / Mortgage / Finance
+        // 7. Bank Home Loan / Interest / Mortgage / Finance
         'home_loan' => [
             'patterns' => [
                 'হোম লোন', 'ব্যাংক লোন', 'সুদের হার', 'গৃহ ঋণ',
@@ -66,7 +75,7 @@ class GuideImageService
             'url' => 'https://images.unsplash.com/photo-1565372195458-9de0b320ef04?auto=format&fit=crop&w=1200&h=630&q=80',
         ],
 
-        // 7. Hidden Costs / Handover / Parking / Utility Packages / Common Space
+        // 8. Hidden Costs / Handover / Parking / Utility Packages / Common Space
         'hidden_costs' => [
             'patterns' => [
                 'হিডেন কস্ট', 'হিডেন', 'পার্কিং', 'ইউটিলিটি', 'কমন স্পেস', 'হ্যান্ডওভার',
@@ -75,16 +84,16 @@ class GuideImageService
             'url' => 'https://images.unsplash.com/photo-1582407947304-fd86f028f716?auto=format&fit=crop&w=1200&h=630&q=80',
         ],
 
-        // 8. Ready Flat vs Under Construction / Building / Engineering Site
+        // 9. Ready Flat vs Under Construction / Building / Engineering Site
         'construction_vs_ready' => [
             'patterns' => [
                 'রেডি ফ্ল্যাট বনাম', 'নির্মাণাধীন', 'ready flat vs', 'under construction',
-                'কনস্ট্রাকশন', 'রেডি ফ্ল্যাট',
+                'কনস্ট্রাকশন',
             ],
             'url' => 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=1200&h=630&q=80',
         ],
 
-        // 9. Registration Cost / Stamp Duty / Tax / AIT / Government Fees
+        // 10. Registration Cost / Stamp Duty / Tax / AIT / Government Fees
         'registration_tax' => [
             'patterns' => [
                 'রেজিস্ট্রেশন খরচ', 'রেজিস্ট্রি খরচ', 'স্ট্যাম্প ডিউটি', 'উৎস কর',
@@ -93,7 +102,7 @@ class GuideImageService
             'url' => 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=1200&h=630&q=80',
         ],
 
-        // 10. Land Share / Co-operative Housing Investment
+        // 11. Land Share / Co-operative Housing Investment
         'land_share' => [
             'patterns' => [
                 'ল্যান্ড শেয়ার', 'ল্যান্ড শেয়ার', 'land share', 'share project',
@@ -102,26 +111,52 @@ class GuideImageService
             'url' => 'https://images.unsplash.com/photo-1574362848149-11496d93a7c7?auto=format&fit=crop&w=1200&h=630&q=80',
         ],
 
-        // 11. E-Namjari / Mutation / Title Deed Verification / AC Land / Legal Appeals
-        'mutation_records' => [
+        // 12. E-Namjari Rejection & Legal Appeals
+        'mutation_appeal' => [
             'patterns' => [
-                'নামজারি', 'খারিজ', 'এসি ল্যান্ড', 'এডিসি', 'খতিয়ান', 'খতিয়ান',
-                'দলিল', 'বায়া দলিল', 'বায়া দলিল', 'mutation', 'namjari', 'khotian',
-                'baya dolil', 'record', 'porcha', 'পর্চা', 'land title',
+                'নামজারি খারিজ', 'নামজারি বাতিল', 'ই-নামজারি বাতিল', 'খারিজের কারণ',
+                'e-namjari rejection', 'mutation appeal',
             ],
             'url' => 'https://images.unsplash.com/photo-1450133064473-71024230f91b?auto=format&fit=crop&w=1200&h=630&q=80',
         ],
 
-        // 12. Land / Plots / Demarcated Katha / Aftabnagar / Purbachal / Bashundhara
+        // 13. Title Deed / Chain of Title / Khatiyan Verification
+        'title_deed_verification' => [
+            'patterns' => [
+                'জমির মূল দলিল', 'দলিল ও নামজারি', 'দলিল যাচাই', 'বায়া দলিল', 'বায়া দলিল',
+                'খতিয়ান যাচাই', 'খতিয়ান যাচাই', 'chain of title',
+            ],
+            'url' => 'https://images.unsplash.com/photo-1589391886645-d51941baf7fb?auto=format&fit=crop&w=1200&h=630&q=80',
+        ],
+
+        // 14. Area Price Comparison / Where to Invest in Dhaka
+        'area_comparison' => [
+            'patterns' => [
+                'কোথায় জমি বা ফ্ল্যাট কেনা বেশি লাভজনক', 'তুলনামূলক', 'price comparison',
+                'আফতাবনগর, বসুন্ধরা ও পূর্বাচল',
+            ],
+            'url' => 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&h=630&q=80',
+        ],
+
+        // 15. Aftabnagar Buyer Guide & Block Price Index
+        'aftabnagar_spotlight' => [
+            'patterns' => [
+                'আফতাবনগর প্রপার্টি বায়ার গাইড', 'আফতাবনগর বায়ার গাইড', 'ব্লকভিত্তিক কাঠাপ্রতি',
+                'আফতাবনগরের ব্লকভিত্তিক', 'aftabnagar-property-buyer-guide',
+            ],
+            'url' => 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1200&h=630&q=80',
+        ],
+
+        // 16. General Land / Plots / Demarcated Katha
         'land_plots' => [
             'patterns' => [
-                'জমি', 'প্লট', 'কাঠা', 'আফতাবনগর', 'বসুন্ধরা', 'পূর্বাচল', 'উত্তরা',
-                'মিরপুর', 'plot', 'land', 'katha', 'aftabnagar', 'bashundhara', 'purbachal',
+                'জমি', 'প্লট', 'কাঠা', 'বসুন্ধরা', 'পূর্বাচল', 'উত্তরা',
+                'মিরপুর', 'plot', 'land', 'katha',
             ],
             'url' => 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1200&h=630&q=80',
         ],
 
-        // 13. Flats & Modern Apartments / Luxury Interior Living
+        // 17. General Flats & Modern Apartments
         'apartment_flat' => [
             'patterns' => [
                 'ফ্ল্যাট', 'অ্যাপার্টমেন্ট', 'বেডরুম', 'ড্রয়িং', 'লাক্সারি',
@@ -130,13 +165,13 @@ class GuideImageService
             'url' => 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1200&h=630&q=80',
         ],
 
-        // 14. Commercial / Shop / Office / Market / Corporate
+        // 18. Commercial / Shop / Office / Market / Corporate
         'commercial_office' => [
             'patterns' => [
                 'কমার্সিয়াল', 'কমার্শিয়াল', 'দোকান', 'অফিস', 'মার্কেট', 'স্পেস',
                 'commercial', 'office', 'shop', 'retail',
             ],
-            'url' => 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&h=630&q=80',
+            'url' => 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1200&h=630&q=80',
         ],
     ];
 

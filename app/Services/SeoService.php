@@ -1246,6 +1246,18 @@ class SeoService
                     ],
                 ],
             ],
+            'power-of-attorney-property-buying-rules-and-risks' => [
+                'headline' => 'Buying Property via Power of Attorney in Bangladesh: Legal Rules, Risks and Essential Precautions',
+                'description' => 'Detailed legal analysis of Power of Attorney Act 2012 in Bangladesh: Irrevocable Power of Attorney, death revocation risks, foreign embassies attestation for expatriates, and verification tips.',
+                'keywords' => 'power of attorney property bangladesh, am moktarnama rules, buy flat with power of attorney, expatriate property power of attorney bangladesh',
+                'abstract' => 'Comprehensive legal guidance on executing and verifying registered Power of Attorney documents under Bangladesh law, minimizing risks when purchasing real estate from agents or expatriate owners.',
+                'faqs' => [
+                    [
+                        'question' => 'What type of Power of Attorney is required to sell property legally in Bangladesh?',
+                        'answer' => 'Under the Power of Attorney Act 2012, an Irrevocable Power of Attorney (Am-Moktarnama) registered at the Sub-Registry Office with stamp duty is mandatory to execute property sales.',
+                    ],
+                ],
+            ],
             'power-of-attorney-property-rules-precautions' => [
                 'headline' => 'Buying Property via Power of Attorney in Bangladesh: Legal Rules, Risks and Essential Precautions',
                 'description' => 'Detailed legal analysis of Power of Attorney Act 2012 in Bangladesh: Irrevocable Power of Attorney, death revocation risks, foreign embassies attestation for expatriates, and verification tips.',
@@ -1255,6 +1267,18 @@ class SeoService
                     [
                         'question' => 'What type of Power of Attorney is required to sell property legally in Bangladesh?',
                         'answer' => 'Under the Power of Attorney Act 2012, an Irrevocable Power of Attorney (Am-Moktarnama) registered at the Sub-Registry Office with stamp duty is mandatory to execute property sales.',
+                    ],
+                ],
+            ],
+            'waris-property-buying-rules-farayez-batowara-checklist' => [
+                'headline' => 'Buying Inherited (Warishi) Property in Bangladesh: Farayej, Partition Deed and Legal Checklist',
+                'description' => 'How to safely purchase inherited family property in Bangladesh: Checking Succession Certificate (Waris Sonod), Islamic Farayej calculation, registered Partition Deed (Batwara Dolil), and avoiding minor co-sharer disputes.',
+                'keywords' => 'buy inherited land bangladesh, warishi jomi kenar niyam, partition deed batwara dolil, farayej share calculation dhaka, succession certificate land sale',
+                'abstract' => 'A step-by-step advisory on verifying heirship, Muslim inheritance distribution, registered partition deeds, and obtaining consent from all co-sharers when acquiring inherited land in Bangladesh.',
+                'faqs' => [
+                    [
+                        'question' => 'Can one heir sell a specific parcel of joint inherited land without a registered Partition Deed?',
+                        'answer' => 'No. Without a registered Partition Deed (Batwara Dalil) and individual mutation, an heir only owns an undivided fraction across the entire estate, not a specific demarcated physical plot.',
                     ],
                 ],
             ],
@@ -1270,6 +1294,18 @@ class SeoService
                     ],
                 ],
             ],
+            'bayna-nama-agreement-for-sale-rules-bangladesh' => [
+                'headline' => 'Property Bayna Nama (Sale Agreement) Rules in Bangladesh: Stamp Paper, Advance Payment and Legal Safeguards',
+                'description' => 'Legal guide to drafting a valid Bayna Nama (Deed of Agreement for Sale) in Bangladesh: Mandatory registration, non-judicial stamp requirements, forfeiture conditions, and Specific Relief Act protections.',
+                'keywords' => 'bayna nama format bangladesh, property sale agreement dhaka, bayna registration rules, advance payment land purchase bangladesh',
+                'abstract' => 'Practical advice for property buyers in Bangladesh on drafting registered Bayna agreements, structuring milestone payments, and legally enforcing contracts under the Specific Relief Act.',
+                'faqs' => [
+                    [
+                        'question' => 'Is a Bayna Nama legally enforceable if it is not registered?',
+                        'answer' => 'Under Section 17A of the Registration Act, an agreement for sale (Bayna Nama) must be written and registered within the statutory period to be legally admissible in civil court for specific performance.',
+                    ],
+                ],
+            ],
             'bayna-nama-agreement-rules-property-bangladesh' => [
                 'headline' => 'Property Bayna Nama (Sale Agreement) Rules in Bangladesh: Stamp Paper, Advance Payment and Legal Safeguards',
                 'description' => 'Legal guide to drafting a valid Bayna Nama (Deed of Agreement for Sale) in Bangladesh: Mandatory registration, non-judicial stamp requirements, forfeiture conditions, and Specific Relief Act protections.',
@@ -1282,6 +1318,18 @@ class SeoService
                     ],
                 ],
             ],
+            'bank-home-loan-eligibility-documents-dhaka-bangladesh' => [
+                'headline' => 'Bank Home Loan in Bangladesh (2026): Eligibility, Required Legal Documents, Interest Rates and Fast Approval',
+                'description' => 'Complete guide to securing a home loan for flats and house construction in Bangladesh: Eligibility criteria, legal vetting of property deeds, debt-burden ratio (DBR), latest interest rates, and bank processing.',
+                'keywords' => 'home loan in bangladesh 2026, bank loan for flat purchase dhaka, dbh home loan interest, mortgage loan requirements bangladesh',
+                'abstract' => 'A financial handbook explaining home loan application processes in Bangladeshi banks and NBFIs, legal document vetting requirements, and strategies to secure fast loan approvals.',
+                'faqs' => [
+                    [
+                        'question' => 'What documents do banks require for legal vetting before granting a home loan in Dhaka?',
+                        'answer' => 'Banks require 25-year title deeds and baya deeds, approved RAJUK architectural plans, updated Mutation Khatians, DCR, Non-Encumbrance Certificates (NEC), and proof of applicant income.',
+                    ],
+                ],
+            ],
             'bank-home-loan-dhaka-documents-interest-rates-2026' => [
                 'headline' => 'Bank Home Loan in Bangladesh (2026): Eligibility, Required Legal Documents, Interest Rates and Fast Approval',
                 'description' => 'Complete guide to securing a home loan for flats and house construction in Bangladesh: Eligibility criteria, legal vetting of property deeds, debt-burden ratio (DBR), latest interest rates, and bank processing.',
@@ -1291,6 +1339,18 @@ class SeoService
                     [
                         'question' => 'What documents do banks require for legal vetting before granting a home loan in Dhaka?',
                         'answer' => 'Banks require 25-year title deeds and baya deeds, approved RAJUK architectural plans, updated Mutation Khatians, DCR, Non-Encumbrance Certificates (NEC), and proof of applicant income.',
+                    ],
+                ],
+            ],
+            'aftabnagar-property-buyer-guide-block-price-index-2026' => [
+                'headline' => 'Aftabnagar Property Buyer Guide and Price Index 2026: Block-by-Block Plot and Flat Rate Analysis',
+                'description' => 'The ultimate 2026 property index for Aftabnagar, Dhaka: Land prices per katha across Blocks A through M, 3/5 katha plot budgets, ready flat sqft rates, Eastern Housing documentation, and RAJUK DAP regulations.',
+                'keywords' => 'aftabnagar property buyer guide 2026, aftabnagar land price per katha, aftabnagar block A plot, ready flat in aftabnagar, aftabnagar real estate price index',
+                'abstract' => 'Comprehensive price index and investment guide for Aftabnagar, Dhaka, breaking down plot values per katha across Blocks A to M, apartment rates, and Eastern Housing transfer guidelines.',
+                'faqs' => [
+                    [
+                        'question' => 'What is the current average residential plot price per katha in Aftabnagar (2026)?',
+                        'answer' => 'Prime Blocks A to C range between BDT 1.10 Crore and 1.60 Crore per katha; mid Blocks D to F range between BDT 80 Lakh and 1.25 Crore; expanding Blocks G to M range between BDT 45 Lakh and 95 Lakh per katha.',
                     ],
                 ],
             ],

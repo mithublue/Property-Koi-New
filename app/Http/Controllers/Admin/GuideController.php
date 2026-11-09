@@ -354,7 +354,7 @@ class GuideController extends Controller
     public function bulkAction(Request $request): JsonResponse|RedirectResponse
     {
         $validated = $request->validate([
-            'action' => 'required|string|in:publish_live,delete,publish,draft',
+            'action' => 'required|string|in:publish_live,delete,publish,draft,export_pdf',
             'ids'    => 'required|array|min:1',
             'ids.*'  => 'integer|exists:guides,id',
         ]);
@@ -362,6 +362,10 @@ class GuideController extends Controller
         $action = $validated['action'];
         $ids = array_map('intval', $validated['ids']);
         $count = count($ids);
+
+        if ($action === 'export_pdf') {
+            return redirect()->route('admin.guides.export', ['ids' => implode(',', $ids)]);
+        }
 
         switch ($action) {
             case 'publish_live':

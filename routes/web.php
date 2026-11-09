@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\DocsController as AdminDocsController;
 use App\Http\Controllers\Admin\DemandController as AdminDemandController;
 use App\Http\Controllers\Admin\GuideController as AdminGuideController;
 use App\Http\Controllers\Admin\GuideCommentController as AdminGuideCommentController;
+use App\Http\Controllers\Admin\GuidePdfExportController as AdminGuidePdfExportController;
 use App\Http\Controllers\Admin\LeadController as AdminLeadController;
 use App\Http\Controllers\Admin\MediaController as AdminMediaController;
 use App\Http\Controllers\Admin\PropertyController as AdminPropertyController;
@@ -240,6 +241,8 @@ Route::prefix('backend')->name('admin.')->middleware('admin.access')->group(func
     Route::post('/properties/{property}/hidden-note', [AdminPropertyController::class, 'updateHiddenNote'])->name('properties.hidden-note');
 
     // 2.1 Property Guides & Articles Management
+    Route::get('/guides/export', [AdminGuidePdfExportController::class, 'index'])->name('guides.export');
+    Route::match(['get', 'post'], '/guides/export/generate', [AdminGuidePdfExportController::class, 'generate'])->name('guides.export.generate');
     Route::get('/guides/comments', [AdminGuideCommentController::class, 'index'])->name('guides.comments.index');
     Route::post('/guides/comments/{comment}/approve', [AdminGuideCommentController::class, 'approve'])->name('guides.comments.approve');
     Route::post('/guides/comments/{comment}/reject', [AdminGuideCommentController::class, 'reject'])->name('guides.comments.reject');

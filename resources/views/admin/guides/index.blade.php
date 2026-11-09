@@ -180,6 +180,13 @@
                 @endif
             </a>
 
+            <!-- PDF Exporter Action Button -->
+            <a href="{{ route('admin.guides.export') }}"
+               class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-900 text-xs font-bold rounded-xl border border-indigo-200 transition shrink-0"
+               title="গাইডসমূহ তারিখ অনুযায়ী বা সিলেক্ট করে প্রফেশনাল বুকলেট PDF এক্সপোর্ট করুন">
+                <span>📄 PDF এক্সপোর্টার</span>
+            </a>
+
             <!-- 4. New Guide Button -->
             <a href="{{ route('admin.guides.create') }}" data-turbo="false" class="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-xs transition shrink-0">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
@@ -373,6 +380,13 @@
                     title="নির্বাচিত সব গাইড ড্রাফট করুন">
                 <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6"/></svg>
                 <span>ড্রাফট</span>
+            </button>
+
+            <!-- 3.5 Export PDF -->
+            <button type="submit" name="action" value="export_pdf"
+                    class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-200 border border-indigo-500/40 text-xs font-bold transition cursor-pointer active:scale-95"
+                    title="নির্বাচিত গাইডগুলো দিয়ে PDF এক্সপোর্ট করুন">
+                <span>📄 PDF এক্সপোর্ট</span>
             </button>
 
             <!-- 4. Delete -->

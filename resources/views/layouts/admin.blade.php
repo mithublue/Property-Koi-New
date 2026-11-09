@@ -70,37 +70,154 @@
                 </button>
             </div>
 
-            <!-- Navigation Links -->
+            <!-- Navigation Links (Grouped Menu > Submenu Structure) -->
             <nav class="flex-1 px-3 py-4 space-y-1.5 overflow-y-auto text-sm">
                 @php
-                    $navItems = [
-                        ['route' => 'admin.dashboard', 'icon' => '📊', 'label' => 'ড্যাশবোর্ড ওভারভিউ'],
-                        ['route' => 'admin.properties.index', 'icon' => '🏠', 'label' => 'প্রপার্টি ক্যাটালগ (লাইভ)'],
-                        ['route' => 'admin.properties.directory', 'icon' => '🗄️', 'label' => 'প্রাইভেট প্রপার্টি ভল্ট'],
-                        ['route' => 'admin.sheet-importer.index', 'icon' => '📑', 'label' => 'গুগল শিট বাল্ক ইমপোর্টার'],
-                        ['route' => 'admin.guides.index', 'icon' => '📚', 'label' => 'প্রপার্টি গাইডস ও আর্টিকেল'],
-                        ['route' => 'admin.guides.comments.index', 'icon' => '💬', 'label' => 'গাইড কমেন্টস ও প্রশ্নোত্তর'],
-                        ['route' => 'admin.media.index', 'icon' => '🖼️', 'label' => 'মিডিয়া লাইব্রেরি (Cloudinary)'],
-                        ['route' => 'admin.verifications.index', 'icon' => '✅', 'label' => '৪-দফা ভেরিফিকেশন'],
-                        ['route' => 'admin.agents.index', 'icon' => '👥', 'label' => 'এজেন্ট ও মালিক ডিরেক্টরি'],
-                        ['route' => 'admin.buyers.index', 'icon' => '👤', 'label' => 'বায়ার ডিরেক্টরি (Buyers)'],
-                        ['route' => 'admin.leads.index', 'icon' => '🎯', 'label' => 'লিড ও সিআরএম পাইপলাইন'],
-                        ['route' => 'admin.demands.index', 'icon' => '📋', 'label' => 'প্রপার্টি চাহিদা ও রিকোয়ারমেন্ট'],
-                        ['route' => 'admin.visits.index', 'icon' => '📅', 'label' => 'সাইট ভিজিট ও শিডিউলার'],
-                        ['route' => 'admin.revenue.index', 'icon' => '💰', 'label' => 'রেভিনিউ ও ০.৫% কমিশন'],
-                        ['route' => 'admin.documentation', 'icon' => '📖', 'label' => 'সিস্টেম ডকস ও রুলস'],
-                        ['route' => 'admin.clarity', 'icon' => '📈', 'label' => 'Microsoft Clarity'],
-                        ['route' => 'admin.settings.index', 'icon' => '⚙️', 'label' => 'মাস্টার সেটিংস (১০ ট্যাব)'],
+                    $navStructure = [
+                        [
+                            'type' => 'single',
+                            'route' => 'admin.dashboard',
+                            'icon' => '📊',
+                            'label' => 'ড্যাশবোর্ড ওভারভিউ',
+                        ],
+                        [
+                            'type' => 'group',
+                            'key' => 'properties',
+                            'label' => 'প্রপার্টি ও লিস্টিং',
+                            'icon' => '🏠',
+                            'routes' => [
+                                'admin.properties.*',
+                                'admin.sheet-importer.*',
+                                'admin.verifications.*',
+                                'admin.media.*',
+                            ],
+                            'items' => [
+                                ['route' => 'admin.properties.index', 'label' => 'প্রপার্টি ক্যাটালগ (লাইভ)', 'icon' => '🏢'],
+                                ['route' => 'admin.properties.directory', 'label' => 'প্রাইভেট প্রপার্টি ভল্ট', 'icon' => '🗄️'],
+                                ['route' => 'admin.sheet-importer.index', 'label' => 'গুগল শিট বাল্ক ইমপোর্টার', 'icon' => '📑'],
+                                ['route' => 'admin.verifications.index', 'label' => '৪-দফা লিগ্যাল ভেরিফিকেশন', 'icon' => '✅'],
+                                ['route' => 'admin.media.index', 'label' => 'মিডিয়া লাইব্রেরি (Cloudinary)', 'icon' => '🖼️'],
+                            ],
+                        ],
+                        [
+                            'type' => 'group',
+                            'key' => 'guides',
+                            'label' => 'নলেজ হাব ও গাইডস',
+                            'icon' => '📚',
+                            'routes' => [
+                                'admin.guides.*',
+                            ],
+                            'items' => [
+                                ['route' => 'admin.guides.index', 'label' => 'সকল গাইডস ও আর্টিকেল', 'icon' => '📖'],
+                                ['route' => 'admin.guides.export', 'label' => 'গাইড PDF এক্সপোর্টার', 'icon' => '📄'],
+                                ['route' => 'admin.guides.comments.index', 'label' => 'গাইড কমেন্টস ও প্রশ্নোত্তর', 'icon' => '💬'],
+                            ],
+                        ],
+                        [
+                            'type' => 'group',
+                            'key' => 'crm',
+                            'label' => 'সিআরএম ও কমিউনিকেশন',
+                            'icon' => '🎯',
+                            'routes' => [
+                                'admin.leads.*',
+                                'admin.demands.*',
+                                'admin.visits.*',
+                                'admin.revenue.*',
+                            ],
+                            'items' => [
+                                ['route' => 'admin.leads.index', 'label' => 'লিড ও সিআরএম পাইপলাইন', 'icon' => '🎯'],
+                                ['route' => 'admin.demands.index', 'label' => 'প্রপার্টি চাহিদা (Demands)', 'icon' => '📋'],
+                                ['route' => 'admin.visits.index', 'label' => 'সাইট ভিজিট ও শিডিউলার', 'icon' => '📅'],
+                                ['route' => 'admin.revenue.index', 'label' => 'রেভিনিউ ও ০.৫% কমিশন', 'icon' => '💰'],
+                            ],
+                        ],
+                        [
+                            'type' => 'group',
+                            'key' => 'users',
+                            'label' => 'ইউজার ও ডিরেক্টরি',
+                            'icon' => '👥',
+                            'routes' => [
+                                'admin.agents.*',
+                                'admin.buyers.*',
+                            ],
+                            'items' => [
+                                ['route' => 'admin.agents.index', 'label' => 'এজেন্ট ও মালিক ডিরেক্টরি', 'icon' => '👥'],
+                                ['route' => 'admin.buyers.index', 'label' => 'বায়ার ডিরেক্টরি (Buyers)', 'icon' => '👤'],
+                            ],
+                        ],
+                        [
+                            'type' => 'group',
+                            'key' => 'system',
+                            'label' => 'সিস্টেম ও অ্যানালিটিক্স',
+                            'icon' => '⚙️',
+                            'routes' => [
+                                'admin.settings.*',
+                                'admin.documentation',
+                                'admin.clarity',
+                            ],
+                            'items' => [
+                                ['route' => 'admin.settings.index', 'label' => 'মাস্টার সেটিংস (১০ ট্যাব)', 'icon' => '⚙️'],
+                                ['route' => 'admin.documentation', 'label' => 'সিস্টেম ডকস ও রুলস', 'icon' => '📖'],
+                                ['route' => 'admin.clarity', 'label' => 'Microsoft Clarity অ্যানালিটিক্স', 'icon' => '📈'],
+                            ],
+                        ],
                     ];
                 @endphp
 
-                @foreach($navItems as $item)
-                    @php $isActive = request()->routeIs($item['route'].'*'); @endphp
-                    <a href="{{ route($item['route']) }}"
-                       class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium transition-all duration-150 {{ $isActive ? 'bg-emerald-600 text-white shadow-sm font-semibold' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
-                        <span class="text-base">{{ $item['icon'] }}</span>
-                        <span class="flex-1">{{ $item['label'] }}</span>
-                    </a>
+                @foreach($navStructure as $entry)
+                    @if($entry['type'] === 'single')
+                        @php $isActive = request()->routeIs($entry['route'].'*'); @endphp
+                        <a href="{{ route($entry['route']) }}"
+                           class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium transition-all duration-150 {{ $isActive ? 'bg-emerald-600 text-white shadow-sm font-semibold' : 'text-slate-300 hover:bg-slate-800/80 hover:text-white' }}">
+                            <span class="text-base leading-none">{{ $entry['icon'] }}</span>
+                            <span class="flex-1">{{ $entry['label'] }}</span>
+                        </a>
+                    @else
+                        @php
+                            $isGroupActive = false;
+                            foreach ($entry['routes'] as $pattern) {
+                                if (request()->routeIs($pattern)) {
+                                    $isGroupActive = true;
+                                    break;
+                                }
+                            }
+                        @endphp
+                        <div x-data="{ open: {{ $isGroupActive ? 'true' : 'false' }} }" class="space-y-1">
+                            <button type="button"
+                                    @click="open = !open"
+                                    class="w-full flex items-center justify-between gap-2.5 px-3.5 py-2.5 rounded-xl font-medium transition-all duration-150 cursor-pointer select-none {{ $isGroupActive ? 'bg-slate-800 text-emerald-400 font-bold' : 'text-slate-300 hover:bg-slate-800/60 hover:text-white' }}">
+                                <div class="flex items-center gap-2.5 min-w-0">
+                                    <span class="text-base leading-none">{{ $entry['icon'] }}</span>
+                                    <span class="truncate">{{ $entry['label'] }}</span>
+                                </div>
+                                <svg class="w-3.5 h-3.5 text-slate-400 transition-transform duration-200 shrink-0"
+                                     :class="open ? 'rotate-180 text-emerald-400' : ''"
+                                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                </svg>
+                            </button>
+
+                            <!-- Submenu Items -->
+                            <div x-show="open"
+                                 x-transition:enter="transition ease-out duration-150"
+                                 x-transition:enter-start="opacity-0 -translate-y-1"
+                                 x-transition:enter-end="opacity-100 translate-y-0"
+                                 class="pl-3 pr-1 py-1 space-y-1 border-l-2 border-slate-800 ml-5"
+                                 style="display: none;">
+                                @foreach($entry['items'] as $subItem)
+                                    @php $isSubActive = request()->routeIs($subItem['route'].'*'); @endphp
+                                    <a href="{{ route($subItem['route']) }}"
+                                       class="flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs transition-all duration-150 {{ $isSubActive ? 'bg-emerald-600 text-white font-bold shadow-xs' : 'text-slate-400 hover:text-white hover:bg-slate-800/80 font-medium' }}">
+                                        <span class="text-[11px] leading-none">{{ $subItem['icon'] ?? '•' }}</span>
+                                        <span class="flex-1 truncate">{{ $subItem['label'] }}</span>
+                                        @if($isSubActive)
+                                            <span class="w-1.5 h-1.5 rounded-full bg-white"></span>
+                                        @endif
+                                    </a>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
                 @endforeach
             </nav>
 

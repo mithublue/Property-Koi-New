@@ -122,7 +122,7 @@
         <!-- Header -->
         <div class="text-center max-w-3xl mx-auto mb-10">
             <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-900 border border-amber-200 mb-3 shadow-2xs">
-                <span>💡</span> এআই ও মার্কেট ডাটা ভিত্তিক এস্টিমেটর
+                <span>💡</span> রিয়েল এস্টেট মার্কেট ডাটা ভিত্তিক এস্টিমেটর
             </span>
             <h1 class="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight leading-tight">
                 জমি বা ফ্ল্যাটের বর্তমান <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-600">ফেয়ার মার্কেট দর যাচাই করুন</span>

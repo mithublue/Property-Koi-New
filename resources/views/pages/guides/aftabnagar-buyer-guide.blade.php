@@ -486,7 +486,7 @@
             <div class="p-6 sm:p-8 rounded-3xl bg-white border border-slate-200 shadow-xs space-y-4 flex flex-col justify-between">
                 <div class="space-y-2">
                     <span class="px-3 py-1 rounded-full bg-teal-50 text-teal-800 font-bold text-xs border border-teal-200 inline-block">
-                        ⚡ এআই ভ্যালুয়েশন টুল
+                        ⚡ স্মার্ট ভ্যালুয়েশন টুল
                     </span>
                     <h3 class="text-xl font-black text-slate-900 m-0">আফতাবনগর প্লট বা ফ্ল্যাটের সঠিক দর যাচাই</h3>
                     <p class="text-xs sm:text-sm text-slate-600 leading-relaxed m-0">

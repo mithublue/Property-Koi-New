@@ -145,7 +145,7 @@
                             <span class="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-sm">💡</span>
                             <div>
                                 <h3 class="text-xl font-black text-slate-900">গাইড সংক্রান্ত সাধারণ জিজ্ঞাসা (FAQ)</h3>
-                                <p class="text-xs text-slate-500">আইনি ও সরকারি নিয়মাবলী সম্পর্কে সুস্পষ্ট ব্যাখ্যা (AI Answer Engine Ready)</p>
+                                <p class="text-xs text-slate-500">আইনি ও সরকারি নিয়মাবলী সম্পর্কে সুস্পষ্ট ব্যাখ্যা</p>
                             </div>
                         </div>
 

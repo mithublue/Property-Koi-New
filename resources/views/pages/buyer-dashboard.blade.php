@@ -331,7 +331,7 @@
                 <div>
                     <div class="flex items-center gap-2 mb-1.5">
                         <span class="px-2.5 py-0.5 bg-emerald-100 text-emerald-800 text-[11px] font-extrabold rounded-lg border border-emerald-300">
-                            🤖 AI Demand Match Engine
+                            🎯 Smart Demand Match Engine
                         </span>
                         <span class="text-xs text-slate-500 font-medium">
                             প্রতিদিন সকাল ৯:০০ টায় স্বয়ংক্রিয় ক্রন শিডিউল

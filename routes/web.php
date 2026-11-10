@@ -118,6 +118,7 @@ Route::post('/guides/{slug}/comments', [GuideController::class, 'storeComment'])
 Route::get('/calculators', [CalculatorController::class, 'index'])->name('calculators.index');
 Route::get('/calculators/registration', [CalculatorController::class, 'registration'])->name('calculators.registration');
 Route::get('/calculators/land-share-roi', [CalculatorController::class, 'landShareRoi'])->name('calculators.land-share');
+Route::get('/calculators/rajuk-far', [CalculatorController::class, 'rajukFar'])->name('calculators.rajuk-far');
 
 Route::get('/valuation', [ValuationController::class, 'index'])->name('valuation.index');
 Route::match(['get', 'post'], '/api/valuation/estimate', [ValuationController::class, 'estimate'])->name('valuation.estimate');

@@ -24,108 +24,144 @@
             </p>
         </div>
 
-        <!-- 3 Feature Tool Cards Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+        <!-- 4 Feature Tool Cards Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
 
             <!-- Card 1: Registration Fee Calculator -->
-            <div class="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 shadow-xs hover:shadow-xl transition-all flex flex-col justify-between group">
+            <div class="bg-white rounded-3xl border border-slate-200/90 p-5 sm:p-6 shadow-xs hover:shadow-xl transition-all flex flex-col justify-between group">
                 <div>
-                    <div class="w-14 h-14 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center text-2xl mb-6 group-hover:scale-110 transition-transform shadow-xs">
+                    <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition-transform shadow-xs">
                         📜
                     </div>
-                    <span class="px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 uppercase tracking-wider block w-max mb-2">
+                    <span class="px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 uppercase tracking-wider block w-max mb-2">
                         সরকারি ২০২৬ আপডেট
                     </span>
-                    <h2 class="text-xl font-bold text-slate-900 leading-snug group-hover:text-emerald-600 transition-colors">
+                    <h2 class="text-base sm:text-lg font-bold text-slate-900 leading-snug group-hover:text-emerald-600 transition-colors">
                         রেজিস্ট্রেশন ফি ও ট্যাক্স ক্যালকুলেটর
                     </h2>
-                    <p class="mt-3 text-xs sm:text-sm text-slate-600 leading-relaxed">
-                        স্ট্যাম্প শুল্ক (১.৫%), নিবন্ধন ফি (১%), স্থানীয় সরকার কর (২-৩%) ও উৎসে কর (AIT - ধারা ৫৩এইচ) সহ মোট সরকারি খরচের পুঙ্খানুপুঙ্খ হিসাব করুন।
+                    <p class="mt-2 text-xs text-slate-600 leading-relaxed">
+                        স্ট্যাম্প শুল্ক (১.৫%), নিবন্ধন ফি (১%), স্থানীয় সরকার কর (২-৩%) ও উৎসে কর (AIT - ধারা ১২৫/৫৩এইচ) সহ মোট সরকারি খরচের পুঙ্খানুপুঙ্খ হিসাব করুন।
                     </p>
-                    <ul class="mt-4 space-y-2 text-xs text-slate-600">
-                        <li class="flex items-center gap-2">
-                            <span class="text-emerald-600 font-bold">✓</span> ঢাকা ও চট্টগ্রাম সিটি কর্পোরেশন ও ক্যান্টনমেন্ট
+                    <ul class="mt-4 space-y-1.5 text-xs text-slate-600">
+                        <li class="flex items-center gap-1.5">
+                            <span class="text-emerald-600 font-bold text-[11px]">✓</span> ঢাকা ও চট্টগ্রাম সিটি কর্পোরেশন
                         </li>
-                        <li class="flex items-center gap-2">
-                            <span class="text-emerald-600 font-bold">✓</span> জেলা ও উপজেলা পৌরসভা ও ইউনিয়ন পরিষদ
+                        <li class="flex items-center gap-1.5">
+                            <span class="text-emerald-600 font-bold text-[11px]">✓</span> জেলা পৌরসভা ও ইউনিয়ন পরিষদ
                         </li>
-                        <li class="flex items-center gap-2">
-                            <span class="text-emerald-600 font-bold">✓</span> তাৎক্ষণিক প্রিন্ট ও ডাউনলোড সুবিধাযুক্ত রশিদ
+                        <li class="flex items-center gap-1.5">
+                            <span class="text-emerald-600 font-bold text-[11px]">✓</span> তাৎক্ষণিক প্রিন্ট ও ডাউনলোড সুবিধা
                         </li>
                     </ul>
                 </div>
-                <div class="mt-8 pt-6 border-t border-slate-100">
-                    <a href="{{ route('calculators.registration') }}" class="w-full py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-bold shadow-md transition flex items-center justify-center gap-2">
+                <div class="mt-6 pt-4 border-t border-slate-100">
+                    <a href="{{ route('calculators.registration') }}" class="w-full py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-md transition flex items-center justify-center gap-1.5">
                         <span>খরচ গণনা করুন</span>
                         <span>&rarr;</span>
                     </a>
                 </div>
             </div>
 
-            <!-- Card 2: Land Share ROI Calculator -->
-            <div class="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 shadow-xs hover:shadow-xl transition-all flex flex-col justify-between group">
+            <!-- Card 2: RAJUK DAP & FAR Calculator -->
+            <div class="bg-white rounded-3xl border border-indigo-200/90 p-5 sm:p-6 shadow-xs hover:shadow-xl transition-all flex flex-col justify-between group relative overflow-hidden">
+                <div class="absolute -right-6 -top-6 w-20 h-20 bg-indigo-50 rounded-full blur-xl"></div>
                 <div>
-                    <div class="w-14 h-14 rounded-2xl bg-sky-100 text-sky-800 flex items-center justify-center text-2xl mb-6 group-hover:scale-110 transition-transform shadow-xs">
-                        📊
+                    <div class="w-12 h-12 rounded-2xl bg-indigo-100 text-indigo-800 flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition-transform shadow-xs">
+                        📐
                     </div>
-                    <span class="px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-sky-50 text-sky-800 border border-sky-200 uppercase tracking-wider block w-max mb-2">
-                        বিনিয়োগ ও সাশ্রয়
+                    <span class="px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-indigo-50 text-indigo-800 border border-indigo-200 uppercase tracking-wider block w-max mb-2">
+                        নতুন ড্যাপ বিধিমালা
                     </span>
-                    <h2 class="text-xl font-bold text-slate-900 leading-snug group-hover:text-sky-600 transition-colors">
-                        ল্যান্ড শেয়ার ROI ও সেভিংস ক্যালকুলেটর
+                    <h2 class="text-base sm:text-lg font-bold text-slate-900 leading-snug group-hover:text-indigo-600 transition-colors">
+                        রাজউক ড্যাপ ও FAR ক্যালকুলেটর
                     </h2>
-                    <p class="mt-3 text-xs sm:text-sm text-slate-600 leading-relaxed">
-                        রেডিমেড ফ্ল্যাটের সাথে যৌথ ল্যান্ড শেয়ার প্রকল্পে ফ্ল্যাট নির্মাণের ব্যয় তুলনা করে কত লাখ টাকা সাশ্রয় ও কত শতাংশ লাভ হবে তা বের করুন।
+                    <p class="mt-2 text-xs text-slate-600 leading-relaxed">
+                        প্লটের মাপ, রাস্তার চওড়া ও এলাকার ওপর ভিত্তি করে ভবনের অনুমোদনযোগ্য তলা, মোট ফ্লোর স্পেস ও ফ্ল্যাট ইউনিট সংখ্যা যাচাই করুন।
                     </p>
-                    <ul class="mt-4 space-y-2 text-xs text-slate-600">
-                        <li class="flex items-center gap-2">
-                            <span class="text-sky-600 font-bold">✓</span> ফ্ল্যাটের সাইজ ও শেয়ার মূল্য সমন্বয়
+                    <ul class="mt-4 space-y-1.5 text-xs text-slate-600">
+                        <li class="flex items-center gap-1.5">
+                            <span class="text-indigo-600 font-bold text-[11px]">✓</span> বসুন্ধরা, আফতাবনগর ও গুলশান জোন
                         </li>
-                        <li class="flex items-center gap-2">
-                            <span class="text-sky-600 font-bold">✓</span> নির্মাণ ব্যয় ও ইউটিলিটি খরচ বিশ্লেষণ
+                        <li class="flex items-center gap-1.5">
+                            <span class="text-indigo-600 font-bold text-[11px]">✓</span> ইউনিয়ন পরিষদ মোড (আটি হাউজিং)
                         </li>
-                        <li class="flex items-center gap-2">
-                            <span class="text-sky-600 font-bold">✓</span> গড় ২৫% থেকে ৩৫% সম্ভাব্য সেভিংস
+                        <li class="flex items-center gap-1.5">
+                            <span class="text-indigo-600 font-bold text-[11px]">✓</span> গ্রাউন্ড কভারেজ ও সেটব্যাক হিসাব
                         </li>
                     </ul>
                 </div>
-                <div class="mt-8 pt-6 border-t border-slate-100">
-                    <a href="{{ route('calculators.land-share') }}" class="w-full py-3 px-4 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs sm:text-sm font-bold shadow-md transition flex items-center justify-center gap-2">
+                <div class="mt-6 pt-4 border-t border-slate-100">
+                    <a href="{{ route('calculators.rajuk-far') }}" class="w-full py-2.5 px-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold shadow-md transition flex items-center justify-center gap-1.5">
+                        <span>FAR ও তলা হিসাব করুন</span>
+                        <span>&rarr;</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Card 3: Land Share ROI Calculator -->
+            <div class="bg-white rounded-3xl border border-slate-200/90 p-5 sm:p-6 shadow-xs hover:shadow-xl transition-all flex flex-col justify-between group">
+                <div>
+                    <div class="w-12 h-12 rounded-2xl bg-sky-100 text-sky-800 flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition-transform shadow-xs">
+                        📊
+                    </div>
+                    <span class="px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-sky-50 text-sky-800 border border-sky-200 uppercase tracking-wider block w-max mb-2">
+                        বিনিয়োগ ও সাশ্রয়
+                    </span>
+                    <h2 class="text-base sm:text-lg font-bold text-slate-900 leading-snug group-hover:text-sky-600 transition-colors">
+                        ল্যান্ড শেয়ার ROI ও সেভিংস ক্যালকুলেটর
+                    </h2>
+                    <p class="mt-2 text-xs text-slate-600 leading-relaxed">
+                        রেডিমেড ফ্ল্যাটের সাথে যৌথ ল্যান্ড শেয়ার প্রকল্পে ফ্ল্যাট নির্মাণের ব্যয় তুলনা করে কত লাখ টাকা সাশ্রয় ও কত শতাংশ লাভ হবে তা বের করুন।
+                    </p>
+                    <ul class="mt-4 space-y-1.5 text-xs text-slate-600">
+                        <li class="flex items-center gap-1.5">
+                            <span class="text-sky-600 font-bold text-[11px]">✓</span> ফ্ল্যাটের সাইজ ও শেয়ার মূল্য সমন্বয়
+                        </li>
+                        <li class="flex items-center gap-1.5">
+                            <span class="text-sky-600 font-bold text-[11px]">✓</span> নির্মাণ ব্যয় ও ইউটিলিটি খরচ বিশ্লেষণ
+                        </li>
+                        <li class="flex items-center gap-1.5">
+                            <span class="text-sky-600 font-bold text-[11px]">✓</span> গড় ২৫% থেকে ৩৫% সম্ভাব্য সেভিংস
+                        </li>
+                    </ul>
+                </div>
+                <div class="mt-6 pt-4 border-t border-slate-100">
+                    <a href="{{ route('calculators.land-share') }}" class="w-full py-2.5 px-3 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold shadow-md transition flex items-center justify-center gap-1.5">
                         <span>সাশ্রয় হিসাব করুন</span>
                         <span>&rarr;</span>
                     </a>
                 </div>
             </div>
 
-            <!-- Card 3: Property Valuation Estimator -->
-            <div class="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 shadow-xs hover:shadow-xl transition-all flex flex-col justify-between group">
+            <!-- Card 4: Property Valuation Estimator -->
+            <div class="bg-white rounded-3xl border border-slate-200/90 p-5 sm:p-6 shadow-xs hover:shadow-xl transition-all flex flex-col justify-between group">
                 <div>
-                    <div class="w-14 h-14 rounded-2xl bg-amber-100 text-amber-800 flex items-center justify-center text-2xl mb-6 group-hover:scale-110 transition-transform shadow-xs">
+                    <div class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-800 flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition-transform shadow-xs">
                         💡
                     </div>
-                    <span class="px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-amber-50 text-amber-800 border border-amber-200 uppercase tracking-wider block w-max mb-2">
+                    <span class="px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200 uppercase tracking-wider block w-max mb-2">
                         স্মার্ট এস্টিমেটর
                     </span>
-                    <h2 class="text-xl font-bold text-slate-900 leading-snug group-hover:text-amber-600 transition-colors">
+                    <h2 class="text-base sm:text-lg font-bold text-slate-900 leading-snug group-hover:text-amber-600 transition-colors">
                         স্মার্ট প্রপার্টি ভ্যালুয়েশন এস্টিমেটর
                     </h2>
-                    <p class="mt-3 text-xs sm:text-sm text-slate-600 leading-relaxed">
+                    <p class="mt-2 text-xs text-slate-600 leading-relaxed">
                         আফতাবনগর, বসুন্ধরা, গুলশান ও ঢাকার বিভিন্ন ব্লকে রাস্তা, ফ্লোর লেভেল ও ফেসিং অনুযায়ী জমি বা ফ্ল্যাটের বর্তমান ফেয়ার মার্কেট মূল্য রেঞ্জ জানুন।
                     </p>
-                    <ul class="mt-4 space-y-2 text-xs text-slate-600">
-                        <li class="flex items-center gap-2">
-                            <span class="text-amber-600 font-bold">✓</span> ২০-৬০ ফুট রোড ও কর্নার প্লট ফ্যাক্টর
+                    <ul class="mt-4 space-y-1.5 text-xs text-slate-600">
+                        <li class="flex items-center gap-1.5">
+                            <span class="text-amber-600 font-bold text-[11px]">✓</span> ২০-৬০ ফুট রোড ও কর্নার ফ্যাক্টর
                         </li>
-                        <li class="flex items-center gap-2">
-                            <span class="text-amber-600 font-bold">✓</span> ফ্ল্যাটের ফ্লোর ও কার পার্কিং প্রিমিয়াম
+                        <li class="flex items-center gap-1.5">
+                            <span class="text-amber-600 font-bold text-[11px]">✓</span> ফ্ল্যাটের ফ্লোর ও পার্কিং প্রিমিয়াম
                         </li>
-                        <li class="flex items-center gap-2">
-                            <span class="text-amber-600 font-bold">✓</span> শতভাগ স্বচ্ছ ও দালালমুক্ত প্রাইসিং
+                        <li class="flex items-center gap-1.5">
+                            <span class="text-amber-600 font-bold text-[11px]">✓</span> শতভাগ স্বচ্ছ ও দালালমুক্ত প্রাইসিং
                         </li>
                     </ul>
                 </div>
-                <div class="mt-8 pt-6 border-t border-slate-100">
-                    <a href="{{ route('valuation.index') }}" class="w-full py-3 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs sm:text-sm font-bold shadow-md transition flex items-center justify-center gap-2">
+                <div class="mt-6 pt-4 border-t border-slate-100">
+                    <a href="{{ route('valuation.index') }}" class="w-full py-2.5 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold shadow-md transition flex items-center justify-center gap-1.5">
                         <span>মার্কেট দর যাচাই করুন</span>
                         <span>&rarr;</span>
                     </a>

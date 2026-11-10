@@ -69,6 +69,7 @@ class GuidesAndCalculatorsTest extends TestCase
         $hubResponse = $this->get(route('calculators.index'));
         $hubResponse->assertStatus(200);
         $hubResponse->assertSee('রেজিস্ট্রেশন ফি ও ট্যাক্স ক্যালকুলেটর');
+        $hubResponse->assertSee('রাজউক ড্যাপ ও FAR ক্যালকুলেটর');
         $hubResponse->assertSee('ল্যান্ড শেয়ার ROI ও সেভিংস ক্যালকুলেটর');
 
         $regResponse = $this->get(route('calculators.registration'));
@@ -76,6 +77,14 @@ class GuidesAndCalculatorsTest extends TestCase
         $regResponse->assertSee('স্ট্যাম্প শুল্ক (Stamp Duty)');
         $regResponse->assertSee('নিবন্ধন ফি (Registration Fee)');
         $regResponse->assertSee('উৎসে আয়কর (AIT - ধারা ৫৩এইচ)');
+
+        $farResponse = $this->get(route('calculators.rajuk-far'));
+        $farResponse->assertStatus(200);
+        $farResponse->assertSee('রাজউক ড্যাপ ও');
+        $farResponse->assertSee('FAR ক্যালকুলেটর ২০২৬');
+        $farResponse->assertSee('অনুমোদনযোগ্য সম্ভাব্য তলা');
+        $farResponse->assertSee('নির্ধারিত FAR মান');
+        $farResponse->assertSee('ইউনিয়ন পরিষদ এলাকা');
 
         $shareResponse = $this->get(route('calculators.land-share'));
         $shareResponse->assertStatus(200);

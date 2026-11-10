@@ -41,4 +41,19 @@ class CalculatorController extends Controller
         $ogMeta = SeoService::getOgMeta('calculator-land-share');
         return view('pages.calculators.land-share-roi', compact('featuredShares', 'ogMeta'));
     }
+
+    /**
+     * RAJUK DAP & FAR (Floor Area Ratio) Calculator
+     */
+    public function rajukFar(Request $request): View
+    {
+        $featuredPlots = Property::where('status', 'live')
+            ->where('type', 'land')
+            ->latest()
+            ->limit(3)
+            ->get();
+
+        $ogMeta = SeoService::getOgMeta('calculator-rajuk-far');
+        return view('pages.calculators.rajuk-far', compact('featuredPlots', 'ogMeta'));
+    }
 }

@@ -10,6 +10,7 @@ use App\Models\PropertyMedia;
 use App\Models\PropertyShareDetail;
 use App\Models\PropertyVerification;
 use App\Models\Setting;
+use App\Models\User;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 
@@ -40,6 +41,7 @@ class GoogleSheetSyncService
             if ($gid !== '') {
                 $csvUrl .= "&gid={$gid}";
             }
+
             return $csvUrl;
         }
 
@@ -61,10 +63,10 @@ class GoogleSheetSyncService
                 'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) PropertyKoi/1.0',
             ])->get($csvUrl);
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 return [
                     'success' => false,
-                    'error'   => "Google সার্ভার রেসপন্স কোড: {$response->status()}। শিটটি পাবলিক ও সঠিক লিংক কিনা চেক করুন।",
+                    'error' => "Google সার্ভার রেসপন্স কোড: {$response->status()}। শিটটি পাবলিক ও সঠিক লিংক কিনা চেক করুন।",
                 ];
             }
 
@@ -76,7 +78,7 @@ class GoogleSheetSyncService
             if (stripos($body, '<!DOCTYPE html') !== false || stripos($body, 'accounts.google.com') !== false) {
                 return [
                     'success' => false,
-                    'error'   => "Google Sheet টি পাবলিক করা নেই! অনুগ্রহ করে Sheet-টির Share সেটিংসে গিয়ে General access: 'Anyone with the link can view' নির্বাচন করুন।",
+                    'error' => "Google Sheet টি পাবলিক করা নেই! অনুগ্রহ করে Sheet-টির Share সেটিংসে গিয়ে General access: 'Anyone with the link can view' নির্বাচন করুন।",
                 ];
             }
 
@@ -84,7 +86,7 @@ class GoogleSheetSyncService
         } catch (\Throwable $e) {
             return [
                 'success' => false,
-                'error'   => 'গুগল শিট থেকে ডাটা আনা সম্ভব হয়নি: ' . $e->getMessage(),
+                'error' => 'গুগল শিট থেকে ডাটা আনা সম্ভব হয়নি: '.$e->getMessage(),
             ];
         }
     }
@@ -96,6 +98,7 @@ class GoogleSheetSyncService
     {
         $bn = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
         $en = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+
         return str_replace($bn, $en, trim($str));
     }
 
@@ -111,8 +114,9 @@ class GoogleSheetSyncService
         rewind($stream);
 
         $rawHeaders = fgetcsv($stream);
-        if (!$rawHeaders || empty($rawHeaders)) {
+        if (! $rawHeaders || empty($rawHeaders)) {
             fclose($stream);
+
             return [];
         }
 
@@ -139,12 +143,13 @@ class GoogleSheetSyncService
                     $mapped[$key] = trim((string) $val);
                 }
             }
-            if (!empty($mapped)) {
+            if (! empty($mapped)) {
                 $rows[] = $mapped;
             }
         }
 
         fclose($stream);
+
         return $rows;
     }
 
@@ -210,7 +215,7 @@ class GoogleSheetSyncService
     public static function preview(string $sheetUrl, int $limit = 5): array
     {
         $fetched = self::fetchCsvContent($sheetUrl);
-        if (!$fetched['success']) {
+        if (! $fetched['success']) {
             return $fetched;
         }
 
@@ -219,10 +224,10 @@ class GoogleSheetSyncService
         $sampleRows = array_slice($rows, 0, $limit);
 
         return [
-            'success'     => true,
-            'total_rows'  => $totalRows,
+            'success' => true,
+            'total_rows' => $totalRows,
             'sample_rows' => $sampleRows,
-            'csv_url'     => $fetched['csv_url'],
+            'csv_url' => $fetched['csv_url'],
         ];
     }
 
@@ -231,18 +236,18 @@ class GoogleSheetSyncService
      */
     public static function normalizeRow(array $row): array
     {
-        $area = !empty($row['area']) ? trim($row['area']) : 'Aftabnagar';
-        $subArea = !empty($row['sub_area']) ? trim($row['sub_area']) : '';
-        $block = !empty($row['block']) ? trim($row['block']) : '';
+        $area = ! empty($row['area']) ? trim($row['area']) : 'Aftabnagar';
+        $subArea = ! empty($row['sub_area']) ? trim($row['sub_area']) : '';
+        $block = ! empty($row['block']) ? trim($row['block']) : '';
 
         if (empty($block) && preg_match('/(?:block|ব্লক)\s*([a-zA-Z0-9]+)/iu', $subArea, $m)) {
             $block = strtoupper($m[1]);
         }
-        if (!empty($block)) {
+        if (! empty($block)) {
             $block = trim(preg_replace('/^(?:block|ব্লক)\s*/iu', '', $block));
         }
 
-        $plotNumber = !empty($row['plot_number']) ? self::toEnNumber($row['plot_number']) : '';
+        $plotNumber = ! empty($row['plot_number']) ? self::toEnNumber($row['plot_number']) : '';
         $plotNumber = trim(preg_replace('/^(?:plot|প্লট|নং|#)\s*/iu', '', $plotNumber));
 
         $rawType = mb_strtolower(trim($row['type'] ?? ''), 'UTF-8');
@@ -255,9 +260,9 @@ class GoogleSheetSyncService
             $type = 'commercial';
         }
 
-        $rawSize = !empty($row['size']) ? strtolower(trim(self::toEnNumber($row['size']))) : '';
+        $rawSize = ! empty($row['size']) ? strtolower(trim(self::toEnNumber($row['size']))) : '';
         $size = 0.0;
-        if (!empty($rawSize)) {
+        if (! empty($rawSize)) {
             // Handle multiplication: e.g. "2.5 * 20 katha", "100*20", "2.5x20"
             if (preg_match('/([0-9.]+)\s*[\*xX×]\s*([0-9.]+)/u', $rawSize, $sm)) {
                 $size = round((float) $sm[1] * (float) $sm[2], 2);
@@ -270,16 +275,16 @@ class GoogleSheetSyncService
             }
         }
 
-        $rawPrice = !empty($row['asking_price']) ? trim((string)$row['asking_price']) : '';
+        $rawPrice = ! empty($row['asking_price']) ? trim((string) $row['asking_price']) : '';
         $askingPrice = 0.0;
-        if (!empty($rawPrice)) {
+        if (! empty($rawPrice)) {
             $enPrice = self::toEnNumber($rawPrice);
             if (preg_match('/([0-9.]+)\s*(?:lac|lakh|লাখ)/i', $enPrice, $pm)) {
-                $askingPrice = (float)$pm[1] * 100000;
+                $askingPrice = (float) $pm[1] * 100000;
             } elseif (preg_match('/([0-9.]+)\s*(?:cr|crore|কোটি)/i', $enPrice, $pm)) {
-                $askingPrice = (float)$pm[1] * 10000000;
+                $askingPrice = (float) $pm[1] * 10000000;
             } elseif (preg_match('/^([0-9.]+)$/', preg_replace('/[^0-9.]/', '', $enPrice), $pm)) {
-                $val = (float)$pm[1];
+                $val = (float) $pm[1];
                 if ($val > 0 && $val < 50) {
                     $askingPrice = $val * 10000000; // e.g. 1.25 -> 1.25 crore
                 } else {
@@ -288,7 +293,7 @@ class GoogleSheetSyncService
             }
         }
 
-        $pricePerUnit = !empty($row['price_per_unit']) ? (float) self::toEnNumber(preg_replace('/[^0-9.]/', '', $row['price_per_unit'])) : 0.0;
+        $pricePerUnit = ! empty($row['price_per_unit']) ? (float) self::toEnNumber(preg_replace('/[^0-9.]/', '', $row['price_per_unit'])) : 0.0;
 
         if ($askingPrice <= 0 && $pricePerUnit > 0 && $size > 0) {
             $askingPrice = $pricePerUnit * $size;
@@ -296,7 +301,7 @@ class GoogleSheetSyncService
             $pricePerUnit = $askingPrice / $size;
         }
 
-        $title = !empty($row['title']) ? trim($row['title']) : '';
+        $title = ! empty($row['title']) ? trim($row['title']) : '';
         if (empty($title)) {
             $typeLabel = match ($type) {
                 'land' => 'জমির প্লট',
@@ -304,13 +309,13 @@ class GoogleSheetSyncService
                 'commercial' => 'কমার্শিয়াল স্পেস',
                 default => 'রেডি ফ্ল্যাট',
             };
-            $loc = $area . ($block ? ", ব্লক {$block}" : '') . ($subArea && $subArea !== $block ? ", {$subArea}" : '');
+            $loc = $area.($block ? ", ব্লক {$block}" : '').($subArea && $subArea !== $block ? ", {$subArea}" : '');
             $sizeStr = ($size > 0) ? ($type === 'flat' ? " ({$size} স্কয়ারফিট)" : " ({$size} কাঠা)") : '';
             $title = "{$loc} এ আকর্ষণীয় {$typeLabel}{$sizeStr}";
         }
 
-        $roadNumber = !empty($row['road_number']) ? self::toEnNumber($row['road_number']) : '';
-        $roadWidthFt = !empty($row['road_width_ft']) ? (int) self::toEnNumber($row['road_width_ft']) : 20;
+        $roadNumber = ! empty($row['road_number']) ? self::toEnNumber($row['road_number']) : '';
+        $roadWidthFt = ! empty($row['road_width_ft']) ? (int) self::toEnNumber($row['road_width_ft']) : 20;
 
         $facingMap = [
             'south' => 'south', 'দক্ষিণ' => 'south', 'দক্ষিন' => 'south',
@@ -323,14 +328,14 @@ class GoogleSheetSyncService
             'north-west' => 'north-west', 'উত্তর-পশ্চিম' => 'north-west',
         ];
         $rawFacing = mb_strtolower(trim($row['facing'] ?? ''), 'UTF-8');
-        $facing = (!empty($rawFacing) && isset($facingMap[$rawFacing])) ? $facingMap[$rawFacing] : 'south';
+        $facing = (! empty($rawFacing) && isset($facingMap[$rawFacing])) ? $facingMap[$rawFacing] : 'south';
 
-        $ownerName = !empty($row['owner_name']) ? trim($row['owner_name']) : '';
-        $rawPhone  = !empty($row['owner_phone']) ? self::toEnNumber($row['owner_phone']) : '';
+        $ownerName = ! empty($row['owner_name']) ? trim($row['owner_name']) : '';
+        $rawPhone = ! empty($row['owner_phone']) ? self::toEnNumber($row['owner_phone']) : '';
         $ownerPhone = trim(preg_replace('/[^0-9+,\/ \-]/', '', $rawPhone));
 
         $sourceType = 'direct_owner';
-        if (!empty($row['source_type'])) {
+        if (! empty($row['source_type'])) {
             $st = mb_strtolower($row['source_type'], 'UTF-8');
             if (str_contains($st, 'agent') || str_contains($st, 'এজেন্ট')) {
                 $sourceType = 'direct_agent';
@@ -338,10 +343,14 @@ class GoogleSheetSyncService
         }
 
         $images = [];
-        if (!empty($row['images'])) {
+        if (! empty($row['images'])) {
             $parts = preg_split('/[\r\n,|;]+/', $row['images']);
             foreach ($parts as $p) {
                 $p = trim($p);
+                // Auto-convert standard Google Drive share/view links to direct image URLs
+                if (preg_match('/drive\.google\.com\/(?:file\/d\/|open\?id=)([a-zA-Z0-9_-]+)/i', $p, $dm)) {
+                    $p = "https://lh3.googleusercontent.com/d/{$dm[1]}";
+                }
                 if (filter_var($p, FILTER_VALIDATE_URL)) {
                     $images[] = $p;
                 }
@@ -349,19 +358,19 @@ class GoogleSheetSyncService
         }
 
         $customFields = [];
-        if (!empty($rawPrice)) {
+        if (! empty($rawPrice)) {
             $customFields[] = ['key' => 'মূল্য টেক্সট (Raw Price)', 'value' => $rawPrice];
         }
-        if (!empty($rawSize) && $rawSize !== (string)$size) {
+        if (! empty($rawSize) && $rawSize !== (string) $size) {
             $customFields[] = ['key' => 'জমির বিবরণ (Raw Size)', 'value' => $rawSize];
         }
-        if (!empty($row['time_line'])) {
+        if (! empty($row['time_line'])) {
             $customFields[] = ['key' => 'হস্তান্তর সময়সীমা', 'value' => trim($row['time_line'])];
         }
-        if (!empty($row['messenger'])) {
+        if (! empty($row['messenger'])) {
             $customFields[] = ['key' => 'ফেসবুক / মেসেঞ্জার লিংক', 'value' => trim($row['messenger'])];
         }
-        if (!empty($row['extra'])) {
+        if (! empty($row['extra'])) {
             $extra = trim($row['extra']);
             if (preg_match('/mouza[-\s:]+([A-Za-z0-9\s\x{0980}-\x{09FF}]+?)(?:,|\n|$)/iu', $extra, $em)) {
                 $customFields[] = ['key' => 'মৌজা (Mouza)', 'value' => trim($em[1])];
@@ -376,43 +385,56 @@ class GoogleSheetSyncService
                 $customFields[] = ['key' => 'সিটি জরিপ নম্বর', 'value' => trim($em[1])];
             }
             if (preg_match('/([0-9]+)\s*bigha/i', $extra, $em)) {
-                $customFields[] = ['key' => 'জমির পরিমাণ (বিঘা)', 'value' => trim($em[1]) . ' বিঘা'];
+                $customFields[] = ['key' => 'জমির পরিমাণ (বিঘা)', 'value' => trim($em[1]).' বিঘা'];
             }
             $customFields[] = ['key' => 'অতিরিক্ত বিবরণ ও কাগজপত্র', 'value' => $extra];
         }
 
         return [
-            'area'               => $area,
-            'sub_area'           => $subArea ?: $block,
-            'block'              => $block,
-            'plot_number'        => $plotNumber,
-            'road_number'        => $roadNumber,
-            'road_width_ft'      => $roadWidthFt,
-            'type'               => $type,
-            'title'              => $title,
-            'description'        => !empty($row['description']) ? trim($row['description']) : (!empty($row['extra']) ? trim($row['extra']) : ''),
-            'asking_price'       => $askingPrice,
-            'price_per_unit'     => $pricePerUnit,
-            'size'               => $size,
-            'facing'             => $facing,
-            'is_negotiable'      => !empty($row['is_negotiable']) ? 1 : 1,
-            'owner_name'         => $ownerName,
-            'owner_phone'        => $ownerPhone,
-            'source_type'        => $sourceType,
-            'images'             => $images,
-            'google_map_pin_url' => !empty($row['google_map_pin_url']) ? $row['google_map_pin_url'] : '',
-            'is_corner'          => !empty($row['corner']) ? 1 : 0,
-            'is_lake_facing'     => !empty($row['lake_facing']) ? 1 : 0,
-            'bedrooms'           => !empty($row['bedrooms']) ? (int) self::toEnNumber($row['bedrooms']) : 3,
-            'bathrooms'          => !empty($row['bathrooms']) ? (int) self::toEnNumber($row['bathrooms']) : 3,
-            'floor_number'       => !empty($row['floor_number']) ? (int) self::toEnNumber($row['floor_number']) : 1,
-            'completion_status'  => !empty($row['completion_status']) ? trim($row['completion_status']) : 'ready',
-            'has_lift'           => !empty($row['has_lift']) ? 1 : 0,
-            'parking_available'  => !empty($row['parking_available']) ? 1 : 0,
-            'project_name'       => !empty($row['project_name']) ? trim($row['project_name']) : '',
-            'developer_name'     => !empty($row['developer_name']) ? trim($row['developer_name']) : '',
-            'custom_fields'      => $customFields,
+            'area' => $area,
+            'sub_area' => $subArea ?: $block,
+            'block' => $block,
+            'plot_number' => $plotNumber,
+            'road_number' => $roadNumber,
+            'road_width_ft' => $roadWidthFt,
+            'type' => $type,
+            'title' => $title,
+            'description' => ! empty($row['description']) ? trim($row['description']) : (! empty($row['extra']) ? trim($row['extra']) : ''),
+            'asking_price' => $askingPrice,
+            'price_per_unit' => $pricePerUnit,
+            'size' => $size,
+            'facing' => $facing,
+            'is_negotiable' => ! empty($row['is_negotiable']) ? 1 : 1,
+            'owner_name' => $ownerName,
+            'owner_phone' => $ownerPhone,
+            'source_type' => $sourceType,
+            'images' => $images,
+            'google_map_pin_url' => ! empty($row['google_map_pin_url']) ? $row['google_map_pin_url'] : '',
+            'is_corner' => ! empty($row['corner']) ? 1 : 0,
+            'is_lake_facing' => ! empty($row['lake_facing']) ? 1 : 0,
+            'bedrooms' => ! empty($row['bedrooms']) ? (int) self::toEnNumber($row['bedrooms']) : 3,
+            'bathrooms' => ! empty($row['bathrooms']) ? (int) self::toEnNumber($row['bathrooms']) : 3,
+            'floor_number' => ! empty($row['floor_number']) ? (int) self::toEnNumber($row['floor_number']) : 1,
+            'completion_status' => ! empty($row['completion_status']) ? trim($row['completion_status']) : 'ready',
+            'has_lift' => ! empty($row['has_lift']) ? 1 : 0,
+            'parking_available' => ! empty($row['parking_available']) ? 1 : 0,
+            'project_name' => ! empty($row['project_name']) ? trim($row['project_name']) : '',
+            'developer_name' => ! empty($row['developer_name']) ? trim($row['developer_name']) : '',
+            'custom_fields' => $customFields,
         ];
+    }
+
+    /**
+     * Convenience method to run sync immediately using configured or passed URL.
+     */
+    public static function syncNow(?string $url = null, array $options = []): array
+    {
+        $sheetUrl = $url ?: trim((string) Setting::get('adm_google_sheet_url', Setting::get('google_sheet_url', '')));
+        if (empty($sheetUrl)) {
+            $sheetUrl = 'https://docs.google.com/spreadsheets/d/1XWYmjcrBCIwIpBSnpCzvkH7sdtVPeIOSP9XoxmvH6r8/edit?usp=sharing';
+        }
+
+        return self::sync($sheetUrl, $options);
     }
 
     /**
@@ -421,7 +443,7 @@ class GoogleSheetSyncService
     public static function sync(string $sheetUrl, array $options = []): array
     {
         $fetched = self::fetchCsvContent($sheetUrl);
-        if (!$fetched['success']) {
+        if (! $fetched['success']) {
             return $fetched;
         }
 
@@ -429,7 +451,7 @@ class GoogleSheetSyncService
         if (empty($rawRows)) {
             return [
                 'success' => false,
-                'error'   => 'গুগল শিট থেকে কোনো প্রপার্টি ডাটা রিড করা সম্ভব হয়নি। হেডার নাম ঠিক আছে কিনা যাচাই করুন।',
+                'error' => 'গুগল শিট থেকে কোনো প্রপার্টি ডাটা রিড করা সম্ভব হয়নি। হেডার নাম ঠিক আছে কিনা যাচাই করুন।',
             ];
         }
 
@@ -437,21 +459,21 @@ class GoogleSheetSyncService
         $defaultStatus = $options['status'] ?? ($directLiveOpt ? 'live' : 'pending_verification');
         $currentUserId = auth()->id() ?? 1;
 
-        $totalRead     = count($rawRows);
-        $createdCount  = 0;
+        $totalRead = count($rawRows);
+        $createdCount = 0;
         $mergedSources = 0;
-        $skippedCount  = 0;
-        $errors        = [];
+        $skippedCount = 0;
+        $errors = [];
 
         foreach ($rawRows as $rowIdx => $rawRow) {
             $lineNum = $rowIdx + 2;
             $data = self::normalizeRow($rawRow);
 
-            $area       = $data['area'];
-            $subArea    = $data['sub_area'];
-            $block      = $data['block'];
+            $area = $data['area'];
+            $subArea = $data['sub_area'];
+            $block = $data['block'];
             $plotNumber = $data['plot_number'];
-            $type       = $data['type'];
+            $type = $data['type'];
 
             // Anti-Duplication Check
             $duplicate = null;
@@ -473,22 +495,23 @@ class GoogleSheetSyncService
                         ->exists();
                 }
 
-                if (!$alreadySource && ($data['owner_name'] || $phone)) {
+                if (! $alreadySource && ($data['owner_name'] || $phone)) {
                     PropertyDirectSource::create([
-                        'property_id'              => $existingPropId,
-                        'source_user_id'           => $currentUserId,
-                        'source_type'              => $data['source_type'],
+                        'property_id' => $existingPropId,
+                        'source_user_id' => $currentUserId,
+                        'source_type' => $data['source_type'],
                         'relationship_declaration' => ($data['source_type'] === 'owner' || $data['source_type'] === 'direct_owner') ? 'সরাসরি প্রপার্টির মালিক (Direct Owner)' : 'অনুমোদিত ডিরেক্ট এজেন্ট (Direct Agent)',
-                        'owner_name'               => $data['owner_name'],
-                        'owner_phone'              => $phone,
-                        'asking_price'             => $data['asking_price'],
-                        'is_primary_source'        => false,
-                        'verification_status'      => 'pending',
+                        'owner_name' => $data['owner_name'],
+                        'owner_phone' => $phone,
+                        'asking_price' => $data['asking_price'],
+                        'is_primary_source' => false,
+                        'verification_status' => 'pending',
                     ]);
                     $mergedSources++;
                 } else {
                     $skippedCount++;
                 }
+
                 continue;
             }
 
@@ -501,96 +524,96 @@ class GoogleSheetSyncService
                 default => "{$areaCode}-LAND-",
             };
 
-            $code = $prefix . rand(10000, 99999);
-            $slug = Str::slug($data['title']) . '-' . rand(100, 999);
+            $code = $prefix.rand(10000, 99999);
+            $slug = Str::slug($data['title']).'-'.rand(100, 999);
 
             $prop = Property::create([
-                'property_code'      => $code,
-                'type'               => $type,
-                'title'              => $data['title'],
-                'slug'               => $slug,
-                'description'        => $data['description'],
-                'area'               => $area,
-                'sub_area'           => $subArea,
-                'block'              => $block,
-                'road_number'        => $data['road_number'],
-                'road_width_ft'      => $data['road_width_ft'],
-                'plot_number'        => $plotNumber,
-                'facing'             => $data['facing'],
-                'is_negotiable'      => (bool) $data['is_negotiable'],
-                'status'             => $defaultStatus,
+                'property_code' => $code,
+                'type' => $type,
+                'title' => $data['title'],
+                'slug' => $slug,
+                'description' => $data['description'],
+                'area' => $area,
+                'sub_area' => $subArea,
+                'block' => $block,
+                'road_number' => $data['road_number'],
+                'road_width_ft' => $data['road_width_ft'],
+                'plot_number' => $plotNumber,
+                'facing' => $data['facing'],
+                'is_negotiable' => (bool) $data['is_negotiable'],
+                'status' => $defaultStatus,
                 'created_by_user_id' => $currentUserId,
-                'custom_fields'      => $data['custom_fields'] ?? [],
+                'custom_fields' => $data['custom_fields'] ?? [],
             ]);
 
             // Specs
             if ($type === 'land') {
                 PropertyLandDetail::create([
-                    'property_id'         => $prop->id,
-                    'katha_size'          => $data['size'],
-                    'price_total'         => $data['asking_price'],
-                    'price_per_katha'     => $data['price_per_unit'],
-                    'is_corner'           => (bool) $data['is_corner'],
-                    'is_lake_facing'      => (bool) $data['is_lake_facing'],
-                    'boundary_wall_done'  => false,
+                    'property_id' => $prop->id,
+                    'katha_size' => $data['size'],
+                    'price_total' => $data['asking_price'],
+                    'price_per_katha' => $data['price_per_unit'],
+                    'is_corner' => (bool) $data['is_corner'],
+                    'is_lake_facing' => (bool) $data['is_lake_facing'],
+                    'boundary_wall_done' => false,
                     'soil_filling_status' => 'filled',
                 ]);
             } elseif ($type === 'flat') {
                 PropertyFlatDetail::create([
-                    'property_id'       => $prop->id,
-                    'flat_size_sqft'    => $data['size'],
-                    'price_total'       => $data['asking_price'],
-                    'price_per_sqft'    => $data['price_per_unit'],
-                    'bedrooms'          => $data['bedrooms'],
-                    'bathrooms'         => $data['bathrooms'],
-                    'floor_number'      => $data['floor_number'],
+                    'property_id' => $prop->id,
+                    'flat_size_sqft' => $data['size'],
+                    'price_total' => $data['asking_price'],
+                    'price_per_sqft' => $data['price_per_unit'],
+                    'bedrooms' => $data['bedrooms'],
+                    'bathrooms' => $data['bathrooms'],
+                    'floor_number' => $data['floor_number'],
                     'completion_status' => $data['completion_status'],
-                    'has_lift'          => (bool) $data['has_lift'],
+                    'has_lift' => (bool) $data['has_lift'],
                     'parking_available' => (bool) $data['parking_available'],
                 ]);
             } elseif ($type === 'land_share') {
                 PropertyShareDetail::create([
-                    'property_id'      => $prop->id,
-                    'project_name'     => $data['project_name'],
-                    'developer_name'   => $data['developer_name'],
-                    'land_size_katha'  => $data['size'],
-                    'share_price'      => $data['asking_price'],
-                    'has_lift'         => (bool) $data['has_lift'],
-                    'has_parking'      => (bool) $data['parking_available'],
+                    'property_id' => $prop->id,
+                    'project_name' => $data['project_name'],
+                    'developer_name' => $data['developer_name'],
+                    'land_size_katha' => $data['size'],
+                    'share_price' => $data['asking_price'],
+                    'has_lift' => (bool) $data['has_lift'],
+                    'has_parking' => (bool) $data['parking_available'],
                 ]);
             }
 
             // Direct Source
             PropertyDirectSource::create([
-                'property_id'              => $prop->id,
-                'source_user_id'           => $currentUserId,
-                'source_type'              => $data['source_type'],
+                'property_id' => $prop->id,
+                'source_user_id' => $currentUserId,
+                'source_type' => $data['source_type'],
                 'relationship_declaration' => ($data['source_type'] === 'owner' || $data['source_type'] === 'direct_owner') ? 'সরাসরি প্রপার্টির মালিক (Direct Owner)' : 'অনুমোদিত ডিরেক্ট এজেন্ট (Direct Agent)',
-                'owner_name'               => $data['owner_name'],
-                'owner_phone'              => $data['owner_phone'],
-                'asking_price'             => $data['asking_price'],
-                'is_primary_source'        => true,
-                'verification_status'      => 'pending',
+                'owner_name' => $data['owner_name'],
+                'owner_phone' => $data['owner_phone'],
+                'asking_price' => $data['asking_price'],
+                'is_primary_source' => true,
+                'verification_status' => 'pending',
             ]);
 
             // Verification Checklist (4 points unchecked)
             PropertyVerification::create([
-                'property_id'             => $prop->id,
-                'owner_identity_checked'  => false,
-                'location_checked'        => false,
-                'basic_info_checked'      => false,
+                'property_id' => $prop->id,
+                'owner_identity_checked' => false,
+                'location_checked' => false,
+                'basic_info_checked' => false,
                 'basic_documents_checked' => false,
             ]);
 
             // Images
-            if (!empty($data['images'])) {
+            if (! empty($data['images'])) {
                 foreach ($data['images'] as $imgIdx => $imgUrl) {
                     PropertyMedia::create([
                         'property_id' => $prop->id,
-                        'file_path'   => $imgUrl,
-                        'media_type'  => 'photo',
-                        'is_cover'    => ($imgIdx === 0),
-                        'sort_order'  => $imgIdx,
+                        'file_path' => $imgUrl,
+                        'media_type' => 'photo',
+                        'is_cover' => ($imgIdx === 0),
+                        'sort_order' => $imgIdx,
                     ]);
                 }
             }
@@ -599,13 +622,13 @@ class GoogleSheetSyncService
         }
 
         $report = [
-            'timestamp'      => now()->toDateTimeString(),
-            'total_read'     => $totalRead,
-            'created'        => $createdCount,
+            'timestamp' => now()->toDateTimeString(),
+            'total_read' => $totalRead,
+            'created' => $createdCount,
             'merged_sources' => $mergedSources,
-            'skipped'        => $skippedCount,
-            'error_count'    => count($errors),
-            'errors'         => array_slice($errors, 0, 10),
+            'skipped' => $skippedCount,
+            'error_count' => count($errors),
+            'errors' => array_slice($errors, 0, 10),
         ];
 
         Setting::set('adm_google_sheet_last_sync_report', $report);
@@ -614,7 +637,7 @@ class GoogleSheetSyncService
         return [
             'success' => true,
             'message' => "গুগল শিট সিঙ্ক সফল হয়েছে! মোট রিড: {$totalRead}টি, নতুন প্রপার্টি তৈরি: {$createdCount}টি, ডুপ্লিকেট রোধ করে সোর্স মার্জ: {$mergedSources}টি, স্কিপ: {$skippedCount}টি।",
-            'report'  => $report,
+            'report' => $report,
         ];
     }
 
@@ -625,12 +648,12 @@ class GoogleSheetSyncService
     {
         $cleanPhone = preg_replace('/[^0-9]/', '', $rawPhone);
         if (strlen($cleanPhone) === 10 && str_starts_with($cleanPhone, '1')) {
-            $cleanPhone = '0' . $cleanPhone;
+            $cleanPhone = '0'.$cleanPhone;
         } elseif (strlen($cleanPhone) === 13 && str_starts_with($cleanPhone, '880')) {
             $cleanPhone = substr($cleanPhone, 2);
         }
 
-        if (strlen($cleanPhone) !== 11 || !str_starts_with($cleanPhone, '01')) {
+        if (strlen($cleanPhone) !== 11 || ! str_starts_with($cleanPhone, '01')) {
             return [
                 'success' => false,
                 'message' => 'অনুগ্রহ করে সঠিক ১১ ডিজিটের WhatsApp নম্বর প্রদান করুন (যেমন: 017xxxxxxxx)।',
@@ -640,13 +663,13 @@ class GoogleSheetSyncService
         $last10 = substr($cleanPhone, 1);
 
         // Find user by phone, whatsapp_number, or last 10 digits
-        $user = \App\Models\User::where('phone', $cleanPhone)
+        $user = User::where('phone', $cleanPhone)
             ->orWhere('whatsapp_number', $cleanPhone)
             ->orWhere('phone', 'like', "%{$last10}")
             ->orWhere('whatsapp_number', 'like', "%{$last10}")
             ->first();
 
-        if (!$user) {
+        if (! $user) {
             return [
                 'success' => false,
                 'message' => "WhatsApp নম্বর '{$cleanPhone}' দিয়ে কোনো নিবন্ধিত ব্যবহারকারী অ্যাকাউন্ট পাওয়া যায়নি। অনুগ্রহ করে প্রথমে এই WhatsApp নম্বর দিয়ে অ্যাকাউন্ট সাইনআপ করতে বলুন।",
@@ -658,8 +681,8 @@ class GoogleSheetSyncService
         // Find matching direct sources with this phone number
         $sources = PropertyDirectSource::where(function ($q) use ($cleanPhone, $last10, $rawPhone) {
             $q->where('owner_phone', 'like', "%{$cleanPhone}%")
-              ->orWhere('owner_phone', 'like', "%{$last10}%")
-              ->orWhere('owner_phone', 'like', "%{$rawPhone}%");
+                ->orWhere('owner_phone', 'like', "%{$last10}%")
+                ->orWhere('owner_phone', 'like', "%{$rawPhone}%");
         })->with('property')->get();
 
         $linkedProps = [];
@@ -668,19 +691,22 @@ class GoogleSheetSyncService
 
         foreach ($sources as $source) {
             $prop = $source->property;
-            if (!$prop) continue;
+            if (! $prop) {
+                continue;
+            }
 
             $pid = $prop->id;
 
             if ($source->source_user_id === $user->id && $prop->created_by_user_id === $user->id) {
                 $alreadyLinkedCount++;
+
                 continue;
             }
 
             $source->update(['source_user_id' => $user->id]);
             $prop->update(['created_by_user_id' => $user->id]);
 
-            if (!in_array($pid, $linkedPids, true)) {
+            if (! in_array($pid, $linkedPids, true)) {
                 $linkedPids[] = $pid;
                 $typeLabel = match ($prop->type) {
                     'land' => 'জমি',
@@ -689,16 +715,16 @@ class GoogleSheetSyncService
                     default => 'ফ্ল্যাট',
                 };
                 $linkedProps[] = [
-                    'id'            => $pid,
+                    'id' => $pid,
                     'property_code' => $prop->property_code,
-                    'title'         => $prop->title,
-                    'type'          => $prop->type,
-                    'type_label'    => $typeLabel,
-                    'block'         => $prop->block,
-                    'plot_number'   => $prop->plot_number,
-                    'owner_name'    => $source->owner_name,
-                    'owner_phone'   => $source->owner_phone,
-                    'url'           => url('/property/' . $prop->slug),
+                    'title' => $prop->title,
+                    'type' => $prop->type,
+                    'type_label' => $typeLabel,
+                    'block' => $prop->block,
+                    'plot_number' => $prop->plot_number,
+                    'owner_name' => $source->owner_name,
+                    'owner_phone' => $source->owner_phone,
+                    'url' => url('/property/'.$prop->slug),
                 ];
             }
         }
@@ -708,14 +734,14 @@ class GoogleSheetSyncService
         if ($count === 0) {
             if ($alreadyLinkedCount > 0) {
                 return [
-                    'success'        => true,
-                    'message'        => "এই WhatsApp নম্বরের ({$cleanPhone}) মোট {$alreadyLinkedCount}টি প্রপার্টি ইতিমধ্যে ব্যবহারকারী '{$userName}' এর অ্যাকাউন্টে লিংক করা রয়েছে। নতুন কোনো প্যারেন্টলেস প্রপার্টি পাওয়া যায়নি।",
-                    'linked_count'   => 0,
+                    'success' => true,
+                    'message' => "এই WhatsApp নম্বরের ({$cleanPhone}) মোট {$alreadyLinkedCount}টি প্রপার্টি ইতিমধ্যে ব্যবহারকারী '{$userName}' এর অ্যাকাউন্টে লিংক করা রয়েছে। নতুন কোনো প্যারেন্টলেস প্রপার্টি পাওয়া যায়নি।",
+                    'linked_count' => 0,
                     'already_linked' => $alreadyLinkedCount,
-                    'user_name'      => $userName,
-                    'user_id'        => $user->id,
-                    'user_phone'     => $cleanPhone,
-                    'properties'     => [],
+                    'user_name' => $userName,
+                    'user_id' => $user->id,
+                    'user_phone' => $cleanPhone,
+                    'properties' => [],
                 ];
             }
 
@@ -726,14 +752,14 @@ class GoogleSheetSyncService
         }
 
         return [
-            'success'        => true,
-            'message'        => "সফল! মোট {$count}টি প্রপার্টি সফলভাবে ব্যবহারকারী '{$userName}' (ID: {$user->id}, Phone: {$cleanPhone})-এর অ্যাকাউন্টের সাথে লিঙ্ক করা হয়েছে। ব্যবহারকারী এখন তার ড্যাশবোর্ডে 'আমার প্রপার্টি' ট্যাবে এগুলো দেখতে পাবেন।",
-            'linked_count'   => $count,
+            'success' => true,
+            'message' => "সফল! মোট {$count}টি প্রপার্টি সফলভাবে ব্যবহারকারী '{$userName}' (ID: {$user->id}, Phone: {$cleanPhone})-এর অ্যাকাউন্টের সাথে লিঙ্ক করা হয়েছে। ব্যবহারকারী এখন তার ড্যাশবোর্ডে 'আমার প্রপার্টি' ট্যাবে এগুলো দেখতে পাবেন।",
+            'linked_count' => $count,
             'already_linked' => $alreadyLinkedCount,
-            'user_name'      => $userName,
-            'user_id'        => $user->id,
-            'user_phone'     => $cleanPhone,
-            'properties'     => $linkedProps,
+            'user_name' => $userName,
+            'user_id' => $user->id,
+            'user_phone' => $cleanPhone,
+            'properties' => $linkedProps,
         ];
     }
 }

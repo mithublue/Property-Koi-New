@@ -405,7 +405,7 @@
                                 {{ $plot->area }} • {{ $plot->block ? 'ব্লক ' . $plot->block : '' }}
                             </span>
                             <h3 class="font-bold text-slate-900 text-sm line-clamp-1 mb-1">
-                                <a href="{{ route('properties.show', $plot->slug) }}" class="hover:text-emerald-600 transition">
+                                <a href="{{ route('property.show', $plot->slug) }}" class="hover:text-emerald-600 transition">
                                     {{ $plot->title }}
                                 </a>
                             </h3>

@@ -78,6 +78,18 @@ class GuidesAndCalculatorsTest extends TestCase
         $regResponse->assertSee('নিবন্ধন ফি (Registration Fee)');
         $regResponse->assertSee('উৎসে আয়কর (AIT - ধারা ৫৩এইচ)');
 
+        // Create test land property to verify featured plots rendering in calculator
+        \App\Models\Property::create([
+            'property_code' => 'PK-TEST-LAND',
+            'type'          => 'land',
+            'title'         => 'টেস্ট প্লট আফতাবনগর',
+            'slug'          => 'test-plot-aftabnagar',
+            'status'        => 'live',
+            'area'          => 'Aftabnagar',
+            'block'         => 'A',
+            'description'   => 'টেস্ট প্লটের বিবরণ',
+        ]);
+
         $farResponse = $this->get(route('calculators.rajuk-far'));
         $farResponse->assertStatus(200);
         $farResponse->assertSee('রাজউক ড্যাপ ও');
@@ -85,6 +97,7 @@ class GuidesAndCalculatorsTest extends TestCase
         $farResponse->assertSee('অনুমোদনযোগ্য সম্ভাব্য তলা');
         $farResponse->assertSee('নির্ধারিত FAR মান');
         $farResponse->assertSee('ইউনিয়ন পরিষদ এলাকা');
+        $farResponse->assertSee('টেস্ট প্লট আফতাবনগর');
 
         $shareResponse = $this->get(route('calculators.land-share'));
         $shareResponse->assertStatus(200);

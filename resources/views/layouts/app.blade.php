@@ -1,10 +1,14 @@
 <!DOCTYPE html>
-<html lang="bn" class="scroll-smooth">
+<html lang="bn" class="scroll-smooth notranslate" translate="no">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="turbo-cache-control" content="no-cache">
+
+    <!-- Disable Browser / Google Chrome Auto-Translate Popup -->
+    <meta name="google" content="notranslate">
+    <meta name="googlebot" content="notranslate">
 
     <!-- Site Identity, Dynamic Branding, SEO & AEO Meta Tags -->
     @php

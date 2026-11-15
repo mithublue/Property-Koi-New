@@ -40,7 +40,7 @@
                     </label>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <button type="button"
-                                @click="adminMode = 'rajuk'; updateCalculations()"
+                                @click="setAdminMode('rajuk')"
                                 :class="adminMode === 'rajuk' ? 'border-indigo-600 bg-indigo-50/60 ring-2 ring-indigo-500/20 text-indigo-950 font-bold' : 'border-slate-200 bg-slate-50/50 hover:bg-slate-100/70 text-slate-700 font-medium'"
                                 class="p-3.5 rounded-2xl border text-left transition cursor-pointer flex items-center gap-3">
                             <span class="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center text-lg shrink-0">🏢</span>
@@ -51,7 +51,7 @@
                         </button>
 
                         <button type="button"
-                                @click="adminMode = 'union_porishod'; updateCalculations()"
+                                @click="setAdminMode('union_porishod')"
                                 :class="adminMode === 'union_porishod' ? 'border-purple-600 bg-purple-50/60 ring-2 ring-purple-500/20 text-purple-950 font-bold' : 'border-slate-200 bg-slate-50/50 hover:bg-slate-100/70 text-slate-700 font-medium'"
                                 class="p-3.5 rounded-2xl border text-left transition cursor-pointer flex items-center gap-3">
                             <span class="w-10 h-10 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center text-lg shrink-0">🏡</span>
@@ -62,12 +62,35 @@
                         </button>
                     </div>
 
-                    <!-- Union Porishod Disclaimer Alert -->
+                    <!-- Union Porishod Construction Practice Toggle & Note -->
                     <template x-if="adminMode === 'union_porishod'">
-                        <div class="mt-3 p-3.5 rounded-xl bg-purple-50/70 border border-purple-200 text-purple-900 text-xs leading-relaxed flex items-start gap-2.5">
-                            <span class="text-base shrink-0">💡</span>
-                            <div>
-                                <strong>ইউনিয়ন পরিষদ নোট:</strong> সিটি কর্পোরেশনের বাইরের ইউনিয়নগুলোতে মানুষ সাধারণত রাজউকের অনুমোদন ছাড়াই ইউনিয়ন পরিষদ বা স্থানীয় প্রকৌশলীর পরামর্শে ভবন নির্মাণ করে থাকে। এখানে কাঠামোগত নিরাপত্তা নিশ্চিত করে প্রস্তাবিত সেফটি লেআউট গণনা করা হবে।
+                        <div class="mt-3 p-4 rounded-2xl bg-purple-50/70 border border-purple-200 space-y-3">
+                            <div class="flex items-start gap-2.5 text-purple-900 text-xs leading-relaxed">
+                                <span class="text-base shrink-0">💡</span>
+                                <div>
+                                    <strong>আটি হাউজিং ও ইউনিয়ন পরিষদ বাস্তবতা:</strong> সিটি কর্পোরেশনের বাইরে রাজউকের মতো কঠোর FAR প্রযোজ্য হয় না। এখানে স্থানীয় ইউনিয়ন পরিষদ ও উপজেলা প্রকৌশলীদের ছাড়পত্রে ডেভেলপাররা উচ্চতর কভারেজ (৭০%) ও শক্তিশালী কাস্টিং পাইলিং করে বহুতল ভবন নির্মাণ করেন।
+                                </div>
+                            </div>
+
+                            <div class="pt-2 border-t border-purple-200/80">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-[11px] font-bold text-purple-950">হিসাবের মানদণ্ড নির্বাচন করুন:</span>
+                                    <span class="text-[10px] text-purple-700 font-semibold" x-text="upPracticeMode === 'market_reality' ? 'মাঠপর্যায়ের ডেভেলপার ট্রেন্ড' : 'সংরক্ষণশীল সেফটি স্ট্যান্ডার্ড'"></span>
+                                </div>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                                    <button type="button"
+                                            @click="upPracticeMode = 'market_reality'; updateCalculations()"
+                                            :class="upPracticeMode === 'market_reality' ? 'bg-purple-700 text-white font-bold shadow-xs' : 'bg-white text-purple-900 border border-purple-200 hover:bg-purple-100/50'"
+                                            class="py-2 px-3 rounded-xl transition cursor-pointer text-center">
+                                        🏗️ স্থানীয় ডেভেলপার ট্রেন্ড (জি+১০ তলা ও ৩০ ফ্ল্যাট)
+                                    </button>
+                                    <button type="button"
+                                            @click="upPracticeMode = 'conservative_safety'; updateCalculations()"
+                                            :class="upPracticeMode === 'conservative_safety' ? 'bg-purple-700 text-white font-bold shadow-xs' : 'bg-white text-purple-900 border border-purple-200 hover:bg-purple-100/50'"
+                                            class="py-2 px-3 rounded-xl transition cursor-pointer text-center">
+                                        🛡️ সংরক্ষণশীল সেফটি (জি+৬/৭ তলা)
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </template>
@@ -454,6 +477,7 @@ function rajukFarCalculator() {
     return {
         // Form States
         adminMode: 'rajuk', // 'rajuk' or 'union_porishod'
+        upPracticeMode: 'market_reality', // 'market_reality' or 'conservative_safety'
         selectedArea: 'planned_bashundhara',
         plotSize: 5,
         plotUnit: 'katha', // 'katha', 'decimal', 'sqft'
@@ -480,6 +504,18 @@ function rajukFarCalculator() {
         sideSetback: 4,
 
         init() {
+            this.updateCalculations();
+        },
+
+        setAdminMode(mode) {
+            this.adminMode = mode;
+            if (mode === 'union_porishod') {
+                this.selectedArea = 'up_ati_housing';
+                this.flatSizeSqft = 950;
+            } else {
+                this.selectedArea = 'planned_bashundhara';
+                this.flatSizeSqft = 1200;
+            }
             this.updateCalculations();
         },
 
@@ -521,31 +557,55 @@ function rajukFarCalculator() {
 
             if (this.adminMode === 'union_porishod') {
                 // Union Porishod mode (e.g. Ati Housing, Keraniganj, Savar Rural)
-                // Local safety rules: Road width still governs, but no strict FAR
-                if (road < 12) {
-                    baseFar = 1.6;
-                    mgc = 65;
-                    maxStories = 4;
-                    this.permittedFloorsLabel = 'জি+৩ তলা (৪ তলা ভবন)';
-                    this.floorsSubNote = 'সরু রাস্তা হওয়ায় নিরাপদ লোডিংয়ের জন্য সর্বোচ্চ ৪ তলার সুপারিশ';
-                } else if (road < 20) {
-                    baseFar = 2.2;
-                    mgc = 65;
-                    maxStories = 5;
-                    this.permittedFloorsLabel = 'জি+৪ তলা (৫ তলা ভবন)';
-                    this.floorsSubNote = 'ইউনিয়ন পরিষদ ও মাটির সেফটি অনুযায়ী সাধারণ ৫ তলা প্রস্তাবিত';
-                } else if (road < 30) {
-                    baseFar = 2.8;
-                    mgc = 60;
-                    maxStories = 6;
-                    this.permittedFloorsLabel = 'জি+৫ তলা (৬ তলা ভবন)';
-                    this.floorsSubNote = 'উপজেলা প্রকৌশলীর পরামর্শ ও উপযুক্ত সয়েল টেস্ট সাপেক্ষে ৬ তলা';
+                if (this.upPracticeMode === 'market_reality') {
+                    // Local market developer trend in Ati Housing / Keraniganj
+                    mgc = 70; // Local developers cover ~70% of land
+                    if (road < 12) {
+                        maxStories = 5;
+                        baseFar = 3.5;
+                        this.permittedFloorsLabel = 'জি+৪ তলা (৫ তলা ভবন)';
+                        this.floorsSubNote = 'সরু রাস্তায় স্থানীয়ভাবে সাধারণত ৫ তলা পর্যন্ত নির্মাণ করা হয়';
+                    } else if (road < 20) {
+                        maxStories = 7;
+                        baseFar = 4.9;
+                        this.permittedFloorsLabel = 'জি+৬ তলা (৭ তলা ভবন)';
+                        this.floorsSubNote = 'মাঝারি রাস্তায় সয়েল টেস্ট ও কাস্টিং করে ৭ তলা পর্যন্ত নির্মাণ ট্রেন্ড';
+                    } else if (road < 25) {
+                        maxStories = 9;
+                        baseFar = 6.3;
+                        this.permittedFloorsLabel = 'জি+৮ তলা (৯ তলা ভবন)';
+                        this.floorsSubNote = 'প্রশস্ত রাস্তায় সয়েল টেস্ট ও সাবস্টেশন সাপেক্ষে ৯ তলা পর্যন্ত';
+                    } else {
+                        // 25ft - 30ft+ road in Ati Housing Society
+                        maxStories = 11; // G+10
+                        baseFar = 7.7;
+                        this.permittedFloorsLabel = 'জি+১০ তলা (১১ তলা ভবন)';
+                        this.floorsSubNote = 'আটি হাউজিংয়ে ২৫-৩০ ফুট রাস্তায় পাইলিং ও ডিপ ফাউন্ডেশনে জি+১০ তলা বহুতল নির্মাণ ধারা';
+                    }
                 } else {
-                    baseFar = 3.2;
+                    // Conservative safety standard
                     mgc = 60;
-                    maxStories = 7;
-                    this.permittedFloorsLabel = 'জি+৬ তলা (৭ তলা ভবন)';
-                    this.floorsSubNote = 'প্রশস্ত রাস্তার সংযোগ থাকায় আধুনিক আবাসিক ভবন নির্মাণ সম্ভব';
+                    if (road < 12) {
+                        baseFar = 1.6;
+                        maxStories = 4;
+                        this.permittedFloorsLabel = 'জি+৩ তলা (৪ তলা ভবন)';
+                        this.floorsSubNote = 'সরু রাস্তায় নিরাপদ লোডিংয়ের জন্য ৪ তলা প্রস্তাবিত';
+                    } else if (road < 20) {
+                        baseFar = 2.2;
+                        maxStories = 5;
+                        this.permittedFloorsLabel = 'জি+৪ তলা (৫ তলা ভবন)';
+                        this.floorsSubNote = 'ইউনিয়ন পরিষদ ও মাটির সাধারণ সেফটি অনুযায়ী ৫ তলা';
+                    } else if (road < 30) {
+                        baseFar = 2.8;
+                        maxStories = 6;
+                        this.permittedFloorsLabel = 'জি+৫ তলা (৬ তলা ভবন)';
+                        this.floorsSubNote = 'উপজেলা প্রকৌশলীর পরামর্শে ৬ তলা';
+                    } else {
+                        baseFar = 3.2;
+                        maxStories = 7;
+                        this.permittedFloorsLabel = 'জি+৬ তলা (৭ তলা ভবন)';
+                        this.floorsSubNote = 'প্রশস্ত রাস্তায় সাধারণ সেফটি অনুযায়ী ৭ তলা';
+                    }
                 }
             } else {
                 // Official RAJUK DAP (2022-2035) Matrix
@@ -656,35 +716,54 @@ function rajukFarCalculator() {
             // 5. Units & Flats Estimation
             // Ground floor is reserved for parking / reception (in mixed mode, G floor is shops)
             const residentialStories = Math.max(maxStories - 1, 1);
-            const netResidentialArea = this.totalBuiltAreaSqft * 0.85; // 15% deducted for common stairs, lift, duct, core
-            
             const targetFlatSize = Math.max(this.flatSizeSqft, 500);
-            const rawFlats = Math.floor(netResidentialArea / targetFlatSize);
-            this.totalFlats = Math.max(rawFlats, residentialStories);
-            
-            const perFloor = Math.max(Math.round(this.totalFlats / residentialStories), 1);
-            this.flatsPerFloor = perFloor;
 
-            // 6. Setback clearances based on plot size and road width
-            if (katha <= 3) {
-                this.frontSetback = 5;
-                this.rearSetback = 6.5;
-                this.sideSetback = 4;
-            } else if (katha <= 6) {
-                this.frontSetback = 5;
-                this.rearSetback = 8;
-                this.sideSetback = 4;
-            } else if (katha <= 10) {
-                this.frontSetback = 6.5;
-                this.rearSetback = 10;
-                this.sideSetback = 5;
+            if (this.adminMode === 'union_porishod' && this.upPracticeMode === 'market_reality') {
+                // In local market practice, common corridors/stairs take ~10%
+                const perFloorUsable = this.footprintSqft * 0.90;
+                let unitsPerFloor = Math.max(Math.round(perFloorUsable / targetFlatSize), 1);
+                this.flatsPerFloor = unitsPerFloor;
+                this.totalFlats = unitsPerFloor * residentialStories;
             } else {
-                this.frontSetback = 10;
-                this.rearSetback = 12;
-                this.sideSetback = 6.5;
+                const netResidentialArea = this.totalBuiltAreaSqft * 0.85; // 15% deducted for common stairs, lift, duct, core
+                const rawFlats = Math.floor(netResidentialArea / targetFlatSize);
+                this.totalFlats = Math.max(rawFlats, residentialStories);
+                const perFloor = Math.max(Math.round(this.totalFlats / residentialStories), 1);
+                this.flatsPerFloor = perFloor;
+            }
+
+            // 6. Setback clearances based on mode, plot size and road width
+            if (this.adminMode === 'union_porishod' && this.upPracticeMode === 'market_reality') {
+                this.frontSetback = 3.5;
+                this.rearSetback = 4;
+                this.sideSetback = 3;
+            } else {
+                if (katha <= 3) {
+                    this.frontSetback = 5;
+                    this.rearSetback = 6.5;
+                    this.sideSetback = 4;
+                } else if (katha <= 6) {
+                    this.frontSetback = 5;
+                    this.rearSetback = 8;
+                    this.sideSetback = 4;
+                } else if (katha <= 10) {
+                    this.frontSetback = 6.5;
+                    this.rearSetback = 10;
+                    this.sideSetback = 5;
+                } else {
+                    this.frontSetback = 10;
+                    this.rearSetback = 12;
+                    this.sideSetback = 6.5;
+                }
             }
 
             if (this.isCornerPlot) {
+                // Secondary road setback is lower
+                this.sideSetback = Math.max(this.sideSetback - 1, 2.5);
+            }
+        }
+    };
+}
                 // Secondary road setback is lower
                 this.sideSetback = Math.max(this.sideSetback - 1, 3.5);
             }

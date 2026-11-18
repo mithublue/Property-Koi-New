@@ -525,55 +525,164 @@ class PropertyApiController extends Controller
 
         $payload = $request->all();
 
-        // 1. Update size if provided
-        if (isset($payload['katha']) || isset($payload['size']) || isset($payload['katha_size'])) {
-            $rawSize = trim((string) ($payload['katha'] ?? ($payload['size'] ?? ($payload['katha_size'] ?? ''))));
-            $size = $this->parseSizeValue($rawSize);
-            if ($property->type === 'land' && $property->landDetail) {
-                $property->landDetail->update(['katha_size' => $size]);
-                if ($property->landDetail->price_total > 0 && $size > 0) {
-                    $property->landDetail->update([
-                        'price_per_katha' => round($property->landDetail->price_total / $size, 2),
-                    ]);
-                }
-            } elseif ($property->type === 'flat' && $property->flatDetail) {
-                $property->flatDetail->update(['flat_size_sqft' => $size]);
+        // Normalize incoming keys (lowercase, replace spaces and dashes with underscores)
+        $normalized = [];
+        foreach ($payload as $k => $v) {
+            $normKey = strtolower(trim(str_replace([' ', '-'], '_', (string) $k)));
+            if (!isset($normalized[$normKey])) {
+                $normalized[$normKey] = $v;
             }
         }
+        $payload = array_merge($normalized, $payload);
 
-        // 2. Update price if provided
-        if (isset($payload['total_price']) || isset($payload['asking_price'])) {
-            $rawPrice = trim((string) ($payload['total_price'] ?? ($payload['asking_price'] ?? '')));
-            $price = $this->parseMoneyValue($rawPrice);
-            if ($property->type === 'land' && $property->landDetail) {
-                $property->landDetail->update(['price_total' => $price]);
-                if ($property->landDetail->katha_size > 0 && $price > 0) {
-                    $property->landDetail->update([
-                        'price_per_katha' => round($price / $property->landDetail->katha_size, 2),
-                    ]);
+        // 1. Update size if provided
+        $sizeUpdated = false;
+        $size = 0.0;
+        if (isset($payload['katha']) || isset($payload['size']) || isset($payload['katha_size']) || isset($payload['flat_size_sqft'])) {
+            $rawSize = trim((string) ($payload['katha'] ?? ($payload['size'] ?? ($payload['katha_size'] ?? ($payload['flat_size_sqft'] ?? '')))));
+            if ($rawSize !== '') {
+                $size = $this->parseSizeValue($rawSize);
+                if ($property->type === 'land' && $property->landDetail) {
+                    $property->landDetail->update(['katha_size' => $size]);
+                    $sizeUpdated = true;
+                } elseif ($property->type === 'flat' && $property->flatDetail) {
+                    $property->flatDetail->update(['flat_size_sqft' => $size]);
+                    $sizeUpdated = true;
                 }
+            }
+        }
+        if (!$sizeUpdated) {
+            $size = (float) ($property->landDetail?->katha_size ?? ($property->flatDetail?->flat_size_sqft ?? 0.0));
+        }
+
+        // 2. Update price if provided (price_per_katha, total_price, asking_price)
+        $rawUnitPrice = trim((string) ($payload['price_per_katha'] ?? ($payload['price_per_sqft'] ?? ($payload['price'] ?? ($payload['price_per_unit'] ?? '')))));
+        $rawTotalPrice = trim((string) ($payload['total_price'] ?? ($payload['asking_price'] ?? ($payload['price_total'] ?? ''))));
+
+        $pricePerUnit = !empty($rawUnitPrice) ? $this->parseMoneyValue($rawUnitPrice) : 0.0;
+        $totalPrice = !empty($rawTotalPrice) ? $this->parseMoneyValue($rawTotalPrice) : 0.0;
+
+        if ($property->type === 'land' && $property->landDetail) {
+            if ($totalPrice <= 0 && $pricePerUnit > 0 && $size > 0) {
+                $totalPrice = $pricePerUnit * $size;
+            } elseif ($pricePerUnit <= 0 && $totalPrice > 0 && $size > 0) {
+                $pricePerUnit = round($totalPrice / $size, 2);
+            }
+
+            $priceUpdates = [];
+            if ($totalPrice > 0) {
+                $priceUpdates['price_total'] = $totalPrice;
+            }
+            if ($pricePerUnit > 0) {
+                $priceUpdates['price_per_katha'] = $pricePerUnit;
+            } elseif ($totalPrice > 0 && $size > 0) {
+                $priceUpdates['price_per_katha'] = round($totalPrice / $size, 2);
+            }
+            if (!empty($priceUpdates)) {
+                $property->landDetail->update($priceUpdates);
             }
         }
 
         // 3. Update status if provided
-        if (isset($payload['status'])) {
-            $rawStatus = strtolower(trim((string) $payload['status']));
-            $status = match ($rawStatus) {
-                'live', 'published' => 'live',
-                'draft', 'directory' => 'draft',
-                'booked' => 'booked',
-                'sold' => 'sold',
-                default => 'pending_verification',
-            };
-            $property->update(['status' => $status]);
+        if (isset($payload['status']) || isset($payload['sell_status'])) {
+            $rawStatus = strtolower(trim((string) ($payload['status'] ?? ($payload['sell_status'] ?? ''))));
+            if ($rawStatus !== '') {
+                $status = match (true) {
+                    str_contains($rawStatus, 'sold') || str_contains($rawStatus, 'বিক্রি') || str_contains($rawStatus, 'বিক্রিত') => 'sold',
+                    str_contains($rawStatus, 'booked') || str_contains($rawStatus, 'বুক') || str_contains($rawStatus, 'advance') => 'booked',
+                    str_contains($rawStatus, 'draft') || str_contains($rawStatus, 'directory') || str_contains($rawStatus, 'ড্রাফট') => 'draft',
+                    str_contains($rawStatus, 'live') || str_contains($rawStatus, 'active') || str_contains($rawStatus, 'available') || str_contains($rawStatus, 'চলমান') => 'live',
+                    default => 'pending_verification',
+                };
+                $property->update(['status' => $status]);
+            }
         }
 
-        // 4. Update title or description
-        if (isset($payload['title']) && !empty(trim((string) $payload['title']))) {
-            $property->update(['title' => trim((string) $payload['title'])]);
+        // 4. Update Location details (block, sector, road, plot, area)
+        $propUpdates = [];
+        if (isset($payload['block'])) {
+            $block = trim(preg_replace('/^(?:block|ব্লক)\s*/iu', '', (string) $payload['block']));
+            $propUpdates['block'] = $block ?: null;
+            if ($block) {
+                $propUpdates['sub_area'] = "Block {$block}";
+            }
         }
+        if (isset($payload['sector'])) {
+            $propUpdates['sector'] = trim((string) $payload['sector']) ?: null;
+        }
+        if (isset($payload['road_number']) || isset($payload['road']) || isset($payload['road_no'])) {
+            $road = trim(preg_replace('/^(?:road|রোড|নং|#)\s*/iu', '', (string) ($payload['road_number'] ?? ($payload['road'] ?? ($payload['road_no'] ?? '')))));
+            $propUpdates['road_number'] = $road ?: null;
+        }
+        if (isset($payload['plot_number']) || isset($payload['plot']) || isset($payload['plot_no'])) {
+            $propUpdates['plot_number'] = trim((string) ($payload['plot_number'] ?? ($payload['plot'] ?? ($payload['plot_no'] ?? '')))) ?: null;
+        }
+        if (isset($payload['place']) || isset($payload['area'])) {
+            $area = trim((string) ($payload['place'] ?? ($payload['area'] ?? '')));
+            if (!empty($area) && $area !== '__other__') {
+                $propUpdates['area'] = $area;
+            }
+        }
+
+        // 5. Update title or description
+        if (isset($payload['title']) && !empty(trim((string) $payload['title']))) {
+            $propUpdates['title'] = trim((string) $payload['title']);
+        } elseif ($sizeUpdated || isset($payload['block']) || isset($payload['place'])) {
+            $currentArea = $propUpdates['area'] ?? $property->area;
+            $currentBlock = $propUpdates['block'] ?? $property->block;
+            $areaTitle = !empty($currentArea) ? ucfirst($currentArea) : 'ঢাকা';
+            $blockTitle = !empty($currentBlock) ? " Block {$currentBlock}" : '';
+            $sizeTitle = $size > 0 ? ($property->type === 'flat' ? " {$size} Sqft" : " {$size} Katha") : '';
+            $typeTitle = match ($property->type) {
+                'flat' => 'Flat',
+                'land_share' => 'Land Share',
+                'commercial' => 'Commercial Space',
+                default => 'Plot',
+            };
+            $propUpdates['title'] = "{$areaTitle}{$blockTitle}{$sizeTitle} {$typeTitle} For Sale";
+        }
+
         if (isset($payload['description'])) {
-            $property->update(['description' => trim((string) $payload['description'])]);
+            $desc = trim((string) $payload['description']);
+            if (!empty($desc)) {
+                $propUpdates['description'] = $desc;
+            }
+        }
+
+        // 6. Hidden Note
+        if (isset($payload['hidden_note']) || isset($payload['private_note'])) {
+            $note = trim((string) ($payload['hidden_note'] ?? $payload['private_note']));
+            $propUpdates['hidden_note'] = $note ?: null;
+            $propUpdates['hidden_tags'] = !empty($note) ? PropertySearchService::extractKeywordsFromNote($note) : null;
+        }
+
+        if (!empty($propUpdates)) {
+            $property->update($propUpdates);
+        }
+
+        // 7. Agent / Contact Resolution if provided
+        $contact = trim((string) ($payload['contact'] ?? ($payload['owner_phone'] ?? ($payload['phone'] ?? ($payload['agent_phone'] ?? '')))));
+        $agentName = trim((string) ($payload['agent'] ?? ($payload['owner_name'] ?? ($payload['agent_name'] ?? ''))));
+        if (!empty($contact)) {
+            $messenger = trim((string) ($payload['messenger'] ?? ($payload['messanger'] ?? ($payload['whatsapp'] ?? ''))));
+            $sourceType = trim((string) ($payload['source_type'] ?? 'agent'));
+            $agentUser = $this->findOrCreateAgent($agentName, $contact, $messenger, $sourceType);
+            if ($agentUser) {
+                $source = $property->directSources->first();
+                if ($source) {
+                    $source->update([
+                        'source_user_id' => $agentUser->id,
+                        'source_type'    => in_array($sourceType, ['owner', 'direct_owner']) ? 'owner' : 'agent',
+                    ]);
+                } else {
+                    PropertyDirectSource::create([
+                        'property_id'               => $property->id,
+                        'source_user_id'            => $agentUser->id,
+                        'source_type'               => in_array($sourceType, ['owner', 'direct_owner']) ? 'owner' : 'agent',
+                        'relationship_declaration'  => ($sourceType === 'owner') ? 'সরাসরি প্রপার্টির মালিক (Direct Owner)' : 'অনুমোদিত ডিরেক্ট এজেন্ট (Direct Agent)',
+                    ]);
+                }
+            }
         }
 
         $property->refresh();

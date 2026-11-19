@@ -1,32 +1,32 @@
 @extends('layouts.app', ['seo' => $ogMeta])
 
 @section('content')
-<div class="bg-gradient-to-b from-slate-900 via-slate-950 to-slate-900 min-h-screen py-8 sm:py-12 text-slate-200">
+<div class="bg-gradient-to-b from-slate-50 via-white to-slate-50 min-h-screen py-8 sm:py-12 text-slate-800">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         <!-- Breadcrumb -->
-        <nav class="flex items-center gap-2 text-xs text-slate-400 mb-8" aria-label="Breadcrumb">
-            <a href="{{ route('home') }}" class="hover:text-emerald-400 transition">হোম</a>
+        <nav class="flex items-center gap-2 text-xs text-slate-500 mb-6" aria-label="Breadcrumb">
+            <a href="{{ route('home') }}" class="hover:text-emerald-600 transition">হোম</a>
             <span>/</span>
-            <a href="{{ route('guides.index') }}" class="hover:text-emerald-400 transition">প্রপার্টি নলেজ হাব</a>
+            <a href="{{ route('guides.index') }}" class="hover:text-emerald-600 transition">প্রপার্টি নলেজ হাব</a>
             <span>/</span>
-            <span class="text-emerald-400 font-medium">Mithu A Quayium (Founder & Consultant)</span>
+            <span class="text-slate-800 font-medium">Mithu A Quayium (Founder & Consultant)</span>
         </nav>
 
         <!-- Founder & Real Estate Consultant Hero Header Card -->
-        <div class="bg-gradient-to-br from-slate-900/90 via-slate-850 to-emerald-950/40 rounded-3xl border border-slate-700/60 p-6 sm:p-10 shadow-2xl relative overflow-hidden mb-8">
-            <!-- Background Decorative Glow -->
-            <div class="absolute -right-20 -top-20 w-80 h-80 rounded-full bg-emerald-500/10 blur-3xl pointer-events-none"></div>
-            <div class="absolute -left-20 -bottom-20 w-80 h-80 rounded-full bg-teal-500/10 blur-3xl pointer-events-none"></div>
+        <div class="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-10 shadow-xs relative overflow-hidden mb-8">
+            <!-- Background Subtle Decorative Glow -->
+            <div class="absolute -right-20 -top-20 w-80 h-80 rounded-full bg-emerald-500/5 blur-3xl pointer-events-none"></div>
+            <div class="absolute -left-20 -bottom-20 w-80 h-80 rounded-full bg-teal-500/5 blur-3xl pointer-events-none"></div>
 
             <div class="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8">
                 <div class="flex flex-col sm:flex-row items-start sm:items-center gap-6">
                     <!-- Author Photo / Avatar with Verified Ring -->
                     <div class="relative shrink-0">
-                        <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-3xl bg-gradient-to-tr from-emerald-600 via-teal-600 to-cyan-700 flex items-center justify-center text-white text-3xl sm:text-4xl font-black shadow-xl ring-4 ring-emerald-500/30">
+                        <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-3xl bg-gradient-to-tr from-emerald-600 via-teal-600 to-cyan-700 flex items-center justify-center text-white text-3xl sm:text-4xl font-black shadow-md ring-4 ring-emerald-500/10">
                             MQ
                         </div>
-                        <span class="absolute -bottom-2 -right-2 px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-500 text-slate-950 shadow-md flex items-center gap-1 border-2 border-slate-900" title="যাচাইকৃত রিয়েল এস্টেট কনসালট্যান্ট ও ফাইন্যান্স স্ট্র্যাটেজিস্ট">
+                        <span class="absolute -bottom-2 -right-2 px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-600 text-white shadow-xs flex items-center gap-1 border-2 border-white" title="যাচাইকৃত রিয়েল এস্টেট কনসালট্যান্ট ও ফাইন্যান্স স্ট্র্যাটেজিস্ট">
                             <span>✓</span> ভেরিফাইড
                         </span>
                     </div>
@@ -34,64 +34,64 @@
                     <!-- Author Details -->
                     <div class="space-y-2">
                         <div class="flex items-center flex-wrap gap-2">
-                            <span class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
+                            <span class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
                                 🏢 Founder @ Property Koi
                             </span>
-                            <span class="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-950/80 text-emerald-300 border border-emerald-800">
+                            <span class="px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200">
                                 Real Estate Consultant & Finance Strategist
                             </span>
                         </div>
-                        <h1 class="text-2xl sm:text-4xl font-black text-white tracking-tight leading-tight m-0">
-                            মিঠু এ কাইয়ুম <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-300">(Mithu A Quayium)</span>
+                        <h1 class="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight leading-tight m-0">
+                            মিঠু এ কাইয়ুম <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-600">(Mithu A Quayium)</span>
                         </h1>
-                        <p class="text-sm sm:text-base text-slate-300 font-medium max-w-2xl leading-relaxed m-0">
+                        <p class="text-sm sm:text-base text-slate-600 font-medium max-w-2xl leading-relaxed m-0">
                             প্রতিষ্ঠাতা, <strong>Property Koi</strong> | রিয়েল এস্টেট কনসালট্যান্ট ও ফাইন্যান্স স্ট্র্যাটেজিস্ট। আবাসন খাতে স্বচ্ছতা, জমি ও ফ্ল্যাটের বাজারদর মূল্যায়ন, আইনি দলিল যাচাই এবং প্রপার্টি ফাইন্যান্সিয়াল প্ল্যানিং বিশেষজ্ঞ।
                         </p>
                     </div>
                 </div>
 
                 <!-- Fast Author Stats Pills -->
-                <div class="grid grid-cols-3 gap-3 w-full lg:w-auto shrink-0 bg-slate-900/80 p-4 rounded-2xl border border-slate-800 text-center">
+                <div class="grid grid-cols-3 gap-3 w-full lg:w-auto shrink-0 bg-slate-50 p-4 rounded-2xl border border-slate-200/80 text-center">
                     <div class="px-3 py-1">
-                        <span class="block text-xl sm:text-2xl font-black text-emerald-400">{{ $totalGuides }}+</span>
-                        <span class="text-[11px] text-slate-400 font-medium">গাইড ও আর্টিকেল</span>
+                        <span class="block text-xl sm:text-2xl font-black text-emerald-700">{{ $totalGuides }}+</span>
+                        <span class="text-[11px] text-slate-500 font-medium">গাইড ও আর্টিকেল</span>
                     </div>
-                    <div class="px-3 py-1 border-x border-slate-800">
-                        <span class="block text-xl sm:text-2xl font-black text-teal-400">{{ number_format($totalViews) }}+</span>
-                        <span class="text-[11px] text-slate-400 font-medium">পাঠক / ভিউ</span>
+                    <div class="px-3 py-1 border-x border-slate-200">
+                        <span class="block text-xl sm:text-2xl font-black text-teal-700">{{ number_format($totalViews) }}+</span>
+                        <span class="text-[11px] text-slate-500 font-medium">পাঠক / ভিউ</span>
                     </div>
                     <div class="px-3 py-1">
-                        <span class="block text-xl sm:text-2xl font-black text-amber-400">১০০%</span>
-                        <span class="text-[11px] text-slate-400 font-medium">স্ট্র্যাটেজিক বিশ্লেষণ</span>
+                        <span class="block text-xl sm:text-2xl font-black text-amber-600">১০০%</span>
+                        <span class="text-[11px] text-slate-500 font-medium">স্ট্র্যাটেজিক বিশ্লেষণ</span>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Upcoming Real Estate Finance Podcast Feature Banner -->
-        <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-amber-500/10 via-emerald-500/10 to-teal-500/10 border border-amber-500/30 p-5 sm:p-6 shadow-xl mb-12">
+        <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-amber-500/10 via-emerald-500/10 to-teal-500/10 border border-amber-300/80 p-5 sm:p-6 shadow-xs mb-12">
             <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5">
                 <div class="flex items-start sm:items-center gap-4">
-                    <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-amber-500 via-amber-600 to-amber-700 text-slate-950 flex items-center justify-center text-2xl font-black shrink-0 shadow-lg ring-4 ring-amber-500/20">
+                    <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-amber-500 via-amber-600 to-amber-700 text-white flex items-center justify-center text-2xl font-black shrink-0 shadow-md ring-4 ring-amber-400/20">
                         🎙️
                     </div>
                     <div>
                         <div class="flex items-center gap-2 mb-1 flex-wrap">
-                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-500/20 text-amber-300 border border-amber-400/30 uppercase tracking-wider">
+                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-100 text-amber-900 border border-amber-300 uppercase tracking-wider">
                                 আপকামিং পডকাস্ট • Coming Soon
                             </span>
-                            <span class="text-xs text-amber-200/90 font-medium">ইনশাআল্লাহ খুব শীঘ্রই</span>
+                            <span class="text-xs text-amber-800 font-semibold">ইনশাআল্লাহ খুব শীঘ্রই</span>
                         </div>
-                        <h2 class="text-lg sm:text-xl font-black text-white m-0">
+                        <h2 class="text-lg sm:text-xl font-black text-slate-900 m-0">
                             Real Estate Finance with Mithu A Quayium
                         </h2>
-                        <p class="text-xs sm:text-sm text-slate-300 mt-1 leading-relaxed m-0">
+                        <p class="text-xs sm:text-sm text-slate-600 mt-1 leading-relaxed m-0">
                             বাংলাদেশের প্রথম বিশেষায়িত রিয়েল এস্টেট ফাইন্যান্স পডকাস্ট। প্রপার্টি বিনিয়োগ কৌশল, হোম লোন ও ফাইন্যান্সিং, জমির কাঠাপ্রতি সঠিক মূল্যায়ন এবং দীর্ঘমেয়াদী রিয়েল এস্টেট ওয়েলথ বিল্ডিং নিয়ে খোলামেলা আলোচনা।
                         </p>
                     </div>
                 </div>
                 <div class="shrink-0">
-                    <span class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/40 text-xs font-bold">
+                    <span class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-amber-100/90 text-amber-900 border border-amber-300 text-xs font-bold shadow-2xs">
                         <span>🔔</span> হোস্ট ও ক্রিয়েটর: মিঠু এ কাইয়ুম
                     </span>
                 </div>
@@ -104,77 +104,77 @@
             <div class="lg:col-span-8 space-y-8">
 
                 <!-- Detailed Bio & Mission Card -->
-                <section class="bg-slate-900/90 rounded-3xl border border-slate-800 p-6 sm:p-8 shadow-md space-y-4">
-                    <h2 class="text-lg sm:text-xl font-bold text-white flex items-center gap-2 m-0 pb-3 border-b border-slate-800">
+                <section class="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 shadow-xs space-y-4">
+                    <h2 class="text-lg sm:text-xl font-black text-slate-900 flex items-center gap-2 m-0 pb-3 border-b border-slate-100">
                         <span>👨‍💼</span>
                         <span>রিয়েল এস্টেট পরিচিতি ও লক্ষ্য (Founder & Consultant Profile)</span>
                     </h2>
 
-                    <div class="text-xs sm:text-sm text-slate-300 leading-relaxed space-y-3.5">
+                    <div class="text-xs sm:text-sm text-slate-700 leading-relaxed space-y-3.5">
                         <p class="m-0 leading-relaxed">
                             <strong>মিঠু এ কাইয়ুম (Mithu A Quayium)</strong> Property Koi-এর প্রতিষ্ঠাতা (Founder), রিয়েল এস্টেট কনসালট্যান্ট ও ফাইন্যান্স স্ট্র্যাটেজিস্ট (Real Estate Consultant & Finance Strategist)। তিনি বাংলাদেশের আবাসন খাত, ঢাকা ও উপশহরের জমির কাঠাপ্রতি বাজারদর, প্রপার্টি ফাইন্যান্সিং এবং রাজউকের পরিকল্পনা বিধিমালা নিয়ে কাজ করছেন।
                         </p>
                         <p class="m-0 leading-relaxed">
                             তাঁর লক্ষ্য হলো—প্রচলিত আবাসন বাজারের অস্বচ্ছতা ও দালালি সিন্ডিকেট দূর করে <strong>স্বয়ংক্রিয় প্রপার্টি ভ্যালুয়েশন</strong>, <strong>রাজউক ড্যাপ ও এফএআর (FAR) ক্যালকুলেটর</strong>, এবং <strong>হালনাগাদ ভূমি আইন ও প্রপার্টি ফাইন্যান্স স্ট্র্যাটেজি</strong>-র মাধ্যমে সাধারণ ক্রেতা, প্রবাসী বাংলাদেশি (NRB) ও বিনিয়োগকারীদের সঠিক সিদ্ধান্ত গ্রহণে সহায়তা করা।
                         </p>
-                        <p class="m-0 leading-relaxed text-slate-300 text-[11px] sm:text-xs italic bg-slate-950/70 p-3.5 rounded-xl border border-slate-800/80">
+                        <p class="m-0 leading-relaxed text-slate-600 text-[11px] sm:text-xs italic bg-slate-50 p-4 rounded-2xl border border-slate-200/80">
                             "Founder @ Property Koi | Real Estate Consultant & Finance Strategist. Specializing in property investment planning, land title verification, automated property valuation, RAJUK DAP/FAR compliance, and host of the upcoming podcast 'Real Estate Finance with Mithu A Quayium'."
                         </p>
                     </div>
                 </section>
 
                 <!-- Core Areas of Real Estate Consulting & Expertise -->
-                <section class="bg-slate-900/90 rounded-3xl border border-slate-800 p-6 sm:p-8 shadow-md space-y-4">
-                    <h2 class="text-lg sm:text-xl font-bold text-white flex items-center gap-2 m-0 pb-3 border-b border-slate-800">
+                <section class="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 shadow-xs space-y-4">
+                    <h2 class="text-lg sm:text-xl font-black text-slate-900 flex items-center gap-2 m-0 pb-3 border-b border-slate-100">
                         <span>🎯</span>
                         <span>পরামর্শ ও কনসাল্টিং ক্ষেত্রসমূহ (Core Consulting & Advisory Areas)</span>
                     </h2>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-                        <div class="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/90 space-y-1.5">
+                        <div class="p-4 rounded-2xl bg-slate-50/80 border border-slate-200/80 hover:border-emerald-300 transition space-y-1.5">
                             <span class="text-xl block">💰</span>
-                            <h3 class="text-sm font-bold text-white m-0">প্রপার্টি ফাইন্যান্স ও ইনভেস্টমেন্ট স্ট্র্যাটেজি</h3>
-                            <p class="text-xs text-slate-400 leading-relaxed m-0">
+                            <h3 class="text-sm font-bold text-slate-900 m-0">প্রপার্টি ফাইন্যান্স ও ইনভেস্টমেন্ট স্ট্র্যাটেজি</h3>
+                            <p class="text-xs text-slate-600 leading-relaxed m-0">
                                 হোম লোন স্ট্রাকচারিং, প্রপার্টি ইনভেস্টমেন্ট পোর্টফোলিও প্ল্যানিং এবং রিয়েল এস্টেট ফাইন্যান্স সংক্রান্ত স্ট্র্যাটেজিক পরামর্শ।
                             </p>
                         </div>
 
-                        <div class="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/90 space-y-1.5">
+                        <div class="p-4 rounded-2xl bg-slate-50/80 border border-slate-200/80 hover:border-emerald-300 transition space-y-1.5">
                             <span class="text-xl block">📜</span>
-                            <h3 class="text-sm font-bold text-white m-0">জমির দলিল ও খতিয়ান স্বত্ব যাচাই</h3>
-                            <p class="text-xs text-slate-400 leading-relaxed m-0">
+                            <h3 class="text-sm font-bold text-slate-900 m-0">জমির দলিল ও খতিয়ান স্বত্ব যাচাই</h3>
+                            <p class="text-xs text-slate-600 leading-relaxed m-0">
                                 বায়া দলিল, সিএস, এসএ, আরএস ও বিএস খতিয়ান, ই-নামজারি ও ডিসিআর যাচাইকরণে ক্রেতা সুরক্ষা পরামর্শ।
                             </p>
                         </div>
 
-                        <div class="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/90 space-y-1.5">
+                        <div class="p-4 rounded-2xl bg-slate-50/80 border border-slate-200/80 hover:border-emerald-300 transition space-y-1.5">
                             <span class="text-xl block">📐</span>
-                            <h3 class="text-sm font-bold text-white m-0">রাজউক ড্যাপ (DAP) ও FAR বিধিমালা</h3>
-                            <p class="text-xs text-slate-400 leading-relaxed m-0">
+                            <h3 class="text-sm font-bold text-slate-900 m-0">রাজউক ড্যাপ (DAP) ও FAR বিধিমালা</h3>
+                            <p class="text-xs text-slate-600 leading-relaxed m-0">
                                 রাস্তার প্রশস্ততা ও প্লটের সাইজ অনুযায়ী কত তলা ভবন নির্মাণ সম্ভব, সেটব্যাক ও এমজিসি (MGC) নিখুঁতভাবে নির্ধারণ।
                             </p>
                         </div>
 
-                        <div class="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/90 space-y-1.5">
+                        <div class="p-4 rounded-2xl bg-slate-50/80 border border-slate-200/80 hover:border-emerald-300 transition space-y-1.5">
                             <span class="text-xl block">🧮</span>
-                            <h3 class="text-sm font-bold text-white m-0">প্রপার্টি ভ্যালুয়েশন ও আরওআই মডেল</h3>
-                            <p class="text-xs text-slate-400 leading-relaxed m-0">
+                            <h3 class="text-sm font-bold text-slate-900 m-0">প্রপার্টি ভ্যালুয়েশন ও আরওআই মডেল</h3>
+                            <p class="text-xs text-slate-600 leading-relaxed m-0">
                                 ল্যান্ড শেয়ারিং প্রকল্পের সম্ভাব্যতা যাচাই, ফ্ল্যাট নির্মাণ খরচ এবং রিয়েল এস্টেট বিনিয়োগে নিট মুনাফার হার (ROI) হিসাব।
                             </p>
                         </div>
 
-                        <div class="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/90 space-y-1.5">
+                        <div class="p-4 rounded-2xl bg-slate-50/80 border border-slate-200/80 hover:border-emerald-300 transition space-y-1.5">
                             <span class="text-xl block">🏢</span>
-                            <h3 class="text-sm font-bold text-white m-0">আবাসন বাজার ও প্রাইস ইনডেক্সিং</h3>
-                            <p class="text-xs text-slate-400 leading-relaxed m-0">
+                            <h3 class="text-sm font-bold text-slate-900 m-0">আবাসন বাজার ও প্রাইস ইনডেক্সিং</h3>
+                            <p class="text-xs text-slate-600 leading-relaxed m-0">
                                 ঢাকা শহরের আফতাবনগর, বসুন্ধরা, পূর্বাচল ও মিরপুর এলাকার ব্লকভিত্তিক কাঠাপ্রতি বাজারদর ও রেডি ফ্ল্যাটের স্কয়ারফুট রেট বিশ্লেষণ।
                             </p>
                         </div>
 
-                        <div class="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/90 space-y-1.5">
+                        <div class="p-4 rounded-2xl bg-slate-50/80 border border-slate-200/80 hover:border-emerald-300 transition space-y-1.5">
                             <span class="text-xl block">🌍</span>
-                            <h3 class="text-sm font-bold text-white m-0">প্রবাসী (NRB) প্রপার্টি গাইডলাইন</h3>
-                            <p class="text-xs text-slate-400 leading-relaxed m-0">
+                            <h3 class="text-sm font-bold text-slate-900 m-0">প্রবাসী (NRB) প্রপার্টি গাইডলাইন</h3>
+                            <p class="text-xs text-slate-600 leading-relaxed m-0">
                                 বিদেশে বসে বৈধ ব্যাংকিং চ্যানেলে রেমিট্যান্স পাঠিয়ে দেশে নিরাপদ জমি-ফ্ল্যাট ক্রয় এবং পাওয়ার অব অ্যাটর্নি সংক্রান্ত নিয়মাবলী।
                             </p>
                         </div>
@@ -182,35 +182,35 @@
                 </section>
 
                 <!-- Tools & Products Created by Mithu A Quayium -->
-                <section class="bg-slate-900/90 rounded-3xl border border-slate-800 p-6 sm:p-8 shadow-md space-y-4">
-                    <h2 class="text-lg sm:text-xl font-bold text-white flex items-center gap-2 m-0 pb-3 border-b border-slate-800">
+                <section class="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 shadow-xs space-y-4">
+                    <h2 class="text-lg sm:text-xl font-black text-slate-900 flex items-center gap-2 m-0 pb-3 border-b border-slate-100">
                         <span>⚡</span>
                         <span>মিঠু এ কাইয়ুম-এর তৈরি ও পরিচালিত প্রপার্টি টুলস (Tools & Indices)</span>
                     </h2>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-                        <a href="{{ route('calculators.rajuk-far') }}" class="p-4 rounded-2xl bg-slate-950/80 border border-slate-800 hover:border-emerald-500 transition group block">
-                            <span class="text-xs font-bold text-emerald-400 block mb-1">টুল #১</span>
-                            <h3 class="text-sm font-bold text-white group-hover:text-emerald-300 transition-colors m-0">রাজউক ড্যাপ ও FAR ক্যালকুলেটর &rarr;</h3>
-                            <p class="text-xs text-slate-400 mt-1 m-0">প্লটের আয়তন ও রাস্তার মাপে কত তলা ভবন করা যাবে তা স্বয়ংক্রিয়ভাবে গণনা করুন।</p>
+                        <a href="{{ route('calculators.rajuk-far') }}" class="p-4 rounded-2xl bg-slate-50/80 border border-slate-200/80 hover:border-emerald-500 hover:bg-emerald-50/30 transition group block">
+                            <span class="text-xs font-bold text-emerald-700 block mb-1">টুল #১</span>
+                            <h3 class="text-sm font-bold text-slate-900 group-hover:text-emerald-700 transition-colors m-0">রাজউক ড্যাপ ও FAR ক্যালকুলেটর &rarr;</h3>
+                            <p class="text-xs text-slate-600 mt-1 m-0">প্লটের আয়তন ও রাস্তার মাপে কত তলা ভবন করা যাবে তা স্বয়ংক্রিয়ভাবে গণনা করুন।</p>
                         </a>
 
-                        <a href="{{ route('calculators.registration') }}" class="p-4 rounded-2xl bg-slate-950/80 border border-slate-800 hover:border-emerald-500 transition group block">
-                            <span class="text-xs font-bold text-emerald-400 block mb-1">টুল #২</span>
-                            <h3 class="text-sm font-bold text-white group-hover:text-emerald-300 transition-colors m-0">জমি ও ফ্ল্যাট রেজিস্ট্রেশন ফি ক্যালকুলেটর &rarr;</h3>
-                            <p class="text-xs text-slate-400 mt-1 m-0">স্ট্যাম্প ডিউটি, গেইন ট্যাক্স ও সরকারি উৎসে করের ২০২৬ সালের হালনাগাদ হিসাব।</p>
+                        <a href="{{ route('calculators.registration') }}" class="p-4 rounded-2xl bg-slate-50/80 border border-slate-200/80 hover:border-emerald-500 hover:bg-emerald-50/30 transition group block">
+                            <span class="text-xs font-bold text-emerald-700 block mb-1">টুল #২</span>
+                            <h3 class="text-sm font-bold text-slate-900 group-hover:text-emerald-700 transition-colors m-0">জমি ও ফ্ল্যাট রেজিস্ট্রেশন ফি ক্যালকুলেটর &rarr;</h3>
+                            <p class="text-xs text-slate-600 mt-1 m-0">স্ট্যাম্প ডিউটি, গেইন ট্যাক্স ও সরকারি উৎসে করের ২০২৬ সালের হালনাগাদ হিসাব।</p>
                         </a>
 
-                        <a href="{{ route('calculators.land-share') }}" class="p-4 rounded-2xl bg-slate-950/80 border border-slate-800 hover:border-emerald-500 transition group block">
-                            <span class="text-xs font-bold text-emerald-400 block mb-1">টুল #৩</span>
-                            <h3 class="text-sm font-bold text-white group-hover:text-emerald-300 transition-colors m-0">ল্যান্ড শেয়ার ROI ক্যালকুলেটর &rarr;</h3>
-                            <p class="text-xs text-slate-400 mt-1 m-0">যৌথ ল্যান্ড শেয়ারিং প্রকল্পে ফ্ল্যাট প্রতি নির্মাণ বাজেট ও সম্ভাব্য মুনাফা হিসাব।</p>
+                        <a href="{{ route('calculators.land-share') }}" class="p-4 rounded-2xl bg-slate-50/80 border border-slate-200/80 hover:border-emerald-500 hover:bg-emerald-50/30 transition group block">
+                            <span class="text-xs font-bold text-emerald-700 block mb-1">টুল #৩</span>
+                            <h3 class="text-sm font-bold text-slate-900 group-hover:text-emerald-700 transition-colors m-0">ল্যান্ড শেয়ার ROI ক্যালকুলেটর &rarr;</h3>
+                            <p class="text-xs text-slate-600 mt-1 m-0">যৌথ ল্যান্ড শেয়ারিং প্রকল্পে ফ্ল্যাট প্রতি নির্মাণ বাজেট ও সম্ভাব্য মুনাফা হিসাব।</p>
                         </a>
 
-                        <a href="{{ route('guides.aftabnagar') }}" class="p-4 rounded-2xl bg-slate-950/80 border border-slate-800 hover:border-emerald-500 transition group block">
-                            <span class="text-xs font-bold text-emerald-400 block mb-1">রিসার্চ ইনডেক্স</span>
-                            <h3 class="text-sm font-bold text-white group-hover:text-emerald-300 transition-colors m-0">আফতাবনগর বায়ার গাইড ও বাজারদর ২০২৬ &rarr;</h3>
-                            <p class="text-xs text-slate-400 mt-1 m-0">ব্লকভিত্তিক কাঠাপ্রতি বাজারদর, ৩ কাঠার বাজেট ও দলিল যাচাই সমীক্ষা রিপোর্ট।</p>
+                        <a href="{{ route('guides.aftabnagar') }}" class="p-4 rounded-2xl bg-slate-50/80 border border-slate-200/80 hover:border-emerald-500 hover:bg-emerald-50/30 transition group block">
+                            <span class="text-xs font-bold text-emerald-700 block mb-1">রিসার্চ ইনডেক্স</span>
+                            <h3 class="text-sm font-bold text-slate-900 group-hover:text-emerald-700 transition-colors m-0">আফতাবনগর বায়ার গাইড ও বাজারদর ২০২৬ &rarr;</h3>
+                            <p class="text-xs text-slate-600 mt-1 m-0">ব্লকভিত্তিক কাঠাপ্রতি বাজারদর, ৩ কাঠার বাজেট ও দলিল যাচাই সমীক্ষা রিপোর্ট।</p>
                         </a>
                     </div>
                 </section>
@@ -218,11 +218,11 @@
                 <!-- Authored & Published Guides Grid -->
                 <section class="space-y-4">
                     <div class="flex items-center justify-between flex-wrap gap-2">
-                        <h2 class="text-lg sm:text-xl font-bold text-white flex items-center gap-2 m-0">
+                        <h2 class="text-lg sm:text-xl font-black text-slate-900 flex items-center gap-2 m-0">
                             <span>📚</span>
                             <span>মিঠু এ কাইয়ুম-এর প্রকাশিত গাইড ও আর্টিকেলেসমূহ ({{ $totalGuides }}টি)</span>
                         </h2>
-                        <a href="{{ route('guides.index') }}" class="text-xs font-bold text-emerald-400 hover:text-emerald-300 transition">
+                        <a href="{{ route('guides.index') }}" class="text-xs font-bold text-emerald-700 hover:text-emerald-800 transition">
                             সকল ক্যাটাগরি দেখুন &rarr;
                         </a>
                     </div>
@@ -230,7 +230,7 @@
                     @if($guides->count() > 0)
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                             @foreach($guides as $guide)
-                                <article class="bg-slate-900 rounded-2xl border border-slate-800 hover:border-slate-700 shadow-xs hover:shadow-lg transition flex flex-col justify-between overflow-hidden group">
+                                <article class="bg-white rounded-2xl border border-slate-200 hover:border-slate-300 shadow-xs hover:shadow-md transition flex flex-col justify-between overflow-hidden group">
                                     <div class="p-5">
                                         <div class="flex items-center justify-between gap-2 mb-2 text-[11px]">
                                             <span class="px-2 py-0.5 rounded text-[10px] font-bold {{ $guide->category_badge_class }}">
@@ -238,18 +238,18 @@
                                             </span>
                                             <span class="text-slate-500">⏱️ {{ $guide->reading_time_min }} মিনিট পাঠ</span>
                                         </div>
-                                        <h3 class="text-sm sm:text-base font-bold text-white group-hover:text-emerald-400 transition-colors line-clamp-2 leading-snug">
+                                        <h3 class="text-sm sm:text-base font-bold text-slate-900 group-hover:text-emerald-700 transition-colors line-clamp-2 leading-snug">
                                             <a href="{{ route('guides.show', $guide->slug) }}">
                                                 {{ $guide->title }}
                                             </a>
                                         </h3>
-                                        <p class="mt-2 text-xs text-slate-400 line-clamp-2 leading-relaxed m-0">
+                                        <p class="mt-2 text-xs text-slate-600 line-clamp-2 leading-relaxed m-0">
                                             {{ $guide->excerpt }}
                                         </p>
                                     </div>
-                                    <div class="px-5 py-3 bg-slate-950/60 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400">
+                                    <div class="px-5 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
                                         <span>👁️ {{ number_format($guide->views_count) }} পাঠক</span>
-                                        <a href="{{ route('guides.show', $guide->slug) }}" class="font-bold text-emerald-400 hover:text-emerald-300 inline-flex items-center gap-1">
+                                        <a href="{{ route('guides.show', $guide->slug) }}" class="font-bold text-emerald-700 hover:text-emerald-800 inline-flex items-center gap-1">
                                             <span>সম্পূর্ণ পড়ুন</span> &rarr;
                                         </a>
                                     </div>
@@ -270,57 +270,57 @@
             <aside class="lg:col-span-4 space-y-6">
 
                 <!-- Official Advisory & Contact Card -->
-                <div class="bg-gradient-to-b from-slate-900 to-slate-950 rounded-3xl border border-slate-800 p-6 shadow-md space-y-4">
-                    <h3 class="text-sm font-bold text-white flex items-center gap-2 m-0 pb-3 border-b border-slate-800">
+                <div class="bg-white rounded-3xl border border-slate-200/90 p-6 shadow-xs space-y-4">
+                    <h3 class="text-sm font-black text-slate-900 flex items-center gap-2 m-0 pb-3 border-b border-slate-100">
                         <span>📬</span>
                         <span>রিয়েল এস্টেট পরামর্শ ও যোগাযোগ</span>
                     </h3>
 
-                    <p class="text-xs text-slate-400 leading-relaxed m-0">
+                    <p class="text-xs text-slate-600 leading-relaxed m-0">
                         প্রপার্টি ফাইন্যান্সিং, জমি বা ফ্ল্যাট কেনার পূর্বে আইনি দলিল যাচাই, রাজউক অনুমোদন পরীক্ষা, অথবা প্রপার্টি ভ্যালুয়েশন সংক্রান্ত পরামর্শের জন্য সরাসরি যোগাযোগ করতে পারেন:
                     </p>
 
                     <div class="space-y-3 pt-2 text-xs">
-                        <div class="flex items-center gap-3 p-3 rounded-2xl bg-slate-950 border border-slate-800">
+                        <div class="flex items-center gap-3 p-3 rounded-2xl bg-slate-50 border border-slate-200/80">
                             <span class="text-lg">📧</span>
                             <div class="min-w-0">
                                 <span class="block text-[10px] text-slate-500 uppercase font-bold">অফিসিয়াল ইমেইল</span>
-                                <a href="mailto:admin@propertykoi.com" class="text-slate-200 hover:text-emerald-400 transition-colors font-medium truncate block">
+                                <a href="mailto:admin@propertykoi.com" class="text-slate-800 hover:text-emerald-700 transition-colors font-medium truncate block">
                                     admin@propertykoi.com
                                 </a>
                             </div>
                         </div>
 
-                        <div class="flex items-center gap-3 p-3 rounded-2xl bg-slate-950 border border-slate-800">
+                        <div class="flex items-center gap-3 p-3 rounded-2xl bg-slate-50 border border-slate-200/80">
                             <span class="text-lg">💬</span>
                             <div class="min-w-0">
                                 <span class="block text-[10px] text-slate-500 uppercase font-bold">সরাসরি আলোচনা</span>
-                                <a href="https://wa.me/8801711000001" target="_blank" class="text-emerald-400 hover:underline font-bold block">
+                                <a href="https://wa.me/8801711000001" target="_blank" class="text-emerald-700 hover:underline font-bold block">
                                     WhatsApp কনসালটেশন &rarr;
                                 </a>
                             </div>
                         </div>
 
-                        <div class="flex items-center gap-3 p-3 rounded-2xl bg-slate-950 border border-slate-800">
+                        <div class="flex items-center gap-3 p-3 rounded-2xl bg-slate-50 border border-slate-200/80">
                             <span class="text-lg">📍</span>
                             <div class="min-w-0">
                                 <span class="block text-[10px] text-slate-500 uppercase font-bold">হেডকোয়ার্টার</span>
-                                <span class="text-slate-300 font-medium block">আফতাবনগর ও ঢাকা, বাংলাদেশ</span>
+                                <span class="text-slate-800 font-medium block">আফতাবনগর ও ঢাকা, বাংলাদেশ</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Verified Publisher Information Card (Google E-E-A-T Signal) -->
-                <div class="bg-slate-900 rounded-3xl border border-slate-800 p-6 shadow-md space-y-3">
-                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 m-0">
+                <div class="bg-white rounded-3xl border border-slate-200/90 p-6 shadow-xs space-y-3">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 m-0">
                         E-E-A-T প্রকাশনা মানদণ্ড
                     </h3>
-                    <p class="text-xs text-slate-400 leading-relaxed m-0">
+                    <p class="text-xs text-slate-600 leading-relaxed m-0">
                         PropertyKoi-এর প্রতিটি গাইড ও ক্যালকুলেটর গণপ্রজাতন্ত্রী বাংলাদেশ সরকারের ভূমি মন্ত্রণালয়, নিবন্ধন অধিদপ্তর ও রাজধানী উন্নয়ন কর্তৃপক্ষ (রাজউক)-এর সর্বশেষ বিধিমালা অনুযায়ী যাচাই করে প্রকাশ করা হয়।
                     </p>
                     <div class="pt-2">
-                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-emerald-950 text-emerald-400 border border-emerald-800 text-[11px] font-bold">
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200 text-[11px] font-bold">
                             <span>🛡️</span> ১০০% স্বাধীন ও নিরপেক্ষ রিয়েল এস্টেট বিশ্লেষণ
                         </span>
                     </div>

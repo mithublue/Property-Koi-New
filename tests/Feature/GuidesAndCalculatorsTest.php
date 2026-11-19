@@ -359,5 +359,12 @@ class GuidesAndCalculatorsTest extends TestCase
         $res->assertStatus(200);
         $res->assertSee('ছোট ফ্ল্যাটের জন্য সেরা ইন্টেরিয়র ডিজাইন আইডিয়া ২০২৬');
         $res->assertSee('ইন্টেরিয়র ডিজাইন');
+
+        // Test that empty categories are hidden on frontend guides index
+        $indexRes = $this->get(route('guides.index'));
+        $indexRes->assertStatus(200);
+        $indexRes->assertSee('ইন্টেরিয়র ডিজাইন'); // has 1 published guide, so visible
+        $indexRes->assertDontSee('বাণিজ্যিক প্রপার্টি'); // has 0 published guides, so hidden
+        $indexRes->assertDontSee('উত্তরাধিকার সম্পত্তি'); // has 0 published guides, so hidden
     }
 }

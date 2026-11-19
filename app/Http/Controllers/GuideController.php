@@ -39,7 +39,7 @@ class GuideController extends Controller
 
         $guides = $query->paginate(9)->withQueryString();
 
-        $categories = Guide::getCategoryShortLabels();
+        $allCategories = Guide::getCategoryShortLabels();
 
         $rawCounts = Guide::published()
             ->selectRaw('category, count(*) as total')
@@ -48,9 +48,26 @@ class GuideController extends Controller
             ->toArray();
 
         $counts = ['all' => Guide::published()->count()];
-        foreach ($categories as $catKey => $label) {
-            if ($catKey !== 'all') {
-                $counts[$catKey] = $rawCounts[$catKey] ?? 0;
+        $categories = ['all' => $allCategories['all'] ?? 'সব গাইড'];
+
+        foreach ($allCategories as $catKey => $label) {
+            if ($catKey === 'all') {
+                continue;
+            }
+            $catCount = $rawCounts[$catKey] ?? 0;
+            $counts[$catKey] = $catCount;
+
+            // Only show category on frontend if it has published guides (or is actively queried)
+            if ($catCount > 0 || $category === $catKey) {
+                $categories[$catKey] = $label;
+            }
+        }
+
+        // Dynamically include any other published category with guides
+        foreach ($rawCounts as $rawCat => $rawTotal) {
+            if ($rawTotal > 0 && !isset($categories[$rawCat])) {
+                $categories[$rawCat] = Guide::getCategoryOptions()[$rawCat] ?? $rawCat;
+                $counts[$rawCat] = $rawTotal;
             }
         }
 

@@ -10,11 +10,11 @@
             <span>/</span>
             <a href="{{ route('guides.index') }}" class="hover:text-emerald-400 transition">প্রপার্টি নলেজ হাব</a>
             <span>/</span>
-            <span class="text-emerald-400 font-medium">Mithu A Quayium (রিয়েল এস্টেট বিশ্লেষক)</span>
+            <span class="text-emerald-400 font-medium">Mithu A Quayium (Founder & Consultant)</span>
         </nav>
 
-        <!-- Founder & Real Estate Analyst Hero Header Card -->
-        <div class="bg-gradient-to-br from-slate-900/90 via-slate-850 to-emerald-950/40 rounded-3xl border border-slate-700/60 p-6 sm:p-10 shadow-2xl relative overflow-hidden mb-12">
+        <!-- Founder & Real Estate Consultant Hero Header Card -->
+        <div class="bg-gradient-to-br from-slate-900/90 via-slate-850 to-emerald-950/40 rounded-3xl border border-slate-700/60 p-6 sm:p-10 shadow-2xl relative overflow-hidden mb-8">
             <!-- Background Decorative Glow -->
             <div class="absolute -right-20 -top-20 w-80 h-80 rounded-full bg-emerald-500/10 blur-3xl pointer-events-none"></div>
             <div class="absolute -left-20 -bottom-20 w-80 h-80 rounded-full bg-teal-500/10 blur-3xl pointer-events-none"></div>
@@ -26,7 +26,7 @@
                         <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-3xl bg-gradient-to-tr from-emerald-600 via-teal-600 to-cyan-700 flex items-center justify-center text-white text-3xl sm:text-4xl font-black shadow-xl ring-4 ring-emerald-500/30">
                             MQ
                         </div>
-                        <span class="absolute -bottom-2 -right-2 px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-500 text-slate-950 shadow-md flex items-center gap-1 border-2 border-slate-900" title="যাচাইকৃত রিয়েল এস্টেট গবেষক ও বিশ্লেষক">
+                        <span class="absolute -bottom-2 -right-2 px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-500 text-slate-950 shadow-md flex items-center gap-1 border-2 border-slate-900" title="যাচাইকৃত রিয়েল এস্টেট কনসালট্যান্ট ও ফাইন্যান্স স্ট্র্যাটেজিস্ট">
                             <span>✓</span> ভেরিফাইড
                         </span>
                     </div>
@@ -35,17 +35,17 @@
                     <div class="space-y-2">
                         <div class="flex items-center flex-wrap gap-2">
                             <span class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
-                                🏢 প্রতিষ্ঠাতা ও প্রধান রিয়েল এস্টেট বিশ্লেষক
+                                🏢 Founder @ Property Koi
                             </span>
-                            <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-800 text-slate-300 border border-slate-700">
-                                PropertyKoi.com
+                            <span class="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-950/80 text-emerald-300 border border-emerald-800">
+                                Real Estate Consultant & Finance Strategist
                             </span>
                         </div>
                         <h1 class="text-2xl sm:text-4xl font-black text-white tracking-tight leading-tight m-0">
                             মিঠু এ কাইয়ুম <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-300">(Mithu A Quayium)</span>
                         </h1>
                         <p class="text-sm sm:text-base text-slate-300 font-medium max-w-2xl leading-relaxed m-0">
-                            বাংলাদেশের আবাসন খাত, রাজধানী ঢাকার জমির কাঠাপ্রতি বাজারদর, রাজউক ড্যাপ ও এফএআর বিধিমালা, এবং জমি-ফ্ল্যাটের আইনি দলিল যাচাই গবেষক।
+                            প্রতিষ্ঠাতা, <strong>Property Koi</strong> | রিয়েল এস্টেট কনসালট্যান্ট ও ফাইন্যান্স স্ট্র্যাটেজিস্ট। আবাসন খাতে স্বচ্ছতা, জমি ও ফ্ল্যাটের বাজারদর মূল্যায়ন, আইনি দলিল যাচাই এবং প্রপার্টি ফাইন্যান্সিয়াল প্ল্যানিং বিশেষজ্ঞ।
                         </p>
                     </div>
                 </div>
@@ -54,7 +54,7 @@
                 <div class="grid grid-cols-3 gap-3 w-full lg:w-auto shrink-0 bg-slate-900/80 p-4 rounded-2xl border border-slate-800 text-center">
                     <div class="px-3 py-1">
                         <span class="block text-xl sm:text-2xl font-black text-emerald-400">{{ $totalGuides }}+</span>
-                        <span class="text-[11px] text-slate-400 font-medium">গবেষণা ও গাইড</span>
+                        <span class="text-[11px] text-slate-400 font-medium">গাইড ও আর্টিকেল</span>
                     </div>
                     <div class="px-3 py-1 border-x border-slate-800">
                         <span class="block text-xl sm:text-2xl font-black text-teal-400">{{ number_format($totalViews) }}+</span>
@@ -62,8 +62,38 @@
                     </div>
                     <div class="px-3 py-1">
                         <span class="block text-xl sm:text-2xl font-black text-amber-400">১০০%</span>
-                        <span class="text-[11px] text-slate-400 font-medium">স্বচ্ছ অ্যানালাইসিস</span>
+                        <span class="text-[11px] text-slate-400 font-medium">স্ট্র্যাটেজিক বিশ্লেষণ</span>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upcoming Real Estate Finance Podcast Feature Banner -->
+        <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-amber-500/10 via-emerald-500/10 to-teal-500/10 border border-amber-500/30 p-5 sm:p-6 shadow-xl mb-12">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5">
+                <div class="flex items-start sm:items-center gap-4">
+                    <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-amber-500 via-amber-600 to-amber-700 text-slate-950 flex items-center justify-center text-2xl font-black shrink-0 shadow-lg ring-4 ring-amber-500/20">
+                        🎙️
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2 mb-1 flex-wrap">
+                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-500/20 text-amber-300 border border-amber-400/30 uppercase tracking-wider">
+                                আপকামিং পডকাস্ট • Coming Soon
+                            </span>
+                            <span class="text-xs text-amber-200/90 font-medium">ইনশাআল্লাহ খুব শীঘ্রই</span>
+                        </div>
+                        <h2 class="text-lg sm:text-xl font-black text-white m-0">
+                            Real Estate Finance with Mithu A Quayium
+                        </h2>
+                        <p class="text-xs sm:text-sm text-slate-300 mt-1 leading-relaxed m-0">
+                            বাংলাদেশের প্রথম বিশেষায়িত রিয়েল এস্টেট ফাইন্যান্স পডকাস্ট। প্রপার্টি বিনিয়োগ কৌশল, হোম লোন ও ফাইন্যান্সিং, জমির কাঠাপ্রতি সঠিক মূল্যায়ন এবং দীর্ঘমেয়াদী রিয়েল এস্টেট ওয়েলথ বিল্ডিং নিয়ে খোলামেলা আলোচনা।
+                        </p>
+                    </div>
+                </div>
+                <div class="shrink-0">
+                    <span class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/40 text-xs font-bold">
+                        <span>🔔</span> হোস্ট ও ক্রিয়েটর: মিঠু এ কাইয়ুম
+                    </span>
                 </div>
             </div>
         </div>
@@ -77,35 +107,35 @@
                 <section class="bg-slate-900/90 rounded-3xl border border-slate-800 p-6 sm:p-8 shadow-md space-y-4">
                     <h2 class="text-lg sm:text-xl font-bold text-white flex items-center gap-2 m-0 pb-3 border-b border-slate-800">
                         <span>👨‍💼</span>
-                        <span>রিয়েল এস্টেট পরিচিতি ও লক্ষ্য (About the Real Estate Analyst)</span>
+                        <span>রিয়েল এস্টেট পরিচিতি ও লক্ষ্য (Founder & Consultant Profile)</span>
                     </h2>
 
                     <div class="text-xs sm:text-sm text-slate-300 leading-relaxed space-y-3.5">
                         <p class="m-0 leading-relaxed">
-                            <strong>মিঠু এ কাইয়ুম (Mithu A Quayium)</strong> বাংলাদেশের আবাসন ও রিয়েল এস্টেট খাতের অন্যতম পথিকৃৎ গবেষক এবং <strong>PropertyKoi.com</strong>-এর প্রতিষ্ঠাতা। তিনি দীর্ঘদিন যাবত ঢাকা ও উপশহরের জমির বাজারদর, ভূমি রেজিস্ট্রেশন আইন, এবং রাজউকের পরিকল্পনা বিধিমালা নিয়ে পদ্ধতিগত গবেষণা পরিচালনা করছেন।
+                            <strong>মিঠু এ কাইয়ুম (Mithu A Quayium)</strong> Property Koi-এর প্রতিষ্ঠাতা (Founder), রিয়েল এস্টেট কনসালট্যান্ট ও ফাইন্যান্স স্ট্র্যাটেজিস্ট (Real Estate Consultant & Finance Strategist)। তিনি বাংলাদেশের আবাসন খাত, ঢাকা ও উপশহরের জমির কাঠাপ্রতি বাজারদর, প্রপার্টি ফাইন্যান্সিং এবং রাজউকের পরিকল্পনা বিধিমালা নিয়ে কাজ করছেন।
                         </p>
                         <p class="m-0 leading-relaxed">
-                            তাঁর মূল গবেষণার লক্ষ্য হলো—প্রচলিত রিয়েল এস্টেট বাজারের অস্পষ্টতা ও মধ্যস্বত্বভোগীদের দৌরাত্ম্য দূর করে <strong>স্বয়ংক্রিয় প্রপার্টি ভ্যালুয়েশন</strong>, <strong>রাজউক ড্যাপ ও এফএআর (FAR) ক্যালকুলেটর</strong> এবং <strong>হালনাগাদ সরকারি স্ট্যাম্প ডিউটি ও ট্যাক্স মডেলিং</strong>-এর মাধ্যমে সাধারণ ক্রেতা, প্রবাসী বাংলাদেশি (NRB) ও ভূমি মালিকদের ক্ষমতায়িত করা।
+                            তাঁর লক্ষ্য হলো—প্রচলিত আবাসন বাজারের অস্বচ্ছতা ও দালালি সিন্ডিকেট দূর করে <strong>স্বয়ংক্রিয় প্রপার্টি ভ্যালুয়েশন</strong>, <strong>রাজউক ড্যাপ ও এফএআর (FAR) ক্যালকুলেটর</strong>, এবং <strong>হালনাগাদ ভূমি আইন ও প্রপার্টি ফাইন্যান্স স্ট্র্যাটেজি</strong>-র মাধ্যমে সাধারণ ক্রেতা, প্রবাসী বাংলাদেশি (NRB) ও বিনিয়োগকারীদের সঠিক সিদ্ধান্ত গ্রহণে সহায়তা করা।
                         </p>
-                        <p class="m-0 leading-relaxed text-slate-400 text-[11px] sm:text-xs italic bg-slate-950/60 p-3.5 rounded-xl border border-slate-800/80">
-                            "Mithu A Quayium is a prominent Bangladeshi Real Estate Analyst and Founder of PropertyKoi. He specializes in automated property valuation, RAJUK DAP (2022-2035) compliance, land title record verification (CS, SA, RS, BS, Namjari), and property market transparency across Dhaka, Bangladesh."
+                        <p class="m-0 leading-relaxed text-slate-300 text-[11px] sm:text-xs italic bg-slate-950/70 p-3.5 rounded-xl border border-slate-800/80">
+                            "Founder @ Property Koi | Real Estate Consultant & Finance Strategist. Specializing in property investment planning, land title verification, automated property valuation, RAJUK DAP/FAR compliance, and host of the upcoming podcast 'Real Estate Finance with Mithu A Quayium'."
                         </p>
                     </div>
                 </section>
 
-                <!-- Core Areas of Real Estate Expertise -->
+                <!-- Core Areas of Real Estate Consulting & Expertise -->
                 <section class="bg-slate-900/90 rounded-3xl border border-slate-800 p-6 sm:p-8 shadow-md space-y-4">
                     <h2 class="text-lg sm:text-xl font-bold text-white flex items-center gap-2 m-0 pb-3 border-b border-slate-800">
                         <span>🎯</span>
-                        <span>গবেষণার প্রধান ক্ষেত্রসমূহ (Core Areas of Real Estate Expertise)</span>
+                        <span>পরামর্শ ও কনসাল্টিং ক্ষেত্রসমূহ (Core Consulting & Advisory Areas)</span>
                     </h2>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
                         <div class="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/90 space-y-1.5">
-                            <span class="text-xl block">🏢</span>
-                            <h3 class="text-sm font-bold text-white m-0">আবাসন বাজার ও প্রাইস ইনডেক্সিং</h3>
+                            <span class="text-xl block">💰</span>
+                            <h3 class="text-sm font-bold text-white m-0">প্রপার্টি ফাইন্যান্স ও ইনভেস্টমেন্ট স্ট্র্যাটেজি</h3>
                             <p class="text-xs text-slate-400 leading-relaxed m-0">
-                                ঢাকা শহরের আফতাবনগর, বসুন্ধরা, পূর্বাচল ও মিরপুর এলাকার ব্লকভিত্তিক কাঠাপ্রতি বাজারদর ও রেডি ফ্ল্যাটের স্কয়ারফুট রেট বিশ্লেষণ।
+                                হোম লোন স্ট্রাকচারিং, প্রপার্টি ইনভেস্টমেন্ট পোর্টফোলিও প্ল্যানিং এবং রিয়েল এস্টেট ফাইন্যান্স সংক্রান্ত স্ট্র্যাটেজিক পরামর্শ।
                             </p>
                         </div>
 
@@ -113,7 +143,7 @@
                             <span class="text-xl block">📜</span>
                             <h3 class="text-sm font-bold text-white m-0">জমির দলিল ও খতিয়ান স্বত্ব যাচাই</h3>
                             <p class="text-xs text-slate-400 leading-relaxed m-0">
-                                বায়া দলিল, সিএস, এসএ, আরএস ও বিএস খতিয়ান, ই-নামজারি ও ডিসিআর যাচাইকরণে ক্রেতা সুরক্ষা নির্দেশিকা প্রণয়ন।
+                                বায়া দলিল, সিএস, এসএ, আরএস ও বিএস খতিয়ান, ই-নামজারি ও ডিসিআর যাচাইকরণে ক্রেতা সুরক্ষা পরামর্শ।
                             </p>
                         </div>
 
@@ -121,7 +151,7 @@
                             <span class="text-xl block">📐</span>
                             <h3 class="text-sm font-bold text-white m-0">রাজউক ড্যাপ (DAP) ও FAR বিধিমালা</h3>
                             <p class="text-xs text-slate-400 leading-relaxed m-0">
-                                রাস্তার প্রশস্ততা ও প্লটের সাইজ অনুযায়ী কত তলা ভবন নির্মাণ সম্ভব, সেটব্যাক ও এমজিসি (MGC) নিখুঁতভাবে নির্ধারণের কারিগরি মডেলিং।
+                                রাস্তার প্রশস্ততা ও প্লটের সাইজ অনুযায়ী কত তলা ভবন নির্মাণ সম্ভব, সেটব্যাক ও এমজিসি (MGC) নিখুঁতভাবে নির্ধারণ।
                             </p>
                         </div>
 
@@ -134,10 +164,10 @@
                         </div>
 
                         <div class="p-4 rounded-2xl bg-slate-950/70 border border-slate-800/90 space-y-1.5">
-                            <span class="text-xl block">⚖️</span>
-                            <h3 class="text-sm font-bold text-white m-0">রিয়েল এস্টেট আইন ২০১০ ও চুক্তিপত্র</h3>
+                            <span class="text-xl block">🏢</span>
+                            <h3 class="text-sm font-bold text-white m-0">আবাসন বাজার ও প্রাইস ইনডেক্সিং</h3>
                             <p class="text-xs text-slate-400 leading-relaxed m-0">
-                                রিয়েল এস্টেট উন্নয়ন ও ব্যবস্থাপনা আইন ২০১০, ডেভেলপার হ্যান্ডওভার বিলম্ব ক্ষতিপূরণ ও ফ্ল্যাট ক্রেতার আইনগত অধিকার সুরক্ষা।
+                                ঢাকা শহরের আফতাবনগর, বসুন্ধরা, পূর্বাচল ও মিরপুর এলাকার ব্লকভিত্তিক কাঠাপ্রতি বাজারদর ও রেডি ফ্ল্যাটের স্কয়ারফুট রেট বিশ্লেষণ।
                             </p>
                         </div>
 
@@ -151,7 +181,7 @@
                     </div>
                 </section>
 
-                <!-- Tools & Research Products Created by Mithu A Quayium -->
+                <!-- Tools & Products Created by Mithu A Quayium -->
                 <section class="bg-slate-900/90 rounded-3xl border border-slate-800 p-6 sm:p-8 shadow-md space-y-4">
                     <h2 class="text-lg sm:text-xl font-bold text-white flex items-center gap-2 m-0 pb-3 border-b border-slate-800">
                         <span>⚡</span>
@@ -190,7 +220,7 @@
                     <div class="flex items-center justify-between flex-wrap gap-2">
                         <h2 class="text-lg sm:text-xl font-bold text-white flex items-center gap-2 m-0">
                             <span>📚</span>
-                            <span>মিঠু এ কাইয়ুম-এর প্রকাশিত গাইড ও গবেষণা প্রবন্ধসমূহ ({{ $totalGuides }}টি)</span>
+                            <span>মিঠু এ কাইয়ুম-এর প্রকাশিত গাইড ও আর্টিকেলেসমূহ ({{ $totalGuides }}টি)</span>
                         </h2>
                         <a href="{{ route('guides.index') }}" class="text-xs font-bold text-emerald-400 hover:text-emerald-300 transition">
                             সকল ক্যাটাগরি দেখুন &rarr;
@@ -247,7 +277,7 @@
                     </h3>
 
                     <p class="text-xs text-slate-400 leading-relaxed m-0">
-                        জমি বা ফ্ল্যাট কেনার পূর্বে আইনি দলিল যাচাই, রাজউক অনুমোদন পরীক্ষা, অথবা প্রপার্টি ভ্যালুয়েশন সংক্রান্ত পরামর্শের জন্য সরাসরি যোগাযোগ করতে পারেন:
+                        প্রপার্টি ফাইন্যান্সিং, জমি বা ফ্ল্যাট কেনার পূর্বে আইনি দলিল যাচাই, রাজউক অনুমোদন পরীক্ষা, অথবা প্রপার্টি ভ্যালুয়েশন সংক্রান্ত পরামর্শের জন্য সরাসরি যোগাযোগ করতে পারেন:
                     </p>
 
                     <div class="space-y-3 pt-2 text-xs">
@@ -274,7 +304,7 @@
                         <div class="flex items-center gap-3 p-3 rounded-2xl bg-slate-950 border border-slate-800">
                             <span class="text-lg">📍</span>
                             <div class="min-w-0">
-                                <span class="block text-[10px] text-slate-500 uppercase font-bold">প্রধান গবেষণা কেন্দ্র</span>
+                                <span class="block text-[10px] text-slate-500 uppercase font-bold">হেডকোয়ার্টার</span>
                                 <span class="text-slate-300 font-medium block">আফতাবনগর ও ঢাকা, বাংলাদেশ</span>
                             </div>
                         </div>

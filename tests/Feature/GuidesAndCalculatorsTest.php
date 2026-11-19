@@ -387,22 +387,25 @@ class GuidesAndCalculatorsTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee('Mithu A Quayium');
         $response->assertSee('মিঠু এ কাইয়ুম');
-        $response->assertSee('প্রতিষ্ঠাতা ও প্রধান রিয়েল এস্টেট বিশ্লেষক');
-        $response->assertSee('PropertyKoi.com');
+        $response->assertSee('Founder @ Property Koi');
+        $response->assertSee('Real Estate Consultant & Finance Strategist');
+        $response->assertSee('Real Estate Finance with Mithu A Quayium');
         $response->assertSee('রাজউক ড্যাপ');
         $response->assertSee('জমির দলিল ও খতিয়ান স্বত্ব যাচাই');
         $response->assertSee('author-test-jomir-dolil-jachai-2026');
 
         // Verify Schema.org Person & ProfilePage markup
         $response->assertSee('ProfilePage');
-        $response->assertSee('Real Estate Analyst');
-        $response->assertSee('Property Valuation Consultant');
+        $response->assertSee('Real Estate Consultant');
+        $response->assertSee('Finance Strategist');
 
         // 2. Guide show page contains author byline and author bio box linking to author profile
         $guideRes = $this->get(route('guides.show', $guide->slug));
         $guideRes->assertStatus(200);
         $guideRes->assertSee('Mithu A Quayium');
         $guideRes->assertSee(route('author.show', 'mithu-a-quayium'));
-        $guideRes->assertSee('লেখক ও রিয়েল এস্টেট বিশ্লেষক');
+        $guideRes->assertSee('Founder @ Property Koi');
+        $guideRes->assertSee('Real Estate Consultant');
+        $guideRes->assertSee('Finance Strategist');
     }
 }

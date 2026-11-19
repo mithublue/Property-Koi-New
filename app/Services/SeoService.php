@@ -1094,7 +1094,7 @@ class SeoService
     }
 
     /**
-     * Get the standardized Person Entity schema for Founder & Real Estate Analyst Mithu A Quayium.
+     * Get the standardized Person Entity schema for Founder @ Property Koi | Real Estate Consultant & Finance Strategist Mithu A Quayium.
      * Engineered for Google Knowledge Graph, E-E-A-T, and AI Answer Engines (ChatGPT, Gemini, Perplexity).
      */
     public static function getFounderEntity(): array
@@ -1109,7 +1109,7 @@ class SeoService
             'alternateName' => ['Mithu Quayium', 'মিঠু এ কাইয়ুম', 'Mithu A. Quayium'],
             'url' => $authorUrl,
             'image' => asset('assets/images/og-default.jpg'),
-            'jobTitle' => 'Founder & Lead Real Estate Analyst',
+            'jobTitle' => 'Founder @ Property Koi | Real Estate Consultant & Finance Strategist',
             'worksFor' => [
                 '@type' => 'Organization',
                 '@id' => $siteUrl.'#organization',
@@ -1118,10 +1118,12 @@ class SeoService
             ],
             'hasOccupation' => [
                 '@type' => 'Occupation',
-                'name' => 'Real Estate Analyst & Property Valuation Consultant',
-                'occupationalCategory' => 'Real Estate, Urban Land Economics & Property Valuation',
+                'name' => 'Real Estate Consultant & Finance Strategist',
+                'occupationalCategory' => 'Real Estate Consulting, Property Finance & Investment Strategy',
                 'skills' => [
+                    'Real Estate Finance & Investment Strategy',
                     'Property Valuation & Price Index Modeling',
+                    'Host of Real Estate Finance with Mithu A Quayium Podcast',
                     'Bangladesh Land Law & Title Deed Verification (CS, SA, RS, BS Khotian)',
                     'E-Namjari, DCR & Mutation Legal Audit',
                     'RAJUK DAP (2022-2035) & FAR Building Height Calculations',
@@ -1131,6 +1133,8 @@ class SeoService
             ],
             'knowsAbout' => [
                 'Real Estate in Bangladesh',
+                'Real Estate Finance & Strategic Wealth Planning',
+                'Real Estate Finance with Mithu A Quayium Podcast',
                 'Dhaka Housing Market & Real Estate Price Trends',
                 'RAJUK Detailed Area Plan (DAP 2022-2035)',
                 'Floor Area Ratio (FAR) & Mandatory Setback Calculations',
@@ -1140,7 +1144,7 @@ class SeoService
                 'Aftabnagar Real Estate Price Index',
                 'Property Valuation & Land Share Investment Feasibility',
             ],
-            'description' => 'Mithu A Quayium is a prominent Bangladeshi Real Estate Analyst, Property Valuation Researcher, and Founder of PropertyKoi (propertykoi.com). He specializes in Dhaka housing market trends, land record audits (CS/SA/RS/BS), RAJUK DAP/FAR compliance, and property investment strategy.',
+            'description' => 'Mithu A Quayium is the Founder @ Property Koi (propertykoi.com), Real Estate Consultant & Finance Strategist, and host of the upcoming podcast "Real Estate Finance with Mithu A Quayium". He specializes in property financing, real estate investment strategy, Dhaka housing market valuation, land record audits (CS/SA/RS/BS), and RAJUK DAP/FAR compliance.',
         ];
     }
 
@@ -1152,9 +1156,9 @@ class SeoService
         $siteName = self::getSiteName();
         $siteUrl = url('/');
         $authorUrl = route('author.show', $slug);
-        $title = "Mithu A Quayium (মিঠু এ কাইয়ুম) — Founder & Lead Real Estate Analyst | {$siteName}";
-        $desc = "মিঠু এ কাইয়ুম (Mithu A Quayium) — PropertyKoi-এর প্রতিষ্ঠাতা ও প্রধান রিয়েল এস্টেট বিশ্লেষক। বাংলাদেশের জমির দলিল ও খতিয়ান যাচাই, রাজউক ড্যাপ ও FAR নিয়মাবলী, আফতাবনগর বাজারদর এবং প্রপার্টি ভ্যালুয়েশন গবেষক।";
-        $keywords = "Mithu A Quayium, মিঠু এ কাইয়ুম, Mithu Quayium, Real Estate Analyst Bangladesh, Property Consultant Dhaka, PropertyKoi Founder, রাজউক ড্যাপ বিশেষজ্ঞ, জমির দলিল যাচাই গবেষক, Aftabnagar Property Price Index researcher";
+        $title = "Mithu A Quayium (মিঠু এ কাইয়ুম) — Founder @ Property Koi | Real Estate Consultant & Finance Strategist | {$siteName}";
+        $desc = "মিঠু এ কাইয়ুম (Mithu A Quayium) — Founder @ Property Koi, রিয়েল এস্টেট কনসালট্যান্ট ও ফাইন্যান্স স্ট্র্যাটেজিস্ট। প্রপার্টি ফাইন্যান্সিং, রিয়েল এস্টেট বিনিয়োগ কৌশল, জমির দলিল ও খতিয়ান যাচাই, এবং রাজউক ড্যাপ ও FAR নিয়মাবলী বিশেষজ্ঞ।";
+        $keywords = "Mithu A Quayium, মিঠু এ কাইয়ুম, Mithu Quayium, Founder @ Property Koi, Real Estate Consultant Bangladesh, Real Estate Finance Strategist, Real Estate Finance with Mithu A Quayium, Property Consultant Dhaka, PropertyKoi Founder, রিয়েল এস্টেট ফাইন্যান্স কনসালট্যান্ট, রাজউক ড্যাপ বিশেষজ্ঞ, জমির দলিল যাচাই, Property Investment Strategy Bangladesh";
         $image = self::getCustomOrAssetImage('adm_seo_default_og_image', 'og-default.jpg');
 
         $founderEntity = self::getFounderEntity();

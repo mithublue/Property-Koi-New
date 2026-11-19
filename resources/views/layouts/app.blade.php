@@ -663,9 +663,9 @@
     <!-- Footer Component (100% replica of WordPress footer) -->
     <footer id="site-footer" class="site-footer bg-[#050508] text-slate-300 font-sans border-t border-slate-800/80 mt-16">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-12 w-full">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 pb-12 border-b border-slate-800/80">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-10 pb-12 border-b border-slate-800/80">
                 <!-- Col 1 -->
-                <div class="lg:col-span-4 space-y-5">
+                <div class="space-y-5">
                     <a href="{{ route('home') }}" class="inline-flex items-center gap-3.5 group text-decoration-none">
                         @if($footerLogoUrl)
                             <img src="{{ $footerLogoUrl }}" alt="{{ $siteName }}" class="h-10 md:h-12 w-auto max-w-[220px] object-contain">
@@ -685,7 +685,7 @@
                 </div>
 
                 <!-- Col 2 -->
-                <div class="lg:col-span-3 space-y-4">
+                <div class="space-y-4">
                     <h4 class="text-xs sm:text-sm font-bold uppercase tracking-wider text-white m-0 pb-1">
                         INFORMATION / প্রয়োজনীয় লিংক
                     </h4>
@@ -704,7 +704,7 @@
                 </div>
 
                 <!-- Col 3 -->
-                <div class="lg:col-span-3 space-y-4">
+                <div class="space-y-4">
                     <h4 class="text-xs sm:text-sm font-bold uppercase tracking-wider text-white m-0 pb-1">
                         GUIDES & TOOLS / গাইড ও ক্যালকুলেটর
                     </h4>
@@ -721,30 +721,30 @@
                 </div>
 
                 <!-- Col 4 -->
-                <div class="lg:col-span-3 space-y-4">
+                <div class="space-y-4">
                     <h4 class="text-xs sm:text-sm font-bold uppercase tracking-wider text-white m-0 pb-1">
                         CONTACT US / যোগাযোগ
                     </h4>
-                    <div class="space-y-3 text-xs sm:text-sm">
+                    <div class="space-y-3.5 text-xs sm:text-sm">
                         <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-xl bg-slate-900 border border-slate-700/60 flex items-center justify-center shrink-0 text-emerald-400 shadow-sm">
+                            <div class="w-9 h-9 rounded-xl bg-slate-900 border border-slate-700/60 flex items-center justify-center shrink-0 text-emerald-400 shadow-sm">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
                             </div>
-                            <div>
-                                <span class="block text-[10px] uppercase font-bold text-slate-400 leading-none">ইমেইল সাপোর্ট</span>
-                                <a href="mailto:{{ $siteEmail }}" class="text-slate-200 hover:text-emerald-400 transition-colors font-medium text-xs sm:text-sm mt-0.5 inline-block">
+                            <div class="min-w-0">
+                                <span class="block text-[10px] uppercase font-bold text-slate-400 mb-0.5">ইমেইল সাপোর্ট</span>
+                                <a href="mailto:{{ $siteEmail }}" class="text-slate-200 hover:text-emerald-400 transition-colors font-medium text-xs sm:text-sm truncate block" title="{{ $siteEmail }}">
                                     {{ $siteEmail }}
                                 </a>
                             </div>
                         </div>
                         @if(!empty($sitePhone))
                             <div class="flex items-center gap-3 pt-1">
-                                <div class="w-8 h-8 rounded-xl bg-slate-900 border border-slate-700/60 flex items-center justify-center shrink-0 text-emerald-400 shadow-sm">
+                                <div class="w-9 h-9 rounded-xl bg-slate-900 border border-slate-700/60 flex items-center justify-center shrink-0 text-emerald-400 shadow-sm">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
                                 </div>
-                                <div>
-                                    <span class="block text-[10px] uppercase font-bold text-slate-400 leading-none">হটলাইন নম্বর</span>
-                                    <a href="tel:{{ preg_replace('/[^0-9+]/', '', $sitePhone) }}" class="text-slate-200 hover:text-emerald-400 transition-colors font-medium text-xs sm:text-sm mt-0.5 inline-block">
+                                <div class="min-w-0">
+                                    <span class="block text-[10px] uppercase font-bold text-slate-400 mb-0.5">হটলাইন নম্বর</span>
+                                    <a href="tel:{{ preg_replace('/[^0-9+]/', '', $sitePhone) }}" class="text-slate-200 hover:text-emerald-400 transition-colors font-medium text-xs sm:text-sm truncate block">
                                         {{ $sitePhone }}
                                     </a>
                                 </div>

@@ -1,6 +1,323 @@
 @extends('layouts.app', ['seo' => $ogMeta])
 
 @section('content')
+<!-- Alpine.js Calculation Logic Engine (Defined before x-data element) -->
+<script>
+window.rajukFarCalculator = function() {
+    return {
+        // Form States
+        adminMode: 'rajuk', // 'rajuk' or 'union_porishod'
+        upPracticeMode: 'market_reality', // 'market_reality' or 'conservative_safety'
+        selectedArea: 'planned_bashundhara',
+        plotSize: 5,
+        plotUnit: 'katha', // 'katha', 'decimal', 'sqft'
+        roadWidth: 25,
+        flatSizeSqft: 1200,
+        buildingUsage: 'residential', // 'residential' or 'mixed'
+        isNearMetro: false,
+        isCornerPlot: false,
+
+        // Calculated Reactive Results
+        plotAreaSqft: 3600,
+        plotKathaEquivalent: 5,
+        effectiveFar: 3.15,
+        mgcPercent: 60,
+        footprintSqft: 2160,
+        openSpaceSqft: 1440,
+        totalBuiltAreaSqft: 11340,
+        permittedFloorsLabel: 'জি+৬ তলা (৭ তলা ভবন)',
+        floorsSubNote: 'গ্রাউন্ড ফ্লোর পার্কিং + ৬টি সম্পূর্ণ আবাসিক ফ্লোর',
+        totalFlats: 14,
+        flatsPerFloor: 2,
+        frontSetback: 5,
+        rearSetback: 8,
+        sideSetback: 4,
+
+        init() {
+            this.updateCalculations();
+        },
+
+        toBn(num) {
+            const bnDigits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
+            return String(num).replace(/[0-9]/g, function(d) { return bnDigits[d]; });
+        },
+
+        setAdminMode(mode) {
+            this.adminMode = mode;
+            if (mode === 'union_porishod') {
+                this.selectedArea = 'up_ati_housing';
+                this.flatSizeSqft = 950;
+            } else {
+                this.selectedArea = 'planned_bashundhara';
+                this.flatSizeSqft = 1200;
+            }
+            this.updateCalculations();
+        },
+
+        setPlotSize(val, unit) {
+            this.plotSize = val;
+            this.plotUnit = unit;
+            this.updateCalculations();
+        },
+
+        setRoadWidth(w) {
+            this.roadWidth = w;
+            this.updateCalculations();
+        },
+
+        formatNumber(num) {
+            if (isNaN(num) || num === null || num === undefined) return '0';
+            return Math.round(num).toLocaleString('en-US');
+        },
+
+        updateCalculations() {
+            // Defensively parse inputs to prevent NaN
+            let pSize = parseFloat(this.plotSize);
+            if (isNaN(pSize) || pSize <= 0) pSize = 0;
+
+            let rWidth = parseFloat(this.roadWidth);
+            if (isNaN(rWidth) || rWidth <= 0) rWidth = 8;
+
+            let fSize = parseFloat(this.flatSizeSqft);
+            if (isNaN(fSize) || fSize <= 0) fSize = 1000;
+
+            // 1. Calculate Plot Area in Sqft
+            let sqft = 0;
+            if (this.plotUnit === 'katha') {
+                sqft = pSize * 720;
+            } else if (this.plotUnit === 'decimal') {
+                sqft = pSize * 435.6;
+            } else {
+                sqft = pSize;
+            }
+            this.plotAreaSqft = Math.max(sqft, pSize > 0 ? sqft : 300);
+            this.plotKathaEquivalent = this.plotAreaSqft / 720;
+
+            const katha = this.plotKathaEquivalent;
+            const road = rWidth;
+
+            // 2. Base FAR and MGC Resolution Matrix
+            let baseFar = 2.0;
+            let mgc = 60;
+            let maxStories = 5;
+
+            if (this.adminMode === 'union_porishod') {
+                // Union Porishod mode (e.g. Ati Housing, Keraniganj, Savar Rural)
+                if (this.upPracticeMode === 'market_reality') {
+                    // Local market developer trend in Ati Housing / Keraniganj
+                    mgc = 70; // Local developers cover ~70% of land
+                    if (road < 12) {
+                        maxStories = 5;
+                        baseFar = 3.5;
+                        this.permittedFloorsLabel = 'জি+৪ তলা (৫ তলা ভবন)';
+                        this.floorsSubNote = 'সরু রাস্তায় স্থানীয়ভাবে সাধারণত ৫ তলা পর্যন্ত নির্মাণ করা হয়';
+                    } else if (road < 20) {
+                        maxStories = 7;
+                        baseFar = 4.9;
+                        this.permittedFloorsLabel = 'জি+৬ তলা (৭ তলা ভবন)';
+                        this.floorsSubNote = 'মাঝারি রাস্তায় সয়েল টেস্ট ও কাস্টিং করে ৭ তলা পর্যন্ত নির্মাণ ট্রেন্ড';
+                    } else if (road < 25) {
+                        maxStories = 9;
+                        baseFar = 6.3;
+                        this.permittedFloorsLabel = 'জি+৮ তলা (৯ তলা ভবন)';
+                        this.floorsSubNote = 'প্রশস্ত রাস্তায় সয়েল টেস্ট ও সাবস্টেশন সাপেক্ষে ৯ তলা পর্যন্ত';
+                    } else {
+                        // 25ft - 30ft+ road in Ati Housing Society
+                        maxStories = 11; // G+10
+                        baseFar = 7.7;
+                        this.permittedFloorsLabel = 'জি+১০ তলা (১১ তলা ভবন)';
+                        this.floorsSubNote = 'আটি হাউজিংয়ে ২৫-৩০ ফুট রাস্তায় পাইলিং ও ডিপ ফাউন্ডেশনে জি+১০ তলা বহুতল নির্মাণ ধারা';
+                    }
+                } else {
+                    // Conservative safety standard
+                    mgc = 60;
+                    if (road < 12) {
+                        baseFar = 1.6;
+                        maxStories = 4;
+                        this.permittedFloorsLabel = 'জি+৩ তলা (৪ তলা ভবন)';
+                        this.floorsSubNote = 'সরু রাস্তায় নিরাপদ লোডিংয়ের জন্য ৪ তলা প্রস্তাবিত';
+                    } else if (road < 20) {
+                        baseFar = 2.2;
+                        maxStories = 5;
+                        this.permittedFloorsLabel = 'জি+৪ তলা (৫ তলা ভবন)';
+                        this.floorsSubNote = 'ইউনিয়ন পরিষদ ও মাটির সাধারণ সেফটি অনুযায়ী ৫ তলা';
+                    } else if (road < 30) {
+                        baseFar = 2.8;
+                        maxStories = 6;
+                        this.permittedFloorsLabel = 'জি+৫ তলা (৬ তলা ভবন)';
+                        this.floorsSubNote = 'উপজেলা প্রকৌশলীর পরামর্শে ৬ তলা';
+                    } else {
+                        baseFar = 3.2;
+                        maxStories = 7;
+                        this.permittedFloorsLabel = 'জি+৬ তলা (৭ তলা ভবন)';
+                        this.floorsSubNote = 'প্রশস্ত রাস্তায় সাধারণ সেফটি অনুযায়ী ৭ তলা';
+                    }
+                }
+            } else {
+                // Official RAJUK DAP (2022-2035) Matrix
+                if (road < 12) {
+                    baseFar = (katha < 3) ? 1.75 : 1.50;
+                    mgc = 65;
+                    maxStories = 4;
+                    this.permittedFloorsLabel = 'জি+৩ তলা (৪ তলা ভবন)';
+                    this.floorsSubNote = '১২ ফুটের নিচে রাজউক সাধারণত বহুতল অনুমোদন দেয় না';
+                } else if (road < 20) {
+                    if (katha < 3) {
+                        baseFar = 2.00;
+                        mgc = 65;
+                        maxStories = 5;
+                    } else if (katha <= 5) {
+                        baseFar = 2.25;
+                        mgc = 62.5;
+                        maxStories = 6;
+                    } else {
+                        baseFar = 2.50;
+                        mgc = 60;
+                        maxStories = 6;
+                    }
+                    this.permittedFloorsLabel = 'জি+' + this.toBn(maxStories - 1) + ' তলা (' + this.toBn(maxStories) + ' তলা ভবন)';
+                    this.floorsSubNote = 'ড্যাপ অনুযায়ী রাস্তার মাপ সাপেক্ষে মাঝারি আবাসিক ভবন';
+                } else if (road < 30) {
+                    if (katha < 3) {
+                        baseFar = 2.75;
+                        mgc = 62.5;
+                        maxStories = 6;
+                    } else if (katha <= 5) {
+                        baseFar = 3.15;
+                        mgc = 60;
+                        maxStories = 7;
+                    } else {
+                        baseFar = 3.50;
+                        mgc = 57.5;
+                        maxStories = 8;
+                    }
+                    this.permittedFloorsLabel = 'জি+' + this.toBn(maxStories - 1) + ' তলা (' + this.toBn(maxStories) + ' তলা ভবন)';
+                    this.floorsSubNote = 'গ্রাউন্ড ফ্লোর পার্কিং + ' + this.toBn(maxStories - 1) + 'টি সম্পূর্ণ আবাসিক ফ্লোর';
+                } else if (road < 40) {
+                    if (katha < 5) {
+                        baseFar = 3.25;
+                        mgc = 60;
+                        maxStories = 7;
+                    } else if (katha <= 10) {
+                        baseFar = 3.75;
+                        mgc = 55;
+                        maxStories = 9;
+                    } else {
+                        baseFar = 4.00;
+                        mgc = 52.5;
+                        maxStories = 10;
+                    }
+                    this.permittedFloorsLabel = 'জি+' + this.toBn(maxStories - 1) + ' তলা (' + this.toBn(maxStories) + ' তলা ভবন)';
+                    this.floorsSubNote = 'প্রশস্ত রাস্তার সুবিধা থাকায় উচ্চতর আবাসন অনুমোদন';
+                } else if (road < 60) {
+                    if (katha < 5) {
+                        baseFar = 3.50;
+                        mgc = 57.5;
+                        maxStories = 8;
+                    } else if (katha <= 10) {
+                        baseFar = 4.00;
+                        mgc = 55;
+                        maxStories = 10;
+                    } else {
+                        baseFar = 4.50;
+                        mgc = 50;
+                        maxStories = 12;
+                    }
+                    this.permittedFloorsLabel = 'জি+' + this.toBn(maxStories - 1) + ' তলা (' + this.toBn(maxStories) + ' তলা ভবন)';
+                    this.floorsSubNote = 'এভিনিউ রোডের সুবিধা নিয়ে হাইরাইজ আবাসিক সুবিধা';
+                } else {
+                    // 60ft+ Main Boulevard
+                    baseFar = (katha >= 10) ? 5.00 : 4.25;
+                    mgc = 50;
+                    maxStories = (katha >= 10) ? 14 : 10;
+                    this.permittedFloorsLabel = 'জি+' + this.toBn(maxStories - 1) + ' তলা (' + this.toBn(maxStories) + ' তলা বহুতল কমপ্লেক্স)';
+                    this.floorsSubNote = 'প্রধান বুলেভার্ড রোড হওয়ায় সর্বোচ্চ ফার (FAR) ও উচ্চতা সুবিধা';
+                }
+
+                // CAAB Airport limitation check
+                if (this.selectedArea === 'aviation_uttara' && maxStories > 8) {
+                    maxStories = 8;
+                    this.permittedFloorsLabel = 'জি+৭ তলা (৮ তলা - সিভিল এভিয়েশন ক্যাপ)';
+                    this.floorsSubNote = 'বিমানবন্দরের ফ্লাইট পাথ নিয়মের কারণে সর্বোচ্চ উচ্চতা ৮ তলায় সীমাবদ্ধ';
+                }
+            }
+
+            // 3. Apply Incentives (Metro Rail / Corner Plot)
+            let totalFar = baseFar;
+            if (this.isNearMetro) {
+                totalFar += 0.25; // TOD bonus
+            }
+            if (this.isCornerPlot) {
+                totalFar += 0.10; // Corner ventilation & setback adjustment
+            }
+
+            this.effectiveFar = totalFar;
+            this.mgcPercent = mgc;
+
+            // 4. Construction Areas
+            this.footprintSqft = this.plotAreaSqft * (mgc / 100);
+            this.openSpaceSqft = this.plotAreaSqft - this.footprintSqft;
+            this.totalBuiltAreaSqft = this.plotAreaSqft * totalFar;
+
+            // 5. Units & Flats Estimation
+            const residentialStories = Math.max(maxStories - 1, 1);
+            const targetFlatSize = Math.max(fSize, 500);
+
+            if (this.adminMode === 'union_porishod' && this.upPracticeMode === 'market_reality') {
+                const perFloorUsable = this.footprintSqft * 0.90;
+                let unitsPerFloor = Math.max(Math.round(perFloorUsable / targetFlatSize), 1);
+                this.flatsPerFloor = unitsPerFloor;
+                this.totalFlats = unitsPerFloor * residentialStories;
+            } else {
+                const netResidentialArea = this.totalBuiltAreaSqft * 0.85; // 15% deducted for common stairs, lift, duct, core
+                const rawFlats = Math.floor(netResidentialArea / targetFlatSize);
+                this.totalFlats = Math.max(rawFlats, residentialStories);
+                const perFloor = Math.max(Math.round(this.totalFlats / residentialStories), 1);
+                this.flatsPerFloor = perFloor;
+            }
+
+            // 6. Setback clearances based on mode, plot size and road width
+            if (this.adminMode === 'union_porishod' && this.upPracticeMode === 'market_reality') {
+                this.frontSetback = 3.5;
+                this.rearSetback = 4;
+                this.sideSetback = 3;
+            } else {
+                if (katha <= 3) {
+                    this.frontSetback = 5;
+                    this.rearSetback = 6.5;
+                    this.sideSetback = 4;
+                } else if (katha <= 6) {
+                    this.frontSetback = 5;
+                    this.rearSetback = 8;
+                    this.sideSetback = 4;
+                } else if (katha <= 10) {
+                    this.frontSetback = 6.5;
+                    this.rearSetback = 10;
+                    this.sideSetback = 5;
+                } else {
+                    this.frontSetback = 10;
+                    this.rearSetback = 12;
+                    this.sideSetback = 6.5;
+                }
+            }
+
+            if (this.isCornerPlot) {
+                // Secondary road setback is lower
+                this.sideSetback = Math.max(this.sideSetback - 1, 2.5);
+            }
+        }
+    };
+};
+
+if (window.Alpine) {
+    Alpine.data('rajukFarCalculator', window.rajukFarCalculator);
+} else {
+    document.addEventListener('alpine:init', function() {
+        Alpine.data('rajukFarCalculator', window.rajukFarCalculator);
+    });
+}
+</script>
+
 <div class="bg-gradient-to-b from-slate-50 via-white to-slate-50 min-h-screen py-8 sm:py-12"
      x-data="rajukFarCalculator()">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -63,37 +380,35 @@
                     </div>
 
                     <!-- Union Porishod Construction Practice Toggle & Note -->
-                    <template x-if="adminMode === 'union_porishod'">
-                        <div class="mt-3 p-4 rounded-2xl bg-purple-50/70 border border-purple-200 space-y-3">
-                            <div class="flex items-start gap-2.5 text-purple-900 text-xs leading-relaxed">
-                                <span class="text-base shrink-0">💡</span>
-                                <div>
-                                    <strong>আটি হাউজিং ও ইউনিয়ন পরিষদ বাস্তবতা:</strong> সিটি কর্পোরেশনের বাইরে রাজউকের মতো কঠোর FAR প্রযোজ্য হয় না। এখানে স্থানীয় ইউনিয়ন পরিষদ ও উপজেলা প্রকৌশলীদের ছাড়পত্রে ডেভেলপাররা উচ্চতর কভারেজ (৭০%) ও শক্তিশালী কাস্টিং পাইলিং করে বহুতল ভবন নির্মাণ করেন।
-                                </div>
-                            </div>
-
-                            <div class="pt-2 border-t border-purple-200/80">
-                                <div class="flex items-center justify-between mb-2">
-                                    <span class="text-[11px] font-bold text-purple-950">হিসাবের মানদণ্ড নির্বাচন করুন:</span>
-                                    <span class="text-[10px] text-purple-700 font-semibold" x-text="upPracticeMode === 'market_reality' ? 'মাঠপর্যায়ের ডেভেলপার ট্রেন্ড' : 'সংরক্ষণশীল সেফটি স্ট্যান্ডার্ড'"></span>
-                                </div>
-                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-                                    <button type="button"
-                                            @click="upPracticeMode = 'market_reality'; updateCalculations()"
-                                            :class="upPracticeMode === 'market_reality' ? 'bg-purple-700 text-white font-bold shadow-xs' : 'bg-white text-purple-900 border border-purple-200 hover:bg-purple-100/50'"
-                                            class="py-2 px-3 rounded-xl transition cursor-pointer text-center">
-                                        🏗️ স্থানীয় ডেভেলপার ট্রেন্ড (জি+১০ তলা ও ৩০ ফ্ল্যাট)
-                                    </button>
-                                    <button type="button"
-                                            @click="upPracticeMode = 'conservative_safety'; updateCalculations()"
-                                            :class="upPracticeMode === 'conservative_safety' ? 'bg-purple-700 text-white font-bold shadow-xs' : 'bg-white text-purple-900 border border-purple-200 hover:bg-purple-100/50'"
-                                            class="py-2 px-3 rounded-xl transition cursor-pointer text-center">
-                                        🛡️ সংরক্ষণশীল সেফটি (জি+৬/৭ তলা)
-                                    </button>
-                                </div>
+                    <div x-show="adminMode === 'union_porishod'" x-transition class="mt-3 p-4 rounded-2xl bg-purple-50/70 border border-purple-200 space-y-3">
+                        <div class="flex items-start gap-2.5 text-purple-900 text-xs leading-relaxed">
+                            <span class="text-base shrink-0">💡</span>
+                            <div>
+                                <strong>আটি হাউজিং ও ইউনিয়ন পরিষদ বাস্তবতা:</strong> সিটি কর্পোরেশনের বাইরে রাজউকের মতো কঠোর FAR প্রযোজ্য হয় না। এখানে স্থানীয় ইউনিয়ন পরিষদ ও উপজেলা প্রকৌশলীদের ছাড়পত্রে ডেভেলপাররা উচ্চতর কভারেজ (৭০%) ও শক্তিশালী কাস্টিং পাইলিং করে বহুতল ভবন নির্মাণ করেন।
                             </div>
                         </div>
-                    </template>
+
+                        <div class="pt-2 border-t border-purple-200/80">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-[11px] font-bold text-purple-950">হিসাবের মানদণ্ড নির্বাচন করুন:</span>
+                                <span class="text-[10px] text-purple-700 font-semibold" x-text="upPracticeMode === 'market_reality' ? 'মাঠপর্যায়ের ডেভেলপার ট্রেন্ড' : 'সংরক্ষণশীল সেফটি স্ট্যান্ডার্ড'"></span>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                                <button type="button"
+                                        @click="upPracticeMode = 'market_reality'; updateCalculations()"
+                                        :class="upPracticeMode === 'market_reality' ? 'bg-purple-700 text-white font-bold shadow-xs' : 'bg-white text-purple-900 border border-purple-200 hover:bg-purple-100/50'"
+                                        class="py-2 px-3 rounded-xl transition cursor-pointer text-center">
+                                    🏗️ স্থানীয় ডেভেলপার ট্রেন্ড (জি+১০ তলা ও ৩০ ফ্ল্যাট)
+                                </button>
+                                <button type="button"
+                                        @click="upPracticeMode = 'conservative_safety'; updateCalculations()"
+                                        :class="upPracticeMode === 'conservative_safety' ? 'bg-purple-700 text-white font-bold shadow-xs' : 'bg-white text-purple-900 border border-purple-200 hover:bg-purple-100/50'"
+                                        class="py-2 px-3 rounded-xl transition cursor-pointer text-center">
+                                    🛡️ সংরক্ষণশীল সেফটি (জি+৬/৭ তলা)
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- 2. Specific Area / Zone Selection -->
@@ -102,7 +417,7 @@
                         ধাপ ২: আপনার প্লটের নির্দিষ্ট এলাকা নির্বাচন করুন *
                     </label>
 
-                    <template x-if="adminMode === 'rajuk'">
+                    <div x-show="adminMode === 'rajuk'">
                         <select x-model="selectedArea" @change="updateCalculations()"
                                 class="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl border border-slate-300 focus:outline-hidden focus:border-indigo-500 bg-white font-medium">
                             <option value="planned_bashundhara">বসুন্ধরা আবাসিক এলাকা (পরিকল্পিত হাউজিং জোন)</option>
@@ -118,9 +433,9 @@
                             <option value="suburban_savar_narayanganj">সাভার পৌরসভা / রূপগঞ্জ / কাঁচপুর (রাজউক জোন)</option>
                             <option value="other_rajuk">অন্যান্য রাজউক অনুমোদিত ড্যাপ এলাকা</option>
                         </select>
-                    </template>
+                    </div>
 
-                    <template x-if="adminMode === 'union_porishod'">
+                    <div x-show="adminMode === 'union_porishod'">
                         <select x-model="selectedArea" @change="updateCalculations()"
                                 class="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl border border-slate-300 focus:outline-hidden focus:border-purple-500 bg-white font-medium">
                             <option value="up_ati_housing">আটি হাউজিং সোসাইটি (কেরানীগঞ্জ)</option>
@@ -128,14 +443,12 @@
                             <option value="up_savar_union">সাভার উপজেলা ইউনিয়ন পরিষদ এলাকা</option>
                             <option value="up_dhaka_other">ঢাকার আশপাশের অন্যান্য ইউনিয়ন পরিষদ এলাকা</option>
                         </select>
-                    </template>
+                    </div>
 
                     <!-- Aviation Warning -->
-                    <template x-if="selectedArea === 'aviation_uttara'">
-                        <p class="mt-2 text-[11px] text-amber-700 bg-amber-50 p-2.5 rounded-lg border border-amber-200">
-                            ✈️ <strong>সিভিল এভিয়েশন (CAAB) সতর্কতা:</strong> শাহজালাল আন্তর্জাতিক বিমানবন্দরের রানওয়ের সন্নিকটে হওয়ায় এই এলাকায় রাজউক FAR থাকলেও ভবন সাধারণত সর্বোচ্চ ৭ থেকে ৯ তলার ওপরে নেওয়া যায় না।
-                        </p>
-                    </template>
+                    <div x-show="selectedArea === 'aviation_uttara'" class="mt-2 text-[11px] text-amber-700 bg-amber-50 p-2.5 rounded-lg border border-amber-200">
+                        ✈️ <strong>সিভিল এভিয়েশন (CAAB) সতর্কতা:</strong> শাহজালাল আন্তর্জাতিক বিমানবন্দরের রানওয়ের সন্নিকটে হওয়ায় এই এলাকায় রাজউক FAR থাকলেও ভবন সাধারণত সর্বোচ্চ ৭ থেকে ৯ তলার ওপরে নেওয়া যায় না।
+                    </div>
                 </div>
 
                 <!-- 3. Plot Size Input -->
@@ -167,14 +480,29 @@
                         </div>
                     </div>
 
-                    <!-- Quick Preset Chips for Plot Size -->
+                    <!-- Quick Preset Chips for Plot Size with Dynamic Highlight -->
                     <div class="flex items-center gap-1.5 flex-wrap mt-2.5">
                         <span class="text-[11px] text-slate-400 font-semibold mr-1">দ্রুত পছন্দ:</span>
-                        <button type="button" @click="setPlotSize(3, 'katha')" class="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 transition cursor-pointer">৩ কাঠা</button>
-                        <button type="button" @click="setPlotSize(5, 'katha')" class="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 transition cursor-pointer">৫ কাঠা</button>
-                        <button type="button" @click="setPlotSize(7.5, 'katha')" class="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 transition cursor-pointer">৭.৫ কাঠা</button>
-                        <button type="button" @click="setPlotSize(10, 'katha')" class="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 transition cursor-pointer">১০ কাঠা</button>
-                        <button type="button" @click="setPlotSize(20, 'katha')" class="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 transition cursor-pointer">২০ কাঠা (১ বিঘা)</button>
+                        <button type="button"
+                                @click="setPlotSize(3, 'katha')"
+                                :class="plotSize === 3 && plotUnit === 'katha' ? 'bg-indigo-600 text-white font-bold shadow-xs' : 'bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold'"
+                                class="px-2.5 py-1 rounded-lg text-[11px] transition cursor-pointer">৩ কাঠা</button>
+                        <button type="button"
+                                @click="setPlotSize(5, 'katha')"
+                                :class="plotSize === 5 && plotUnit === 'katha' ? 'bg-indigo-600 text-white font-bold shadow-xs' : 'bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold'"
+                                class="px-2.5 py-1 rounded-lg text-[11px] transition cursor-pointer">৫ কাঠা</button>
+                        <button type="button"
+                                @click="setPlotSize(7.5, 'katha')"
+                                :class="plotSize === 7.5 && plotUnit === 'katha' ? 'bg-indigo-600 text-white font-bold shadow-xs' : 'bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold'"
+                                class="px-2.5 py-1 rounded-lg text-[11px] transition cursor-pointer">৭.৫ কাঠা</button>
+                        <button type="button"
+                                @click="setPlotSize(10, 'katha')"
+                                :class="plotSize === 10 && plotUnit === 'katha' ? 'bg-indigo-600 text-white font-bold shadow-xs' : 'bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold'"
+                                class="px-2.5 py-1 rounded-lg text-[11px] transition cursor-pointer">১০ কাঠা</button>
+                        <button type="button"
+                                @click="setPlotSize(20, 'katha')"
+                                :class="plotSize === 20 && plotUnit === 'katha' ? 'bg-indigo-600 text-white font-bold shadow-xs' : 'bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold'"
+                                class="px-2.5 py-1 rounded-lg text-[11px] transition cursor-pointer">২০ কাঠা (১ বিঘা)</button>
                     </div>
                 </div>
 
@@ -199,12 +527,30 @@
                         <div class="grid grid-cols-12 gap-3 items-center">
                             <div class="col-span-8 sm:col-span-9">
                                 <div class="flex items-center gap-1.5 flex-wrap">
-                                    <button type="button" @click="setRoadWidth(12)" class="px-2 py-1 rounded-lg text-[11px] font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 transition cursor-pointer">১২ ফুট</button>
-                                    <button type="button" @click="setRoadWidth(20)" class="px-2 py-1 rounded-lg text-[11px] font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 transition cursor-pointer">২০ ফুট</button>
-                                    <button type="button" @click="setRoadWidth(25)" class="px-2 py-1 rounded-lg text-[11px] font-semibold bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 transition cursor-pointer">২৫ ফুট</button>
-                                    <button type="button" @click="setRoadWidth(30)" class="px-2 py-1 rounded-lg text-[11px] font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 transition cursor-pointer">৩০ ফুট</button>
-                                    <button type="button" @click="setRoadWidth(40)" class="px-2 py-1 rounded-lg text-[11px] font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 transition cursor-pointer">৪০ ফুট</button>
-                                    <button type="button" @click="setRoadWidth(60)" class="px-2 py-1 rounded-lg text-[11px] font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 transition cursor-pointer">৬০ ফুট+</button>
+                                    <button type="button"
+                                            @click="setRoadWidth(12)"
+                                            :class="roadWidth === 12 ? 'bg-indigo-600 text-white font-bold shadow-xs' : 'bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold'"
+                                            class="px-2.5 py-1 rounded-lg text-[11px] transition cursor-pointer">১২ ফুট</button>
+                                    <button type="button"
+                                            @click="setRoadWidth(20)"
+                                            :class="roadWidth === 20 ? 'bg-indigo-600 text-white font-bold shadow-xs' : 'bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold'"
+                                            class="px-2.5 py-1 rounded-lg text-[11px] transition cursor-pointer">২০ ফুট</button>
+                                    <button type="button"
+                                            @click="setRoadWidth(25)"
+                                            :class="roadWidth === 25 ? 'bg-indigo-600 text-white font-bold shadow-xs' : 'bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold'"
+                                            class="px-2.5 py-1 rounded-lg text-[11px] transition cursor-pointer">২৫ ফুট</button>
+                                    <button type="button"
+                                            @click="setRoadWidth(30)"
+                                            :class="roadWidth === 30 ? 'bg-indigo-600 text-white font-bold shadow-xs' : 'bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold'"
+                                            class="px-2.5 py-1 rounded-lg text-[11px] transition cursor-pointer">৩০ ফুট</button>
+                                    <button type="button"
+                                            @click="setRoadWidth(40)"
+                                            :class="roadWidth === 40 ? 'bg-indigo-600 text-white font-bold shadow-xs' : 'bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold'"
+                                            class="px-2.5 py-1 rounded-lg text-[11px] transition cursor-pointer">৪০ ফুট</button>
+                                    <button type="button"
+                                            @click="setRoadWidth(60)"
+                                            :class="roadWidth >= 60 ? 'bg-indigo-600 text-white font-bold shadow-xs' : 'bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold'"
+                                            class="px-2.5 py-1 rounded-lg text-[11px] transition cursor-pointer">৬০ ফুট+</button>
                                 </div>
                             </div>
                             <div class="col-span-4 sm:col-span-3">
@@ -241,11 +587,23 @@
                                        class="w-full px-3 py-2 text-xs font-bold rounded-xl border border-slate-300 bg-white focus:outline-hidden focus:border-indigo-500 pr-12">
                                 <span class="absolute right-3 top-2 text-[11px] text-slate-400 font-bold">sqft</span>
                             </div>
-                            <div class="flex items-center gap-1 mt-1.5 flex-wrap">
-                                <button type="button" @click="flatSizeSqft = 1000; updateCalculations()" class="px-1.5 py-0.5 rounded text-[10px] bg-white border border-slate-200 hover:bg-slate-100">১০০০</button>
-                                <button type="button" @click="flatSizeSqft = 1200; updateCalculations()" class="px-1.5 py-0.5 rounded text-[10px] bg-white border border-slate-200 hover:bg-slate-100">১২০০</button>
-                                <button type="button" @click="flatSizeSqft = 1500; updateCalculations()" class="px-1.5 py-0.5 rounded text-[10px] bg-white border border-slate-200 hover:bg-slate-100">১৫০০</button>
-                                <button type="button" @click="flatSizeSqft = 1800; updateCalculations()" class="px-1.5 py-0.5 rounded text-[10px] bg-white border border-slate-200 hover:bg-slate-100">১৮০০</button>
+                            <div class="flex items-center gap-1.5 mt-1.5 flex-wrap">
+                                <button type="button"
+                                        @click="flatSizeSqft = 1000; updateCalculations()"
+                                        :class="flatSizeSqft === 1000 ? 'bg-indigo-600 text-white font-bold shadow-2xs' : 'bg-white border border-slate-200 hover:bg-slate-100 text-slate-700'"
+                                        class="px-2 py-0.5 rounded text-[10px] transition cursor-pointer">১০০০</button>
+                                <button type="button"
+                                        @click="flatSizeSqft = 1200; updateCalculations()"
+                                        :class="flatSizeSqft === 1200 ? 'bg-indigo-600 text-white font-bold shadow-2xs' : 'bg-white border border-slate-200 hover:bg-slate-100 text-slate-700'"
+                                        class="px-2 py-0.5 rounded text-[10px] transition cursor-pointer">১২০০</button>
+                                <button type="button"
+                                        @click="flatSizeSqft = 1500; updateCalculations()"
+                                        :class="flatSizeSqft === 1500 ? 'bg-indigo-600 text-white font-bold shadow-2xs' : 'bg-white border border-slate-200 hover:bg-slate-100 text-slate-700'"
+                                        class="px-2 py-0.5 rounded text-[10px] transition cursor-pointer">১৫০০</button>
+                                <button type="button"
+                                        @click="flatSizeSqft = 1800; updateCalculations()"
+                                        :class="flatSizeSqft === 1800 ? 'bg-indigo-600 text-white font-bold shadow-2xs' : 'bg-white border border-slate-200 hover:bg-slate-100 text-slate-700'"
+                                        class="px-2 py-0.5 rounded text-[10px] transition cursor-pointer">১৮০০</button>
                             </div>
                         </div>
 
@@ -415,7 +773,7 @@
                         <h2 class="text-xl font-bold text-slate-900">যাচাইকৃত প্লট ও জমির লিস্টিং</h2>
                         <p class="text-xs text-slate-500 mt-0.5">রাজউক ড্যাপ ও সরাসরি মালিকের ভেরিফায়েড প্লটসমূহ</p>
                     </div>
-                    <a href="{{ route('home') }}" class="text-xs font-bold text-indigo-600 hover:text-indigo-700 flex items-center gap-1">
+                    <a href="{{ route('properties.land') }}" class="text-xs font-bold text-indigo-600 hover:text-indigo-700 flex items-center gap-1">
                         <span>সকল প্লট দেখুন</span>
                         <span>&rarr;</span>
                     </a>
@@ -470,307 +828,6 @@
 
     </div>
 </div>
-
-<!-- Alpine.js Calculation Logic Engine -->
-<script>
-function rajukFarCalculator() {
-    return {
-        // Form States
-        adminMode: 'rajuk', // 'rajuk' or 'union_porishod'
-        upPracticeMode: 'market_reality', // 'market_reality' or 'conservative_safety'
-        selectedArea: 'planned_bashundhara',
-        plotSize: 5,
-        plotUnit: 'katha', // 'katha', 'decimal', 'sqft'
-        roadWidth: 25,
-        flatSizeSqft: 1200,
-        buildingUsage: 'residential', // 'residential' or 'mixed'
-        isNearMetro: false,
-        isCornerPlot: false,
-
-        // Calculated Reactive Results
-        plotAreaSqft: 3600,
-        plotKathaEquivalent: 5,
-        effectiveFar: 3.15,
-        mgcPercent: 60,
-        footprintSqft: 2160,
-        openSpaceSqft: 1440,
-        totalBuiltAreaSqft: 11340,
-        permittedFloorsLabel: 'জি+৭ তলা (৮ তলা ভবন)',
-        floorsSubNote: 'গ্রাউন্ড ফ্লোর পার্কিং + ৭টি সম্পূর্ণ আবাসিক ফ্লোর',
-        totalFlats: 14,
-        flatsPerFloor: 2,
-        frontSetback: 5,
-        rearSetback: 8,
-        sideSetback: 4,
-
-        init() {
-            this.updateCalculations();
-        },
-
-        setAdminMode(mode) {
-            this.adminMode = mode;
-            if (mode === 'union_porishod') {
-                this.selectedArea = 'up_ati_housing';
-                this.flatSizeSqft = 950;
-            } else {
-                this.selectedArea = 'planned_bashundhara';
-                this.flatSizeSqft = 1200;
-            }
-            this.updateCalculations();
-        },
-
-        setPlotSize(val, unit) {
-            this.plotSize = val;
-            this.plotUnit = unit;
-            this.updateCalculations();
-        },
-
-        setRoadWidth(w) {
-            this.roadWidth = w;
-            this.updateCalculations();
-        },
-
-        formatNumber(num) {
-            return Math.round(num).toLocaleString('en-US');
-        },
-
-        updateCalculations() {
-            // 1. Calculate Plot Area in Sqft
-            let sqft = 0;
-            if (this.plotUnit === 'katha') {
-                sqft = this.plotSize * 720;
-            } else if (this.plotUnit === 'decimal') {
-                sqft = this.plotSize * 435.6;
-            } else {
-                sqft = this.plotSize;
-            }
-            this.plotAreaSqft = Math.max(sqft, 300);
-            this.plotKathaEquivalent = this.plotAreaSqft / 720;
-
-            const katha = this.plotKathaEquivalent;
-            const road = this.roadWidth;
-
-            // 2. Base FAR and MGC Resolution Matrix
-            let baseFar = 2.0;
-            let mgc = 60;
-            let maxStories = 5;
-
-            if (this.adminMode === 'union_porishod') {
-                // Union Porishod mode (e.g. Ati Housing, Keraniganj, Savar Rural)
-                if (this.upPracticeMode === 'market_reality') {
-                    // Local market developer trend in Ati Housing / Keraniganj
-                    mgc = 70; // Local developers cover ~70% of land
-                    if (road < 12) {
-                        maxStories = 5;
-                        baseFar = 3.5;
-                        this.permittedFloorsLabel = 'জি+৪ তলা (৫ তলা ভবন)';
-                        this.floorsSubNote = 'সরু রাস্তায় স্থানীয়ভাবে সাধারণত ৫ তলা পর্যন্ত নির্মাণ করা হয়';
-                    } else if (road < 20) {
-                        maxStories = 7;
-                        baseFar = 4.9;
-                        this.permittedFloorsLabel = 'জি+৬ তলা (৭ তলা ভবন)';
-                        this.floorsSubNote = 'মাঝারি রাস্তায় সয়েল টেস্ট ও কাস্টিং করে ৭ তলা পর্যন্ত নির্মাণ ট্রেন্ড';
-                    } else if (road < 25) {
-                        maxStories = 9;
-                        baseFar = 6.3;
-                        this.permittedFloorsLabel = 'জি+৮ তলা (৯ তলা ভবন)';
-                        this.floorsSubNote = 'প্রশস্ত রাস্তায় সয়েল টেস্ট ও সাবস্টেশন সাপেক্ষে ৯ তলা পর্যন্ত';
-                    } else {
-                        // 25ft - 30ft+ road in Ati Housing Society
-                        maxStories = 11; // G+10
-                        baseFar = 7.7;
-                        this.permittedFloorsLabel = 'জি+১০ তলা (১১ তলা ভবন)';
-                        this.floorsSubNote = 'আটি হাউজিংয়ে ২৫-৩০ ফুট রাস্তায় পাইলিং ও ডিপ ফাউন্ডেশনে জি+১০ তলা বহুতল নির্মাণ ধারা';
-                    }
-                } else {
-                    // Conservative safety standard
-                    mgc = 60;
-                    if (road < 12) {
-                        baseFar = 1.6;
-                        maxStories = 4;
-                        this.permittedFloorsLabel = 'জি+৩ তলা (৪ তলা ভবন)';
-                        this.floorsSubNote = 'সরু রাস্তায় নিরাপদ লোডিংয়ের জন্য ৪ তলা প্রস্তাবিত';
-                    } else if (road < 20) {
-                        baseFar = 2.2;
-                        maxStories = 5;
-                        this.permittedFloorsLabel = 'জি+৪ তলা (৫ তলা ভবন)';
-                        this.floorsSubNote = 'ইউনিয়ন পরিষদ ও মাটির সাধারণ সেফটি অনুযায়ী ৫ তলা';
-                    } else if (road < 30) {
-                        baseFar = 2.8;
-                        maxStories = 6;
-                        this.permittedFloorsLabel = 'জি+৫ তলা (৬ তলা ভবন)';
-                        this.floorsSubNote = 'উপজেলা প্রকৌশলীর পরামর্শে ৬ তলা';
-                    } else {
-                        baseFar = 3.2;
-                        maxStories = 7;
-                        this.permittedFloorsLabel = 'জি+৬ তলা (৭ তলা ভবন)';
-                        this.floorsSubNote = 'প্রশস্ত রাস্তায় সাধারণ সেফটি অনুযায়ী ৭ তলা';
-                    }
-                }
-            } else {
-                // Official RAJUK DAP (2022-2035) Matrix
-                if (road < 12) {
-                    baseFar = (katha < 3) ? 1.75 : 1.50;
-                    mgc = 65;
-                    maxStories = 4;
-                    this.permittedFloorsLabel = 'জি+৩ তলা (৪ তলা ভবন)';
-                    this.floorsSubNote = '১২ ফুটের নিচে রাজউক সাধারণত বহুতল অনুমোদন দেয় না';
-                } else if (road < 20) {
-                    if (katha < 3) {
-                        baseFar = 2.00;
-                        mgc = 65;
-                        maxStories = 5;
-                    } else if (katha <= 5) {
-                        baseFar = 2.25;
-                        mgc = 62.5;
-                        maxStories = 6;
-                    } else {
-                        baseFar = 2.50;
-                        mgc = 60;
-                        maxStories = 6;
-                    }
-                    this.permittedFloorsLabel = (maxStories === 5) ? 'জি+৪ তলা (৫ তলা ভবন)' : 'জি+৫ তলা (৬ তলা ভবন)';
-                    this.floorsSubNote = 'ড্যাপ অনুযায়ী রাস্তার মাপ সাপেক্ষে মাঝারি আবাসিক ভবন';
-                } else if (road < 30) {
-                    if (katha < 3) {
-                        baseFar = 2.75;
-                        mgc = 62.5;
-                        maxStories = 6;
-                    } else if (katha <= 5) {
-                        baseFar = 3.15;
-                        mgc = 60;
-                        maxStories = 7;
-                    } else {
-                        baseFar = 3.50;
-                        mgc = 57.5;
-                        maxStories = 8;
-                    }
-                    this.permittedFloorsLabel = 'জি+' + (maxStories - 1) + ' তলা (' + maxStories + ' তলা ভবন)';
-                    this.floorsSubNote = 'গ্রাউন্ড ফ্লোর পার্কিং + ' + (maxStories - 1) + 'টি সম্পূর্ণ আবাসিক ফ্লোর';
-                } else if (road < 40) {
-                    if (katha < 5) {
-                        baseFar = 3.25;
-                        mgc = 60;
-                        maxStories = 7;
-                    } else if (katha <= 10) {
-                        baseFar = 3.75;
-                        mgc = 55;
-                        maxStories = 9;
-                    } else {
-                        baseFar = 4.00;
-                        mgc = 52.5;
-                        maxStories = 10;
-                    }
-                    this.permittedFloorsLabel = 'জি+' + (maxStories - 1) + ' তলা (' + maxStories + ' তলা ভবন)';
-                    this.floorsSubNote = 'প্রশস্ত রাস্তার সুবিধা থাকায় উচ্চতর আবাসন অনুমোদন';
-                } else if (road < 60) {
-                    if (katha < 5) {
-                        baseFar = 3.50;
-                        mgc = 57.5;
-                        maxStories = 8;
-                    } else if (katha <= 10) {
-                        baseFar = 4.00;
-                        mgc = 55;
-                        maxStories = 10;
-                    } else {
-                        baseFar = 4.50;
-                        mgc = 50;
-                        maxStories = 12;
-                    }
-                    this.permittedFloorsLabel = 'জি+' + (maxStories - 1) + ' তলা (' + maxStories + ' তলা ভবন)';
-                    this.floorsSubNote = 'এভিনিউ রোডের সুবিধা নিয়ে হাইরাইজ আবাসিক সুবিধা';
-                } else {
-                    // 60ft+ Main Boulevard
-                    baseFar = (katha >= 10) ? 5.00 : 4.25;
-                    mgc = 50;
-                    maxStories = (katha >= 10) ? 14 : 10;
-                    this.permittedFloorsLabel = 'জি+' + (maxStories - 1) + ' তলা (' + maxStories + ' তলা বহুতল কমপ্লেক্স)';
-                    this.floorsSubNote = 'প্রধান বুলেভার্ড রোড হওয়ায় সর্বোচ্চ ফার (FAR) ও উচ্চতা সুবিধা';
-                }
-
-                // CAAB Airport limitation check
-                if (this.selectedArea === 'aviation_uttara' && maxStories > 8) {
-                    maxStories = 8;
-                    this.permittedFloorsLabel = 'জি+৭ তলা (৮ তলা - সিভিল এভিয়েশন ক্যাপ)';
-                    this.floorsSubNote = 'বিমানবন্দরের ফ্লাইট পাথ নিয়মের কারণে সর্বোচ্চ উচ্চতা ৮ তলায় সীমাবদ্ধ';
-                }
-            }
-
-            // 3. Apply Incentives (Metro Rail / Corner Plot)
-            let totalFar = baseFar;
-            if (this.isNearMetro) {
-                totalFar += 0.25; // TOD bonus
-            }
-            if (this.isCornerPlot) {
-                totalFar += 0.10; // Corner ventilation & setback adjustment
-            }
-
-            this.effectiveFar = totalFar;
-            this.mgcPercent = mgc;
-
-            // 4. Construction Areas
-            this.footprintSqft = this.plotAreaSqft * (mgc / 100);
-            this.openSpaceSqft = this.plotAreaSqft - this.footprintSqft;
-            this.totalBuiltAreaSqft = this.plotAreaSqft * totalFar;
-
-            // 5. Units & Flats Estimation
-            // Ground floor is reserved for parking / reception (in mixed mode, G floor is shops)
-            const residentialStories = Math.max(maxStories - 1, 1);
-            const targetFlatSize = Math.max(this.flatSizeSqft, 500);
-
-            if (this.adminMode === 'union_porishod' && this.upPracticeMode === 'market_reality') {
-                // In local market practice, common corridors/stairs take ~10%
-                const perFloorUsable = this.footprintSqft * 0.90;
-                let unitsPerFloor = Math.max(Math.round(perFloorUsable / targetFlatSize), 1);
-                this.flatsPerFloor = unitsPerFloor;
-                this.totalFlats = unitsPerFloor * residentialStories;
-            } else {
-                const netResidentialArea = this.totalBuiltAreaSqft * 0.85; // 15% deducted for common stairs, lift, duct, core
-                const rawFlats = Math.floor(netResidentialArea / targetFlatSize);
-                this.totalFlats = Math.max(rawFlats, residentialStories);
-                const perFloor = Math.max(Math.round(this.totalFlats / residentialStories), 1);
-                this.flatsPerFloor = perFloor;
-            }
-
-            // 6. Setback clearances based on mode, plot size and road width
-            if (this.adminMode === 'union_porishod' && this.upPracticeMode === 'market_reality') {
-                this.frontSetback = 3.5;
-                this.rearSetback = 4;
-                this.sideSetback = 3;
-            } else {
-                if (katha <= 3) {
-                    this.frontSetback = 5;
-                    this.rearSetback = 6.5;
-                    this.sideSetback = 4;
-                } else if (katha <= 6) {
-                    this.frontSetback = 5;
-                    this.rearSetback = 8;
-                    this.sideSetback = 4;
-                } else if (katha <= 10) {
-                    this.frontSetback = 6.5;
-                    this.rearSetback = 10;
-                    this.sideSetback = 5;
-                } else {
-                    this.frontSetback = 10;
-                    this.rearSetback = 12;
-                    this.sideSetback = 6.5;
-                }
-            }
-
-            if (this.isCornerPlot) {
-                // Secondary road setback is lower
-                this.sideSetback = Math.max(this.sideSetback - 1, 2.5);
-            }
-        }
-    };
-}
-                // Secondary road setback is lower
-                this.sideSetback = Math.max(this.sideSetback - 1, 3.5);
-            }
-        }
-    };
-}
-</script>
 
 <style>
 @media print {

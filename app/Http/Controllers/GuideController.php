@@ -39,21 +39,20 @@ class GuideController extends Controller
 
         $guides = $query->paginate(9)->withQueryString();
 
-        $categories = [
-            'all'             => 'সব গাইড',
-            'legal_docs'      => 'দলিল ও আইনি যাচাই',
-            'market_insights' => 'মার্কেট অ্যানালাইসিস',
-            'buying_guides'   => 'ক্রয়-বিক্রয় গাইডলাইন',
-            'investment'      => 'বিনিয়োগ ও ল্যান্ড শেয়ার',
-        ];
+        $categories = Guide::getCategoryShortLabels();
 
-        $counts = [
-            'all'             => Guide::published()->count(),
-            'legal_docs'      => Guide::published()->where('category', 'legal_docs')->count(),
-            'market_insights' => Guide::published()->where('category', 'market_insights')->count(),
-            'buying_guides'   => Guide::published()->where('category', 'buying_guides')->count(),
-            'investment'      => Guide::published()->where('category', 'investment')->count(),
-        ];
+        $rawCounts = Guide::published()
+            ->selectRaw('category, count(*) as total')
+            ->groupBy('category')
+            ->pluck('total', 'category')
+            ->toArray();
+
+        $counts = ['all' => Guide::published()->count()];
+        foreach ($categories as $catKey => $label) {
+            if ($catKey !== 'all') {
+                $counts[$catKey] = $rawCounts[$catKey] ?? 0;
+            }
+        }
 
         $ogMeta = SeoService::getOgMeta('guides');
 
@@ -113,10 +112,11 @@ class GuideController extends Controller
 
         // Contextual properties to show in sidebar or CTA based on guide category
         $propertyType = match ($guide->category) {
-            'legal_docs'      => 'land',
-            'buying_guides'   => 'flat',
-            'investment'      => 'land_share',
-            default           => null,
+            'legal_docs', 'land_survey', 'inheritance'           => 'land',
+            'buying_guides', 'rental_tenancy', 'interior_design' => 'flat',
+            'investment'                                         => 'land_share',
+            'commercial'                                         => 'commercial',
+            default                                              => null,
         };
 
         $featuredPropertiesQuery = Property::where('status', 'live')->orderBy('is_featured', 'desc')->latest();

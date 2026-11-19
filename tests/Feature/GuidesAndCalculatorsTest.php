@@ -307,4 +307,57 @@ class GuidesAndCalculatorsTest extends TestCase
         // Verify that GuideSeeder executed and populated the database
         $this->assertGreaterThanOrEqual(10, Guide::count());
     }
+
+    public function test_all_15_knowledge_hub_categories_are_configured_and_functional()
+    {
+        $expectedCategories = [
+            'legal_docs',
+            'market_insights',
+            'buying_guides',
+            'investment',
+            'finance',
+            'rajuk_dap',
+            'registration_tax',
+            'nrb_property',
+            'rental_tenancy',
+            'inheritance',
+            'construction',
+            'interior_design',
+            'area_guides',
+            'land_survey',
+            'commercial',
+        ];
+
+        $options = Guide::getCategoryOptions();
+        $shortLabels = Guide::getCategoryShortLabels();
+
+        foreach ($expectedCategories as $cat) {
+            $this->assertArrayHasKey($cat, $options, "Category options should have key: {$cat}");
+            $this->assertArrayHasKey($cat, $shortLabels, "Category short labels should have key: {$cat}");
+
+            $guide = new Guide(['category' => $cat]);
+            $this->assertNotEmpty($guide->category_label);
+            $this->assertNotEquals($cat, $guide->category_label);
+            $this->assertNotEmpty($guide->category_badge_class);
+            $this->assertStringContainsString('border-', $guide->category_badge_class);
+        }
+
+        // Test filtering on frontend guides index by a new category
+        $interiorGuide = Guide::create([
+            'title'            => 'ছোট ফ্ল্যাটের জন্য সেরা ইন্টেরিয়র ডিজাইন আইডিয়া ২০২৬',
+            'slug'             => 'small-flat-interior-design-ideas-2026',
+            'category'         => 'interior_design',
+            'excerpt'          => 'সীমিত বাজেটে ফ্ল্যাট সাজানোর কার্যকরী টিপস ও ট্রিক্স।',
+            'content'          => '<p>ইন্টেরিয়র ডিজাইন বিস্তারিত তথ্য।</p>',
+            'reading_time_min' => 4,
+            'is_published'     => true,
+            'is_featured'      => false,
+            'views_count'      => 12,
+        ]);
+
+        $res = $this->get(route('guides.index', ['category' => 'interior_design']));
+        $res->assertStatus(200);
+        $res->assertSee('ছোট ফ্ল্যাটের জন্য সেরা ইন্টেরিয়র ডিজাইন আইডিয়া ২০২৬');
+        $res->assertSee('ইন্টেরিয়র ডিজাইন');
+    }
 }

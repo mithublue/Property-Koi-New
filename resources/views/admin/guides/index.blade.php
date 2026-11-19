@@ -68,10 +68,9 @@
 
             <select name="category" class="px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-hidden bg-white text-slate-700">
                 <option value="">সকল ক্যাটাগরি</option>
-                <option value="legal_docs" {{ request('category') === 'legal_docs' ? 'selected' : '' }}>দলিল ও আইনি যাচাই</option>
-                <option value="market_insights" {{ request('category') === 'market_insights' ? 'selected' : '' }}>মার্কেট অ্যানালাইসিস</option>
-                <option value="buying_guides" {{ request('category') === 'buying_guides' ? 'selected' : '' }}>ক্রয়-বিক্রয় গাইডলাইন</option>
-                <option value="investment" {{ request('category') === 'investment' ? 'selected' : '' }}>বিনিয়োগ ও ল্যান্ড শেয়ার</option>
+                @foreach($categories as $catKey => $catLabel)
+                    <option value="{{ $catKey }}" {{ request('category') === $catKey ? 'selected' : '' }}>{{ $catLabel }}</option>
+                @endforeach
             </select>
 
             <select name="status" class="px-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-hidden bg-white text-slate-700">

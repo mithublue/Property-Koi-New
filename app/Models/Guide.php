@@ -84,35 +84,68 @@ class Guide extends Model
     public function getCategoryLabelAttribute(): string
     {
         return match ($this->category) {
-            'legal_docs' => 'দলিল ও আইনি গাইড',
-            'market_insights' => 'মার্কেট অ্যানালাইসিস',
-            'buying_guides' => 'ক্রয়-বিক্রয় গাইড',
-            'investment' => 'বিনিয়োগ ও ল্যান্ড শেয়ার',
+            'legal_docs'        => 'দলিল ও আইনি গাইড',
+            'market_insights'   => 'মার্কেট অ্যানালাইসিস',
+            'buying_guides'     => 'ক্রয়-বিক্রয় গাইডলাইন',
+            'investment'        => 'বিনিয়োগ ও ল্যান্ড শেয়ার',
+            'finance'           => 'রিয়েল এস্টেট ফাইন্যান্স',
+            'rajuk_dap'         => 'রাজউক ও ড্যাপ অনুমোদন',
+            'registration_tax'  => 'রেজিস্ট্রেশন ফি ও সরকারি কর',
+            'nrb_property'      => 'প্রবাসী (NRB) প্রপার্টি গাইড',
+            'rental_tenancy'    => 'বাড়িভাড়া ও ভাড়াটিয়া নীতিমালা',
+            'inheritance'       => 'উত্তরাধিকার ও পারিবারিক সম্পত্তি',
+            'construction'      => 'বিল্ডিং কনস্ট্রাকশন ও ইঞ্জিনিয়ারিং',
+            'interior_design'   => 'ইন্টেরিয়র ডিজাইন ও হোম ডেকর',
+            'area_guides'       => 'এরিয়া ও নেইবারহুড রিভিউ',
+            'land_survey'       => 'ভূমি জরিপ ও খতিয়ান রেকর্ডস',
+            'commercial'        => 'বাণিজ্যিক ও শিল্প প্রপার্টি',
             'uncategorised', '' => 'অশ্রেণিকৃত / সাধারণ',
-            default => $this->category,
+            default             => $this->category,
         };
     }
 
     public function getCategoryBadgeClassAttribute(): string
     {
         return match ($this->category) {
-            'legal_docs' => 'bg-amber-50 text-amber-800 border-amber-200',
-            'market_insights' => 'bg-sky-50 text-sky-800 border-sky-200',
-            'buying_guides' => 'bg-emerald-50 text-emerald-800 border-emerald-200',
-            'investment' => 'bg-purple-50 text-purple-800 border-purple-200',
-            'uncategorised' => 'bg-slate-100 text-slate-700 border-slate-300',
-            default => 'bg-teal-50 text-teal-800 border-teal-200',
+            'legal_docs'        => 'bg-amber-50 text-amber-800 border-amber-200',
+            'market_insights'   => 'bg-sky-50 text-sky-800 border-sky-200',
+            'buying_guides'     => 'bg-emerald-50 text-emerald-800 border-emerald-200',
+            'investment'        => 'bg-purple-50 text-purple-800 border-purple-200',
+            'finance'           => 'bg-blue-50 text-blue-800 border-blue-200',
+            'rajuk_dap'         => 'bg-rose-50 text-rose-800 border-rose-200',
+            'registration_tax'  => 'bg-indigo-50 text-indigo-800 border-indigo-200',
+            'nrb_property'      => 'bg-teal-50 text-teal-800 border-teal-200',
+            'rental_tenancy'    => 'bg-orange-50 text-orange-800 border-orange-200',
+            'inheritance'       => 'bg-red-50 text-red-800 border-red-200',
+            'construction'      => 'bg-yellow-50 text-yellow-800 border-yellow-200',
+            'interior_design'   => 'bg-pink-50 text-pink-800 border-pink-200',
+            'area_guides'       => 'bg-cyan-50 text-cyan-800 border-cyan-200',
+            'land_survey'       => 'bg-lime-50 text-lime-800 border-lime-200',
+            'commercial'        => 'bg-violet-50 text-violet-800 border-violet-200',
+            'uncategorised'     => 'bg-slate-100 text-slate-700 border-slate-300',
+            default             => 'bg-teal-50 text-teal-800 border-teal-200',
         };
     }
 
     public static function getCategoryOptions(): array
     {
         $defaults = [
-            'uncategorised' => 'অশ্রেণিকৃত (Uncategorised)',
-            'legal_docs' => 'দলিল ও আইনি গাইড (Legal & Title Docs)',
-            'market_insights' => 'মার্কেট অ্যানালাইসিস (Market Insights)',
-            'buying_guides' => 'ক্রয়-বিক্রয় গাইডলাইন (Buying & Selling Guides)',
-            'investment' => 'বিনিয়োগ ও ল্যান্ড শেয়ার (Investment & Land Share)',
+            'legal_docs'        => 'দলিল ও আইনি গাইড (Legal & Title Docs)',
+            'market_insights'   => 'মার্কেট অ্যানালাইসিস (Market Insights)',
+            'buying_guides'     => 'ক্রয়-বিক্রয় গাইডলাইন (Buying & Selling Guides)',
+            'investment'        => 'বিনিয়োগ ও ল্যান্ড শেয়ার (Investment & Land Share)',
+            'finance'           => 'রিয়েল এস্টেট ফাইন্যান্স (Real Estate Finance)',
+            'rajuk_dap'         => 'রাজউক ও ড্যাপ অনুমোদন (RAJUK & DAP Approvals)',
+            'registration_tax'  => 'রেজিস্ট্রেশন ফি ও সরকারি কর (Registration & Tax)',
+            'nrb_property'      => 'প্রবাসী (NRB) প্রপার্টি গাইড (NRB Property Guides)',
+            'rental_tenancy'    => 'বাড়িভাড়া ও ভাড়াটিয়া নীতিমালা (Rental & Tenancy)',
+            'inheritance'       => 'উত্তরাধিকার ও পারিবারিক সম্পত্তি (Inheritance & Family)',
+            'construction'      => 'বিল্ডিং কনস্ট্রাকশন ও ইঞ্জিনিয়ারিং (Building Construction)',
+            'interior_design'   => 'ইন্টেরিয়র ডিজাইন ও হোম ডেকর (Interior Design & Decor)',
+            'area_guides'       => 'এরিয়া ও নেইবারহুড রিভিউ (Neighborhood & Area Guides)',
+            'land_survey'       => 'ভূমি জরিপ ও খতিয়ান রেকর্ডস (Land Survey & Records)',
+            'commercial'        => 'বাণিজ্যিক ও শিল্প প্রপার্টি (Commercial Real Estate)',
+            'uncategorised'     => 'অশ্রেণিকৃত (Uncategorised)',
         ];
 
         try {
@@ -127,6 +160,28 @@ class Guide extends Model
         }
 
         return $defaults;
+    }
+
+    public static function getCategoryShortLabels(): array
+    {
+        return [
+            'all'               => 'সব গাইড',
+            'legal_docs'        => 'দলিল ও আইনি গাইড',
+            'market_insights'   => 'মার্কেট অ্যানালাইসিস',
+            'buying_guides'     => 'ক্রয়-বিক্রয় গাইডলাইন',
+            'investment'        => 'বিনিয়োগ ও ল্যান্ড শেয়ার',
+            'finance'           => 'রিয়েল এস্টেট ফাইন্যান্স',
+            'rajuk_dap'         => 'রাজউক ও ড্যাপ অনুমোদন',
+            'registration_tax'  => 'রেজিস্ট্রেশন ফি ও কর',
+            'nrb_property'      => 'প্রবাসী (NRB) প্রপার্টি',
+            'rental_tenancy'    => 'বাড়িভাড়া ও ভাড়াটিয়া',
+            'inheritance'       => 'উত্তরাধিকার সম্পত্তি',
+            'construction'      => 'বিল্ডিং কনস্ট্রাকশন',
+            'interior_design'   => 'ইন্টেরিয়র ডিজাইন',
+            'area_guides'       => 'এরিয়া রিভিউ',
+            'land_survey'       => 'ভূমি জরিপ ও খতিয়ান',
+            'commercial'        => 'বাণিজ্যিক প্রপার্টি',
+        ];
     }
 
     public function getCoverUrlAttribute(): string

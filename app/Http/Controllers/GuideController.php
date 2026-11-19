@@ -397,4 +397,33 @@ class GuideController extends Controller
             'ogMeta'
         ));
     }
+
+    /**
+     * Author & Real Estate Researcher Profile for Founder Mithu A Quayium.
+     * Serves Google Knowledge Graph, E-E-A-T signals & AI Answer Engines.
+     */
+    public function authorProfile(Request $request, ?string $slug = 'mithu-a-quayium'): View
+    {
+        $slug = $slug ?: 'mithu-a-quayium';
+
+        $guides = Guide::published()
+            ->orderBy('is_featured', 'desc')
+            ->latest('created_at')
+            ->paginate(12);
+
+        $totalGuides = Guide::published()->count();
+        $totalViews = Guide::published()->sum('views_count');
+        $categoriesCount = Guide::published()->distinct('category')->count('category');
+
+        $ogMeta = SeoService::getAuthorProfileMeta($slug);
+
+        return view('pages.author.show', compact(
+            'slug',
+            'guides',
+            'totalGuides',
+            'totalViews',
+            'categoriesCount',
+            'ogMeta'
+        ));
+    }
 }

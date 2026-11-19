@@ -61,12 +61,12 @@
 
                     <div class="mt-6 flex items-center justify-between flex-wrap gap-4 pt-4 border-t border-slate-100 text-xs">
                         <div class="flex items-center gap-3" itemprop="author" itemscope itemtype="https://schema.org/Person">
-                            <div class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-sm">
-                                🏢
-                            </div>
+                            <a href="{{ route('author.show', 'mithu-a-quayium') }}" class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-600 via-teal-600 to-cyan-700 text-white flex items-center justify-center font-black text-sm shadow-sm hover:scale-105 transition-transform" title="লেখক ও রিয়েল এস্টেট বিশ্লেষক মিঠু এ কাইয়ুম">
+                                MQ
+                            </a>
                             <div>
-                                <span class="font-bold text-slate-800 block text-sm" itemprop="name">Property Koi Desk</span>
-                                <span class="text-slate-400">আপডেট: <time itemprop="dateModified" datetime="{{ $guide->updated_at ? $guide->updated_at->toIso8601String() : now()->toIso8601String() }}">{{ $guide->formatted_date }}</time></span>
+                                <a href="{{ route('author.show', 'mithu-a-quayium') }}" class="font-bold text-slate-800 hover:text-emerald-600 transition block text-sm" itemprop="name">Mithu A Quayium</a>
+                                <span class="text-slate-400">রিয়েল এস্টেট বিশ্লেষক ও প্রতিষ্ঠাতা • আপডেট: <time itemprop="dateModified" datetime="{{ $guide->updated_at ? $guide->updated_at->toIso8601String() : now()->toIso8601String() }}">{{ $guide->formatted_date }}</time></span>
                                 <meta itemprop="datePublished" content="{{ $guide->created_at ? $guide->created_at->toIso8601String() : now()->toIso8601String() }}">
                             </div>
                         </div>
@@ -231,6 +231,40 @@
                         <span>বিনামূল্যে আপনার প্রপার্টি বিজ্ঞাপন দিন</span> &rarr;
                     </a>
                     @endauth
+                </div>
+
+                <!-- Author Bio Card (Google E-E-A-T & AI Answer Engine Knowledge Graph Feed) -->
+                <div class="my-10 p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-slate-900 via-slate-950 to-emerald-950/70 text-white shadow-xl border border-emerald-500/30 relative overflow-hidden">
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-5 relative z-10">
+                        <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-tr from-emerald-500 via-teal-500 to-cyan-500 flex items-center justify-center text-slate-950 text-2xl font-black shrink-0 shadow-lg ring-4 ring-emerald-500/20">
+                            MQ
+                        </div>
+                        <div class="space-y-1.5 flex-1">
+                            <div class="flex items-center flex-wrap gap-2">
+                                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
+                                    ✓ লেখক ও রিয়েল এস্টেট বিশ্লেষক
+                                </span>
+                                <span class="text-xs text-slate-400">PropertyKoi Research Desk</span>
+                            </div>
+                            <h3 class="text-lg sm:text-xl font-black text-white m-0">
+                                <a href="{{ route('author.show', 'mithu-a-quayium') }}" class="hover:text-emerald-300 transition-colors">
+                                    মিঠু এ কাইয়ুম (Mithu A Quayium)
+                                </a>
+                            </h3>
+                            <p class="text-xs text-emerald-400 font-bold m-0">
+                                প্রতিষ্ঠাতা ও প্রধান রিয়েল এস্টেট বিশ্লেষক, PropertyKoi
+                            </p>
+                            <p class="text-xs text-slate-300 leading-relaxed pt-1 m-0">
+                                বাংলাদেশের আবাসন খাত, ঢাকা ও আফতাবনগরের জমির কাঠাপ্রতি বাজারদর, বায়া দলিল ও খতিয়ান স্বত্ব যাচাই, এবং রাজউক ড্যাপ (DAP 2022-2035) ও FAR বিধিমালা গবেষক। রিয়েল এস্টেট খাতের তথ্যে স্বচ্ছতা নিশ্চিতে তিনি অটোমেটেড প্রপার্টি ভ্যালুয়েশন ও রেগুলেশন মডেলিং পরিচালনা করছেন।
+                            </p>
+                            <div class="pt-2 flex items-center gap-3">
+                                <a href="{{ route('author.show', 'mithu-a-quayium') }}" class="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-300 hover:text-white transition">
+                                    <span>সম্পূর্ণ প্রোফাইল ও অন্যান্য গবেষণা প্রবন্ধ দেখুন</span>
+                                    <span>&rarr;</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Discussion & Inquiries (Comments & Legal Consultation) -->

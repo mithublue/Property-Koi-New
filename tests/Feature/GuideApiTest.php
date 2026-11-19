@@ -148,7 +148,7 @@ class GuideApiTest extends TestCase
         $showResponse->assertStatus(200);
         $showResponse->assertSee('এপিআই পাবলিশ টেস্ট গাইড ২০২৬');
         $showResponse->assertSee('এটি কি কাজ করে?');
-        $showResponse->assertSee('Property Koi Desk');
+        $showResponse->assertSee('Mithu A Quayium');
     }
 
     public function test_admin_user_can_authenticate_without_api_key_header(): void
@@ -190,7 +190,7 @@ class GuideApiTest extends TestCase
         $webRes->assertSee('রিয়েল এস্টেট উন্নয়ন ও ব্যবস্থাপনা আইন ২০১০');
         $webRes->assertSee('ধারা ১৫');
         $webRes->assertSee('ধারা ২০');
-        $webRes->assertSee('Property Koi Desk');
+        $webRes->assertSee('Mithu A Quayium');
         $webRes->assertSee('রেডি ফ্ল্যাট ও নির্মাণাধীন ফ্ল্যাটের মূল্যের মধ্যে পার্থক্যের হার কত?');
 
         // Verify Schema JSON-LD contains bilingual Article and FAQPage

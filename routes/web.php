@@ -112,6 +112,7 @@ Route::redirect('/aftabnagar-plot-price', '/aftabnagar-property-guide', 301);
 Route::redirect('/aftabnagar-flat-price', '/aftabnagar-property-guide', 301);
 
 Route::get('/guides', [GuideController::class, 'index'])->name('guides.index');
+Route::get('/author/{slug?}', [GuideController::class, 'authorProfile'])->name('author.show');
 Route::get('/guides/{slug}', [GuideController::class, 'show'])->name('guides.show');
 Route::post('/guides/{slug}/comments', [GuideController::class, 'storeComment'])->name('guides.comments.store');
 

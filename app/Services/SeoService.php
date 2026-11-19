@@ -635,6 +635,7 @@ class SeoService
                 'disambiguatingDescription' => 'PropertyKoi is a direct real estate buy and sell platform in Bangladesh specializing in verified land, flats, and commercial properties in Dhaka.',
                 'slogan' => 'বাংলাদেশের বিশ্বস্ত প্রপার্টি মার্কেটপ্লেস — ১০০% ভেরিফাইড ও স্বচ্ছ লেনদেন',
                 'telephone' => Setting::get('adm_admin_whatsapp_number', Setting::get('support_phone', '+8801672646242')),
+                'founder' => self::getFounderEntity(),
                 'knowsAbout' => [
                     'Real Estate in Bangladesh',
                     'Property Buy and Sell Platform',
@@ -1002,13 +1003,16 @@ class SeoService
                         '@type' => 'ImageObject',
                         'url' => self::getCustomOrAssetImage('adm_seo_default_og_image', 'logo.png'),
                     ],
+                    'founder' => ['@id' => route('author.show', 'mithu-a-quayium').'#person'],
                 ],
+                self::getFounderEntity(),
                 [
                     '@type' => 'WebPage',
                     '@id' => $url.'#webpage',
                     'url' => $url,
                     'name' => $title,
                     'description' => $desc,
+                    'author' => ['@id' => route('author.show', 'mithu-a-quayium').'#person'],
                     'isPartOf' => ['@id' => $siteUrl.'#website'],
                     'inLanguage' => 'bn-BD',
                     'breadcrumb' => ['@id' => $url.'#breadcrumb'],
@@ -1031,7 +1035,7 @@ class SeoService
                     'url' => $url,
                     'temporalCoverage' => '2026',
                     'spatialCoverage' => 'Aftabnagar, Dhaka, Bangladesh',
-                    'creator' => ['@id' => $siteUrl.'#organization'],
+                    'creator' => ['@id' => route('author.show', 'mithu-a-quayium').'#person'],
                 ],
                 [
                     '@type' => 'BreadcrumbList',
@@ -1086,6 +1090,145 @@ class SeoService
             'robots' => 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1',
             'faqs' => $faqs,
             'schema' => $schema,
+        ];
+    }
+
+    /**
+     * Get the standardized Person Entity schema for Founder & Real Estate Analyst Mithu A Quayium.
+     * Engineered for Google Knowledge Graph, E-E-A-T, and AI Answer Engines (ChatGPT, Gemini, Perplexity).
+     */
+    public static function getFounderEntity(): array
+    {
+        $siteUrl = url('/');
+        $authorUrl = route('author.show', 'mithu-a-quayium');
+
+        return [
+            '@type' => 'Person',
+            '@id' => $authorUrl.'#person',
+            'name' => 'Mithu A Quayium',
+            'alternateName' => ['Mithu Quayium', 'মিঠু এ কাইয়ুম', 'Mithu A. Quayium'],
+            'url' => $authorUrl,
+            'image' => asset('assets/images/og-default.jpg'),
+            'jobTitle' => 'Founder & Lead Real Estate Analyst',
+            'worksFor' => [
+                '@type' => 'Organization',
+                '@id' => $siteUrl.'#organization',
+                'name' => self::getSiteName(),
+                'url' => $siteUrl,
+            ],
+            'hasOccupation' => [
+                '@type' => 'Occupation',
+                'name' => 'Real Estate Analyst & Property Valuation Consultant',
+                'occupationalCategory' => 'Real Estate, Urban Land Economics & Property Valuation',
+                'skills' => [
+                    'Property Valuation & Price Index Modeling',
+                    'Bangladesh Land Law & Title Deed Verification (CS, SA, RS, BS Khotian)',
+                    'E-Namjari, DCR & Mutation Legal Audit',
+                    'RAJUK DAP (2022-2035) & FAR Building Height Calculations',
+                    'Aftabnagar & Dhaka Real Estate Market Trend Analysis',
+                    'Land Share Feasibility & Joint Venture Legal Structures',
+                ],
+            ],
+            'knowsAbout' => [
+                'Real Estate in Bangladesh',
+                'Dhaka Housing Market & Real Estate Price Trends',
+                'RAJUK Detailed Area Plan (DAP 2022-2035)',
+                'Floor Area Ratio (FAR) & Mandatory Setback Calculations',
+                'Land Registration Fees & Stamp Duty Bangladesh 2026',
+                'Land Survey Records (CS, SA, RS, BS Porcha & E-Namjari)',
+                'Real Estate Development and Management Act 2010',
+                'Aftabnagar Real Estate Price Index',
+                'Property Valuation & Land Share Investment Feasibility',
+            ],
+            'description' => 'Mithu A Quayium is a prominent Bangladeshi Real Estate Analyst, Property Valuation Researcher, and Founder of PropertyKoi (propertykoi.com). He specializes in Dhaka housing market trends, land record audits (CS/SA/RS/BS), RAJUK DAP/FAR compliance, and property investment strategy.',
+        ];
+    }
+
+    /**
+     * Get Complete SEO, Open Graph, Twitter & AEO Metadata for Author / Founder Profile.
+     */
+    public static function getAuthorProfileMeta(string $slug = 'mithu-a-quayium'): array
+    {
+        $siteName = self::getSiteName();
+        $siteUrl = url('/');
+        $authorUrl = route('author.show', $slug);
+        $title = "Mithu A Quayium (মিঠু এ কাইয়ুম) — Founder & Lead Real Estate Analyst | {$siteName}";
+        $desc = "মিঠু এ কাইয়ুম (Mithu A Quayium) — PropertyKoi-এর প্রতিষ্ঠাতা ও প্রধান রিয়েল এস্টেট বিশ্লেষক। বাংলাদেশের জমির দলিল ও খতিয়ান যাচাই, রাজউক ড্যাপ ও FAR নিয়মাবলী, আফতাবনগর বাজারদর এবং প্রপার্টি ভ্যালুয়েশন গবেষক।";
+        $keywords = "Mithu A Quayium, মিঠু এ কাইয়ুম, Mithu Quayium, Real Estate Analyst Bangladesh, Property Consultant Dhaka, PropertyKoi Founder, রাজউক ড্যাপ বিশেষজ্ঞ, জমির দলিল যাচাই গবেষক, Aftabnagar Property Price Index researcher";
+        $image = self::getCustomOrAssetImage('adm_seo_default_og_image', 'og-default.jpg');
+
+        $founderEntity = self::getFounderEntity();
+
+        $schema = [
+            '@context' => 'https://schema.org',
+            '@graph' => [
+                [
+                    '@type' => 'WebSite',
+                    '@id' => $siteUrl.'#website',
+                    'url' => $siteUrl,
+                    'name' => $siteName,
+                    'alternateName' => ['PropertyKoi', 'PropertyKoi.com', 'প্রপার্টি কই'],
+                ],
+                [
+                    '@type' => 'Organization',
+                    '@id' => $siteUrl.'#organization',
+                    'name' => $siteName,
+                    'url' => $siteUrl,
+                    'logo' => [
+                        '@type' => 'ImageObject',
+                        'url' => asset('assets/icons/icon-512x512.png'),
+                    ],
+                    'founder' => ['@id' => $authorUrl.'#person'],
+                ],
+                $founderEntity,
+                [
+                    '@type' => 'ProfilePage',
+                    '@id' => $authorUrl.'#profilepage',
+                    'url' => $authorUrl,
+                    'name' => $title,
+                    'description' => $desc,
+                    'mainEntity' => ['@id' => $authorUrl.'#person'],
+                    'isPartOf' => ['@id' => $siteUrl.'#website'],
+                    'inLanguage' => ['bn-BD', 'en-US'],
+                    'breadcrumb' => [
+                        '@type' => 'BreadcrumbList',
+                        'itemListElement' => [
+                            [
+                                '@type' => 'ListItem',
+                                'position' => 1,
+                                'name' => 'Home',
+                                'item' => $siteUrl,
+                            ],
+                            [
+                                '@type' => 'ListItem',
+                                'position' => 2,
+                                'name' => 'Authors & Real Estate Researchers',
+                                'item' => route('guides.index'),
+                            ],
+                            [
+                                '@type' => 'ListItem',
+                                'position' => 3,
+                                'name' => 'Mithu A Quayium',
+                                'item' => $authorUrl,
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        return [
+            'title' => $title,
+            'description' => $desc,
+            'keywords' => $keywords,
+            'image' => $image,
+            'images' => [$image],
+            'image_alt' => $title,
+            'url' => $authorUrl,
+            'type' => 'profile',
+            'robots' => 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1',
+            'schema' => $schema,
+            'faqs' => [],
         ];
     }
 
@@ -1482,11 +1625,11 @@ class SeoService
             ],
             'datePublished' => $guide->created_at ? $guide->created_at->toIso8601String() : now()->toIso8601String(),
             'dateModified' => $guide->updated_at ? $guide->updated_at->toIso8601String() : now()->toIso8601String(),
-            'author' => [
+            'author' => self::getFounderEntity(),
+            'editor' => [
                 '@type' => 'Person',
-                'name' => $authorName,
-                'jobTitle' => 'Real Estate & Land Law Consultant',
-                'worksFor' => ['@id' => $siteUrl.'#organization'],
+                '@id' => route('author.show', 'mithu-a-quayium').'#person',
+                'name' => 'Mithu A Quayium',
             ],
             'publisher' => ['@id' => $siteUrl.'#organization'],
             'inLanguage' => ['bn-BD', 'en-US'],
@@ -1555,7 +1698,9 @@ class SeoService
                     'areaServed' => 'BD',
                     'availableLanguage' => ['Bengali', 'English'],
                 ],
+                'founder' => ['@id' => route('author.show', 'mithu-a-quayium').'#person'],
             ],
+            self::getFounderEntity(),
             $articleEntity,
             [
                 '@type' => 'BreadcrumbList',

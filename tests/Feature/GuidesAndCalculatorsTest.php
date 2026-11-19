@@ -265,7 +265,7 @@ class GuidesAndCalculatorsTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee('aeo-quick-summary');
         $response->assertSee('সারসংক্ষেপ');
-        $response->assertSee('Property Koi Desk');
+        $response->assertSee('Mithu A Quayium');
         $response->assertDontSeeText('এআই সামারি');
         $response->assertSee('FAQPage');
         $response->assertSee('SpeakableSpecification');
@@ -366,5 +366,43 @@ class GuidesAndCalculatorsTest extends TestCase
         $indexRes->assertSee('ইন্টেরিয়র ডিজাইন'); // has 1 published guide, so visible
         $indexRes->assertDontSee('বাণিজ্যিক প্রপার্টি'); // has 0 published guides, so hidden
         $indexRes->assertDontSee('উত্তরাধিকার সম্পত্তি'); // has 0 published guides, so hidden
+    }
+
+    public function test_author_profile_page_loads_with_real_estate_authority_schema_and_guides()
+    {
+        $guide = Guide::create([
+            'title'            => 'জমির দলিল ও নামজারি খতিয়ান যাচাই গাইড ২০২৬',
+            'slug'             => 'author-test-jomir-dolil-jachai-2026',
+            'category'         => 'legal_docs',
+            'excerpt'          => 'জমি ক্রয়ের পূর্বে সিএস, এসএ, আরএস ও বিএস খতিয়ান যাচাই করার পূর্ণাঙ্গ নির্দেশিকা।',
+            'content'          => '<h2>দলিল যাচাই</h2><p>দলিল যাচাইয়ের বিস্তারিত তথ্য।</p>',
+            'reading_time_min' => 6,
+            'is_published'     => true,
+            'is_featured'      => true,
+            'views_count'      => 45,
+        ]);
+
+        // 1. Visit author profile page
+        $response = $this->get(route('author.show', 'mithu-a-quayium'));
+        $response->assertStatus(200);
+        $response->assertSee('Mithu A Quayium');
+        $response->assertSee('মিঠু এ কাইয়ুম');
+        $response->assertSee('প্রতিষ্ঠাতা ও প্রধান রিয়েল এস্টেট বিশ্লেষক');
+        $response->assertSee('PropertyKoi.com');
+        $response->assertSee('রাজউক ড্যাপ');
+        $response->assertSee('জমির দলিল ও খতিয়ান স্বত্ব যাচাই');
+        $response->assertSee('author-test-jomir-dolil-jachai-2026');
+
+        // Verify Schema.org Person & ProfilePage markup
+        $response->assertSee('ProfilePage');
+        $response->assertSee('Real Estate Analyst');
+        $response->assertSee('Property Valuation Consultant');
+
+        // 2. Guide show page contains author byline and author bio box linking to author profile
+        $guideRes = $this->get(route('guides.show', $guide->slug));
+        $guideRes->assertStatus(200);
+        $guideRes->assertSee('Mithu A Quayium');
+        $guideRes->assertSee(route('author.show', 'mithu-a-quayium'));
+        $guideRes->assertSee('লেখক ও রিয়েল এস্টেট বিশ্লেষক');
     }
 }

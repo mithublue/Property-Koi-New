@@ -115,8 +115,8 @@
                             <div class="flex items-center gap-2.5 text-xs text-slate-500">
                                 <span class="w-7 h-7 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold">🏢</span>
                                 <div>
-                                    <span class="font-bold text-slate-800 block">Property Koi Desk</span>
-                                    <span>{{ $featuredGuide->formatted_date }}</span>
+                                    <a href="{{ route('author.show', 'mithu-a-quayium') }}" class="font-bold text-slate-800 hover:text-emerald-600 transition block">Mithu A Quayium</a>
+                                    <span>{{ $featuredGuide->formatted_date }} • রিয়েল এস্টেট বিশ্লেষক</span>
                                 </div>
                             </div>
                             <a href="{{ route('guides.show', $featuredGuide->slug) }}" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition shadow-xs">

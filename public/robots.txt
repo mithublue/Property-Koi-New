@@ -67,3 +67,6 @@ Disallow: /*.json$
 # Sitemaps
 Sitemap: https://propertykoi.com/sitemap.xml
 Sitemap: https://propertykoi.com/property-sitemap.xml
+
+# LLM & AI Answer Engine Knowledge Context Feed (AEO / GEO)
+# https://propertykoi.com/llms.txt

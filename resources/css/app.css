@@ -146,32 +146,104 @@ body {
 /* Ensure dark cards and callout boxes inside guide content render high-contrast, crystal clear light text */
 .guide-content-body [class*="bg-slate-9"],
 .guide-content-body [class*="bg-slate-8"],
+.guide-content-body [class*="bg-indigo-9"],
+.guide-content-body [class*="bg-indigo-8"],
+.guide-content-body [class*="bg-purple-9"],
+.guide-content-body [class*="bg-purple-8"],
 .guide-content-body [class*="bg-gray-9"],
 .guide-content-body [class*="bg-emerald-9"],
-.guide-content-body [class*="bg-teal-9"] {
+.guide-content-body [class*="bg-teal-9"],
+.guide-content-body [class*="via-indigo-9"],
+.guide-content-body [class*="via-slate-9"],
+.guide-content-body [class*="to-slate-9"],
+.guide-content-body [class*="to-indigo-9"],
+.guide-content-body [class*="text-white"] {
     color: #f1f5f9 !important;
+}
+
+/* Headings inside dark cards and headings with explicit text-white class */
+.guide-content-body [class*="bg-slate-9"] :is(h1, h2, h3, h4, h5, h6),
+.guide-content-body [class*="bg-slate-8"] :is(h1, h2, h3, h4, h5, h6),
+.guide-content-body [class*="bg-indigo-9"] :is(h1, h2, h3, h4, h5, h6),
+.guide-content-body [class*="bg-indigo-8"] :is(h1, h2, h3, h4, h5, h6),
+.guide-content-body [class*="bg-purple-9"] :is(h1, h2, h3, h4, h5, h6),
+.guide-content-body [class*="bg-purple-8"] :is(h1, h2, h3, h4, h5, h6),
+.guide-content-body [class*="bg-gray-9"] :is(h1, h2, h3, h4, h5, h6),
+.guide-content-body [class*="bg-emerald-9"] :is(h1, h2, h3, h4, h5, h6),
+.guide-content-body [class*="bg-teal-9"] :is(h1, h2, h3, h4, h5, h6),
+.guide-content-body [class*="via-indigo-9"] :is(h1, h2, h3, h4, h5, h6),
+.guide-content-body [class*="via-slate-9"] :is(h1, h2, h3, h4, h5, h6),
+.guide-content-body [class*="to-slate-9"] :is(h1, h2, h3, h4, h5, h6),
+.guide-content-body [class*="to-indigo-9"] :is(h1, h2, h3, h4, h5, h6),
+.guide-content-body [class*="text-white"] :is(h1, h2, h3, h4, h5, h6),
+.guide-content-body :is(h1, h2, h3, h4, h5, h6).text-white,
+.guide-content-body :is(h1, h2, h3, h4, h5, h6)[class*="text-white"] {
+    color: #ffffff !important;
+}
+
+/* Explicit heading accent colors inside dark cards */
+.guide-content-body [class*="bg-slate-9"] :is(h1, h2, h3, h4, h5, h6)[class*="text-indigo-"],
+.guide-content-body [class*="bg-indigo-9"] :is(h1, h2, h3, h4, h5, h6)[class*="text-indigo-"],
+.guide-content-body [class*="via-indigo-9"] :is(h1, h2, h3, h4, h5, h6)[class*="text-indigo-"] {
+    color: #c7d2fe !important;
+}
+.guide-content-body [class*="bg-slate-9"] :is(h1, h2, h3, h4, h5, h6)[class*="text-sky-"],
+.guide-content-body [class*="bg-indigo-9"] :is(h1, h2, h3, h4, h5, h6)[class*="text-sky-"],
+.guide-content-body [class*="via-indigo-9"] :is(h1, h2, h3, h4, h5, h6)[class*="text-sky-"] {
+    color: #7dd3fc !important;
+}
+.guide-content-body [class*="bg-slate-9"] :is(h1, h2, h3, h4, h5, h6)[class*="text-emerald-"],
+.guide-content-body [class*="bg-emerald-9"] :is(h1, h2, h3, h4, h5, h6)[class*="text-emerald-"],
+.guide-content-body [class*="via-indigo-9"] :is(h1, h2, h3, h4, h5, h6)[class*="text-emerald-"] {
+    color: #6ee7b7 !important;
+}
+.guide-content-body [class*="bg-slate-9"] :is(h1, h2, h3, h4, h5, h6)[class*="text-amber-"],
+.guide-content-body [class*="bg-indigo-9"] :is(h1, h2, h3, h4, h5, h6)[class*="text-amber-"],
+.guide-content-body [class*="via-indigo-9"] :is(h1, h2, h3, h4, h5, h6)[class*="text-amber-"] {
+    color: #fcd34d !important;
 }
 
 .guide-content-body [class*="bg-slate-9"] p,
 .guide-content-body [class*="bg-slate-8"] p,
+.guide-content-body [class*="bg-indigo-9"] p,
+.guide-content-body [class*="bg-indigo-8"] p,
+.guide-content-body [class*="bg-purple-9"] p,
 .guide-content-body [class*="bg-gray-9"] p,
 .guide-content-body [class*="bg-emerald-9"] p,
 .guide-content-body [class*="bg-teal-9"] p,
+.guide-content-body [class*="via-indigo-9"] p,
+.guide-content-body [class*="via-slate-9"] p,
+.guide-content-body [class*="to-slate-9"] p,
+.guide-content-body [class*="to-indigo-9"] p,
+.guide-content-body [class*="text-white"] p,
 .guide-content-body [class*="bg-slate-9"] li,
 .guide-content-body [class*="bg-slate-8"] li,
+.guide-content-body [class*="bg-indigo-9"] li,
+.guide-content-body [class*="bg-indigo-8"] li,
+.guide-content-body [class*="bg-purple-9"] li,
 .guide-content-body [class*="bg-gray-9"] li,
 .guide-content-body [class*="bg-emerald-9"] li,
 .guide-content-body [class*="bg-teal-9"] li,
-.guide-content-body [class*="text-white"] p,
+.guide-content-body [class*="via-indigo-9"] li,
+.guide-content-body [class*="via-slate-9"] li,
+.guide-content-body [class*="to-slate-9"] li,
+.guide-content-body [class*="to-indigo-9"] li,
 .guide-content-body [class*="text-white"] li {
     color: #e2e8f0 !important; /* slate-200 */
 }
 
 .guide-content-body [class*="bg-slate-9"] strong,
 .guide-content-body [class*="bg-slate-8"] strong,
+.guide-content-body [class*="bg-indigo-9"] strong,
+.guide-content-body [class*="bg-indigo-8"] strong,
+.guide-content-body [class*="bg-purple-9"] strong,
 .guide-content-body [class*="bg-gray-9"] strong,
 .guide-content-body [class*="bg-emerald-9"] strong,
 .guide-content-body [class*="bg-teal-9"] strong,
+.guide-content-body [class*="via-indigo-9"] strong,
+.guide-content-body [class*="via-slate-9"] strong,
+.guide-content-body [class*="to-slate-9"] strong,
+.guide-content-body [class*="to-indigo-9"] strong,
 .guide-content-body [class*="text-white"] strong {
     color: #ffffff !important;
     font-weight: 700;

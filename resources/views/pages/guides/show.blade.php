@@ -1,5 +1,56 @@
 @extends('layouts.app', ['seo' => $ogMeta])
 
+@push('styles')
+<style>
+/* High-contrast text protection for dark cards and headings inside guide content */
+.guide-content-body :is(h1, h2, h3, h4, h5, h6).text-white,
+.guide-content-body :is(h1, h2, h3, h4, h5, h6)[class*="text-white"],
+.guide-content-body [class*="bg-slate-9"] :is(h1, h2, h3, h4, h5, h6),
+.guide-content-body [class*="bg-slate-8"] :is(h1, h2, h3, h4, h5, h6),
+.guide-content-body [class*="bg-indigo-9"] :is(h1, h2, h3, h4, h5, h6),
+.guide-content-body [class*="bg-indigo-8"] :is(h1, h2, h3, h4, h5, h6),
+.guide-content-body [class*="bg-purple-9"] :is(h1, h2, h3, h4, h5, h6),
+.guide-content-body [class*="bg-emerald-9"] :is(h1, h2, h3, h4, h5, h6),
+.guide-content-body [class*="bg-teal-9"] :is(h1, h2, h3, h4, h5, h6),
+.guide-content-body [class*="bg-gray-9"] :is(h1, h2, h3, h4, h5, h6),
+.guide-content-body [class*="via-indigo-9"] :is(h1, h2, h3, h4, h5, h6),
+.guide-content-body [class*="via-slate-9"] :is(h1, h2, h3, h4, h5, h6),
+.guide-content-body [class*="to-slate-9"] :is(h1, h2, h3, h4, h5, h6),
+.guide-content-body [class*="to-indigo-9"] :is(h1, h2, h3, h4, h5, h6),
+.guide-content-body [class*="text-white"] :is(h1, h2, h3, h4, h5, h6) {
+    color: #ffffff !important;
+}
+
+.guide-content-body [class*="bg-slate-9"] :is(h1, h2, h3, h4, h5, h6)[class*="text-indigo-"],
+.guide-content-body [class*="bg-indigo-9"] :is(h1, h2, h3, h4, h5, h6)[class*="text-indigo-"],
+.guide-content-body [class*="via-indigo-9"] :is(h1, h2, h3, h4, h5, h6)[class*="text-indigo-"] {
+    color: #c7d2fe !important;
+}
+.guide-content-body [class*="bg-slate-9"] :is(h1, h2, h3, h4, h5, h6)[class*="text-sky-"],
+.guide-content-body [class*="bg-indigo-9"] :is(h1, h2, h3, h4, h5, h6)[class*="text-sky-"],
+.guide-content-body [class*="via-indigo-9"] :is(h1, h2, h3, h4, h5, h6)[class*="text-sky-"] {
+    color: #7dd3fc !important;
+}
+.guide-content-body [class*="bg-slate-9"] :is(h1, h2, h3, h4, h5, h6)[class*="text-emerald-"],
+.guide-content-body [class*="bg-emerald-9"] :is(h1, h2, h3, h4, h5, h6)[class*="text-emerald-"],
+.guide-content-body [class*="via-indigo-9"] :is(h1, h2, h3, h4, h5, h6)[class*="text-emerald-"] {
+    color: #6ee7b7 !important;
+}
+.guide-content-body [class*="bg-slate-9"] :is(h1, h2, h3, h4, h5, h6)[class*="text-amber-"],
+.guide-content-body [class*="bg-indigo-9"] :is(h1, h2, h3, h4, h5, h6)[class*="text-amber-"],
+.guide-content-body [class*="via-indigo-9"] :is(h1, h2, h3, h4, h5, h6)[class*="text-amber-"] {
+    color: #fcd34d !important;
+}
+
+.guide-content-body [class*="bg-slate-9"] strong,
+.guide-content-body [class*="bg-indigo-9"] strong,
+.guide-content-body [class*="via-indigo-9"] strong,
+.guide-content-body [class*="text-white"] strong {
+    color: #ffffff !important;
+}
+</style>
+@endpush
+
 @section('content')
 <div class="bg-gradient-to-b from-slate-50 via-white to-slate-50 min-h-screen py-8 sm:py-12">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

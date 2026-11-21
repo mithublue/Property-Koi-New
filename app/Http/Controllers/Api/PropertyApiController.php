@@ -428,6 +428,26 @@ class PropertyApiController extends Controller
                 ]);
             }
 
+            // 14.1 Photo Media (Images / Cloudinary URLs)
+            $rawImages = $payload['images'] ?? ($payload['photos'] ?? ($payload['media'] ?? ($payload['media_urls'] ?? [])));
+            if (is_string($rawImages)) {
+                $rawImages = preg_split('/[\r\n,|;]+/', $rawImages);
+            }
+            if (is_array($rawImages) && !empty($rawImages)) {
+                $imgOrder = 0;
+                foreach ($rawImages as $imgUrl) {
+                    $imgUrl = trim((string) $imgUrl);
+                    if (empty($imgUrl)) continue;
+                    PropertyMedia::create([
+                        'property_id' => $property->id,
+                        'file_path'   => $imgUrl,
+                        'media_type'  => 'photo',
+                        'is_cover'    => ($imgOrder === 0),
+                        'sort_order'  => ++$imgOrder,
+                    ]);
+                }
+            }
+
             // 15. Direct Source Linking
             if ($agentUser) {
                 PropertyDirectSource::create([
@@ -685,6 +705,29 @@ class PropertyApiController extends Controller
             }
         }
 
+        // 8. Attach New Images / Cloudinary URLs if provided
+        if (isset($payload['images']) || isset($payload['photos']) || isset($payload['media']) || isset($payload['media_urls'])) {
+            $rawImages = $payload['images'] ?? ($payload['photos'] ?? ($payload['media'] ?? ($payload['media_urls'] ?? [])));
+            if (is_string($rawImages)) {
+                $rawImages = preg_split('/[\r\n,|;]+/', $rawImages);
+            }
+            if (is_array($rawImages) && !empty($rawImages)) {
+                $order = $property->media()->where('media_type', 'photo')->count();
+                foreach ($rawImages as $imgUrl) {
+                    $imgUrl = trim((string) $imgUrl);
+                    if (empty($imgUrl)) continue;
+                    if ($property->media()->where('file_path', $imgUrl)->exists()) continue;
+                    PropertyMedia::create([
+                        'property_id' => $property->id,
+                        'file_path'   => $imgUrl,
+                        'media_type'  => 'photo',
+                        'is_cover'    => ($order === 0),
+                        'sort_order'  => ++$order,
+                    ]);
+                }
+            }
+        }
+
         $property->refresh();
 
         return response()->json([
@@ -806,6 +849,12 @@ class PropertyApiController extends Controller
                 'whatsapp_number' => $sourceUser->whatsapp_number,
             ] : null,
             'url'           => $p->status === 'live' ? route('property.show', $p->slug) : null,
+            'cover_image'   => $p->cover_url,
+            'media'         => $p->media->map(fn ($m) => [
+                'file_path'  => $m->file_path,
+                'media_type' => $m->media_type,
+                'is_cover'   => (bool) $m->is_cover,
+            ])->values()->all(),
             'admin_edit_url' => url("/backend/properties/{$p->id}/edit"),
             'created_at'    => $p->created_at?->toIso8601String(),
         ];

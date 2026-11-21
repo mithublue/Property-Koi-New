@@ -105,6 +105,15 @@ try {
             }
         }
 
+        // Ensure Cloudinary settings are populated if empty
+        if (empty(Setting::get('adm_cloudinary_cloud_name'))) {
+            Setting::set('adm_cloudinary_cloud_name', 'a3xw53zs');
+            Setting::set('adm_cloudinary_api_key', '182884881585169');
+            Setting::set('adm_cloudinary_api_secret', '70aBRxRNbR3uCXSaP21pM5rqnqI');
+            Setting::set('adm_cloudinary_folder', 'aftabnagar_marketplace');
+            $settingsUpdated[] = 'adm_cloudinary_credentials_auto_seeded';
+        }
+
         Artisan::call('optimize:clear');
         $cacheOutput = trim(Artisan::output());
 

@@ -129,17 +129,17 @@ def read_sheet_tab(tab_name, range_str):
                 rows.append(r_vals)
             return rows
 
-def write_sheet_property_id(tab_name, cell_range, code, prop_id):
-    """Write generated property code and id back to specified columns in sheet"""
+def write_sheet_cells(tab_name, cell_range, csv_values):
+    """Write arbitrary CSV values back to specified cell range in sheet"""
     try:
         res = subprocess.run(
-            ['gsheets.cmd', 'mutate', 'write', SHEET_ID, f'{tab_name}!{cell_range}', f'{code},{prop_id}', '--json'],
+            ['gsheets.cmd', 'mutate', 'write', SHEET_ID, f'{tab_name}!{cell_range}', str(csv_values), '--json'],
             capture_output=True,
             text=True,
             shell=True
         )
         if 'Wrote' in (res.stdout or ''):
-            print(f"[{tab_name}] Range {cell_range}: Successfully wrote #{code} (ID: {prop_id}) to Google Sheet.")
+            print(f"[{tab_name}] Range {cell_range}: Successfully wrote '{csv_values}' to Google Sheet.")
             return True
         else:
             print(f"[{tab_name}] Range {cell_range}: Failed to write to sheet: {res.stdout} {res.stderr}")
@@ -147,6 +147,145 @@ def write_sheet_property_id(tab_name, cell_range, code, prop_id):
     except Exception as e:
         print(f"[{tab_name}] Exception writing to sheet for range {cell_range}: {e}")
         return False
+
+def write_sheet_property_id(tab_name, cell_range, code, prop_id):
+    """Write generated property code and id back to specified columns in sheet"""
+    return write_sheet_cells(tab_name, cell_range, f'{code},{prop_id}')
+
+AGENTS_DIRECTORY = None
+
+def clean_phone_digits(p):
+    if not p:
+        return ''
+    digits = re.sub(r'\D', '', str(p))
+    if digits.startswith('880'):
+        digits = digits[2:]
+    elif digits.startswith('88'):
+        digits = digits[2:]
+    if len(digits) >= 10:
+        return digits[-10:]
+    return digits
+
+def load_agents_directory(force_reload=False):
+    global AGENTS_DIRECTORY
+    if AGENTS_DIRECTORY is not None and not force_reload:
+        return AGENTS_DIRECTORY
+
+    res = subprocess.run(
+        ['gsheets.cmd', 'readonly', 'read', SHEET_ID, 'agents!A1:H100', '--json'],
+        capture_output=True, text=True, shell=True
+    )
+    if res.returncode != 0:
+        print("[agents] Failed to read agents tab:", res.stderr)
+        return {'by_id': {}, 'by_phone': {}, 'max_id': 0, 'total_rows': 0}
+
+    rows = json.loads(res.stdout) if res.stdout else []
+    by_id = {}
+    by_phone = {}
+    max_id = 0
+    total_rows = len(rows) if rows else 0
+
+    if rows and len(rows) > 1:
+        for i, r in enumerate(rows[1:], start=2):
+            if not r or not any(r):
+                continue
+            name = r[0] if len(r) > 0 else ''
+            contact = r[1] if len(r) > 1 else ''
+            working_area = r[3] if len(r) > 3 else ''
+            remarks = r[4] if len(r) > 4 else ''
+            extra = r[5] if len(r) > 5 else ''
+            channel = r[6] if len(r) > 6 else ''
+            raw_id = r[7] if len(r) > 7 else ''
+
+            clean_id = str(raw_id).strip().replace('.0', '')
+            if clean_id.isdigit():
+                max_id = max(max_id, int(clean_id))
+
+            agent_data = {
+                'row_num': i,
+                'name': name,
+                'contact': contact,
+                'working_area': working_area,
+                'remarks': remarks,
+                'extra': extra,
+                'channel': channel,
+                'id': clean_id
+            }
+
+            if clean_id:
+                by_id[clean_id] = agent_data
+
+            phone_key = clean_phone_digits(contact)
+            if phone_key:
+                by_phone[phone_key] = agent_data
+
+    AGENTS_DIRECTORY = {
+        'by_id': by_id,
+        'by_phone': by_phone,
+        'max_id': max_id,
+        'total_rows': max(total_rows, 1)
+    }
+    print(f"[agents] Loaded {len(by_id)} agents from 'agents' tab. Highest Agent ID: {max_id}")
+    return AGENTS_DIRECTORY
+
+def sync_or_create_agent(name, phone, area='', remarks=''):
+    """
+    Finds agent in 'agents' tab by phone (or ID).
+    If not found, creates a new agent row in 'agents' tab and assigns next ID.
+    Returns (agent_id, agent_name, formatted_phone).
+    """
+    p_digits = clean_phone_digits(phone)
+    if not p_digits and not name:
+        return None, name or '', phone or ''
+
+    agents_dir = load_agents_directory()
+    by_phone = agents_dir['by_phone']
+
+    # 1. Check existing agent by phone digits
+    if p_digits and p_digits in by_phone:
+        existing = by_phone[p_digits]
+        ag_id = existing.get('id')
+        ag_name = existing.get('name') or name or f"Agent {p_digits[-4:]}"
+        ag_contact = existing.get('contact') or (f"0{p_digits}" if not str(phone).startswith('0') else str(phone))
+        return ag_id, ag_name, ag_contact
+
+    # 2. Check if name is given and is an integer ID referencing agents tab
+    clean_n = str(name).strip().replace('.0', '')
+    if clean_n.isdigit() and clean_n in agents_dir['by_id']:
+        existing = agents_dir['by_id'][clean_n]
+        return existing.get('id'), existing.get('name'), existing.get('contact')
+
+    # 3. Create brand new agent in 'agents' tab if phone number exists
+    if p_digits:
+        new_id = agents_dir['max_id'] + 1
+        new_row_idx = agents_dir['total_rows'] + 1
+        formatted_phone = f"0{p_digits}" if len(p_digits) == 10 and not str(phone).startswith('0') else str(phone).strip()
+        agent_name = name.strip() if name and str(name).strip() else f"Agent {p_digits[-4:]}"
+        working_area = area.strip() if area else ''
+        agent_remarks = remarks.strip() if remarks else ''
+
+        csv_row = f"{agent_name},{formatted_phone},,{working_area},{agent_remarks},,,{new_id}"
+        write_sheet_cells('agents', f'A{new_row_idx}:H{new_row_idx}', csv_row)
+
+        new_agent = {
+            'row_num': new_row_idx,
+            'name': agent_name,
+            'contact': formatted_phone,
+            'working_area': working_area,
+            'remarks': agent_remarks,
+            'extra': '',
+            'channel': '',
+            'id': str(new_id)
+        }
+        agents_dir['by_id'][str(new_id)] = new_agent
+        agents_dir['by_phone'][p_digits] = new_agent
+        agents_dir['max_id'] = new_id
+        agents_dir['total_rows'] = new_row_idx
+
+        print(f"[agents] Created new Agent #{new_id} ({agent_name}, {formatted_phone}, Area: {working_area}) in 'agents' tab row {new_row_idx}.")
+        return str(new_id), agent_name, formatted_phone
+
+    return None, name or '', phone or ''
 
 def get_local_media_images(base_dir, item_id, prefix=""):
     r"""Find local images corresponding to an id under base_dir (e.g. flats or commercial)"""
@@ -467,6 +606,17 @@ def sync_plots(props_by_id, props_by_code):
         private_note = get_val(row, 'private note')
         agents_col = get_val(row, 'agents')
         
+        # Resolve or create agent in 'agents' tab
+        ag_id, ag_name, ag_contact = sync_or_create_agent(
+            agent or agents_col,
+            contact,
+            area=place,
+            remarks=f"Plot {plot} Block {block}"
+        )
+        if ag_id and not agents_col:
+            write_sheet_cells('plots', f'O{row_num}', ag_id)
+            agents_col = ag_id
+
         prop = None
         if p_id and p_id in props_by_id:
             prop = props_by_id[p_id]
@@ -494,8 +644,8 @@ def sync_plots(props_by_id, props_by_code):
                     'road': road,
                     'plot_number': plot,
                     'katha': katha,
-                    'contact': contact,
-                    'agent': agent or agents_col,
+                    'contact': ag_contact or contact,
+                    'agent': ag_name or agent or agents_col,
                     'price_per_katha': price,
                     'total_price': total_price,
                     'description': desc,
@@ -511,8 +661,8 @@ def sync_plots(props_by_id, props_by_code):
                     created_code = str(prop_data.get('property_code', '')).upper()
                     print(f"[plots] Row {row_num}: Successfully created -> #{created_code} (ID: {created_id})")
                     
-                    # Write back to Google Sheet (plots columns P and Q)
-                    write_sheet_property_id('plots', f'P{row_num}:Q{row_num}', created_code, created_id)
+                    # Write back to Google Sheet (plots columns O, P, Q)
+                    write_sheet_cells('plots', f'O{row_num}:Q{row_num}', f'{ag_id or agents_col or ""},{created_code},{created_id}')
                     
                     new_created.append({
                         'code': created_code,
@@ -646,6 +796,18 @@ def sync_flats(props_by_id, props_by_code):
         desc = get_val(row, 'description')
         hidden_note = get_val(row, 'hidden_note')
         other_features = get_val(row, 'other_features')
+        agents_col = get_val(row, 'agents')
+
+        # Phone number present -> treat by default as agent and sync to 'agents' tab
+        ag_id, ag_name, ag_phone = sync_or_create_agent(
+            owner_name or agents_col,
+            owner_phone,
+            area=area,
+            remarks=f"{flat_size} sft flat Block {block}"
+        )
+        if ag_id and not agents_col:
+            write_sheet_cells('flats', f'AE{row_num}', ag_id)
+            agents_col = ag_id
 
         prop = None
         if p_id and p_id in props_by_id:
@@ -704,9 +866,9 @@ def sync_flats(props_by_id, props_by_code):
                     'utility_price': utility_price,
                     'asking_price': asking_price,
                     'is_negotiable': to_bool(is_neg),
-                    'owner_name': owner_name,
-                    'owner_phone': owner_phone,
-                    'source_type': source_type or 'agent',
+                    'owner_name': ag_name or owner_name,
+                    'owner_phone': ag_phone or owner_phone,
+                    'source_type': 'agent',
                     'title': title,
                     'description': desc,
                     'hidden_note': hidden_note,
@@ -722,8 +884,8 @@ def sync_flats(props_by_id, props_by_code):
                     created_code = str(prop_data.get('property_code', '')).upper()
                     print(f"[flats] Row {row_num}: Successfully created flat -> #{created_code} (ID: {created_id}) with {len(uploaded_image_urls)} photo(s)")
                     
-                    # Write back to Google Sheet (flats columns AE and AF)
-                    write_sheet_property_id('flats', f'AE{row_num}:AF{row_num}', created_code, created_id)
+                    # Write back to Google Sheet (flats columns AE:AG - agents, property code, property id)
+                    write_sheet_cells('flats', f'AE{row_num}:AG{row_num}', f'{ag_id or agents_col or ""},{created_code},{created_id}')
                     
                     new_created.append({
                         'code': created_code,
@@ -888,6 +1050,18 @@ def sync_commercial(props_by_id, props_by_code):
         desc = get_val(row, 'description')
         hidden_note = get_val(row, 'hidden_note')
         other_features = get_val(row, 'other_features')
+        agents_col = get_val(row, 'agents')
+
+        # Phone number present -> treat by default as agent and sync to 'agents' tab
+        ag_id, ag_name, ag_phone = sync_or_create_agent(
+            owner_name or agents_col,
+            owner_phone,
+            area=area,
+            remarks=f"{size_sqft} sft {comm_type} Market: {market_name}"
+        )
+        if ag_id and not agents_col:
+            write_sheet_cells('commercial', f'AG{row_num}', ag_id)
+            agents_col = ag_id
 
         prop = None
         if p_id and p_id in props_by_id:
@@ -948,9 +1122,9 @@ def sync_commercial(props_by_id, props_by_code):
                     'price_per_sqft': price_sqft,
                     'asking_price': asking_price,
                     'is_negotiable': to_bool(is_neg),
-                    'owner_name': owner_name,
-                    'owner_phone': owner_phone,
-                    'source_type': source_type or 'agent',
+                    'owner_name': ag_name or owner_name,
+                    'owner_phone': ag_phone or owner_phone,
+                    'source_type': 'agent',
                     'title': title,
                     'description': desc,
                     'hidden_note': hidden_note,
@@ -966,8 +1140,8 @@ def sync_commercial(props_by_id, props_by_code):
                     created_code = str(prop_data.get('property_code', '')).upper()
                     print(f"[commercial] Row {row_num}: Successfully created commercial space -> #{created_code} (ID: {created_id}) with {len(uploaded_image_urls)} photo(s)")
                     
-                    # Write back to Google Sheet (commercial columns AG and AH)
-                    write_sheet_property_id('commercial', f'AG{row_num}:AH{row_num}', created_code, created_id)
+                    # Write back to Google Sheet (commercial columns AG:AI - agents, property code, property id)
+                    write_sheet_cells('commercial', f'AG{row_num}:AI{row_num}', f'{ag_id or agents_col or ""},{created_code},{created_id}')
                     
                     new_created.append({
                         'code': created_code,

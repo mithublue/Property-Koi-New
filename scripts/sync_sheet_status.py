@@ -276,7 +276,8 @@ def sync_or_create_agent(name, phone, area='', remarks=''):
         working_area = area.strip() if area else ''
         agent_remarks = remarks.strip() if remarks else ''
 
-        csv_row = f"{agent_name},{formatted_phone},,{working_area},{agent_remarks},,,{new_id}"
+        def esc(val): return str(val or '').replace(',', r'\,')
+        csv_row = f"{esc(agent_name)},{esc(formatted_phone)},,{esc(working_area)},{esc(agent_remarks)},,,{new_id}"
         write_sheet_cells('agents', f'A{new_row_idx}:H{new_row_idx}', csv_row)
 
         new_agent = {

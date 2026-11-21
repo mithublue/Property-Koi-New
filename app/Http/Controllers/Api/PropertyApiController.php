@@ -205,7 +205,7 @@ class PropertyApiController extends Controller
             };
 
             // 3. Resolve Size (Katha / Sqft)
-            $rawSize = trim((string) ($payload['size'] ?? ($payload['katha'] ?? ($payload['katha_size'] ?? ($payload['flat_size_sqft'] ?? '')))));
+            $rawSize = trim((string) ($payload['size'] ?? ($payload['katha'] ?? ($payload['katha_size'] ?? ($payload['flat_size_sqft'] ?? ($payload['size_sqft'] ?? ''))))));
             $size = $this->parseSizeValue($rawSize);
 
             // 4. Resolve Price & Financials
@@ -425,11 +425,32 @@ class PropertyApiController extends Controller
                     'has_parking'     => $this->toBool($payload['parking_available'] ?? ($payload['has_parking'] ?? false), false),
                 ]);
             } elseif ($type === 'commercial') {
+                $commSize = !empty($payload['size_sqft']) ? (float) $payload['size_sqft'] : ($size > 0 ? $size : 0.00);
                 PropertyCommercialDetail::create([
-                    'property_id' => $property->id,
-                    'size_sqft'   => $size > 0 ? $size : 0.00,
-                    'price_total' => $askingPrice > 0 ? $askingPrice : 0.00,
-                    'price_per_sqft' => $pricePerUnit > 0 ? $pricePerUnit : 0.00,
+                    'property_id'        => $property->id,
+                    'commercial_type'    => !empty($payload['commercial_type']) ? trim((string)$payload['commercial_type']) : 'shop',
+                    'market_name'        => !empty($payload['market_name']) ? trim((string)$payload['market_name']) : null,
+                    'shop_number'        => !empty($payload['shop_number']) ? trim((string)$payload['shop_number']) : null,
+                    'size_sqft'          => $commSize,
+                    'floor_number'       => !empty($payload['floor_number']) ? (int) $payload['floor_number'] : 1,
+                    'total_floors'       => !empty($payload['total_floors']) ? (int) $payload['total_floors'] : null,
+                    'price_total'        => $askingPrice > 0 ? $askingPrice : 0.00,
+                    'price_per_sqft'     => $pricePerUnit > 0 ? $pricePerUnit : 0.00,
+                    'frontage_ft'        => !empty($payload['frontage_ft']) ? (float) $payload['frontage_ft'] : null,
+                    'ceiling_height_ft'  => !empty($payload['ceiling_height_ft']) ? (float) $payload['ceiling_height_ft'] : null,
+                    'completion_status'  => !empty($payload['completion_status']) ? trim((string)$payload['completion_status']) : 'ready',
+                    'monthly_rent_yield' => !empty($payload['monthly_rent_yield']) ? $this->parseMoneyValue((string)$payload['monthly_rent_yield']) : null,
+                    'washroom_type'      => !empty($payload['washroom_type']) ? trim((string)$payload['washroom_type']) : 'common',
+                    'has_lift'           => $this->toBool($payload['has_lift'] ?? false, false),
+                    'has_generator'      => $this->toBool($payload['has_generator'] ?? false, false),
+                    'has_central_ac'     => $this->toBool($payload['has_central_ac'] ?? false, false),
+                    'has_fire_safety'    => $this->toBool($payload['has_fire_safety'] ?? false, false),
+                    'has_cctv'           => $this->toBool($payload['has_cctv'] ?? false, false),
+                    'has_parking'        => $this->toBool($payload['has_parking'] ?? ($payload['parking_available'] ?? false), false),
+                    'has_escalator'      => $this->toBool($payload['has_escalator'] ?? false, false),
+                    'suitable_for'       => is_array($payload['suitable_for'] ?? null)
+                        ? implode(', ', array_filter($payload['suitable_for']))
+                        : (!empty($payload['suitable_for']) ? trim((string)$payload['suitable_for']) : null),
                 ]);
             }
 
@@ -582,8 +603,8 @@ class PropertyApiController extends Controller
         // 1. Update size if provided
         $sizeUpdated = false;
         $size = 0.0;
-        if (isset($payload['katha']) || isset($payload['size']) || isset($payload['katha_size']) || isset($payload['flat_size_sqft'])) {
-            $rawSize = trim((string) ($payload['katha'] ?? ($payload['size'] ?? ($payload['katha_size'] ?? ($payload['flat_size_sqft'] ?? '')))));
+        if (isset($payload['katha']) || isset($payload['size']) || isset($payload['katha_size']) || isset($payload['flat_size_sqft']) || isset($payload['size_sqft'])) {
+            $rawSize = trim((string) ($payload['katha'] ?? ($payload['size'] ?? ($payload['katha_size'] ?? ($payload['flat_size_sqft'] ?? ($payload['size_sqft'] ?? ''))))));
             if ($rawSize !== '') {
                 $size = $this->parseSizeValue($rawSize);
                 if ($property->type === 'land' && $property->landDetail) {
@@ -592,11 +613,14 @@ class PropertyApiController extends Controller
                 } elseif ($property->type === 'flat' && $property->flatDetail) {
                     $property->flatDetail->update(['flat_size_sqft' => $size]);
                     $sizeUpdated = true;
+                } elseif ($property->type === 'commercial' && $property->commercialDetail) {
+                    $property->commercialDetail->update(['size_sqft' => $size]);
+                    $sizeUpdated = true;
                 }
             }
         }
         if (!$sizeUpdated) {
-            $size = (float) ($property->landDetail?->katha_size ?? ($property->flatDetail?->flat_size_sqft ?? 0.0));
+            $size = (float) ($property->landDetail?->katha_size ?? ($property->flatDetail?->flat_size_sqft ?? ($property->commercialDetail?->size_sqft ?? 0.0)));
         }
 
         // 2. Update price if provided (price_per_katha, total_price, asking_price)
@@ -653,6 +677,43 @@ class PropertyApiController extends Controller
             if (isset($payload['utility_price'])) $flatUpdates['utility_price'] = $this->parseMoneyValue((string)$payload['utility_price']);
             if (!empty($flatUpdates)) {
                 $property->flatDetail->update($flatUpdates);
+            }
+        } elseif ($property->type === 'commercial' && $property->commercialDetail) {
+            if ($totalPrice <= 0 && $pricePerUnit > 0 && $size > 0) {
+                $totalPrice = $pricePerUnit * $size;
+            } elseif ($pricePerUnit <= 0 && $totalPrice > 0 && $size > 0) {
+                $pricePerUnit = round($totalPrice / $size, 2);
+            }
+            $commUpdates = [];
+            if ($totalPrice > 0) $commUpdates['price_total'] = $totalPrice;
+            if ($pricePerUnit > 0) $commUpdates['price_per_sqft'] = $pricePerUnit;
+            if ($size > 0) $commUpdates['size_sqft'] = $size;
+            if (isset($payload['commercial_type'])) $commUpdates['commercial_type'] = trim((string)$payload['commercial_type']);
+            if (isset($payload['market_name'])) $commUpdates['market_name'] = trim((string)$payload['market_name']);
+            if (isset($payload['shop_number'])) $commUpdates['shop_number'] = trim((string)$payload['shop_number']);
+            if (isset($payload['floor_number'])) $commUpdates['floor_number'] = (int) $payload['floor_number'];
+            if (isset($payload['total_floors'])) $commUpdates['total_floors'] = (int) $payload['total_floors'];
+            if (isset($payload['frontage_ft'])) $commUpdates['frontage_ft'] = (float) $payload['frontage_ft'];
+            if (isset($payload['ceiling_height_ft'])) $commUpdates['ceiling_height_ft'] = (float) $payload['ceiling_height_ft'];
+            if (isset($payload['completion_status'])) $commUpdates['completion_status'] = trim((string)$payload['completion_status']);
+            if (isset($payload['monthly_rent_yield'])) $commUpdates['monthly_rent_yield'] = $this->parseMoneyValue((string)$payload['monthly_rent_yield']);
+            if (isset($payload['washroom_type'])) $commUpdates['washroom_type'] = trim((string)$payload['washroom_type']);
+            if (isset($payload['has_lift'])) $commUpdates['has_lift'] = $this->toBool($payload['has_lift']);
+            if (isset($payload['has_generator'])) $commUpdates['has_generator'] = $this->toBool($payload['has_generator']);
+            if (isset($payload['has_central_ac'])) $commUpdates['has_central_ac'] = $this->toBool($payload['has_central_ac']);
+            if (isset($payload['has_fire_safety'])) $commUpdates['has_fire_safety'] = $this->toBool($payload['has_fire_safety']);
+            if (isset($payload['has_cctv'])) $commUpdates['has_cctv'] = $this->toBool($payload['has_cctv']);
+            if (isset($payload['has_parking']) || isset($payload['parking_available'])) {
+                $commUpdates['has_parking'] = $this->toBool($payload['has_parking'] ?? $payload['parking_available']);
+            }
+            if (isset($payload['has_escalator'])) $commUpdates['has_escalator'] = $this->toBool($payload['has_escalator']);
+            if (isset($payload['suitable_for'])) {
+                $commUpdates['suitable_for'] = is_array($payload['suitable_for'])
+                    ? implode(', ', array_filter($payload['suitable_for']))
+                    : trim((string)$payload['suitable_for']);
+            }
+            if (!empty($commUpdates)) {
+                $property->commercialDetail->update($commUpdates);
             }
         }
 
@@ -948,6 +1009,33 @@ class PropertyApiController extends Controller
             if (!empty($landAmenities)) {
                 $lines[] = "• প্লটের সার্বিক অবস্থা: " . implode(', ', $landAmenities);
             }
+        } elseif ($type === 'commercial') {
+            $commDetails = [];
+            if (!empty($payload['commercial_type'])) $commDetails[] = "স্পেসের ধরণ: " . ucfirst($payload['commercial_type']);
+            if (!empty($payload['market_name'])) $commDetails[] = "মার্কেট/ভবন: " . $payload['market_name'];
+            if (!empty($payload['shop_number'])) $commDetails[] = "দোকান/স্পেস নং: " . $payload['shop_number'];
+            if (!empty($payload['floor_number'])) $commDetails[] = "ফ্লোর: " . $this->ordinalSuffix((int)$payload['floor_number']) . " Floor";
+            if (!empty($payload['frontage_ft'])) $commDetails[] = "সম্মুখভাগ (Frontage): " . $payload['frontage_ft'] . " ft";
+            if (!empty($commDetails)) {
+                $lines[] = "• স্পেস বিবরণ: " . implode(', ', $commDetails);
+            }
+            if (!empty($payload['suitable_for'])) {
+                $lines[] = "• উপযুক্ত ব্যবসা: " . (is_array($payload['suitable_for']) ? implode(', ', $payload['suitable_for']) : $payload['suitable_for']);
+            }
+            if (!empty($payload['monthly_rent_yield'])) {
+                $lines[] = "• সম্ভাব্য মাসিক ভাড়া আয় (Rental Yield): ৳" . number_format((float)$payload['monthly_rent_yield'], 0) . " টাকা";
+            }
+            $commAmenities = [];
+            if (!empty($payload['has_lift'])) $commAmenities[] = 'লিফট';
+            if (!empty($payload['has_generator'])) $commAmenities[] = 'জেনারেটর';
+            if (!empty($payload['has_central_ac'])) $commAmenities[] = 'সেন্ট্রাল এসি';
+            if (!empty($payload['has_fire_safety'])) $commAmenities[] = 'ফায়ার সেফটি';
+            if (!empty($payload['has_cctv'])) $commAmenities[] = 'সিসিটিভি নজরদারি';
+            if (!empty($payload['has_parking']) || !empty($payload['parking_available'])) $commAmenities[] = 'পার্কিং সুবিধা';
+            if (!empty($payload['has_escalator'])) $commAmenities[] = 'এস্কেলেটর';
+            if (!empty($commAmenities)) {
+                $lines[] = "• বাণিজ্যিক সুবিধাসমূহ: " . implode(', ', $commAmenities);
+            }
         }
 
         if (!empty($otherFeatures)) {
@@ -1068,8 +1156,8 @@ class PropertyApiController extends Controller
             'road'          => $p->road_number,
             'plot_number'   => $p->plot_number,
             'status'        => $p->status,
-            'size'          => $p->landDetail?->katha_size ?? ($p->flatDetail?->flat_size_sqft ?? null),
-            'price_total'   => $p->landDetail?->price_total ?? ($p->flatDetail?->price_total ?? null),
+            'size'          => $p->landDetail?->katha_size ?? ($p->flatDetail?->flat_size_sqft ?? ($p->commercialDetail?->size_sqft ?? null)),
+            'price_total'   => $p->landDetail?->price_total ?? ($p->flatDetail?->price_total ?? ($p->commercialDetail?->price_total ?? null)),
             'formatted_price' => $p->formatted_price,
             'agent'         => $sourceUser ? [
                 'id'              => $sourceUser->id,

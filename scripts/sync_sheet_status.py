@@ -129,17 +129,21 @@ def read_sheet_tab(tab_name, range_str):
                 rows.append(r_vals)
             return rows
 
+GSHEETS_EXE = r'C:\Users\Mithu\.gemini\antigravity\plugin_data\gsheets\bin\gsheets-986250228.exe'
+
 def write_sheet_cells(tab_name, cell_range, csv_values):
     """Write arbitrary CSV values back to specified cell range in sheet"""
     try:
-        res = subprocess.run(
-            ['gsheets.cmd', 'mutate', 'write', SHEET_ID, f'{tab_name}!{cell_range}', str(csv_values), '--json'],
-            capture_output=True,
-            text=True,
-            shell=True
-        )
+        val_str = str(csv_values)
+        if os.path.exists(GSHEETS_EXE):
+            cmd = [GSHEETS_EXE, 'mutate', 'write', SHEET_ID, f'{tab_name}!{cell_range}', val_str, '--json']
+            res = subprocess.run(cmd, capture_output=True, text=True, shell=False)
+        else:
+            cmd = ['gsheets.cmd', 'mutate', 'write', SHEET_ID, f'{tab_name}!{cell_range}', val_str, '--json']
+            res = subprocess.run(cmd, capture_output=True, text=True, shell=True)
+            
         if 'Wrote' in (res.stdout or ''):
-            print(f"[{tab_name}] Range {cell_range}: Successfully wrote '{csv_values}' to Google Sheet.")
+            print(f"[{tab_name}] Range {cell_range}: Successfully wrote to Google Sheet.")
             return True
         else:
             print(f"[{tab_name}] Range {cell_range}: Failed to write to sheet: {res.stdout} {res.stderr}")
@@ -151,6 +155,14 @@ def write_sheet_cells(tab_name, cell_range, csv_values):
 def write_sheet_property_id(tab_name, cell_range, code, prop_id):
     """Write generated property code and id back to specified columns in sheet"""
     return write_sheet_cells(tab_name, cell_range, f'{code},{prop_id}')
+
+def make_agent_hyperlink_formula(agent_id):
+    """Generates clickable Google Sheets formula linking directly to agent row in agents tab"""
+    if not agent_id:
+        return ''
+    clean_id = str(agent_id).strip().replace('.0', '')
+    raw_formula = f'=HYPERLINK("#gid=500673710&range=H" & MATCH({clean_id}, agents!$H:$H, 0), INDEX(agents!$H:$H, MATCH({clean_id}, agents!$H:$H, 0)))'
+    return raw_formula.replace(',', r'\,')
 
 AGENTS_DIRECTORY = None
 
@@ -614,7 +626,7 @@ def sync_plots(props_by_id, props_by_code):
             remarks=f"Plot {plot} Block {block}"
         )
         if ag_id and not agents_col:
-            write_sheet_cells('plots', f'O{row_num}', ag_id)
+            write_sheet_cells('plots', f'O{row_num}', make_agent_hyperlink_formula(ag_id))
             agents_col = ag_id
 
         prop = None
@@ -662,7 +674,9 @@ def sync_plots(props_by_id, props_by_code):
                     print(f"[plots] Row {row_num}: Successfully created -> #{created_code} (ID: {created_id})")
                     
                     # Write back to Google Sheet (plots columns O, P, Q)
-                    write_sheet_cells('plots', f'O{row_num}:Q{row_num}', f'{ag_id or agents_col or ""},{created_code},{created_id}')
+                    if ag_id or agents_col:
+                        write_sheet_cells('plots', f'O{row_num}', make_agent_hyperlink_formula(ag_id or agents_col))
+                    write_sheet_property_id('plots', f'P{row_num}:Q{row_num}', created_code, created_id)
                     
                     new_created.append({
                         'code': created_code,
@@ -806,7 +820,7 @@ def sync_flats(props_by_id, props_by_code):
             remarks=f"{flat_size} sft flat Block {block}"
         )
         if ag_id and not agents_col:
-            write_sheet_cells('flats', f'AE{row_num}', ag_id)
+            write_sheet_cells('flats', f'AE{row_num}', make_agent_hyperlink_formula(ag_id))
             agents_col = ag_id
 
         prop = None
@@ -885,7 +899,9 @@ def sync_flats(props_by_id, props_by_code):
                     print(f"[flats] Row {row_num}: Successfully created flat -> #{created_code} (ID: {created_id}) with {len(uploaded_image_urls)} photo(s)")
                     
                     # Write back to Google Sheet (flats columns AE:AG - agents, property code, property id)
-                    write_sheet_cells('flats', f'AE{row_num}:AG{row_num}', f'{ag_id or agents_col or ""},{created_code},{created_id}')
+                    if ag_id or agents_col:
+                        write_sheet_cells('flats', f'AE{row_num}', make_agent_hyperlink_formula(ag_id or agents_col))
+                    write_sheet_property_id('flats', f'AF{row_num}:AG{row_num}', created_code, created_id)
                     
                     new_created.append({
                         'code': created_code,
@@ -1060,7 +1076,7 @@ def sync_commercial(props_by_id, props_by_code):
             remarks=f"{size_sqft} sft {comm_type} Market: {market_name}"
         )
         if ag_id and not agents_col:
-            write_sheet_cells('commercial', f'AG{row_num}', ag_id)
+            write_sheet_cells('commercial', f'AG{row_num}', make_agent_hyperlink_formula(ag_id))
             agents_col = ag_id
 
         prop = None
@@ -1141,7 +1157,9 @@ def sync_commercial(props_by_id, props_by_code):
                     print(f"[commercial] Row {row_num}: Successfully created commercial space -> #{created_code} (ID: {created_id}) with {len(uploaded_image_urls)} photo(s)")
                     
                     # Write back to Google Sheet (commercial columns AG:AI - agents, property code, property id)
-                    write_sheet_cells('commercial', f'AG{row_num}:AI{row_num}', f'{ag_id or agents_col or ""},{created_code},{created_id}')
+                    if ag_id or agents_col:
+                        write_sheet_cells('commercial', f'AG{row_num}', make_agent_hyperlink_formula(ag_id or agents_col))
+                    write_sheet_property_id('commercial', f'AH{row_num}:AI{row_num}', created_code, created_id)
                     
                     new_created.append({
                         'code': created_code,

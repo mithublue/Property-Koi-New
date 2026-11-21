@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Setting;
+use App\Services\WatermarkService;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -111,6 +112,17 @@ class CloudinaryService
                 [$targetPath, $isTemp] = self::ensureWebp($file->getRealPath());
                 if ($isTemp) $tempFilesToClean[] = $targetPath;
 
+                if (WatermarkService::isEnabled()) {
+                    if (!$isTemp) {
+                        $tempDir = sys_get_temp_dir();
+                        $copyPath = $tempDir . DIRECTORY_SEPARATOR . 'wm_' . uniqid() . '_' . time() . '.webp';
+                        @copy($targetPath, $copyPath);
+                        $targetPath = $copyPath;
+                        $tempFilesToClean[] = $targetPath;
+                    }
+                    WatermarkService::applyWatermark($targetPath);
+                }
+
                 $fileContents = file_get_contents($targetPath);
                 $origName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
                 $fileName = Str::slug($origName) . '.webp';
@@ -119,6 +131,17 @@ class CloudinaryService
             } elseif (is_string($file) && file_exists($file)) {
                 [$targetPath, $isTemp] = self::ensureWebp($file);
                 if ($isTemp) $tempFilesToClean[] = $targetPath;
+
+                if (WatermarkService::isEnabled()) {
+                    if (!$isTemp) {
+                        $tempDir = sys_get_temp_dir();
+                        $copyPath = $tempDir . DIRECTORY_SEPARATOR . 'wm_' . uniqid() . '_' . time() . '.webp';
+                        @copy($targetPath, $copyPath);
+                        $targetPath = $copyPath;
+                        $tempFilesToClean[] = $targetPath;
+                    }
+                    WatermarkService::applyWatermark($targetPath);
+                }
 
                 $fileContents = file_get_contents($targetPath);
                 $origName = pathinfo($file, PATHINFO_FILENAME);

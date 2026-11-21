@@ -12,10 +12,12 @@ use App\Models\PropertyLandDetail;
 use App\Models\PropertyMedia;
 use App\Models\PropertyShareDetail;
 use App\Models\PropertyVerification;
+use App\Models\Setting;
 use App\Models\User;
 use App\Services\GoogleSheetSyncService;
 use App\Services\MagicLoginService;
 use App\Services\PropertySearchService;
+use App\Services\WatermarkService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -80,6 +82,26 @@ class PropertyApiController extends Controller
                 'last_page'    => $properties->lastPage(),
                 'per_page'     => $properties->perPage(),
             ],
+        ]);
+    }
+
+    /**
+     * Get system watermark configuration for external sync tools and image stampers.
+     */
+    public function watermarkSettings(): JsonResponse
+    {
+        $logo = Setting::get('adm_watermark_logo', '');
+        return response()->json([
+            'success' => true,
+            'data'    => [
+                'enabled'  => WatermarkService::isEnabled(),
+                'type'     => Setting::get('adm_watermark_type', 'text'),
+                'text'     => Setting::get('adm_watermark_text', 'PropertyKoi.com'),
+                'position' => Setting::get('adm_watermark_position', 'bottom-right'),
+                'opacity'  => (int) Setting::get('adm_watermark_opacity', 80),
+                'scale'    => (int) Setting::get('adm_watermark_scale', 20),
+                'logo_url' => (!empty($logo) && file_exists(public_path($logo))) ? asset($logo) : null,
+            ]
         ]);
     }
 
@@ -865,6 +887,10 @@ class PropertyApiController extends Controller
                 $rawImages = preg_split('/[\r\n,|;]+/', $rawImages);
             }
             if (is_array($rawImages) && !empty($rawImages)) {
+                // If replacing images, remove existing photos first
+                if (!empty($payload['replace_images']) || $this->toBool($payload['replace_images'] ?? false)) {
+                    $property->media()->where('media_type', 'photo')->delete();
+                }
                 $order = $property->media()->where('media_type', 'photo')->count();
                 foreach ($rawImages as $imgUrl) {
                     $imgUrl = trim((string) $imgUrl);

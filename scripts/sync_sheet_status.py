@@ -9,7 +9,7 @@ import time
 import hashlib
 import io
 from datetime import datetime
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont
 
 sys.stdout.reconfigure(encoding='utf-8')
 
@@ -192,17 +192,182 @@ def get_local_flat_images(flat_id):
 def get_local_commercial_images(comm_id):
     return get_local_media_images(LOCAL_COMMERCIAL_DIR, comm_id, "comm")
 
+WATERMARK_CONFIG = None
+
+def get_watermark_config():
+    global WATERMARK_CONFIG
+    if WATERMARK_CONFIG is not None:
+        return WATERMARK_CONFIG
+    
+    try:
+        res = call_api('/settings/watermark', method='GET')
+        if res.get('status') == 200 and res.get('data', {}).get('success'):
+            WATERMARK_CONFIG = res.get('data', {}).get('data', {})
+            print(f"[watermark] Fetched live watermark config: {WATERMARK_CONFIG.get('text')} (type: {WATERMARK_CONFIG.get('type')}, pos: {WATERMARK_CONFIG.get('position')})")
+            return WATERMARK_CONFIG
+    except Exception as e:
+        print(f"[watermark] Notice: Could not fetch watermark config from API ({e}), using default PropertyKoi.com badge.")
+
+    WATERMARK_CONFIG = {
+        'enabled': True,
+        'type': 'text',
+        'text': 'PropertyKoi.com',
+        'position': 'bottom-right',
+        'opacity': 80,
+        'scale': 20,
+        'logo_url': None
+    }
+    return WATERMARK_CONFIG
+
+def apply_propertykoi_watermark(img, cfg=None):
+    if cfg is None:
+        cfg = get_watermark_config()
+
+    if not cfg.get('enabled', True):
+        return img
+
+    src_w, src_h = img.size
+    if src_w < 220 or src_h < 150:
+        return img
+
+    position = cfg.get('position') or 'bottom-right'
+    opacity = max(10, min(100, int(cfg.get('opacity') or 80)))
+    opacity_factor = opacity / 100.0
+
+    overlay = Image.new('RGBA', img.size, (0, 0, 0, 0))
+    draw = ImageDraw.Draw(overlay)
+
+    logo_drawn = False
+    if cfg.get('type') == 'image' and cfg.get('logo_url'):
+        try:
+            req = urllib.request.Request(cfg['logo_url'], headers={'User-Agent': 'PropertyKoiAutomation/1.0'})
+            with urllib.request.urlopen(req, timeout=10) as l_resp:
+                logo_raw = l_resp.read()
+                logo_img = Image.open(io.BytesIO(logo_raw))
+                if logo_img.mode != 'RGBA':
+                    logo_img = logo_img.convert('RGBA')
+
+                scale_pct = max(8, min(50, int(cfg.get('scale') or 20))) / 100.0
+                target_w = int(round(src_w * scale_pct))
+                aspect = logo_img.height / max(1, logo_img.width)
+                target_h = int(round(target_w * aspect))
+                max_h = int(round(src_h * 0.35))
+                if target_h > max_h:
+                    target_h = max_h
+                    target_w = int(round(target_h / aspect))
+
+                logo_img = logo_img.resize((target_w, target_h), Image.Resampling.LANCZOS)
+
+                if opacity_factor < 0.99:
+                    r, g, b, a = logo_img.split()
+                    a = a.point(lambda p: int(round(p * opacity_factor)))
+                    logo_img = Image.merge('RGBA', (r, g, b, a))
+
+                margin = max(16, int(round(src_w * 0.02)))
+                if position == 'bottom-right':
+                    pos_x = src_w - target_w - margin
+                    pos_y = src_h - target_h - margin
+                elif position == 'bottom-left':
+                    pos_x = margin
+                    pos_y = src_h - target_h - margin
+                elif position == 'top-right':
+                    pos_x = src_w - target_w - margin
+                    pos_y = margin
+                elif position == 'top-left':
+                    pos_x = margin
+                    pos_y = margin
+                else: # center
+                    pos_x = (src_w - target_w) // 2
+                    pos_y = (src_h - target_h) // 2
+
+                pos_x = max(8, min(pos_x, src_w - target_w - 8))
+                pos_y = max(8, min(pos_y, src_h - target_h - 8))
+
+                overlay.paste(logo_img, (pos_x, pos_y), logo_img)
+                logo_drawn = True
+        except Exception:
+            logo_drawn = False
+
+    if not logo_drawn:
+        text = cfg.get('text') or 'PropertyKoi.com'
+        font_size = max(15, min(48, int(round(src_w * 0.024))))
+
+        font_candidates = [
+            r'd:\laragon\www\projects\real-estate\laravel-site\public\assets\fonts\watermark.ttf',
+            r'C:\Windows\Fonts\arialbd.ttf',
+            r'C:\Windows\Fonts\verdana.ttf',
+            '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf',
+            '/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf',
+        ]
+        font = None
+        for fc in font_candidates:
+            if os.path.exists(fc):
+                try:
+                    font = ImageFont.truetype(fc, font_size)
+                    break
+                except Exception:
+                    pass
+        if font is None:
+            font = ImageFont.load_default()
+
+        bbox = draw.textbbox((0, 0), text, font=font)
+        text_w = bbox[2] - bbox[0]
+        text_h = bbox[3] - bbox[1]
+
+        pad_x = max(14, int(font_size * 0.6))
+        pad_y = max(8, int(font_size * 0.35))
+        box_w = text_w + pad_x * 2
+        box_h = text_h + pad_y * 2
+        margin = max(16, int(round(src_w * 0.02)))
+
+        if position == 'bottom-right':
+            pos_x = src_w - box_w - margin
+            pos_y = src_h - box_h - margin
+        elif position == 'bottom-left':
+            pos_x = margin
+            pos_y = src_h - box_h - margin
+        elif position == 'top-right':
+            pos_x = src_w - box_w - margin
+            pos_y = margin
+        elif position == 'top-left':
+            pos_x = margin
+            pos_y = margin
+        else: # center
+            pos_x = (src_w - box_w) // 2
+            pos_y = (src_h - box_h) // 2
+
+        pos_x = max(8, min(pos_x, src_w - box_w - 8))
+        pos_y = max(8, min(pos_y, src_h - box_h - 8))
+
+        bg_alpha = int(round(255 * opacity_factor * 0.88))
+        text_alpha = int(round(255 * opacity_factor))
+
+        corner_radius = max(6, int(box_h * 0.25))
+        draw.rounded_rectangle([pos_x, pos_y, pos_x + box_w, pos_y + box_h], radius=corner_radius, fill=(15, 23, 42, bg_alpha))
+
+        text_x = pos_x + pad_x - bbox[0]
+        text_y = pos_y + pad_y - bbox[1]
+        draw.text((text_x, text_y), text, font=font, fill=(255, 255, 255, text_alpha))
+
+    if img.mode != 'RGBA':
+        img = img.convert('RGBA')
+    watermarked = Image.alpha_composite(img, overlay)
+    return watermarked.convert('RGB')
+
 def convert_and_upload_image_to_cloudinary(filepath):
-    """Convert local image to WebP in memory and upload directly to Cloudinary"""
+    """Convert local image to WebP with PropertyKoi watermark and upload directly to Cloudinary"""
     try:
         img = Image.open(filepath)
+        # Apply PropertyKoi watermark
+        img = apply_propertykoi_watermark(img)
+
         if img.mode in ('RGBA', 'LA') or (img.mode == 'P' and 'transparency' in img.info):
             pass
         else:
             img = img.convert('RGB')
         
         buffer = io.BytesIO()
-        img.save(buffer, format='WEBP', quality=85)
+        img.save(buffer, format='WEBP', quality=86)
         webp_data = buffer.getvalue()
         
         timestamp = int(time.time())

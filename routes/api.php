@@ -40,6 +40,9 @@ Route::prefix('v1')->group(function () {
         Route::get('/agents', [AgentApiController::class, 'index'])->name('api.v1.agents.index');
         Route::post('/agents', [AgentApiController::class, 'store'])->name('api.v1.agents.store');
         Route::get('/agents/{id}', [AgentApiController::class, 'show'])->name('api.v1.agents.show');
+
+        // 4. System Settings
+        Route::get('/settings/watermark', [PropertyApiController::class, 'watermarkSettings'])->name('api.v1.settings.watermark');
     });
 
 });

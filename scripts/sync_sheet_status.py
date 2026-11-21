@@ -193,6 +193,8 @@ def get_local_commercial_images(comm_id):
     return get_local_media_images(LOCAL_COMMERCIAL_DIR, comm_id, "comm")
 
 WATERMARK_CONFIG = None
+CACHED_LOGO_IMG = None
+CACHED_LOGO_URL = None
 
 def get_watermark_config():
     global WATERMARK_CONFIG
@@ -220,6 +222,7 @@ def get_watermark_config():
     return WATERMARK_CONFIG
 
 def apply_propertykoi_watermark(img, cfg=None):
+    global CACHED_LOGO_IMG, CACHED_LOGO_URL
     if cfg is None:
         cfg = get_watermark_config()
 
@@ -240,51 +243,56 @@ def apply_propertykoi_watermark(img, cfg=None):
     logo_drawn = False
     if cfg.get('type') == 'image' and cfg.get('logo_url'):
         try:
-            req = urllib.request.Request(cfg['logo_url'], headers={'User-Agent': 'PropertyKoiAutomation/1.0'})
-            with urllib.request.urlopen(req, timeout=10) as l_resp:
-                logo_raw = l_resp.read()
-                logo_img = Image.open(io.BytesIO(logo_raw))
-                if logo_img.mode != 'RGBA':
-                    logo_img = logo_img.convert('RGBA')
+            logo_url = cfg['logo_url']
+            if CACHED_LOGO_IMG is None or CACHED_LOGO_URL != logo_url:
+                req = urllib.request.Request(logo_url, headers={'User-Agent': 'PropertyKoiAutomation/1.0'})
+                with urllib.request.urlopen(req, timeout=10) as l_resp:
+                    logo_raw = l_resp.read()
+                    base_logo = Image.open(io.BytesIO(logo_raw))
+                    if base_logo.mode != 'RGBA':
+                        base_logo = base_logo.convert('RGBA')
+                    CACHED_LOGO_IMG = base_logo
+                    CACHED_LOGO_URL = logo_url
 
-                scale_pct = max(8, min(50, int(cfg.get('scale') or 20))) / 100.0
-                target_w = int(round(src_w * scale_pct))
-                aspect = logo_img.height / max(1, logo_img.width)
-                target_h = int(round(target_w * aspect))
-                max_h = int(round(src_h * 0.35))
-                if target_h > max_h:
-                    target_h = max_h
-                    target_w = int(round(target_h / aspect))
+            logo_img = CACHED_LOGO_IMG.copy()
+            scale_pct = max(8, min(50, int(cfg.get('scale') or 20))) / 100.0
+            target_w = int(round(src_w * scale_pct))
+            aspect = logo_img.height / max(1, logo_img.width)
+            target_h = int(round(target_w * aspect))
+            max_h = int(round(src_h * 0.35))
+            if target_h > max_h:
+                target_h = max_h
+                target_w = int(round(target_h / aspect))
 
-                logo_img = logo_img.resize((target_w, target_h), Image.Resampling.LANCZOS)
+            logo_img = logo_img.resize((target_w, target_h), Image.Resampling.LANCZOS)
 
-                if opacity_factor < 0.99:
-                    r, g, b, a = logo_img.split()
-                    a = a.point(lambda p: int(round(p * opacity_factor)))
-                    logo_img = Image.merge('RGBA', (r, g, b, a))
+            if opacity_factor < 0.99:
+                r, g, b, a = logo_img.split()
+                a = a.point(lambda p: int(round(p * opacity_factor)))
+                logo_img = Image.merge('RGBA', (r, g, b, a))
 
-                margin = max(16, int(round(src_w * 0.02)))
-                if position == 'bottom-right':
-                    pos_x = src_w - target_w - margin
-                    pos_y = src_h - target_h - margin
-                elif position == 'bottom-left':
-                    pos_x = margin
-                    pos_y = src_h - target_h - margin
-                elif position == 'top-right':
-                    pos_x = src_w - target_w - margin
-                    pos_y = margin
-                elif position == 'top-left':
-                    pos_x = margin
-                    pos_y = margin
-                else: # center
-                    pos_x = (src_w - target_w) // 2
-                    pos_y = (src_h - target_h) // 2
+            margin = max(16, int(round(src_w * 0.02)))
+            if position == 'bottom-right':
+                pos_x = src_w - target_w - margin
+                pos_y = src_h - target_h - margin
+            elif position == 'bottom-left':
+                pos_x = margin
+                pos_y = src_h - target_h - margin
+            elif position == 'top-right':
+                pos_x = src_w - target_w - margin
+                pos_y = margin
+            elif position == 'top-left':
+                pos_x = margin
+                pos_y = margin
+            else: # center
+                pos_x = (src_w - target_w) // 2
+                pos_y = (src_h - target_h) // 2
 
-                pos_x = max(8, min(pos_x, src_w - target_w - 8))
-                pos_y = max(8, min(pos_y, src_h - target_h - 8))
+            pos_x = max(8, min(pos_x, src_w - target_w - 8))
+            pos_y = max(8, min(pos_y, src_h - target_h - 8))
 
-                overlay.paste(logo_img, (pos_x, pos_y), logo_img)
-                logo_drawn = True
+            overlay.paste(logo_img, (pos_x, pos_y), logo_img)
+            logo_drawn = True
         except Exception:
             logo_drawn = False
 

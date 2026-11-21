@@ -601,6 +601,35 @@ class PropertyApiController extends Controller
             if (!empty($priceUpdates)) {
                 $property->landDetail->update($priceUpdates);
             }
+        } elseif ($property->type === 'flat' && $property->flatDetail) {
+            if ($totalPrice <= 0 && $pricePerUnit > 0 && $size > 0) {
+                $totalPrice = $pricePerUnit * $size;
+            } elseif ($pricePerUnit <= 0 && $totalPrice > 0 && $size > 0) {
+                $pricePerUnit = round($totalPrice / $size, 2);
+            }
+            $flatUpdates = [];
+            if ($totalPrice > 0) {
+                $flatUpdates['price_total'] = $totalPrice;
+            }
+            if ($pricePerUnit > 0) {
+                $flatUpdates['price_per_sqft'] = $pricePerUnit;
+            } elseif ($totalPrice > 0 && $size > 0) {
+                $flatUpdates['price_per_sqft'] = round($totalPrice / $size, 2);
+            }
+            if (isset($payload['bedrooms'])) $flatUpdates['bedrooms'] = (int) $payload['bedrooms'];
+            if (isset($payload['bathrooms'])) $flatUpdates['bathrooms'] = (int) $payload['bathrooms'];
+            if (isset($payload['balconies'])) $flatUpdates['balconies'] = (int) $payload['balconies'];
+            if (isset($payload['floor_number'])) $flatUpdates['floor_number'] = (int) $payload['floor_number'];
+            if (isset($payload['completion_status'])) $flatUpdates['completion_status'] = $payload['completion_status'];
+            if (isset($payload['has_lift'])) $flatUpdates['has_lift'] = $this->toBool($payload['has_lift']);
+            if (isset($payload['parking_available'])) $flatUpdates['parking_available'] = $this->toBool($payload['parking_available']);
+            if (isset($payload['has_generator'])) $flatUpdates['has_generator'] = $this->toBool($payload['has_generator']);
+            if (isset($payload['has_gas'])) $flatUpdates['has_gas'] = $this->toBool($payload['has_gas']);
+            if (isset($payload['garage_price'])) $flatUpdates['garage_price'] = $this->parseMoneyValue((string)$payload['garage_price']);
+            if (isset($payload['utility_price'])) $flatUpdates['utility_price'] = $this->parseMoneyValue((string)$payload['utility_price']);
+            if (!empty($flatUpdates)) {
+                $property->flatDetail->update($flatUpdates);
+            }
         }
 
         // 3. Update status if provided
@@ -641,6 +670,21 @@ class PropertyApiController extends Controller
             $area = trim((string) ($payload['place'] ?? ($payload['area'] ?? '')));
             if (!empty($area) && $area !== '__other__') {
                 $propUpdates['area'] = $area;
+            }
+        }
+        if (isset($payload['holding_number'])) {
+            $propUpdates['holding_number'] = trim((string) $payload['holding_number']) ?: null;
+        }
+        if (isset($payload['facing'])) {
+            $propUpdates['facing'] = trim((string) $payload['facing']) ?: null;
+        }
+        if (isset($payload['other_features'])) {
+            $rawFeatures = $payload['other_features'];
+            if (is_string($rawFeatures)) {
+                $rawFeatures = preg_split('/[\r\n,|;]+/', $rawFeatures);
+            }
+            if (is_array($rawFeatures)) {
+                $propUpdates['other_features'] = array_values(array_filter(array_map('trim', $rawFeatures)));
             }
         }
 

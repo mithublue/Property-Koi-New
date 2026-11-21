@@ -226,21 +226,38 @@ class PropertyApiController extends Controller
                 $pricePerUnit = round(($askingPrice - $garagePrice - $utilityPrice) / $size, 2);
             }
 
-            // 5. Title & Descriptions
-            $description = trim((string) ($payload['description'] ?? ($payload['extra_notes'] ?? ($payload['notes'] ?? ''))));
+            // 5. Aggressive SEO Title & AEO Description
+            $rawDesc = trim((string) ($payload['description'] ?? ($payload['extra_notes'] ?? ($payload['notes'] ?? ''))));
             $title = trim((string) ($payload['title'] ?? ''));
             if (empty($title)) {
                 $areaTitle = !empty($area) ? ucfirst($area) : 'ঢাকা';
                 $blockTitle = !empty($block) ? " Block {$block}" : '';
-                $sizeTitle = $size > 0 ? ($type === 'flat' ? " {$size} Sqft" : " {$size} Katha") : '';
-                $typeTitle = match ($type) {
-                    'flat' => 'Flat',
-                    'land_share' => 'Land Share',
-                    'commercial' => 'Commercial Space',
-                    default => 'Plot',
-                };
-                $title = "{$areaTitle}{$blockTitle}{$sizeTitle} {$typeTitle} For Sale";
+                $sectorTitle = !empty($sector) ? " Sector {$sector}" : '';
+                $facingTitle = !empty($payload['facing']) ? (' ' . ucfirst(trim((string)$payload['facing'])) . '-Facing') : '';
+                $roadTitle = !empty($road) ? " ({$road} Road)" : '';
+
+                if ($type === 'flat') {
+                    $sizeTitle = $size > 0 ? " {$size} Sqft" : '';
+                    $bedsTitle = !empty($payload['bedrooms']) ? " {$payload['bedrooms']} Bed" : '';
+                    $bathsTitle = !empty($payload['bathrooms']) ? " {$payload['bathrooms']} Bath" : '';
+                    $floorNum = (int)($payload['floor_number'] ?? 0);
+                    $floorTitle = $floorNum > 0 ? " " . $this->ordinalSuffix($floorNum) . " Floor" : '';
+                    $specs = trim("{$bedsTitle}{$bathsTitle}{$floorTitle}");
+                    $specsFormatted = !empty($specs) ? " ({$specs})" : '';
+                    $title = "{$areaTitle}{$blockTitle}{$sectorTitle}{$sizeTitle} Ready Flat For Sale{$specsFormatted}";
+                } elseif ($type === 'land_share') {
+                    $sizeTitle = $size > 0 ? " {$size} Sqft" : '';
+                    $title = "{$areaTitle}{$blockTitle}{$sectorTitle}{$sizeTitle} Land Share Apartment Project For Sale";
+                } elseif ($type === 'commercial') {
+                    $sizeTitle = $size > 0 ? " {$size} Sqft" : '';
+                    $title = "{$areaTitle}{$blockTitle}{$sectorTitle}{$sizeTitle} Commercial Space / Shop For Sale";
+                } else { // 'land' / plot
+                    $sizeTitle = $size > 0 ? " {$size} Katha" : '';
+                    $title = "{$areaTitle}{$blockTitle}{$sectorTitle}{$sizeTitle}{$facingTitle} Prime Residential Plot For Sale{$roadTitle}";
+                }
             }
+
+            $description = $this->buildAggressiveAeoDescription($type, $title, $rawDesc, $payload, $size, $askingPrice, $pricePerUnit);
 
             // 6. Agent / Owner Resolution
             $ownerName = trim((string) ($payload['owner_name'] ?? ($payload['agent_name'] ?? ($payload['agent'] ?? ''))));
@@ -332,7 +349,7 @@ class PropertyApiController extends Controller
                 'type'               => $type,
                 'title'              => $title,
                 'slug'               => $slug,
-                'description'        => (!empty($description) && !str_starts_with(strtolower($description), 'api')) ? $description : "{$title}। বিস্তারিত তথ্যের জন্য সরাসরি যোগাযোগ করুন।",
+                'description'        => $description,
                 'area'               => $area,
                 'sub_area'           => $subArea ?: ($block ? "Block {$block}" : null),
                 'block'              => $block ?: null,
@@ -471,6 +488,13 @@ class PropertyApiController extends Controller
                 'basic_info_checked'      => false,
                 'basic_documents_checked' => false,
             ]);
+
+            // 17. Aggressive AEO & Search Engine Instant Indexing (IndexNow)
+            if ($property->status === 'live') {
+                try {
+                    \App\Services\SeoService::pingIndexNow($property);
+                } catch (\Throwable $e) {}
+            }
 
             return $property;
         });
@@ -691,25 +715,49 @@ class PropertyApiController extends Controller
         // 5. Update title or description
         if (isset($payload['title']) && !empty(trim((string) $payload['title']))) {
             $propUpdates['title'] = trim((string) $payload['title']);
-        } elseif ($sizeUpdated || isset($payload['block']) || isset($payload['place'])) {
+        } elseif ($sizeUpdated || isset($payload['block']) || isset($payload['place']) || isset($payload['sector']) || isset($payload['road'])) {
             $currentArea = $propUpdates['area'] ?? $property->area;
             $currentBlock = $propUpdates['block'] ?? $property->block;
+            $currentSector = $propUpdates['sector'] ?? $property->sector;
+            $currentRoad = $propUpdates['road_number'] ?? $property->road_number;
+            $currentFacing = $propUpdates['facing'] ?? $property->facing;
+            $currentType = $property->type;
+
             $areaTitle = !empty($currentArea) ? ucfirst($currentArea) : 'ঢাকা';
             $blockTitle = !empty($currentBlock) ? " Block {$currentBlock}" : '';
-            $sizeTitle = $size > 0 ? ($property->type === 'flat' ? " {$size} Sqft" : " {$size} Katha") : '';
-            $typeTitle = match ($property->type) {
-                'flat' => 'Flat',
-                'land_share' => 'Land Share',
-                'commercial' => 'Commercial Space',
-                default => 'Plot',
-            };
-            $propUpdates['title'] = "{$areaTitle}{$blockTitle}{$sizeTitle} {$typeTitle} For Sale";
+            $sectorTitle = !empty($currentSector) ? " Sector {$currentSector}" : '';
+            $facingTitle = !empty($currentFacing) ? (' ' . ucfirst(trim((string)$currentFacing)) . '-Facing') : '';
+            $roadTitle = !empty($currentRoad) ? " ({$currentRoad} Road)" : '';
+
+            if ($currentType === 'flat') {
+                $flatDetail = $property->flatDetail;
+                $sizeVal = $flatDetail?->flat_size_sqft ?: $size;
+                $sizeTitle = $sizeVal > 0 ? " {$sizeVal} Sqft" : '';
+                $bedsTitle = $flatDetail?->bedrooms ? " {$flatDetail->bedrooms} Bed" : '';
+                $bathsTitle = $flatDetail?->bathrooms ? " {$flatDetail->bathrooms} Bath" : '';
+                $floorNum = (int)($flatDetail?->floor_number ?? 0);
+                $floorTitle = $floorNum > 0 ? " " . $this->ordinalSuffix($floorNum) . " Floor" : '';
+                $specs = trim("{$bedsTitle}{$bathsTitle}{$floorTitle}");
+                $specsFormatted = !empty($specs) ? " ({$specs})" : '';
+                $propUpdates['title'] = "{$areaTitle}{$blockTitle}{$sectorTitle}{$sizeTitle} Ready Flat For Sale{$specsFormatted}";
+            } elseif ($currentType === 'land_share') {
+                $sizeTitle = $size > 0 ? " {$size} Sqft" : '';
+                $propUpdates['title'] = "{$areaTitle}{$blockTitle}{$sectorTitle}{$sizeTitle} Land Share Apartment Project For Sale";
+            } elseif ($currentType === 'commercial') {
+                $sizeTitle = $size > 0 ? " {$size} Sqft" : '';
+                $propUpdates['title'] = "{$areaTitle}{$blockTitle}{$sectorTitle}{$sizeTitle} Commercial Space / Shop For Sale";
+            } else {
+                $sizeTitle = $size > 0 ? " {$size} Katha" : '';
+                $propUpdates['title'] = "{$areaTitle}{$blockTitle}{$sectorTitle}{$sizeTitle}{$facingTitle} Prime Residential Plot For Sale{$roadTitle}";
+            }
         }
 
         if (isset($payload['description'])) {
             $desc = trim((string) $payload['description']);
             if (!empty($desc)) {
-                $propUpdates['description'] = $desc;
+                $propUpdates['description'] = (strlen($desc) < 80 || !str_contains($desc, 'স্পেসিফিকেশন'))
+                    ? $this->buildAggressiveAeoDescription($property->type, $propUpdates['title'] ?? $property->title, $desc, array_merge($property->toArray(), $payload), $size, $totalPrice, $pricePerUnit)
+                    : $desc;
             }
         }
 
@@ -774,11 +822,148 @@ class PropertyApiController extends Controller
 
         $property->refresh();
 
+        if ($property->status === 'live') {
+            try {
+                \App\Services\SeoService::pingIndexNow($property);
+            } catch (\Throwable $e) {}
+        }
+
         return response()->json([
             'success' => true,
             'message' => "প্রপার্টি #{$property->property_code} সফলভাবে আপডেট করা হয়েছে!",
             'data'    => $this->formatProperty($property),
         ]);
+    }
+
+    /**
+     * Helper to get ordinal English suffix for floor numbers (1st, 2nd, 3rd, 4th...)
+     */
+    protected function ordinalSuffix(int $num): string
+    {
+        if (!in_array(($num % 100), [11, 12, 13])) {
+            switch ($num % 10) {
+                case 1:  return $num . 'st';
+                case 2:  return $num . 'nd';
+                case 3:  return $num . 'rd';
+            }
+        }
+        return $num . 'th';
+    }
+
+    /**
+     * Build rich, highly structured, aggressive AEO (Answer Engine Optimization) & SEO description.
+     */
+    protected function buildAggressiveAeoDescription(
+        string $type,
+        string $title,
+        ?string $userDesc,
+        array $payload,
+        float $size,
+        float $askingPrice,
+        float $pricePerUnit
+    ): string {
+        $area = ucfirst(trim((string)($payload['place'] ?? ($payload['area'] ?? 'ঢাকা'))));
+        $block = trim(preg_replace('/^(?:block|ব্লক)\s*/iu', '', (string)($payload['block'] ?? '')));
+        $sector = trim((string)($payload['sector'] ?? ''));
+        $road = trim((string)($payload['road_number'] ?? ($payload['road'] ?? '')));
+        $plot = trim((string)($payload['plot_number'] ?? ($payload['plot'] ?? '')));
+        $facing = trim((string)($payload['facing'] ?? ''));
+        $otherFeatures = $payload['other_features'] ?? [];
+        if (is_string($otherFeatures)) {
+            $otherFeatures = preg_split('/[\r\n,|;]+/', $otherFeatures);
+        }
+        $otherFeatures = is_array($otherFeatures) ? array_filter(array_map('trim', $otherFeatures)) : [];
+
+        $typeLabel = match ($type) {
+            'flat' => 'রেডি ফ্ল্যাট (Ready Flat)',
+            'commercial' => 'বাণিজ্যিক স্পেস (Commercial Space)',
+            'land_share' => 'ল্যান্ড শেয়ার প্রকল্প (Land Share)',
+            default => 'আবাসিক প্লট (Residential Land / Plot)',
+        };
+
+        // Formatted Price String
+        $priceStr = 'আলোচনা সাপেক্ষ';
+        if ($askingPrice >= 10000000) {
+            $priceStr = '৳' . number_format($askingPrice / 10000000, 2) . ' কোটি';
+        } elseif ($askingPrice >= 100000) {
+            $priceStr = '৳' . number_format($askingPrice / 100000, 2) . ' লাখ';
+        }
+
+        $unitPriceStr = '';
+        if ($pricePerUnit > 0) {
+            if ($type === 'flat' || $type === 'commercial' || $type === 'land_share') {
+                $unitPriceStr = " (প্রতি বর্গফুট: ৳" . number_format($pricePerUnit, 0) . ")";
+            } else {
+                if ($pricePerUnit >= 10000000) {
+                    $unitPriceStr = " (প্রতি কাঠা: ৳" . number_format($pricePerUnit / 10000000, 2) . " কোটি)";
+                } else {
+                    $unitPriceStr = " (প্রতি কাঠা: ৳" . number_format($pricePerUnit / 100000, 2) . " লাখ)";
+                }
+            }
+        }
+
+        $lines = [];
+
+        // Preserve and highlight user's custom notes if present and not purely technical
+        $cleanUserDesc = trim((string)$userDesc);
+        if (!empty($cleanUserDesc) && !preg_match('/^(?:api|google|sheet|sync|bot)/i', $cleanUserDesc)) {
+            $lines[] = "【বিশেষ বিবরণ ও রিমার্কস】: {$cleanUserDesc}";
+            $lines[] = "";
+        }
+
+        // Executive overview for Google SGE / AI Answer Engines
+        $sizeDesc = $size > 0 ? ($type === 'flat' ? "{$size} বর্গফুট" : "{$size} কাঠা") : 'যাচাইকৃত আয়তনের';
+        $locationDesc = $area . (!empty($block) ? " ব্লক {$block}" : '') . (!empty($sector) ? " সেক্টর {$sector}" : '');
+        $lines[] = "ঢাকার অন্যতম প্রাইম লোকেশন {$locationDesc}-এ আকর্ষণীয় {$sizeDesc} {$typeLabel} বিক্রয়ের জন্য তালিকাভুক্ত করা হয়েছে। নিষ্কণ্টক মালিকানা ও শতভাগ ভেরিফাইড কাগজপত্রের নিশ্চয়তাসহ সরাসরি ক্রেতাদের জন্য এটি একটি সুবর্ণ সুযোগ।";
+        $lines[] = "";
+
+        // Structured Bullet points (Key Specifications)
+        $lines[] = "📌 প্রপার্টির মূল বৈশিষ্ট্য ও স্পেসিফিকেশন (Property Key Specifications):";
+        $lines[] = "• লোকেশন: {$locationDesc}" . (!empty($road) ? ", রোড: {$road}" : '') . (!empty($plot) ? ", প্লট: {$plot}" : '');
+        $lines[] = "• মোট আয়তন: " . ($size > 0 ? ($type === 'flat' ? "{$size} বর্গফুট (Sqft)" : "{$size} কাঠা (Katha)") : 'অন-সাইট যাচাইকৃত');
+
+        if (!empty($facing)) {
+            $lines[] = "• দিক ও অবস্থান: {$facing} মুখী" . (!empty($payload['is_corner']) ? ", আকর্ষণীয় কর্নার প্লট" : '') . (!empty($payload['is_lake_facing']) ? ", মনোরম লেকভিউ অবস্থান" : '');
+        }
+
+        if ($type === 'flat') {
+            $beds = $payload['bedrooms'] ?? 3;
+            $baths = $payload['bathrooms'] ?? 3;
+            $balc = $payload['balconies'] ?? 2;
+            $floor = $payload['floor_number'] ?? 1;
+            $lines[] = "• রুম বিন্যাস: {$beds}টি বেডরুম, {$baths}টি বাথরুম, {$balc}টি বারান্দা (ফ্লোর: {$floor} তলা)";
+
+            $amenities = [];
+            if (!empty($payload['has_lift'])) $amenities[] = 'প্যাসেঞ্জার লিফট';
+            if (!empty($payload['parking_available'])) $amenities[] = 'ডেডিকেটেড কার পার্কিং';
+            if (!empty($payload['has_generator'])) $amenities[] = 'স্ট্যান্ডবাই জেনারেটর ব্যাকআপ';
+            if (!empty($payload['has_gas'])) $amenities[] = 'গ্যাস সংযোগ';
+            if (!empty($amenities)) {
+                $lines[] = "• আধুনিক সুবিধাসমূহ: " . implode(', ', $amenities);
+            }
+        } elseif ($type === 'land') {
+            $landAmenities = [];
+            if (!empty($payload['boundary_wall_done'])) $landAmenities[] = 'চারপাশে সীমানা প্রাচীর (Boundary Wall) সম্পন্ন';
+            if (!empty($payload['soil_filling_status'])) $landAmenities[] = 'মাটি ভরাট ও রেডি প্লট';
+            if (!empty($landAmenities)) {
+                $lines[] = "• প্লটের সার্বিক অবস্থা: " . implode(', ', $landAmenities);
+            }
+        }
+
+        if (!empty($otherFeatures)) {
+            $lines[] = "• অতিরিক্ত সুবিধা: " . implode(', ', $otherFeatures);
+        }
+
+        $lines[] = "• প্রস্তাবিত বিক্রয় মূল্য: {$priceStr}{$unitPriceStr}" . (!empty($payload['is_negotiable']) ? ' (আলোচনা সাপেক্ষ)' : ' (ফিক্সড রেট)');
+        $lines[] = "";
+
+        // Legal & Safety Verification Trust signals (crucial for E-E-A-T and AEO)
+        $lines[] = "🛡️ লিগ্যাল ভেরিফিকেশন ও ট্রান্সফার নিরাপত্তা (Legal & Title Assurance):";
+        $lines[] = "• কাগজপত্র: মূল দলিল, পূর্ববর্তী বায়া দলিল (Chain of Title), সিএস/এসএ/আরএস/সিটি জরিপ খতিয়ান এবং নামজারি (E-Namjari) ও খাজনা রশিদ সম্পূর্ণ হালনাগাদ ও যাচাইকৃত।";
+        $lines[] = "• রাজউক / আবাসন অনুমোদন: অনুমোদিত মাস্টারপ্ল্যান এবং নিয়ম মেনে হস্তান্তরযোগ্য নিরাপদ প্রপার্টি।";
+        $lines[] = "• সরাসরি পরিদর্শন: সরেজমিনে প্লট/ফ্ল্যাটটি পরিদর্শন করতে ও কাগজপত্র পর্যালোচনার জন্য PropertyKoi-তে সাইট ভিজিট শিডিউল করুন।";
+
+        return implode("\n", $lines);
     }
 
     /**

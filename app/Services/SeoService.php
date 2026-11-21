@@ -184,7 +184,7 @@ class SeoService
             $priceDetail .= " (প্রতি কাঠা: {$perKathaCr})";
         }
 
-        return [
+        $faqs = [
             [
                 'question' => "এই প্রপার্টিটির (#{$p->property_code}) সঠিক লোকেশন, ব্লক এবং সামনের রাস্তার প্রশস্ততা কত?",
                 'answer' => "প্রপার্টিটি {$area}-এর {$block}-এ অবস্থিত। প্রপার্টির সামনের সড়ক {$road} এবং এটি {$facing}।",
@@ -202,6 +202,46 @@ class SeoService
                 'answer' => "এই পেজের 'সাইট ভিজিট শিডিউল করুন' বাটনে ক্লিক করে আপনার সুবিধাজনক তারিখ ও সময়ে ভিজিট বুক করতে পারেন, অথবা সরাসরি হোয়াটসঅ্যাপ ও দর প্রস্তাব বাটনের মাধ্যমে আমাদের ডিরেক্ট কোঅর্ডিনেশন টিমের সাথে যোগাযোগ করতে পারেন।",
             ],
         ];
+
+        if ($p->type === 'flat') {
+            $faqs[] = [
+                'question' => 'এই ফ্ল্যাটে লিফট, পার্কিং, গ্যাস ও জেনারেটরের ব্যাকআপ কি নিশ্চিত?',
+                'answer' => 'হ্যাঁ, ভবনটিতে সার্বক্ষণিক প্যাসেঞ্জার লিফট, ডেডিকেটেড পার্কিং সুবিধা, জেনারেটর পাওয়ার ব্যাকআপ এবং বিদ্যুৎ-গ্যাস সংযোগের পূর্ণ ব্যবস্থা রয়েছে।',
+            ];
+            $faqs[] = [
+                'question' => 'ফ্ল্যাট কেনার জন্য কি ব্যাংক হোম লোন (Bank Home Loan) সুবিধা পাওয়া যাবে?',
+                'answer' => 'হ্যাঁ, প্রপার্টির বৈধ ও হালনাগাদ কাগজপত্র (মালিকানা দলিল, নামজারি, হোল্ডিং ট্যাক্স ও অনুমোদিত প্ল্যান) থাকার কারণে যে কোনো তফসিলি ব্যাংক বা আর্থিক প্রতিষ্ঠান (যেমন: DBH, IDLC, BRAC Bank ইত্যাদি) থেকে যোগ্যতা সাপেক্ষে হোম লোন পাওয়া সম্ভব।',
+            ];
+        } elseif ($p->type === 'land') {
+            $faqs[] = [
+                'question' => 'প্লটটি কি রাজউক (RAJUK) ড্যাপ অনুযায়ী ভবন নির্মাণের উপযোগী?',
+                'answer' => "হ্যাঁ, {$area}-এর এই প্লটটি রাজউক (RAJUK) বিস্তারিত অঞ্চল পরিকল্পনা (DAP 2022-2035) ও ভবন নির্মাণ বিধিমালা অনুযায়ী ফার (FAR) অনুযায়ী বহুতল আবাসিক ভবন নির্মাণের জন্য সম্পূর্ণ উপযোগী।",
+            ];
+            $faqs[] = [
+                'question' => 'জমির বায়া দলিল (Chain of Title), সিএস/এসএ/আরএস ও সিটি জরিপ খতিয়ান কি ঠিক আছে?',
+                'answer' => 'হ্যাঁ, জমির স্বত্ব পরম্পরা (Chain of ownership), পূর্ববর্তী বায়া দলিল এবং হালনাগাদ রেকর্ড জরিপের সাথে মাঠপর্যায়ের রেকর্ড মিলিয়ে প্রাথমিক ভেরিফিকেশন নিশ্চিত করা হয়েছে।',
+            ];
+        } elseif ($p->type === 'commercial') {
+            $faqs[] = [
+                'question' => 'এই বাণিজ্যিক স্পেসের ভাড়া উপযোগিতা (Rental Yield) এবং ব্যবসায়িক সম্ভাবনা কেমন?',
+                'answer' => "{$area}-এর প্রধান সড়ক ও বাণিজ্যিক জোনে অবস্থিত হওয়ায় এটি শোরুম, রিটেল শপ বা কর্পোরেট অফিসের জন্য অত্যন্ত লাভজনক এবং উচ্চ মাসিক ভাড়া আয়ের নিশ্চয়তা দেয়।",
+            ];
+            $faqs[] = [
+                'question' => 'দোকান/বাণিজ্যিক স্পেসের ইউটিলিটি বিল, সাবস্টেশন ও অগ্নি নির্বাপণ ব্যবস্থা কি প্রস্তুত?',
+                'answer' => 'হ্যাঁ, ভবনটিতে বাণিজ্যিক বিদ্যুৎ সংযোগ, নিজস্ব সাবস্টেশন, লিফট ও ফায়ার সেফটি স্ট্যান্ডার্ড বজায় রেখে নির্মাণ ও ব্যবস্থাপনা সম্পন্ন করা হয়েছে।',
+            ];
+        } elseif ($p->type === 'land_share') {
+            $faqs[] = [
+                'question' => 'এই ল্যান্ড শেয়ার প্রকল্পের জমির অংশ এবং ফ্ল্যাট বরাদ্দের নিয়ম কী?',
+                'answer' => 'যৌথ অংশীদারিত্বে মূল জমির আনুপাতিক হিস্যা রেজিস্ট্রি করে দেওয়া হয় এবং শেয়ারহোল্ডারদের সাথে চুক্তি অনুযায়ী নির্মাণ খরচ পরিশোধ সাপেক্ষে নির্দিষ্ট তলার ফ্ল্যাট ও পার্কিং বণ্টন করা হয়।',
+            ];
+            $faqs[] = [
+                'question' => 'প্রকল্পের নির্মাণ কাজ এবং হস্তান্তর সময়সীমা কেমন?',
+                'answer' => 'প্রকল্পের রাজউক অনুমোদন, সয়েল টেস্ট এবং স্ট্রাকচারাল ডিজাইন সম্পন্ন সাপেক্ষে নির্ধারিত সময়সূচি মেনে যৌথ কমিটির তত্ত্বাবধানে কাজ পরিচালিত হয়।',
+            ];
+        }
+
+        return $faqs;
     }
 
     /**
@@ -833,6 +873,13 @@ class SeoService
                     'description' => $desc,
                     'url' => $url,
                     'image' => $image,
+                    'category' => match ($prop->type) {
+                        'flat' => 'Apartment / Ready Flat',
+                        'land' => 'Residential Land / Plot',
+                        'commercial' => 'Commercial Real Estate',
+                        'land_share' => 'Land Share Project',
+                        default => 'Real Estate Listing',
+                    },
                     'datePosted' => $prop->created_at ? $prop->created_at->toIso8601String() : now()->toIso8601String(),
                     'dateModified' => $prop->updated_at ? $prop->updated_at->toIso8601String() : now()->toIso8601String(),
                     'mainEntity' => $itemOffered,
@@ -840,6 +887,7 @@ class SeoService
                         '@type' => 'Offer',
                         'price' => $prop->raw_price > 0 ? $prop->raw_price : null,
                         'priceCurrency' => 'BDT',
+                        'priceValidUntil' => now()->addMonths(6)->toDateString(),
                         'availability' => $prop->status === 'sold' ? 'https://schema.org/SoldOut' : 'https://schema.org/InStock',
                         'url' => $url,
                         'businessFunction' => 'https://schema.org/SellAction',
@@ -851,7 +899,7 @@ class SeoService
                     ],
                     'speakable' => [
                         '@type' => 'SpeakableSpecification',
-                        'cssSelector' => ['h1', '.property-summary-text', '.property-specs-card'],
+                        'cssSelector' => ['h1', '.property-summary-text', '.property-specs-card', '.property-faqs'],
                     ],
                 ],
                 [
@@ -1787,7 +1835,7 @@ class SeoService
     public static function pingIndexNow(Property $property): array
     {
         try {
-            $enabled = Setting::isTrue('seo_indexnow_enabled', false);
+            $enabled = Setting::isTrue('adm_seo_indexnow_enabled', Setting::isTrue('seo_indexnow_enabled', true));
             if (! $enabled) {
                 return ['success' => false, 'message' => 'IndexNow disabled'];
             }
@@ -1797,13 +1845,27 @@ class SeoService
                 return ['success' => false, 'message' => 'IndexNow key missing'];
             }
 
-            $host = parse_url(config('app.url'), PHP_URL_HOST) ?: 'localhost';
+            $host = parse_url(config('app.url'), PHP_URL_HOST) ?: 'propertykoi.com';
             $propertyUrl = route('property.show', $property->slug ?: $property->id);
+
+            // If running on local development (localhost), map to the canonical production domain
+            if (in_array(strtolower($host), ['localhost', '127.0.0.1', '::1'], true)) {
+                $canonicalBase = rtrim((string) Setting::get('adm_guide_live_site_url', 'https://propertykoi.com'), '/');
+                if (empty($canonicalBase)) {
+                    $canonicalBase = 'https://propertykoi.com';
+                }
+                $host = parse_url($canonicalBase, PHP_URL_HOST) ?: 'propertykoi.com';
+                $propertyUrl = preg_replace('#^https?://[^/]+#', $canonicalBase, $propertyUrl);
+            }
+
+            $keyLocation = ($host === 'propertykoi.com' || str_contains($host, 'propertykoi.com'))
+                ? 'https://propertykoi.com/' . $apiKey . '.txt'
+                : url('/' . $apiKey . '.txt');
 
             $response = Http::timeout(4)->post('https://api.indexnow.org/indexnow', [
                 'host' => $host,
                 'key' => $apiKey,
-                'keyLocation' => url('/'.$apiKey.'.txt'),
+                'keyLocation' => $keyLocation,
                 'urlList' => [$propertyUrl],
             ]);
 

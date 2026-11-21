@@ -111,13 +111,13 @@
                     @endif
 
                     <div class="mt-6 flex items-center justify-between flex-wrap gap-4 pt-4 border-t border-slate-100 text-xs">
-                        <div class="flex items-center gap-3" itemprop="author" itemscope itemtype="https://schema.org/Person">
-                            <a href="{{ route('author.show', 'mithu-a-quayium') }}" class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-600 via-teal-600 to-cyan-700 text-white flex items-center justify-center font-black text-sm shadow-sm hover:scale-105 transition-transform" title="রিয়েল এস্টেট কনসালট্যান্ট ও ফাইন্যান্স স্ট্র্যাটেজিস্ট মিঠু এ কাইয়ুম">
-                                MQ
-                            </a>
+                        <div class="flex items-center gap-3" itemprop="author" itemscope itemtype="https://schema.org/Organization">
+                            <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-700 text-white flex items-center justify-center font-black text-sm shadow-xs tracking-wider shrink-0">
+                                PK
+                            </div>
                             <div>
-                                <a href="{{ route('author.show', 'mithu-a-quayium') }}" class="font-bold text-slate-800 hover:text-emerald-600 transition block text-sm" itemprop="name">Mithu A Quayium</a>
-                                <span class="text-slate-400">Founder @ Property Koi | Real Estate Consultant & Finance Strategist • আপডেট: <time itemprop="dateModified" datetime="{{ $guide->updated_at ? $guide->updated_at->toIso8601String() : now()->toIso8601String() }}">{{ $guide->formatted_date }}</time></span>
+                                <span class="font-bold text-slate-800 block text-sm" itemprop="name">{{ $guide->author_name ?: 'Property Koi Desk' }}</span>
+                                <span class="text-slate-500 font-medium">প্রপার্টি ও লিগ্যাল রিসার্চ টিম • আপডেট: <time itemprop="dateModified" datetime="{{ $guide->updated_at ? $guide->updated_at->toIso8601String() : now()->toIso8601String() }}">{{ $guide->formatted_date }}</time></span>
                                 <meta itemprop="datePublished" content="{{ $guide->created_at ? $guide->created_at->toIso8601String() : now()->toIso8601String() }}">
                             </div>
                         </div>
@@ -284,33 +284,31 @@
                     @endauth
                 </div>
 
-                <!-- Author Bio Card (Google E-E-A-T & AI Answer Engine Knowledge Graph Feed) -->
+                <!-- Editorial Desk Publishing Banner (Google E-E-A-T & Quality Assurance) -->
                 <div class="my-10 p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-slate-900 via-slate-950 to-emerald-950/70 text-white shadow-xl border border-emerald-500/30 relative overflow-hidden">
                     <div class="flex flex-col sm:flex-row items-start sm:items-center gap-5 relative z-10">
                         <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-tr from-emerald-500 via-teal-500 to-cyan-500 flex items-center justify-center text-slate-950 text-2xl font-black shrink-0 shadow-lg ring-4 ring-emerald-500/20">
-                            MQ
+                            PK
                         </div>
                         <div class="space-y-1.5 flex-1">
                             <div class="flex items-center flex-wrap gap-2">
                                 <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
-                                    ✓ Founder @ Property Koi
+                                    ✓ Verified Editorial Desk
                                 </span>
-                                <span class="text-xs text-slate-400">Real Estate Consultant & Finance Strategist</span>
+                                <span class="text-xs text-slate-400">প্রপার্টি ও লিগ্যাল রিসার্চ টিম</span>
                             </div>
                             <h3 class="text-lg sm:text-xl font-black text-white m-0">
-                                <a href="{{ route('author.show', 'mithu-a-quayium') }}" class="hover:text-emerald-300 transition-colors">
-                                    মিঠু এ কাইয়ুম (Mithu A Quayium)
-                                </a>
+                                Property Koi Desk (প্রপার্টি কই রিসার্চ ডেস্ক)
                             </h3>
                             <p class="text-xs text-emerald-400 font-bold m-0">
-                                Founder @ Property Koi | Real Estate Consultant & Finance Strategist
+                                মার্কেট ইন্টেলিজেন্স, ভূমি আইন ও রেগুলেশন অ্যানালাইসিস
                             </p>
                             <p class="text-xs text-slate-300 leading-relaxed pt-1 m-0">
-                                বাংলাদেশের আবাসন খাত, প্রপার্টি ফাইন্যান্সিং, ঢাকা ও আফতাবনগরের জমির বাজারদর, বায়া দলিল ও খতিয়ান স্বত্ব যাচাই এবং রাজউক ড্যাপ (DAP 2022-2035) বিশেষজ্ঞ। ইনশাআল্লাহ খুব শীঘ্রই তিনি নিয়ে আসছেন <strong>Real Estate Finance with Mithu A Quayium</strong> পডকাস্ট।
+                                প্রপার্টি কই-এর বিশেষজ্ঞ রিসার্চ টিম বাংলাদেশের আবাসন খাত, রিয়েল এস্টেট বাজারদর, ভূমি ও ফ্ল্যাট ক্রয়ের আইনি সুরক্ষা, বায়া দলিল ও খতিয়ান যাচাই, এবং রাজউক ড্যাপ ও নির্মাণ বিধিমালা সংক্রান্ত সর্বশেষ নির্ভরযোগ্য তথ্য ও বস্তুনিষ্ঠ নির্দেশিকা প্রস্তুত করে থাকে।
                             </p>
                             <div class="pt-2 flex items-center gap-3">
-                                <a href="{{ route('author.show', 'mithu-a-quayium') }}" class="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-300 hover:text-white transition">
-                                    <span>সম্পূর্ণ প্রোফাইল, পরামর্শ ও গাইডসমূহ দেখুন</span>
+                                <a href="{{ route('guides.index') }}" class="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-300 hover:text-white transition">
+                                    <span>সব গাইড ও মার্কেট অ্যানালাইসিস দেখুন</span>
                                     <span>&rarr;</span>
                                 </a>
                             </div>

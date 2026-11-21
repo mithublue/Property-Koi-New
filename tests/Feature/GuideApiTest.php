@@ -148,7 +148,9 @@ class GuideApiTest extends TestCase
         $showResponse->assertStatus(200);
         $showResponse->assertSee('এপিআই পাবলিশ টেস্ট গাইড ২০২৬');
         $showResponse->assertSee('এটি কি কাজ করে?');
-        $showResponse->assertSee('Mithu A Quayium');
+        $showResponse->assertSee('Property Koi Desk');
+        $visibleShow = preg_replace('/<script\b[^>]*>(.*?)<\/script>/is', '', $showResponse->getContent());
+        $this->assertStringNotContainsString('মিঠু এ কাইয়ুম', $visibleShow);
     }
 
     public function test_admin_user_can_authenticate_without_api_key_header(): void
@@ -190,12 +192,16 @@ class GuideApiTest extends TestCase
         $webRes->assertSee('রিয়েল এস্টেট উন্নয়ন ও ব্যবস্থাপনা আইন ২০১০');
         $webRes->assertSee('ধারা ১৫');
         $webRes->assertSee('ধারা ২০');
-        $webRes->assertSee('Mithu A Quayium');
+        $webRes->assertSee('Property Koi Desk');
+        $visibleWeb = preg_replace('/<script\b[^>]*>(.*?)<\/script>/is', '', $webRes->getContent());
+        $this->assertStringNotContainsString('মিঠু এ কাইয়ুম', $visibleWeb);
         $webRes->assertSee('রেডি ফ্ল্যাট ও নির্মাণাধীন ফ্ল্যাটের মূল্যের মধ্যে পার্থক্যের হার কত?');
 
         // Verify Schema JSON-LD contains bilingual Article and FAQPage
         $content = $webRes->getContent();
         $this->assertStringContainsString('application/ld+json', $content);
+        $this->assertStringContainsString('Property Koi Desk', $content);
+        $this->assertStringContainsString('Mithu A Quayium', $content);
         $this->assertStringContainsString('Ready Flat vs Under-Construction Flat in Dhaka', $content);
         $this->assertStringContainsString('How much cheaper is an under-construction flat compared to a ready flat in Dhaka?', $content);
         $this->assertStringContainsString('Under Section 15 and 20 of the Real Estate Development and Management Act 2010', $content);

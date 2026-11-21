@@ -205,7 +205,10 @@ class PropertyApiController extends Controller
 
             // Auto-clean road
             $road = trim(preg_replace('/^(?:road|রোড|নং|#)\s*/iu', '', $road));
-            $roadWidth = (int) preg_replace('/[^0-9]/', '', (string) ($payload['road_width_ft'] ?? ($payload['road_width'] ?? 20)));
+            $rawRoadWidth = $payload['road_width_ft'] ?? ($payload['road_width'] ?? null);
+            $roadWidth = (!empty($rawRoadWidth) && is_numeric(preg_replace('/[^0-9]/', '', (string)$rawRoadWidth)))
+                ? (int) preg_replace('/[^0-9]/', '', (string)$rawRoadWidth)
+                : null;
 
             // 2. Resolve Property Type
             $rawType = strtolower(trim((string) ($payload['property_type'] ?? ($payload['type'] ?? ''))));
@@ -377,7 +380,7 @@ class PropertyApiController extends Controller
                 'block'              => $block ?: null,
                 'sector'             => $sector ?: null,
                 'road_number'        => $road ?: null,
-                'road_width_ft'      => $roadWidth > 0 ? $roadWidth : 20,
+                'road_width_ft'      => ($roadWidth && $roadWidth > 0) ? $roadWidth : null,
                 'plot_number'        => $plotNumber ?: null,
                 'holding_number'     => $holdingNumber ?: null,
                 'facing'             => $payload['facing'] ?? null,
@@ -428,6 +431,7 @@ class PropertyApiController extends Controller
                     'bathrooms'         => (int) ($payload['bathrooms'] ?? 3),
                     'balconies'         => (int) ($payload['balconies'] ?? 2),
                     'floor_number'      => (int) ($payload['floor_number'] ?? 1),
+                    'total_floors'      => !empty($payload['total_floors']) ? (int) $payload['total_floors'] : null,
                     'completion_status' => $payload['completion_status'] ?? 'ready',
                     'has_lift'          => $this->toBool($payload['has_lift'] ?? false, false),
                     'parking_available' => $this->toBool($payload['parking_available'] ?? false, false),
@@ -690,6 +694,7 @@ class PropertyApiController extends Controller
             if (isset($payload['bathrooms'])) $flatUpdates['bathrooms'] = (int) $payload['bathrooms'];
             if (isset($payload['balconies'])) $flatUpdates['balconies'] = (int) $payload['balconies'];
             if (isset($payload['floor_number'])) $flatUpdates['floor_number'] = (int) $payload['floor_number'];
+            if (array_key_exists('total_floors', $payload)) $flatUpdates['total_floors'] = !empty($payload['total_floors']) ? (int) $payload['total_floors'] : null;
             if (isset($payload['completion_status'])) $flatUpdates['completion_status'] = $payload['completion_status'];
             if (isset($payload['has_lift'])) $flatUpdates['has_lift'] = $this->toBool($payload['has_lift']);
             if (isset($payload['parking_available'])) $flatUpdates['parking_available'] = $this->toBool($payload['parking_available']);
@@ -772,6 +777,11 @@ class PropertyApiController extends Controller
         }
         if (isset($payload['plot_number']) || isset($payload['plot']) || isset($payload['plot_no'])) {
             $propUpdates['plot_number'] = trim((string) ($payload['plot_number'] ?? ($payload['plot'] ?? ($payload['plot_no'] ?? '')))) ?: null;
+        }
+        if (array_key_exists('road_width_ft', $payload) || array_key_exists('road_width', $payload)) {
+            $rawRw = $payload['road_width_ft'] ?? ($payload['road_width'] ?? null);
+            $cleanRw = (!empty($rawRw) && is_numeric(preg_replace('/[^0-9]/', '', (string)$rawRw))) ? (int) preg_replace('/[^0-9]/', '', (string)$rawRw) : null;
+            $propUpdates['road_width_ft'] = ($cleanRw && $cleanRw > 0) ? $cleanRw : null;
         }
         if (isset($payload['place']) || isset($payload['area'])) {
             $area = trim((string) ($payload['place'] ?? ($payload['area'] ?? '')));
@@ -1017,8 +1027,9 @@ class PropertyApiController extends Controller
             $beds = $payload['bedrooms'] ?? 3;
             $baths = $payload['bathrooms'] ?? 3;
             $balc = $payload['balconies'] ?? 2;
-            $floor = $payload['floor_number'] ?? 1;
-            $lines[] = "• রুম বিন্যাস: {$beds}টি বেডরুম, {$baths}টি বাথরুম, {$balc}টি বারান্দা (ফ্লোর: {$floor} তলা)";
+            $floorNum = (int) ($payload['floor_number'] ?? 1);
+            $floorTxt = (new PropertyFlatDetail(['floor_number' => $floorNum]))->floor_display;
+            $lines[] = "• রুম বিন্যাস: {$beds}টি বেডরুম, {$baths}টি বাথরুম, {$balc}টি বারান্দা (অবস্থান: {$floorTxt})";
 
             $amenities = [];
             if (!empty($payload['has_lift'])) $amenities[] = 'প্যাসেঞ্জার লিফট';

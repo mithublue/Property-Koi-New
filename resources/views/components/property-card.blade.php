@@ -230,8 +230,8 @@
                         </span>
                     @endif
                 </div>
-                @if(!empty($p->road_width_ft) && $p->isAddressVisible('road_width_ft'))
-                    <span class="font-medium bg-slate-100 px-2 py-0.5 rounded-md text-slate-700">{{ $p->road_width_ft }} ফুট রাস্তা</span>
+                @if(!empty($p->road_width_ft) && (int)$p->road_width_ft > 0 && $p->isAddressVisible('road_width_ft'))
+                    <span class="font-medium bg-slate-100 px-2 py-0.5 rounded-md text-slate-700">{{ \App\Models\Property::toBnNumber($p->road_width_ft) }} ফুট রাস্তা</span>
                 @endif
             </div>
 
@@ -262,7 +262,7 @@
                     <span>•</span>
                     <span>{{ $p->flat->bedrooms }} বেড</span>
                     <span>•</span>
-                    <span>{{ $p->flat->floor_number }}ম তলা</span>
+                    <span>{{ $p->flat->floor_display }}</span>
                     <span>•</span>
                     <span class="text-emerald-600 font-medium">{{ $p->flat->completion_status === 'ready' ? 'রেডি' : 'চলমান' }}</span>
                 @elseif($p->type === 'land_share' && !empty($p->share))
@@ -281,7 +281,7 @@
                     <span class="text-indigo-600 font-medium">{{ $p->commercial->commercial_type }}</span>
                     @if(!empty($p->commercial->floor_number))
                         <span>•</span>
-                        <span>{{ $p->commercial->floor_number }}</span>
+                        <span>{{ $p->commercial->floor_display }}</span>
                     @endif
                 @endif
             </div>

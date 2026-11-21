@@ -546,9 +546,9 @@
                     <span>•</span>
                     <span class="bg-slate-100 px-2.5 py-1 rounded-md text-slate-700 font-semibold">রোড #{{ $p->road_number }}</span>
                 @endif
-                @if(!empty($p->road_width_ft) && $p->isAddressVisible('road_width_ft'))
+                @if(!empty($p->road_width_ft) && (int)$p->road_width_ft > 0 && $p->isAddressVisible('road_width_ft'))
                     <span>•</span>
-                    <span class="bg-slate-100 px-2.5 py-1 rounded-md text-slate-700 font-semibold">{{ $p->road_width_ft }} ফুট রাস্তা</span>
+                    <span class="bg-slate-100 px-2.5 py-1 rounded-md text-slate-700 font-semibold">{{ \App\Models\Property::toBnNumber($p->road_width_ft) }} ফুট রাস্তা</span>
                 @endif
                 @if(!empty($p->plot_number) && $p->isAddressVisible('plot_number'))
                     <span>•</span>
@@ -764,10 +764,10 @@
                             <span class="font-bold text-slate-800">রোড #{{ $p->road_number }}</span>
                         </div>
                     @endif
-                    @if($p->road_width_ft && $p->isAddressVisible('road_width_ft'))
+                    @if(!empty($p->road_width_ft) && (int)$p->road_width_ft > 0 && $p->isAddressVisible('road_width_ft'))
                         <div class="p-3 rounded-2xl bg-slate-50/80 border border-slate-100">
                             <span class="text-xs text-slate-400 block font-medium">সামনের রাস্তা</span>
-                            <span class="font-bold text-slate-800">{{ $p->road_width_ft }} ফুট প্রশস্ত</span>
+                            <span class="font-bold text-slate-800">{{ \App\Models\Property::toBnNumber($p->road_width_ft) }} ফুট প্রশস্ত</span>
                         </div>
                     @endif
                     @if($p->plot_number && $p->isAddressVisible('plot_number'))
@@ -833,7 +833,7 @@
                         </div>
                         <div class="p-3 rounded-2xl bg-slate-50/80 border border-slate-100">
                             <span class="text-xs text-slate-400 block font-medium">ফ্লোর অবস্থান</span>
-                            <span class="font-bold text-slate-800">{{ $p->flat->floor_number }}ম তলা (মোট {{ $p->flat->total_floors }} তলা)</span>
+                            <span class="font-bold text-slate-800">{{ $p->flat->floor_display }}@if(!empty($p->flat->total_floors) && (int)$p->flat->total_floors > 0) • মোট {{ \App\Models\Property::toBnNumber($p->flat->total_floors) }} তলা ভবন@endif</span>
                         </div>
                         <div class="p-3 rounded-2xl bg-slate-50/80 border border-slate-100">
                             <span class="text-xs text-slate-400 block font-medium">নির্মাণ অবস্থা</span>
@@ -883,7 +883,7 @@
                         @endif
                         <div class="p-3 rounded-2xl bg-slate-50/80 border border-slate-100">
                             <span class="text-xs text-slate-400 block font-medium">ফ্লোর অবস্থান</span>
-                            <span class="font-bold text-slate-800">{{ $p->commercial->floor_number }}ম তলা (মোট {{ $p->commercial->total_floors }} তলা)</span>
+                            <span class="font-bold text-slate-800">{{ $p->commercial->floor_display }}@if(!empty($p->commercial->total_floors) && (int)$p->commercial->total_floors > 0) • মোট {{ \App\Models\Property::toBnNumber($p->commercial->total_floors) }} তলা ভবন@endif</span>
                         </div>
                         @if((float)$p->commercial->frontage_ft > 0 || (float)$p->commercial->ceiling_height_ft > 0)
                         <div class="p-3 rounded-2xl bg-slate-50/80 border border-slate-100">

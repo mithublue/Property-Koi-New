@@ -384,6 +384,7 @@
                             class="w-full border rounded-xl px-3 py-2.5 text-sm bg-white font-bold text-slate-800">
                             <option value="land">জমি / প্লট (Land)</option>
                             <option value="flat">ফ্ল্যাট / অ্যাপার্টমেন্ট (Flat)</option>
+                            <option value="building">🏡 বাড়ি / সম্পূর্ণ ভবন (House / Building)</option>
                             <option value="land_share">🤝 ল্যান্ড শেয়ার প্রজেক্ট (Land Share)</option>
                             <option value="commercial">🏬 দোকান / কমার্শিয়াল স্পেস (Commercial / Shop)</option>
                         </select>
@@ -1015,6 +1016,154 @@
                     </div>
                 </template>
 
+                <!-- BUILDING / HOUSE SPECIFICATIONS FORM SECTION -->
+                <template x-if="formData.property_type === 'building'">
+                    <div class="space-y-6 border-t border-slate-200 pt-6">
+                        <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-center gap-3">
+                            <span class="text-2xl">🏡</span>
+                            <div>
+                                <h3 class="font-extrabold text-amber-950 text-sm m-0">বাড়ি ও সম্পূর্ণ ভবন স্পেসিফিকেশন (Building / House Details)</h3>
+                                <p class="text-xs text-amber-800 m-0">বহুতল আবাসিক ভবন, ডুপ্লেক্স বাড়ি অথবা পুরো বাড়ির বিস্তারিত তথ্য ও ভাড়া আয়ের বিবরণ দিন।</p>
+                            </div>
+                        </div>
+
+                        <!-- Subtype, Land size, Total floors, Foundation -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div>
+                                <label class="block font-bold text-slate-700 uppercase mb-1 text-xs">বাড়ির ধরন (Building Type) <span class="text-rose-500">*</span></label>
+                                <select x-model="formData.building_sub_type" class="w-full border rounded-xl px-3 py-2.5 text-sm bg-white font-bold text-slate-800">
+                                    <option value="residential_building">সম্পূর্ণ আবাসিক ভবন (Multi-Unit)</option>
+                                    <option value="duplex">ডুপ্লেক্স / ট্রিপ্লেক্স বাড়ি (Duplex Villa)</option>
+                                    <option value="single_family">একক পারিবারিক বাড়ি (Independent House)</option>
+                                    <option value="land_with_building">পুরনো বাড়িসহ জমি (Demolition Plot)</option>
+                                    <option value="commercial_building">কমার্শিয়াল / মিক্সড-ইউজ ভবন</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block font-bold text-slate-700 uppercase mb-1 text-xs">জমির পরিমাণ (কাঠা) <span class="text-rose-500">*</span></label>
+                                <input type="number" step="0.01" x-model.number="formData.land_size_katha" placeholder="যেমন: 5"
+                                       class="w-full border rounded-xl px-3 py-2.5 text-sm bg-white font-bold text-slate-900">
+                            </div>
+
+                            <div>
+                                <label class="block font-bold text-slate-700 uppercase mb-1 text-xs">বর্তমান তলা সংখ্যা (Floors) <span class="text-rose-500">*</span></label>
+                                <input type="number" x-model.number="formData.total_floors" placeholder="যেমন: 6"
+                                       class="w-full border rounded-xl px-3 py-2.5 text-sm bg-white font-bold text-slate-900">
+                            </div>
+
+                            <div>
+                                <label class="block font-bold text-slate-700 uppercase mb-1 text-xs">ফাউন্ডেশন ক্ষমতা (তলা) <span class="text-slate-400 font-normal">(ঐচ্ছিক)</span></label>
+                                <input type="number" x-model.number="formData.foundation_floors" placeholder="যেমন: 9"
+                                       class="w-full border rounded-xl px-3 py-2.5 text-sm bg-white font-bold text-slate-900">
+                            </div>
+                        </div>
+
+                        <!-- Units, Built Area, Rental Income, Completion -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div>
+                                <label class="block font-bold text-slate-700 uppercase mb-1 text-xs">প্রতি ফ্লোরে ইউনিট/ফ্ল্যাট <span class="text-slate-400 font-normal">(ঐচ্ছিক)</span></label>
+                                <input type="number" x-model.number="formData.units_per_floor" placeholder="যেমন: 2"
+                                       class="w-full border rounded-xl px-3 py-2.5 text-sm bg-white font-bold text-slate-900">
+                            </div>
+
+                            <div>
+                                <label class="block font-bold text-slate-700 uppercase mb-1 text-xs">মোট ইউনিট/ফ্ল্যাট সংখ্যা <span class="text-slate-400 font-normal">(ঐচ্ছিক)</span></label>
+                                <input type="number" x-model.number="formData.total_units" placeholder="যেমন: 12"
+                                       class="w-full border rounded-xl px-3 py-2.5 text-sm bg-white font-bold text-slate-900">
+                            </div>
+
+                            <div>
+                                <label class="block font-bold text-amber-900 uppercase mb-1 text-xs">মাসিক মোট ভাড়া আয় (টাকা) <span class="text-emerald-600 font-extrabold">(ইনভেস্টর আকর্ষক)</span></label>
+                                <input type="number" x-model.number="formData.monthly_rental_income" placeholder="যেমন: 180000"
+                                       class="w-full border-2 border-amber-300 rounded-xl px-3 py-2.5 text-sm bg-amber-50/40 font-black text-amber-950">
+                            </div>
+
+                            <div>
+                                <label class="block font-bold text-slate-700 uppercase mb-1 text-xs">মোট বিল্ট-আপ এরিয়া (বর্গফুট) <span class="text-slate-400 font-normal">(ঐচ্ছিক)</span></label>
+                                <input type="number" x-model.number="formData.total_built_area_sqft" placeholder="যেমন: 12000"
+                                       class="w-full border rounded-xl px-3 py-2.5 text-sm bg-white font-bold text-slate-900">
+                            </div>
+                        </div>
+
+                        <!-- Parking, Gas, Electricity, Occupancy -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div>
+                                <label class="block font-bold text-slate-700 uppercase mb-1 text-xs">কার পার্কিং সক্ষমতা (গাড়ি)</label>
+                                <input type="number" x-model.number="formData.parking_capacity" placeholder="যেমন: 4"
+                                       class="w-full border rounded-xl px-3 py-2.5 text-sm bg-white font-bold text-slate-900">
+                            </div>
+
+                            <div>
+                                <label class="block font-bold text-slate-700 uppercase mb-1 text-xs">গ্যাস সংযোগ</label>
+                                <select x-model="formData.gas_connection_type" class="w-full border rounded-xl px-3 py-2.5 text-sm bg-white font-bold text-slate-800">
+                                    <option value="none">গ্যাস লাইন নেই</option>
+                                    <option value="titas_pipeline">বৈধ তিতাস গ্যাস পাইপলাইন</option>
+                                    <option value="cylinder">সিলিন্ডার গ্যাস ব্যবস্থা</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block font-bold text-slate-700 uppercase mb-1 text-xs">বিদ্যুৎ সংযোগ</label>
+                                <select x-model="formData.electricity_type" class="w-full border rounded-xl px-3 py-2.5 text-sm bg-white font-bold text-slate-800">
+                                    <option value="three_phase">থ্রি-ফেজ সংযোগ</option>
+                                    <option value="substation">নিজস্ব সাব-স্টেশন</option>
+                                    <option value="single_phase">সিঙ্গেল ফেজ</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block font-bold text-slate-700 uppercase mb-1 text-xs">ভাড়াটিয়া অবস্থা</label>
+                                <select x-model="formData.occupancy_status" class="w-full border rounded-xl px-3 py-2.5 text-sm bg-white font-bold text-slate-800">
+                                    <option value="fully_rented">শতভাগ ভাড়া দেওয়া (Full Rented)</option>
+                                    <option value="partially_rented">আংশিক ভাড়া দেওয়া</option>
+                                    <option value="vacant">সম্পূর্ণ খালি (Vacant)</option>
+                                    <option value="owner_occupied">মালিক নিজে বসবাস করছেন</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Amenities Checkboxes -->
+                        <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
+                            <label class="block font-bold text-slate-700 uppercase text-xs">ভবনের সুযোগ-সুবিধা ও নিরাপত্তা (Building Amenities)</label>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 text-xs">
+                                <label class="flex items-center gap-2 cursor-pointer font-medium">
+                                    <input type="checkbox" x-model="formData.has_lift" class="rounded text-amber-600 focus:ring-amber-500">
+                                    <span>লিফট (Lift)</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer font-medium">
+                                    <input type="checkbox" x-model="formData.has_generator" class="rounded text-amber-600 focus:ring-amber-500">
+                                    <span>জেনারেটর ব্যাকআপ</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer font-medium">
+                                    <input type="checkbox" x-model="formData.has_substation" class="rounded text-amber-600 focus:ring-amber-500">
+                                    <span>নিজস্ব সাব-স্টেশন</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer font-medium">
+                                    <input type="checkbox" x-model="formData.has_cctv" class="rounded text-amber-600 focus:ring-amber-500">
+                                    <span>সিসিটিভি সিকিউরিটি</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer font-medium">
+                                    <input type="checkbox" x-model="formData.has_guard_room" class="rounded text-amber-600 focus:ring-amber-500">
+                                    <span>গার্ড রুম ও কেয়ারটেকার</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer font-medium">
+                                    <input type="checkbox" x-model="formData.has_rooftop_garden" class="rounded text-amber-600 focus:ring-amber-500">
+                                    <span>রুফটপ গার্ডেন / ছাদ</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer font-medium">
+                                    <input type="checkbox" x-model="formData.approved_plan" class="rounded text-amber-600 focus:ring-amber-500">
+                                    <span>অনুমোদিত নকশা / রাজউক প্ল্যান</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer font-medium">
+                                    <input type="checkbox" x-model="formData.is_corner" class="rounded text-amber-600 focus:ring-amber-500">
+                                    <span>কর্নার প্লট (Corner Building)</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+
                 <!-- Price Negotiable Switch (Fixed vs Bargainable) -->
                 <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200">
                     <label class="block font-bold text-slate-900 uppercase mb-2">দাম কি ফিক্সড নাকি আলোচনা সাপেক্ষ? <span class="text-slate-400 font-normal text-[10px]">(ঐচ্ছিক)</span></label>
@@ -1535,6 +1684,21 @@
                         has_generator: @json(isset($property) ? (bool) ($property->flatDetail?->has_generator ?? false) : false),
                         has_substation: @json(isset($property) ? (bool) ($property->flatDetail?->has_substation ?? false) : false),
                         has_gas: @json(isset($property) ? (bool) ($property->flatDetail?->has_gas ?? false) : false),
+                        // Building / House specifics
+                        building_sub_type: @json(isset($property) ? ($property->buildingDetail?->building_sub_type ?: 'residential_building') : 'residential_building'),
+                        foundation_floors: @json(isset($property) ? ($property->buildingDetail?->foundation_floors ?: '') : ''),
+                        units_per_floor: @json(isset($property) ? ($property->buildingDetail?->units_per_floor ?: '') : ''),
+                        total_units: @json(isset($property) ? ($property->buildingDetail?->total_units ?: '') : ''),
+                        monthly_rental_income: @json(isset($property) ? ($property->buildingDetail?->monthly_rental_income ?: '') : ''),
+                        total_built_area_sqft: @json(isset($property) ? ($property->buildingDetail?->total_built_area_sqft ?: '') : ''),
+                        parking_capacity: @json(isset($property) ? ($property->buildingDetail?->parking_capacity ?: '') : ''),
+                        approved_plan: @json(isset($property) ? (bool) ($property->buildingDetail?->approved_plan ?? false) : true),
+                        plan_approval_authority: @json(isset($property) ? ($property->buildingDetail?->plan_approval_authority ?: 'RAJUK') : 'RAJUK'),
+                        gas_connection_type: @json(isset($property) ? ($property->buildingDetail?->gas_connection_type ?: 'pipeline') : 'pipeline'),
+                        electricity_type: @json(isset($property) ? ($property->buildingDetail?->electricity_type ?: 'individual_meters') : 'individual_meters'),
+                        occupancy_status: @json(isset($property) ? ($property->buildingDetail?->occupancy_status ?: 'fully_rented') : 'fully_rented'),
+                        has_guard_room: @json(isset($property) ? (bool) ($property->buildingDetail?->has_guard_room ?? false) : false),
+                        has_rooftop_garden: @json(isset($property) ? (bool) ($property->buildingDetail?->has_rooftop_garden ?? false) : false),
                         other_features: {!! json_encode(isset($property) && is_array($property->other_features) && count($property->other_features) > 0 ? $property->other_features : [
                             ['label' => 'বিদ্যুৎ সংযোগ', 'checked' => true],
                             ['label' => 'ওয়াইড ড্রেনেজ ব্যবস্থা', 'checked' => true],
@@ -1793,11 +1957,13 @@
 
                     generateFbCaption: function () {
                         var t = this.formData.title || '';
-                        var typeBn = this.formData.property_type === 'flat' ? 'ফ্ল্যাট' : (this.formData.property_type === 'commercial' ? 'দোকান/স্পেস' : 'জমি');
+                        var typeBn = this.formData.property_type === 'flat' ? 'ফ্ল্যাট' : (this.formData.property_type === 'commercial' ? 'দোকান/স্পেস' : (this.formData.property_type === 'building' ? 'সম্পূর্ণ বাড়ি/ভবন' : 'জমি'));
                         var cap = '🏡 ' + (t || (typeBn + ' বিক্রয়')) + '\n';
                         cap += '📍 লোকেশন: ' + (this.formData.area || 'আফতাবনগর') + ', ব্লক: ' + (this.formData.block || '-') + '\n';
                         if (this.formData.size) cap += '📐 সাইজ: ' + this.formData.size + ' কাঠা\n';
                         if (this.formData.flat_size_sqft) cap += '📐 সাইজ: ' + this.formData.flat_size_sqft + ' বর্গফুট\n';
+                        if (this.formData.total_floors) cap += '🏢 বর্তমান তলা: ' + this.formData.total_floors + ' তলা\n';
+                        if (this.formData.monthly_rental_income) cap += '💵 মাসিক ভাড়া আয়: ৳' + Number(this.formData.monthly_rental_income).toLocaleString('bn-BD') + '/মাস\n';
                         if (this.formData.road_width_ft) cap += '🛣️ রোড: ' + this.formData.road_width_ft + ' ফিট\n';
                         if (this.formData.asking_price) cap += '💰 মূল্য: ৳' + Number(this.formData.asking_price).toLocaleString('bn-BD') + ' টাকা (' + (this.formData.is_negotiable == 1 ? 'আলোচনা সাপেক্ষ' : 'ফিক্সড') + ')\n';
                         if (this.formData.owner_phone) cap += '📞 সরাসরি যোগাযোগ: ' + this.formData.owner_phone + '\n';
@@ -1894,6 +2060,41 @@
                             this.formData.description = 'আফতাবনগর প্রধান সড়ক সংলগ্ন জমজমাট মার্কেটের নিচতলার প্রাইম কর্নার দোকান। বর্তমানে চালু ও নিয়মিত ভালো ভাড়া নিশ্চিত।';
                             this.formData.youtube_video_url = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ';
                             this.recalculateCommercialFromPerSqft();
+                        } else if (this.formData.property_type === 'building') {
+                            this.formData.owner_name = 'হাজী নুরুল ইসলাম';
+                            this.formData.owner_phone = '01715889900';
+                            this.formData.title = 'আফতাবনগর ডি ব্লকে ৫ কাঠা জমির ওপর সম্পূর্ণ জি+৭ আবাসিক ভবন বিক্রয়';
+                            this.formData.block = 'D';
+                            this.formData.sector = 'সেক্টর-২';
+                            this.formData.plot_number = '18';
+                            this.formData.road_number = '5';
+                            this.formData.road_width_ft = 30;
+                            this.formData.facing = 'south';
+                            this.formData.building_sub_type = 'residential_building';
+                            this.formData.land_size_katha = 5;
+                            this.formData.total_floors = 7;
+                            this.formData.foundation_floors = 9;
+                            this.formData.units_per_floor = 2;
+                            this.formData.total_units = 12;
+                            this.formData.monthly_rental_income = 320000;
+                            this.formData.total_built_area_sqft = 15500;
+                            this.formData.parking_capacity = 8;
+                            this.formData.approved_plan = true;
+                            this.formData.plan_approval_authority = 'RAJUK';
+                            this.formData.gas_connection_type = 'pipeline';
+                            this.formData.electricity_type = 'individual_meters';
+                            this.formData.occupancy_status = 'fully_rented';
+                            this.formData.has_lift = true;
+                            this.formData.has_generator = true;
+                            this.formData.has_substation = true;
+                            this.formData.has_cctv = true;
+                            this.formData.has_guard_room = true;
+                            this.formData.has_rooftop_garden = true;
+                            this.formData.is_corner = true;
+                            this.formData.asking_price = 145000000;
+                            this.formData.is_negotiable = 1;
+                            this.formData.description = 'আফতাবনগর ডি ব্লকে ৫ কাঠা জমিতে নির্মিত চমৎকার ৭ তলা আবাসিক ভবন। তিতাস গ্যাস পাইপলাইন ও নিজস্ব সাব-স্টেশনসহ সম্পূর্ণ রেন্টেড। প্রতি মাসে ৩.২ লক্ষ টাকা নিশ্চিত ভাড়া আয়।';
+                            this.formData.youtube_video_url = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ';
                         } else {
                             this.formData.owner_name = 'ইঞ্জিনিয়ার রেজওয়ান আহমেদ';
                             this.formData.owner_phone = '01819998877';
@@ -1983,6 +2184,8 @@
                                 if (total > 0 && !this.formData.asking_price) this.formData.asking_price = total;
                                 return total > 0 ? total : (this.formData.asking_price || 0);
                             }
+                            return parseFloat(this.formData.asking_price) || 0;
+                        } else if (this.formData.property_type === 'building') {
                             return parseFloat(this.formData.asking_price) || 0;
                         } else {
                             if (this.lastEditedPriceField === 'per_sqft') {
@@ -2260,6 +2463,31 @@
                             if (self.formData.has_fire_safety) data.append('has_fire_safety', '1');
                             if (self.formData.is_corner) data.append('is_corner', '1');
                             if (self.formData.is_main_road_facing) data.append('is_main_road_facing', '1');
+                        }
+
+                        // Building / House Specific
+                        if (self.formData.property_type === 'building') {
+                            data.append('building_sub_type', self.formData.building_sub_type || 'residential_building');
+                            data.append('land_size_katha', self.formData.land_size_katha || '');
+                            data.append('total_floors', self.formData.total_floors || '');
+                            data.append('foundation_floors', self.formData.foundation_floors || '');
+                            data.append('units_per_floor', self.formData.units_per_floor || '');
+                            data.append('total_units', self.formData.total_units || '');
+                            data.append('monthly_rental_income', self.formData.monthly_rental_income || '');
+                            data.append('total_built_area_sqft', self.formData.total_built_area_sqft || '');
+                            data.append('parking_capacity', self.formData.parking_capacity || '');
+                            if (self.formData.approved_plan) data.append('approved_plan', '1');
+                            data.append('plan_approval_authority', self.formData.plan_approval_authority || 'RAJUK');
+                            data.append('gas_connection_type', self.formData.gas_connection_type || 'pipeline');
+                            data.append('electricity_type', self.formData.electricity_type || 'individual_meters');
+                            data.append('occupancy_status', self.formData.occupancy_status || 'fully_rented');
+                            if (self.formData.has_lift) data.append('has_lift', '1');
+                            if (self.formData.has_generator) data.append('has_generator', '1');
+                            if (self.formData.has_substation) data.append('has_substation', '1');
+                            if (self.formData.has_cctv) data.append('has_cctv', '1');
+                            if (self.formData.has_guard_room) data.append('has_guard_room', '1');
+                            if (self.formData.has_rooftop_garden) data.append('has_rooftop_garden', '1');
+                            if (self.formData.is_corner) data.append('is_corner', '1');
                         }
 
                         var submitUrl = self.isEditMode && self.updateUrl ? self.updateUrl : '{{ route("property.store") }}';

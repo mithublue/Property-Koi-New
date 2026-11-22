@@ -55,6 +55,8 @@ Route::get('/land-search', [PropertyController::class, 'landSearch'])->name('pro
 Route::get('/flat-search', [PropertyController::class, 'flatSearch'])->name('properties.flat');
 Route::get('/commercial-search', [PropertyController::class, 'commercialSearch'])->name('properties.commercial');
 Route::get('/land-share-search', [PropertyController::class, 'shareSearch'])->name('properties.share');
+Route::get('/building-search', [PropertyController::class, 'buildingSearch'])->name('properties.building');
+Route::redirect('/house-search', '/building-search', 301);
 
 // ==========================================
 // 2. SINGLE PROPERTY DETAIL & LEADS

@@ -63,6 +63,25 @@ class PublishGuideCommand extends Command
         $title = trim($data['title']);
         $slug = ! empty($data['slug']) ? Str::slug($data['slug']) : Str::slug($title);
 
+        // Safeguard: Reject video script / camera stage directions from leaking into live blogs
+        $scriptCues = [
+            'ক্যামেরা অন',
+            'ক্যামেরা ক্লোজ-আপ',
+            'হোস্ট প্রম্পট',
+            'ভিডিও ও স্ক্রিপ্ট',
+            'ভিডিও ও ভ্লগ স্ক্রিপ্ট',
+            'ভিডিও স্ক্রিপ্ট শুরু',
+            'ক্যামেরা আউটরো',
+            'ভিডিও শেষ করার স্পিচ',
+        ];
+        foreach ($scriptCues as $cue) {
+            if (str_contains($data['content'], $cue)) {
+                $this->error("Draft content contains video shooting/camera direction ('{$cue}'). Guides must be formatted as pristine, engaging blog articles without stage directions.");
+
+                return 1;
+            }
+        }
+
         // Check topic uniqueness
         if (! $this->option('force')) {
             $existing = Guide::select(['id', 'title', 'slug'])->get();
@@ -147,6 +166,9 @@ class PublishGuideCommand extends Command
         $this->info('🔗 Public URL: '.route('guides.show', $guide->slug));
         $this->info("📑 Category: {$guide->category_label}");
         $this->info("⏱️ Reading Time: {$guide->reading_time_min} mins");
+        $faqsCount = is_array($guide->faqs) ? count($guide->faqs) : 0;
+        $hasEnProfile = ! empty($guide->en_profile) && is_array($guide->en_profile);
+        $this->info("🎯 Aggressive AEO Status: FAQs: {$faqsCount} items | Dual-Language English Profile: ".($hasEnProfile ? '✅ Active' : '⚠️ Missing'));
 
         return 0;
     }

@@ -555,6 +555,7 @@ HTML
         }
 
         foreach ($guides as $data) {
+            unset($data['id']);
             if (empty($data['excerpt']) && !empty($data['content'])) {
                 $data['excerpt'] = \Illuminate\Support\Str::limit(strip_tags($data['content']), 220);
             }

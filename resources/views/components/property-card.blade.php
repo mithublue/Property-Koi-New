@@ -140,7 +140,7 @@
 
         <!-- Top Badges -->
         <div class="absolute top-3 left-3 flex flex-wrap gap-1.5 items-center">
-            <span class="px-2.5 py-1 text-[11px] font-bold rounded-lg uppercase tracking-wider text-white shadow-xs {{ $p->type === 'land' ? 'bg-emerald-600' : ($p->type === 'land_share' ? 'bg-purple-600' : ($p->type === 'commercial' ? 'bg-indigo-600' : 'bg-teal-600')) }}">
+            <span class="px-2.5 py-1 text-[11px] font-bold rounded-lg uppercase tracking-wider text-white shadow-xs {{ $p->type === 'land' ? 'bg-emerald-600' : ($p->type === 'land_share' ? 'bg-purple-600' : ($p->type === 'commercial' ? 'bg-indigo-600' : ($p->type === 'building' ? 'bg-amber-600' : 'bg-teal-600'))) }}">
                 {{ $typeLabel }}
             </span>
             <span class="px-2.5 py-1 text-[11px] font-semibold rounded-lg bg-slate-900/80 backdrop-blur-xs text-white shadow-xs">
@@ -282,6 +282,14 @@
                     @if(!empty($p->commercial->floor_number))
                         <span>•</span>
                         <span>{{ $p->commercial->floor_display }}</span>
+                    @endif
+                @elseif($p->type === 'building' && !empty($p->building))
+                    <span class="font-semibold text-slate-900">{{ $p->building->total_floors }} তলা ভবন</span>
+                    <span>•</span>
+                    <span>{{ $p->building->land_size_katha }} কাঠা জমি</span>
+                    @if(!empty($p->building->monthly_rental_income))
+                        <span>•</span>
+                        <span class="text-amber-700 font-bold">ভাড়া: ৳{{ number_format((float)$p->building->monthly_rental_income) }}/মাস</span>
                     @endif
                 @endif
             </div>

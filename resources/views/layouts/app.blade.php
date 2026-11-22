@@ -324,6 +324,14 @@
                                         <span class="text-[10px] text-slate-400 font-normal">অফিস ও বাণিজ্যিক স্পেস</span>
                                     </div>
                                 </a>
+                                <a href="{{ route('properties.building') }}"
+                                   class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition {{ request()->routeIs('properties.building') ? 'bg-amber-50 text-amber-700 font-bold' : 'text-slate-700 hover:bg-slate-50 hover:text-amber-600' }}">
+                                    <span class="text-base">🏡</span>
+                                    <div>
+                                        <span class="block leading-tight">বাড়ি ও সম্পূর্ণ ভবন</span>
+                                        <span class="text-[10px] text-slate-400 font-normal">আবাসিক ও ডুপ্লেক্স ভবন</span>
+                                    </div>
+                                </a>
                             </div>
                             <div class="p-1 pt-1.5">
                                 <a href="{{ route('properties.index') }}"
@@ -465,6 +473,10 @@
                     <a href="{{ route('properties.commercial') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-semibold transition {{ request()->routeIs('properties.commercial') ? 'text-emerald-700 font-bold bg-white shadow-2xs' : 'text-slate-700 hover:text-emerald-600' }}">
                         <span>🏪</span>
                         <span>দোকান ও কমার্শিয়াল</span>
+                    </a>
+                    <a href="{{ route('properties.building') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-semibold transition {{ request()->routeIs('properties.building') ? 'text-amber-700 font-bold bg-white shadow-2xs' : 'text-slate-700 hover:text-amber-600' }}">
+                        <span>🏡</span>
+                        <span>বাড়ি ও সম্পূর্ণ ভবন</span>
                     </a>
                     <a href="{{ route('properties.index') }}" class="flex items-center justify-between px-3 py-2 rounded-lg text-xs font-bold text-emerald-700 hover:bg-emerald-50 border-t border-slate-200/60 mt-1 transition">
                         <span>🔍 সকল প্রপার্টি ক্যাটালগ</span>
@@ -694,6 +706,7 @@
                         <li><a href="{{ route('map.view') }}" class="text-slate-400 hover:text-emerald-400 transition-colors flex items-center gap-2 group"><span class="text-emerald-500 text-xs transition-transform group-hover:translate-x-1">&rsaquo;</span><span>ইন্টারেক্টিভ ম্যাপ ভিউ (Map)</span></a></li>
                         <li><a href="{{ route('properties.land') }}" class="text-slate-400 hover:text-emerald-400 transition-colors flex items-center gap-2 group"><span class="text-emerald-500 text-xs transition-transform group-hover:translate-x-1">&rsaquo;</span><span>জমি ও প্লট খুঁজুন (Land)</span></a></li>
                         <li><a href="{{ route('properties.flat') }}" class="text-slate-400 hover:text-emerald-400 transition-colors flex items-center gap-2 group"><span class="text-emerald-500 text-xs transition-transform group-hover:translate-x-1">&rsaquo;</span><span>ফ্ল্যাট ও অ্যাপার্টমেন্ট (Flat)</span></a></li>
+                        <li><a href="{{ route('properties.building') }}" class="text-slate-400 hover:text-amber-400 transition-colors flex items-center gap-2 group"><span class="text-amber-500 text-xs transition-transform group-hover:translate-x-1">&rsaquo;</span><span>বাড়ি ও সম্পূর্ণ ভবন (Building)</span></a></li>
                         <li><a href="{{ route('chahida.index') }}" class="text-slate-400 hover:text-emerald-400 transition-colors flex items-center gap-2 group"><span class="text-emerald-500 text-xs transition-transform group-hover:translate-x-1">&rsaquo;</span><span>ক্রেতা চাহিদা জমা দিন (Chahida)</span></a></li>
                         <li><a href="{{ route('buyer.dashboard') }}" class="text-slate-400 hover:text-emerald-400 transition-colors flex items-center gap-2 group"><span class="text-emerald-500 text-xs transition-transform group-hover:translate-x-1">&rsaquo;</span><span>ক্রেতা ড্যাশবোর্ড (Buyer Dashboard)</span></a></li>
                         <li><a href="{{ route('shortlist') }}" class="text-slate-400 hover:text-emerald-400 transition-colors flex items-center gap-2 group"><span class="text-emerald-500 text-xs transition-transform group-hover:translate-x-1">&rsaquo;</span><span>শর্টলিস্ট প্রপার্টি (Shortlist)</span></a></li>

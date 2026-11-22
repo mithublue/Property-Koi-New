@@ -25,6 +25,8 @@
                     🏢 রেডি ও নির্মাণাধীন ফ্ল্যাট ও অ্যাপার্টমেন্ট বিক্রয়
                 @elseif($currentType === 'commercial')
                     🏬 দোকান, শোরুম ও কমার্শিয়াল স্পেস বিক্রয়
+                @elseif($currentType === 'building')
+                    🏡 ঢাকা ও আশেপাশের আবাসিক ভবন ও বাড়ি বিক্রয়
                 @elseif($currentType === 'land_share')
                     🤝 যৌথ ল্যান্ড শেয়ার প্রকল্প ও ফ্ল্যাট নির্মাণ
                 @else
@@ -57,6 +59,10 @@
             <a href="{{ route('properties.commercial') }}"
                class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all flex items-center gap-1.5 {{ $currentType === 'commercial' ? 'bg-indigo-600 text-white shadow-sm' : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50' }}">
                 <span>🏬</span> <span>কমার্শিয়াল</span>
+            </a>
+            <a href="{{ route('properties.building') }}"
+               class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all flex items-center gap-1.5 {{ $currentType === 'building' ? 'bg-amber-600 text-white shadow-sm' : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50' }}">
+                <span>🏡</span> <span>বাড়ি / ভবন</span>
             </a>
             <a href="{{ route('map.view') }}"
                class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all flex items-center gap-1.5 bg-amber-50 border border-amber-200 text-amber-800 hover:bg-amber-100">
@@ -113,6 +119,7 @@
                         <option value="land" {{ request('type') === 'land' ? 'selected' : '' }}>🏞️ জমি / প্লট</option>
                         <option value="flat" {{ request('type') === 'flat' ? 'selected' : '' }}>🏢 ফ্ল্যাট / অ্যাপার্টমেন্ট</option>
                         <option value="commercial" {{ request('type') === 'commercial' ? 'selected' : '' }}>🏬 কমার্শিয়াল / দোকান</option>
+                        <option value="building" {{ request('type') === 'building' ? 'selected' : '' }}>🏡 বাড়ি / সম্পূর্ণ ভবন</option>
                         <option value="land_share" {{ request('type') === 'land_share' ? 'selected' : '' }}>🤝 ল্যান্ড শেয়ার</option>
                     </select>
                 </div>
@@ -332,6 +339,49 @@
                         </label>
                         <label class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border text-xs font-bold cursor-pointer transition {{ request()->boolean('has_generator') ? 'bg-purple-50 border-purple-400 text-purple-800' : 'bg-slate-50 border-slate-200 text-slate-700' }}">
                             <input type="checkbox" name="has_generator" value="1" {{ request()->boolean('has_generator') ? 'checked' : '' }} class="rounded text-purple-600">
+                            <span>⚡ জেনারেটর</span>
+                        </label>
+                    </div>
+                </div>
+            @elseif($effectiveType === 'building')
+                <div class="pt-3 border-t border-slate-100 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3 items-end">
+                    <div>
+                        <label class="block text-[11px] font-bold text-amber-700 uppercase mb-1">বাড়ির ধরন</label>
+                        <select name="building_sub_type" class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-xs sm:text-sm">
+                            <option value="all">সকল ধরন</option>
+                            <option value="residential_building" {{ request('building_sub_type') === 'residential_building' ? 'selected' : '' }}>বহুতল আবাসিক ভবন</option>
+                            <option value="duplex" {{ request('building_sub_type') === 'duplex' ? 'selected' : '' }}>ডুপ্লেক্স / ভিলা</option>
+                            <option value="single_family" {{ request('building_sub_type') === 'single_family' ? 'selected' : '' }}>একক বাড়ি</option>
+                            <option value="land_with_building" {{ request('building_sub_type') === 'land_with_building' ? 'selected' : '' }}>পুরনো বাড়িসহ জমি</option>
+                            <option value="commercial_building" {{ request('building_sub_type') === 'commercial_building' ? 'selected' : '' }}>কমার্শিয়াল ভবন</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-amber-700 uppercase mb-1">সর্বনিম্ন তলা (Floors)</label>
+                        <input type="number" name="floors_min" value="{{ request('floors_min') }}" placeholder="যেমন: 5"
+                               class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-xs sm:text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-amber-700 uppercase mb-1">জমির আকার (কাঠা+)</label>
+                        <input type="number" step="0.5" name="katha_min" value="{{ request('katha_min') }}" placeholder="যেমন: 4"
+                               class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-xs sm:text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-amber-700 uppercase mb-1">মাসিক ভাড়া আয় (৳+)</label>
+                        <input type="number" name="monthly_rent_min" value="{{ request('monthly_rent_min') }}" placeholder="যেমন: 150000"
+                               class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-xs sm:text-sm">
+                    </div>
+                    <div class="col-span-2 flex flex-wrap items-center gap-2 pt-1">
+                        <label class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border text-xs font-bold cursor-pointer transition {{ request()->boolean('has_lift') ? 'bg-amber-50 border-amber-400 text-amber-800' : 'bg-slate-50 border-slate-200 text-slate-700' }}">
+                            <input type="checkbox" name="has_lift" value="1" {{ request()->boolean('has_lift') ? 'checked' : '' }} class="rounded text-amber-600">
+                            <span>🛗 লিফট</span>
+                        </label>
+                        <label class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border text-xs font-bold cursor-pointer transition {{ request()->boolean('has_gas') ? 'bg-amber-50 border-amber-400 text-amber-800' : 'bg-slate-50 border-slate-200 text-slate-700' }}">
+                            <input type="checkbox" name="has_gas" value="1" {{ request()->boolean('has_gas') ? 'checked' : '' }} class="rounded text-amber-600">
+                            <span>🔥 গ্যাস</span>
+                        </label>
+                        <label class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border text-xs font-bold cursor-pointer transition {{ request()->boolean('has_generator') ? 'bg-amber-50 border-amber-400 text-amber-800' : 'bg-slate-50 border-slate-200 text-slate-700' }}">
+                            <input type="checkbox" name="has_generator" value="1" {{ request()->boolean('has_generator') ? 'checked' : '' }} class="rounded text-amber-600">
                             <span>⚡ জেনারেটর</span>
                         </label>
                     </div>

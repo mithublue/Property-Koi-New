@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Property;
+use App\Models\PropertyBuildingDetail;
 use App\Models\PropertyCommercialDetail;
 use App\Models\PropertyDirectSource;
 use App\Models\PropertyFlatDetail;
@@ -23,7 +24,7 @@ class PropertyController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Property::with(['media', 'creator', 'verification', 'directSources', 'landDetail', 'flatDetail', 'commercialDetail', 'shareDetail']);
+        $query = Property::with(['media', 'creator', 'verification', 'directSources', 'landDetail', 'flatDetail', 'commercialDetail', 'shareDetail', 'buildingDetail']);
 
         $filterCode = trim((string) ($request->input('property_code') ?: $request->input('search', '')));
         $filterInserterPhone = trim((string) $request->input('inserter_phone', ''));
@@ -180,7 +181,8 @@ class PropertyController extends Controller
                 'land'       => 'জমি',
                 'flat'       => 'ফ্ল্যাট',
                 'land_share' => 'ল্যান্ড শেয়ার',
-                'commercial' => 'কমার্শিয়াল'
+                'commercial' => 'কমার্শিয়াল',
+                'building'   => 'বাড়ি / ভবন',
             ];
             $activeFilterParts[] = 'টাইপ: ' . ($typeNames[$filterType] ?? $filterType);
         }
@@ -217,7 +219,7 @@ class PropertyController extends Controller
 
     public function directory(Request $request)
     {
-        $query = Property::with(['media', 'creator', 'verification', 'directSources', 'landDetail', 'flatDetail', 'commercialDetail', 'shareDetail']);
+        $query = Property::with(['media', 'creator', 'verification', 'directSources', 'landDetail', 'flatDetail', 'commercialDetail', 'shareDetail', 'buildingDetail']);
 
         $filterCode     = trim((string) ($request->input('property_code') ?: $request->input('search', '')));
         $filterKeyword  = trim((string) $request->input('keyword', ''));
@@ -875,6 +877,27 @@ class PropertyController extends Controller
                     'share_price'      => (float) ($request->input('price_per_share') ?? $request->input('asking_price') ?? $share?->share_price ?? 0),
                     'land_size_katha'  => (float) ($request->input('share_land_size_katha') ?? $request->input('size') ?? $share?->land_size_katha ?? 0),
                     'building_stories' => $request->input('building_stories', $share?->building_stories),
+                ]
+            );
+        } elseif ($property->type === 'building') {
+            $bld = $property->buildingDetail;
+            PropertyBuildingDetail::updateOrCreate(
+                ['property_id' => $property->id],
+                [
+                    'building_sub_type'       => $request->input('building_sub_type', $bld?->building_sub_type ?? 'residential_building'),
+                    'land_size_katha'         => (float) ($request->input('land_size_katha') ?? $request->input('size') ?? $bld?->land_size_katha ?? 0),
+                    'total_floors'            => (int) ($request->input('total_floors') ?? $bld?->total_floors ?? 1),
+                    'foundation_floors'       => (int) ($request->input('foundation_floors') ?? $bld?->foundation_floors ?? 1),
+                    'units_per_floor'         => $request->filled('units_per_floor') ? (int) $request->input('units_per_floor') : $bld?->units_per_floor,
+                    'total_units'             => $request->filled('total_units') ? (int) $request->input('total_units') : $bld?->total_units,
+                    'total_built_area_sqft'   => $request->filled('total_built_area_sqft') ? (float) $request->input('total_built_area_sqft') : $bld?->total_built_area_sqft,
+                    'price_total'             => (float) ($request->input('asking_price') ?? $bld?->price_total ?? 0),
+                    'monthly_rental_income'   => $request->filled('monthly_rental_income') ? (float) $request->input('monthly_rental_income') : $bld?->monthly_rental_income,
+                    'parking_capacity'        => (int) ($request->input('parking_capacity') ?? $bld?->parking_capacity ?? 0),
+                    'has_lift'                => $request->boolean('has_lift', $bld?->has_lift ?? false),
+                    'has_generator'           => $request->boolean('has_generator', $bld?->has_generator ?? false),
+                    'has_substation'          => $request->boolean('has_substation', $bld?->has_substation ?? false),
+                    'gas_connection_type'     => $request->input('gas_connection_type', $bld?->gas_connection_type ?? 'none'),
                 ]
             );
         }

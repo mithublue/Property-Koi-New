@@ -88,6 +88,11 @@ class Property extends Model
         return $this->hasOne(PropertyCommercialDetail::class);
     }
 
+    public function building(): HasOne
+    {
+        return $this->hasOne(PropertyBuildingDetail::class);
+    }
+
     public function landDetail(): HasOne
     {
         return $this->hasOne(PropertyLandDetail::class);
@@ -106,6 +111,11 @@ class Property extends Model
     public function commercialDetail(): HasOne
     {
         return $this->hasOne(PropertyCommercialDetail::class);
+    }
+
+    public function buildingDetail(): HasOne
+    {
+        return $this->hasOne(PropertyBuildingDetail::class);
     }
 
     public function directSources(): HasMany
@@ -141,6 +151,7 @@ class Property extends Model
             'flat' => 'ফ্ল্যাট',
             'land_share' => 'ল্যান্ড শেয়ার',
             'commercial' => 'দোকান/কমার্শিয়াল',
+            'building' => 'বাড়ি / ভবন',
             default => 'প্রপার্টি',
         };
     }
@@ -168,6 +179,8 @@ class Property extends Model
             return (float) $this->share->share_price;
         } elseif ($this->type === 'commercial' && $this->commercial) {
             return (float) $this->commercial->price_total;
+        } elseif ($this->type === 'building' && $this->building) {
+            return (float) $this->building->price_total;
         }
         return 0.0;
     }
@@ -205,6 +218,8 @@ class Property extends Model
             return (float) $this->commercialDetail->size_sqft;
         } elseif ($this->type === 'land_share' && $this->shareDetail) {
             return (float) $this->shareDetail->land_size_katha;
+        } elseif ($this->type === 'building' && $this->buildingDetail) {
+            return (float) $this->buildingDetail->land_size_katha;
         }
         return null;
     }

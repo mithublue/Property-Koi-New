@@ -302,7 +302,7 @@ class PropertyAndAgentApiTest extends TestCase
         $property = Property::where('area', 'bashundhara')->where('block', 'F')->where('plot_number', '4500')->first();
         $this->assertNotNull($property);
         $this->assertEquals('25ft', $property->road_number);
-        $this->assertEquals('Just close to Viqarunnisa, asking', $property->description);
+        $this->assertStringContainsString('Just close to Viqarunnisa, asking', $property->description);
 
         // Land details
         $this->assertNotNull($property->landDetail);

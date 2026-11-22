@@ -510,7 +510,7 @@
         </a>
         <span>/</span>
         <a href="{{ route('properties.index') }}?type={{ $p->type }}" class="hover:text-emerald-600 transition font-medium">
-            {{ $p->type === 'land' ? 'জমি' : ($p->type === 'land_share' ? 'ল্যান্ড শেয়ার' : ($p->type === 'commercial' ? 'দোকান / কমার্শিয়াল' : 'ফ্ল্যাট')) }}
+            {{ $p->type === 'land' ? 'জমি' : ($p->type === 'land_share' ? 'ল্যান্ড শেয়ার' : ($p->type === 'commercial' ? 'দোকান / কমার্শিয়াল' : ($p->type === 'building' ? 'বাড়ি / সম্পূর্ণ ভবন' : 'ফ্ল্যাট'))) }}
         </a>
         @if(!empty($p->block) && $p->isAddressVisible('block'))
             <span>/</span>
@@ -524,8 +524,8 @@
     <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-xs flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div>
             <div class="flex flex-wrap items-center gap-2 mb-2 text-xs font-semibold text-slate-500">
-                <span class="px-2.5 py-1 text-xs font-bold rounded-lg text-white {{ $p->type === 'land' ? 'bg-emerald-600' : ($p->type === 'land_share' ? 'bg-purple-600' : ($p->type === 'commercial' ? 'bg-indigo-600' : 'bg-teal-700')) }}">
-                    {{ $p->type === 'land' ? '🏞️ জমি' : ($p->type === 'land_share' ? '🏢🤝 ল্যান্ড শেয়ার প্রজেক্ট' : ($p->type === 'commercial' ? '🏬 দোকান / কমার্শিয়াল স্পেস' : '🏢 ফ্ল্যাট')) }}
+                <span class="px-2.5 py-1 text-xs font-bold rounded-lg text-white {{ $p->type === 'land' ? 'bg-emerald-600' : ($p->type === 'land_share' ? 'bg-purple-600' : ($p->type === 'commercial' ? 'bg-indigo-600' : ($p->type === 'building' ? 'bg-amber-600' : 'bg-teal-700'))) }}">
+                    {{ $p->type === 'land' ? '🏞️ জমি' : ($p->type === 'land_share' ? '🏢🤝 ল্যান্ড শেয়ার প্রজেক্ট' : ($p->type === 'commercial' ? '🏬 দোকান / কমার্শিয়াল স্পেস' : ($p->type === 'building' ? '🏡 বাড়ি / সম্পূর্ণ ভবন' : '🏢 ফ্ল্যাট'))) }}
                 </span>
                 <span class="font-mono text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-300 font-bold">{{ $p->property_code }}</span>
                 <span>•</span>
@@ -611,6 +611,12 @@
                     @if(!empty($p->share->land_size_katha))
                         <span>•</span>
                         <span class="text-slate-700 font-bold">{{ $p->share->land_size_katha }} কাঠা জমি</span>
+                    @endif
+                @elseif($p->type === 'building' && !empty($p->building))
+                    <span class="font-bold text-amber-700">{{ $p->building->total_floors }} তলা ভবন • {{ $p->building->land_size_katha }} কাঠা জমি</span>
+                    @if(!empty($p->building->monthly_rental_income))
+                        <span>•</span>
+                        <span class="text-slate-700 font-bold">ভাড়া আয়: ৳{{ number_format((float)$p->building->monthly_rental_income, 0, '.', ',') }}/মাস</span>
                     @endif
                 @endif
                 @if((float)$p->raw_price > 0)
@@ -942,6 +948,80 @@
                         <div class="p-3 rounded-2xl bg-slate-50/80 border border-slate-100">
                             <span class="text-xs text-slate-400 block font-medium">বর্তমান অগ্রগতি</span>
                             <span class="font-bold text-slate-800">{{ $p->share->current_progress }}</span>
+                        </div>
+                        @endif
+                    @endif
+
+                    <!-- 5. BUILDING & HOUSE SPECIFICS -->
+                    @if($p->type === 'building' && $p->building)
+                        <div class="p-3 rounded-2xl bg-amber-50/50 border border-amber-100">
+                            <span class="text-xs text-amber-700 block font-medium">বাড়ির ধরন</span>
+                            <span class="font-extrabold text-slate-900">{{ $p->building->building_sub_type_label }}</span>
+                        </div>
+                        <div class="p-3 rounded-2xl bg-amber-50/50 border border-amber-100">
+                            <span class="text-xs text-amber-700 block font-medium">জমির পরিমাণ</span>
+                            <span class="font-extrabold text-slate-900">{{ \App\Models\Property::toBnNumber($p->building->land_size_katha) }} কাঠা</span>
+                        </div>
+                        <div class="p-3 rounded-2xl bg-amber-50/50 border border-amber-100">
+                            <span class="text-xs text-amber-700 block font-medium">তলা ও ফাউন্ডেশন</span>
+                            <span class="font-extrabold text-slate-900">
+                                {{ \App\Models\Property::toBnNumber($p->building->total_floors) }} তলা বর্তমান
+                                @if($p->building->foundation_floors && $p->building->foundation_floors > $p->building->total_floors)
+                                    ({{ \App\Models\Property::toBnNumber($p->building->foundation_floors) }} তলা ফাউন্ডেশন)
+                                @endif
+                            </span>
+                        </div>
+                        @if(!empty($p->building->total_units))
+                        <div class="p-3 rounded-2xl bg-slate-50/80 border border-slate-100">
+                            <span class="text-xs text-slate-400 block font-medium">ইউনিট সংখ্যা</span>
+                            <span class="font-bold text-slate-800">মোট {{ \App\Models\Property::toBnNumber($p->building->total_units) }}টি ইউনিট@if(!empty($p->building->units_per_floor)) (প্রতি তলায় {{ \App\Models\Property::toBnNumber($p->building->units_per_floor) }}টি)@endif</span>
+                        </div>
+                        @endif
+                        @if(!empty($p->building->monthly_rental_income))
+                        <div class="p-3 rounded-2xl bg-emerald-50/80 border border-emerald-100">
+                            <span class="text-xs text-emerald-700 block font-medium">মাসিক ভাড়া আয় (Rental Income)</span>
+                            <span class="font-extrabold text-emerald-800">৳{{ \App\Models\Property::toBnNumber(number_format((float)$p->building->monthly_rental_income, 0, '.', ',')) }} / মাস</span>
+                        </div>
+                        @endif
+                        @if(!empty($p->building->total_built_area_sqft))
+                        <div class="p-3 rounded-2xl bg-slate-50/80 border border-slate-100">
+                            <span class="text-xs text-slate-400 block font-medium">মোট নির্মিত এরিয়া</span>
+                            <span class="font-bold text-slate-800">{{ \App\Models\Property::toBnNumber(number_format((float)$p->building->total_built_area_sqft)) }} বর্গফুট</span>
+                        </div>
+                        @endif
+                        @if((int)$p->building->parking_capacity > 0)
+                        <div class="p-3 rounded-2xl bg-slate-50/80 border border-slate-100">
+                            <span class="text-xs text-slate-400 block font-medium">গাড়ি পার্কিং সুবিধা</span>
+                            <span class="font-bold text-slate-800">🚗 {{ \App\Models\Property::toBnNumber($p->building->parking_capacity) }}টি গাড়ির স্পেস</span>
+                        </div>
+                        @endif
+                        <div class="p-3 rounded-2xl bg-slate-50/80 border border-slate-100">
+                            <span class="text-xs text-slate-400 block font-medium">ইউটিলিটি ও গ্যাস সংযোগ</span>
+                            <span class="font-bold text-slate-800">
+                                🔥 {{ $p->building->gas_type_label }} • ⚡ {{ $p->building->electricity_type_label }}
+                            </span>
+                        </div>
+                        @if($p->building->occupancy_status)
+                        <div class="p-3 rounded-2xl bg-slate-50/80 border border-slate-100">
+                            <span class="text-xs text-slate-400 block font-medium">ভাড়াটিয়া অবস্থা</span>
+                            <span class="font-bold text-slate-800">{{ $p->building->occupancy_status_label }}</span>
+                        </div>
+                        @endif
+                        <div class="p-3 rounded-2xl bg-slate-50/80 border border-slate-100">
+                            <span class="text-xs text-slate-400 block font-medium">ভবনের সুবিধাসমূহ</span>
+                            <span class="font-bold text-slate-800 text-xs">
+                                {{ $p->building->has_lift ? '🛗 লিফট ' : '' }}
+                                {{ $p->building->has_generator ? '• ⚡ জেনারেটর ' : '' }}
+                                {{ $p->building->has_substation ? '• 🏢 নিজস্ব সাব-স্টেশন ' : '' }}
+                                {{ $p->building->has_cctv ? '• 📹 সিসিটিভি ' : '' }}
+                                {{ $p->building->has_guard_room ? '• 👮 গার্ড রুম ' : '' }}
+                                {{ $p->building->has_rooftop_garden ? '• 🌿 ছাদ বাগান' : '' }}
+                            </span>
+                        </div>
+                        @if($p->building->approved_plan)
+                        <div class="p-3 rounded-2xl bg-emerald-50/60 border border-emerald-100">
+                            <span class="text-xs text-emerald-700 block font-medium">নকশা অনুমোদন</span>
+                            <span class="font-bold text-emerald-800">✓ অনুমোদিত নকশা ({{ $p->building->plan_approval_authority ?: 'রাজউক' }})</span>
                         </div>
                         @endif
                     @endif

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Property;
+use App\Models\PropertyBuildingDetail;
 use App\Models\PropertyCommercialDetail;
 use App\Models\PropertyDirectSource;
 use App\Models\PropertyFlatDetail;
@@ -51,9 +52,14 @@ class PropertyController extends Controller
         return $this->buildListingView($request, 'land_share');
     }
 
+    public function buildingSearch(Request $request): View
+    {
+        return $this->buildListingView($request, 'building');
+    }
+
     private function buildListingView(Request $request, string $forcedType = 'all'): View
     {
-        $query = Property::with(['land', 'flat', 'share', 'commercial', 'directSources', 'verification', 'media'])
+        $query = Property::with(['land', 'flat', 'share', 'commercial', 'building', 'directSources', 'verification', 'media'])
             ->where('status', 'live');
 
         $type = $forcedType !== 'all' ? $forcedType : $request->query('type');
@@ -129,6 +135,7 @@ class PropertyController extends Controller
                 $q->whereHas('land', fn ($sq) => $sq->where('price_total', '>=', $priceMin))
                   ->orWhereHas('flat', fn ($sq) => $sq->where('price_total', '>=', $priceMin))
                   ->orWhereHas('commercial', fn ($sq) => $sq->where('price_total', '>=', $priceMin))
+                  ->orWhereHas('building', fn ($sq) => $sq->where('price_total', '>=', $priceMin))
                   ->orWhereHas('share', fn ($sq) => $sq->where('share_price', '>=', $priceMin))
                   ->orWhereHas('directSources', fn ($sq) => $sq->where('asking_price', '>=', $priceMin));
             });
@@ -139,6 +146,7 @@ class PropertyController extends Controller
                 $q->whereHas('land', fn ($sq) => $sq->where('price_total', '>', 0)->where('price_total', '<=', $priceMax))
                   ->orWhereHas('flat', fn ($sq) => $sq->where('price_total', '>', 0)->where('price_total', '<=', $priceMax))
                   ->orWhereHas('commercial', fn ($sq) => $sq->where('price_total', '>', 0)->where('price_total', '<=', $priceMax))
+                  ->orWhereHas('building', fn ($sq) => $sq->where('price_total', '>', 0)->where('price_total', '<=', $priceMax))
                   ->orWhereHas('share', fn ($sq) => $sq->where('share_price', '>', 0)->where('share_price', '<=', $priceMax))
                   ->orWhereHas('directSources', fn ($sq) => $sq->where('asking_price', '>', 0)->where('asking_price', '<=', $priceMax));
             });
@@ -274,6 +282,49 @@ class PropertyController extends Controller
             }
         }
 
+        // Category-specific filters: BUILDING & HOUSE
+        if ($type === 'building') {
+            if ($request->filled('building_sub_type') && $request->building_sub_type !== 'all') {
+                $query->whereHas('building', fn ($q) => $q->where('building_sub_type', $request->building_sub_type));
+            }
+            if ($request->filled('floors_min')) {
+                $query->whereHas('building', fn ($q) => $q->where('total_floors', '>=', (int) $request->floors_min));
+            }
+            if ($request->filled('floors_max')) {
+                $query->whereHas('building', fn ($q) => $q->where('total_floors', '<=', (int) $request->floors_max));
+            }
+            if ($request->filled('katha_min')) {
+                $query->whereHas('building', fn ($q) => $q->where('land_size_katha', '>=', (float) $request->katha_min));
+            }
+            if ($request->filled('katha_max')) {
+                $query->whereHas('building', fn ($q) => $q->where('land_size_katha', '<=', (float) $request->katha_max));
+            }
+            if ($request->filled('units_min')) {
+                $query->whereHas('building', fn ($q) => $q->where('total_units', '>=', (int) $request->units_min));
+            }
+            if ($request->filled('monthly_rent_min')) {
+                $query->whereHas('building', fn ($q) => $q->where('monthly_rental_income', '>=', (float) $request->monthly_rent_min));
+            }
+            if ($request->boolean('has_lift')) {
+                $query->whereHas('building', fn ($q) => $q->where('has_lift', true));
+            }
+            if ($request->boolean('has_gas')) {
+                $query->whereHas('building', fn ($q) => $q->whereIn('gas_connection_type', ['titas_pipeline', 'cylinder']));
+            }
+            if ($request->boolean('has_generator')) {
+                $query->whereHas('building', fn ($q) => $q->where('has_generator', true));
+            }
+            if ($request->boolean('has_substation')) {
+                $query->whereHas('building', fn ($q) => $q->where('has_substation', true));
+            }
+            if ($request->boolean('parking_available')) {
+                $query->whereHas('building', fn ($q) => $q->where('parking_capacity', '>', 0));
+            }
+            if ($request->boolean('is_corner')) {
+                $query->whereHas('building', fn ($q) => $q->where('is_corner', true));
+            }
+        }
+
         // Sorting
         $sort = $request->query('sort', 'latest');
         if ($sort === 'popular') {
@@ -291,6 +342,7 @@ class PropertyController extends Controller
             'flat' => 'flat-search',
             'commercial' => 'commercial-search',
             'land_share' => 'land-share-search',
+            'building' => 'building-search',
             default => 'all-search',
         };
 
@@ -311,6 +363,7 @@ class PropertyController extends Controller
             'flat',
             'share',
             'commercial',
+            'building',
             'directSources.sourceUser.agentProfile',
             'verification',
             'media',
@@ -355,7 +408,7 @@ class PropertyController extends Controller
             ->get();
 
         // Fetch similar properties in same block/area
-        $similar = Property::with(['land', 'flat', 'share', 'commercial', 'media'])
+        $similar = Property::with(['land', 'flat', 'share', 'commercial', 'building', 'media'])
             ->where('id', '!=', $property->id)
             ->where('status', 'live')
             ->where('type', $property->type)
@@ -410,7 +463,7 @@ class PropertyController extends Controller
     public function store(Request $request)
     {
         $type = $request->input('property_type', $request->input('type', 'land'));
-        if (!in_array($type, ['land', 'flat', 'land_share', 'commercial'])) {
+        if (!in_array($type, ['land', 'flat', 'land_share', 'commercial', 'building'])) {
             $type = 'land';
         }
 
@@ -653,6 +706,42 @@ class PropertyController extends Controller
                 'current_progress'        => $request->input('current_progress'),
                 'location_highlights'     => $request->input('location_highlights'),
             ]);
+        } elseif ($property->type === 'building') {
+            $landSize = (float) ($request->input('land_size_katha') ?: ($request->input('size') ?: 0));
+            $totalFloors = (int) ($request->input('total_floors') ?: 1);
+            $unitsPerFloor = $request->filled('units_per_floor') ? (int) $request->input('units_per_floor') : null;
+            $totalUnits = $request->filled('total_units') ? (int) $request->input('total_units') : ($unitsPerFloor ? $totalFloors * $unitsPerFloor : null);
+
+            PropertyBuildingDetail::create([
+                'property_id'             => $property->id,
+                'building_sub_type'       => $request->input('building_sub_type') ?: 'residential_building',
+                'land_size_katha'         => $landSize,
+                'total_floors'            => $totalFloors,
+                'foundation_floors'       => $request->filled('foundation_floors') ? (int) $request->input('foundation_floors') : $totalFloors,
+                'units_per_floor'         => $unitsPerFloor,
+                'total_units'             => $totalUnits,
+                'total_built_area_sqft'   => $request->filled('total_built_area_sqft') ? (float) $request->input('total_built_area_sqft') : null,
+                'price_total'             => $askingPrice,
+                'monthly_rental_income'   => $request->filled('monthly_rental_income') ? (float) $request->input('monthly_rental_income') : null,
+                'building_age_years'      => $request->filled('building_age_years') ? (int) $request->input('building_age_years') : null,
+                'handover_year'           => $request->filled('handover_year') ? (int) $request->input('handover_year') : null,
+                'completion_status'       => $request->input('completion_status') ?: 'ready',
+                'parking_capacity'        => (int) ($request->input('parking_capacity') ?: 0),
+                'road_width_ft'           => $request->filled('road_width_ft') ? (float) $request->input('road_width_ft') : null,
+                'approved_plan'           => $request->boolean('approved_plan', true),
+                'plan_approval_authority' => $request->input('plan_approval_authority', 'RAJUK'),
+                'gas_connection_type'     => $request->input('gas_connection_type', 'none'),
+                'electricity_type'        => $request->input('electricity_type', 'three_phase'),
+                'has_lift'                => $request->boolean('has_lift'),
+                'has_generator'           => $request->boolean('has_generator'),
+                'has_substation'          => $request->boolean('has_substation'),
+                'has_cctv'                => $request->boolean('has_cctv'),
+                'has_guard_room'          => $request->boolean('has_guard_room'),
+                'has_rooftop_garden'      => $request->boolean('has_rooftop_garden'),
+                'is_corner'               => $request->boolean('is_corner'),
+                'facing'                  => $request->input('facing'),
+                'occupancy_status'        => $request->input('occupancy_status', 'fully_rented'),
+            ]);
         }
 
         // Direct source record
@@ -787,7 +876,7 @@ class PropertyController extends Controller
 
     public function edit(Property $property, Request $request): View
     {
-        $property->load(['media', 'verification', 'directSources', 'landDetail', 'flatDetail', 'commercialDetail', 'shareDetail', 'creator']);
+        $property->load(['media', 'verification', 'directSources', 'landDetail', 'flatDetail', 'commercialDetail', 'shareDetail', 'buildingDetail', 'creator']);
         $seo = SeoService::getOgMeta('sell-property');
         $seo['title'] = 'প্রপার্টি এডিট - ' . $property->property_code . ' | PropertyKoi';
 
@@ -835,7 +924,7 @@ class PropertyController extends Controller
         }
 
         $type = $request->input('property_type', $request->input('type', $property->type));
-        if (!in_array($type, ['land', 'flat', 'land_share', 'commercial'])) {
+        if (!in_array($type, ['land', 'flat', 'land_share', 'commercial', 'building'])) {
             $type = $property->type;
         }
 
@@ -1018,6 +1107,44 @@ class PropertyController extends Controller
                     'has_generator'     => $request->boolean('has_generator'),
                     'has_substation'    => $request->boolean('has_substation'),
                     'has_gas'           => $request->boolean('has_gas'),
+                ]
+            );
+        } elseif ($property->type === 'building') {
+            $landSize = (float) ($request->input('land_size_katha') ?: ($request->input('size') ?: 0));
+            $totalFloors = (int) ($request->input('total_floors') ?: 1);
+            $unitsPerFloor = $request->filled('units_per_floor') ? (int) $request->input('units_per_floor') : null;
+            $totalUnits = $request->filled('total_units') ? (int) $request->input('total_units') : ($unitsPerFloor ? $totalFloors * $unitsPerFloor : null);
+
+            PropertyBuildingDetail::updateOrCreate(
+                ['property_id' => $property->id],
+                [
+                    'building_sub_type'       => $request->input('building_sub_type') ?: 'residential_building',
+                    'land_size_katha'         => $landSize,
+                    'total_floors'            => $totalFloors,
+                    'foundation_floors'       => $request->filled('foundation_floors') ? (int) $request->input('foundation_floors') : $totalFloors,
+                    'units_per_floor'         => $unitsPerFloor,
+                    'total_units'             => $totalUnits,
+                    'total_built_area_sqft'   => $request->filled('total_built_area_sqft') ? (float) $request->input('total_built_area_sqft') : null,
+                    'price_total'             => $askingPrice,
+                    'monthly_rental_income'   => $request->filled('monthly_rental_income') ? (float) $request->input('monthly_rental_income') : null,
+                    'building_age_years'      => $request->filled('building_age_years') ? (int) $request->input('building_age_years') : null,
+                    'handover_year'           => $request->filled('handover_year') ? (int) $request->input('handover_year') : null,
+                    'completion_status'       => $request->input('completion_status') ?: 'ready',
+                    'parking_capacity'        => (int) ($request->input('parking_capacity') ?: 0),
+                    'road_width_ft'           => $request->filled('road_width_ft') ? (float) $request->input('road_width_ft') : null,
+                    'approved_plan'           => $request->boolean('approved_plan', true),
+                    'plan_approval_authority' => $request->input('plan_approval_authority', 'RAJUK'),
+                    'gas_connection_type'     => $request->input('gas_connection_type', 'none'),
+                    'electricity_type'        => $request->input('electricity_type', 'three_phase'),
+                    'has_lift'                => $request->boolean('has_lift'),
+                    'has_generator'           => $request->boolean('has_generator'),
+                    'has_substation'          => $request->boolean('has_substation'),
+                    'has_cctv'                => $request->boolean('has_cctv'),
+                    'has_guard_room'          => $request->boolean('has_guard_room'),
+                    'has_rooftop_garden'      => $request->boolean('has_rooftop_garden'),
+                    'is_corner'               => $request->boolean('is_corner'),
+                    'facing'                  => $request->input('facing'),
+                    'occupancy_status'        => $request->input('occupancy_status', 'fully_rented'),
                 ]
             );
         }

@@ -271,12 +271,21 @@
                     </a>
 
                     <!-- Property Submenu Dropdown -->
-                    <div class="relative" x-data="{ open: false }" @click.outside="open = false" @mouseleave="open = false">
+                    <div class="relative"
+                         x-data="{ 
+                             open: false, 
+                             timeout: null,
+                             show() { clearTimeout(this.timeout); this.open = true; },
+                             hide() { this.timeout = setTimeout(() => { this.open = false; }, 200); }
+                         }"
+                         @click.outside="open = false"
+                         @mouseenter="show()"
+                         @mouseleave="hide()">
                         <button type="button"
                                 @click="open = !open"
-                                @mouseover="open = true"
+                                @mouseenter="show()"
                                 class="px-3.5 py-2 rounded-xl text-sm font-semibold transition-all flex items-center gap-1.5 cursor-pointer {{ request()->routeIs('properties.*') ? 'bg-emerald-50 text-emerald-600 font-bold' : 'text-slate-700 hover:text-emerald-600 hover:bg-slate-100' }}"
-                                aria-expanded="open"
+                                :aria-expanded="open.toString()"
                                 aria-haspopup="true">
                             <span>প্রপার্টি</span>
                             <svg class="w-4 h-4 transition-transform duration-200" :class="open ? 'rotate-180 text-emerald-600' : 'text-slate-400'" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
@@ -289,9 +298,12 @@
                              x-transition:leave="transition ease-in duration-100"
                              x-transition:leave-start="opacity-100 translate-y-0 scale-100"
                              x-transition:leave-end="opacity-0 translate-y-1 scale-95"
-                             class="absolute left-0 mt-1.5 w-60 bg-white rounded-2xl shadow-xl border border-slate-200/90 py-1.5 z-50 divide-y divide-slate-100"
+                             @mouseenter="show()"
+                             @mouseleave="hide()"
+                             class="absolute left-0 top-full pt-1.5 w-60 z-50"
                              style="display: none;">
-                            <div class="p-1 space-y-0.5">
+                            <div class="bg-white rounded-2xl shadow-xl border border-slate-200/90 py-1.5 divide-y divide-slate-100 relative before:content-[''] before:absolute before:-top-3 before:left-0 before:right-0 before:h-3">
+                                <div class="p-1 space-y-0.5">
                                 <a href="{{ route('properties.land') }}"
                                    class="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition {{ request()->routeIs('properties.land') ? 'bg-emerald-50 text-emerald-700 font-bold' : 'text-slate-700 hover:bg-slate-50 hover:text-emerald-600' }}">
                                     <span class="text-base">🏡</span>
@@ -342,11 +354,12 @@
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <a href="{{ route('guides.index') }}"
-                       class="px-3 py-2 rounded-xl text-sm font-semibold transition-all {{ request()->routeIs('guides.*') ? 'bg-emerald-50 text-emerald-600 font-bold' : 'text-slate-700 hover:text-emerald-600 hover:bg-slate-100' }}">
-                        গাইডস
-                    </a>
+                <a href="{{ route('guides.index') }}"
+                   class="px-3 py-2 rounded-xl text-sm font-semibold transition-all {{ request()->routeIs('guides.*') ? 'bg-emerald-50 text-emerald-600 font-bold' : 'text-slate-700 hover:text-emerald-600 hover:bg-slate-100' }}">
+                    গাইডস
+                </a>
                     <a href="{{ route('calculators.index') }}"
                        class="px-3 py-2 rounded-xl text-sm font-semibold transition-all {{ request()->routeIs('calculators.*') ? 'bg-emerald-50 text-emerald-600 font-bold' : 'text-slate-700 hover:text-emerald-600 hover:bg-slate-100' }}">
                         ক্যালকুলেটর
